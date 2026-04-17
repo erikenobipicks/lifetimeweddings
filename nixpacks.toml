@@ -1,0 +1,18 @@
+# Override Nixpacks default Node.js detection so we:
+# 1) pin Node 22 explicitly (default is 18, which is too old for our deps)
+# 2) use `npm install` instead of the default `npm ci` (tolerant of minor
+#    lockfile drift without failing the build)
+
+providers = ["node"]
+
+[phases.setup]
+nixPkgs = ["nodejs_22", "npm-10_x"]
+
+[phases.install]
+cmds = ["npm install --legacy-peer-deps --no-audit --no-fund"]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+cmd = "node ./dist/server/entry.mjs"
