@@ -27,7 +27,7 @@ pnpm-debug.log*
 .idea/
 
 # SQLite dev database (runtime data, not source)
-data/
+/data/
 
 # Generated photo manifest — can be regenerated but commit it to deploy real photos
 # src/data/photos.generated.ts  ← commit this so Railway sees the manifest
