@@ -1,0 +1,27 @@
+---
+import Hero from './sections/Hero.astro';
+import About from './sections/About.astro';
+import Team from './sections/Team.astro';
+import Portfolio from './sections/Portfolio.astro';
+import Services from './sections/Services.astro';
+import VideoStory from './sections/VideoStory.astro';
+import Testimonials from './sections/Testimonials.astro';
+import InstagramFeed from './sections/InstagramFeed.astro';
+import YouTube from './sections/YouTube.astro';
+import ContactForm from './sections/ContactForm.astro';
+import type { Lang } from '~/i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+---
+
+<Hero lang={lang} />
+<About lang={lang} />
+<Team lang={lang} />
+<Portfolio lang={lang} />
+<Services lang={lang} />
+<VideoStory lang={lang} />
+<Testimonials lang={lang} />
+<InstagramFeed lang={lang} />
+<YouTube lang={lang} />
+<ContactForm lang={lang} />

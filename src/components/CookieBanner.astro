@@ -1,0 +1,61 @@
+---
+import { useTranslations, localePath, type Lang } from '~/i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<div
+  id="cookie-banner"
+  class="fixed inset-x-3 bottom-3 md:inset-x-auto md:right-5 md:bottom-5 md:max-w-sm z-50 hidden bg-ink text-white shadow-2xl p-5 border-t-4 border-gold"
+  role="dialog"
+  aria-label={t('cookies.title')}
+  aria-describedby="cookie-banner-desc"
+>
+  <h2 class="font-display text-lg font-bold mb-2">{t('cookies.title')}</h2>
+  <p id="cookie-banner-desc" class="text-sm text-white/80 leading-relaxed mb-4">{t('cookies.desc')}</p>
+  <div class="flex flex-wrap gap-2">
+    <button
+      type="button"
+      data-cookie-action="accept"
+      class="flex-1 bg-gold text-white text-xs font-bold tracking-[0.15em] uppercase px-4 py-2.5 hover:brightness-110 transition"
+    >
+      {t('cookies.accept')}
+    </button>
+    <button
+      type="button"
+      data-cookie-action="reject"
+      class="flex-1 border border-white/30 text-xs font-bold tracking-[0.15em] uppercase px-4 py-2.5 hover:bg-white/10 transition"
+    >
+      {t('cookies.reject')}
+    </button>
+  </div>
+  <a
+    href={localePath(lang, '/cookies')}
+    class="block mt-3 text-xs text-white/70 underline hover:text-white text-center"
+  >
+    {t('cookies.settings')}
+  </a>
+</div>
+
+<script>
+  const KEY = 'lifetime.cookies.v1';
+  const banner = document.getElementById('cookie-banner');
+  if (banner) {
+    const current = localStorage.getItem(KEY);
+    if (!current) banner.classList.remove('hidden');
+
+    banner.querySelectorAll<HTMLButtonElement>('[data-cookie-action]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const action = btn.dataset.cookieAction!;
+        localStorage.setItem(
+          KEY,
+          JSON.stringify({ choice: action, at: new Date().toISOString() }),
+        );
+        banner.classList.add('hidden');
+        // Future: if action === 'accept', load analytics here.
+      });
+    });
+  }
+</script>

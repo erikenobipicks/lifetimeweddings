@@ -1,0 +1,15 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import DossierPage from '~/components/DossierPage.astro';
+
+const lang = 'ca' as const;
+---
+
+<BaseLayout
+  lang={lang}
+  title="Packs i preus 2026 | Lifetime Weddings"
+  description="Packs de fotografia, vídeo i foto + vídeo de boda. Des de 1.290 € + IVA. Tarragona, Reus i arreu del món."
+  canonicalPath="/packs"
+>
+  <DossierPage lang={lang} />
+</BaseLayout>

@@ -1,0 +1,28 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Section from '~/components/Section.astro';
+import QuizForm from '~/components/QuizForm.astro';
+import { useTranslations } from '~/i18n/ui';
+
+const lang = 'es' as const;
+const t = useTranslations(lang);
+---
+
+<BaseLayout
+  lang={lang}
+  title="Presupuesto a medida | Lifetime Weddings"
+  description="Respondednos unas preguntas y os preparamos una propuesta personalizada para vuestra boda."
+  canonicalPath="/quiz"
+>
+  <Section bg="cream" class="pt-28 pb-6">
+    <div class="max-w-lg mx-auto text-center">
+      <img src="/logos/logo-circle-color.png" alt="" aria-hidden="true" class="w-16 h-16 mx-auto mb-5 object-contain" />
+      <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">{t('quiz.title')}</h1>
+      <p class="text-ink/75 leading-relaxed">{t('quiz.subtitle')}</p>
+    </div>
+  </Section>
+
+  <Section bg="cream" class="pt-4">
+    <QuizForm lang={lang} />
+  </Section>
+</BaseLayout>

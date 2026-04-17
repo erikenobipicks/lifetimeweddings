@@ -1,0 +1,31 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import LegalPage from '~/components/LegalPage.astro';
+import { SITE } from '~/data/site';
+
+const lang = 'ca' as const;
+---
+
+<BaseLayout
+  lang={lang}
+  title="Política de galetes | Lifetime Weddings"
+  description="Quines galetes fem servir a lifetime.photo i com gestionar-les."
+  canonicalPath="/cookies"
+>
+  <LegalPage lang={lang} title="Política de galetes">
+    <p>Una galeta (cookie) és un petit arxiu que es descarrega al teu dispositiu quan visites una web. Les galetes permeten que la web recordi informació sobre la teva visita.</p>
+
+    <h2>Galetes que utilitzem</h2>
+    <ul>
+      <li><strong>Tècniques o essencials</strong> — necessàries per al funcionament bàsic de la web (sessió, preferència d’idioma). No requereixen consentiment.</li>
+      <li><strong>Analítiques</strong> — permeten analitzar de forma anònima l’ús de la web per millorar-la. Requereixen consentiment.</li>
+      <li><strong>Socials / incrustades</strong> — alguns continguts (YouTube, Instagram) poden instal·lar galetes de tercers quan hi interaccionis.</li>
+    </ul>
+
+    <h2>Com gestionar les galetes</h2>
+    <p>Pots acceptar, rebutjar o personalitzar l’ús de galetes a través del banner que apareix la primera vegada que visites la web, així com esborrar-les en qualsevol moment des de la configuració del teu navegador.</p>
+
+    <h2>Més informació</h2>
+    <p>Per a més informació sobre el tractament de dades personals derivat de l’ús de galetes, consulta la nostra <a href="/ca/privacidad">política de privacitat</a>, o escriu-nos a <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.</p>
+  </LegalPage>
+</BaseLayout>

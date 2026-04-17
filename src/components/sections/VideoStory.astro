@@ -1,0 +1,39 @@
+---
+import Section from '../Section.astro';
+import { useTranslations, type Lang } from '~/i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<Section id="video-story">
+  <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+    <div class="relative overflow-hidden group">
+      <img
+        src="/photos/generic/006-lg.jpg"
+        alt="Love Story — sessió pre-boda"
+        class="w-full h-80 md:h-[460px] object-cover transition-transform duration-500 group-hover:scale-105"
+        loading="lazy"
+        decoding="async"
+      />
+      <button
+        type="button"
+        aria-label={t('video.title')}
+        class="absolute inset-0 flex items-center justify-center"
+      >
+        <span class="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center group-hover:bg-white transition-colors">
+          <svg viewBox="0 0 24 24" class="w-8 h-8 fill-ink ml-1" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        </span>
+      </button>
+    </div>
+
+    <div>
+      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('video.label')}</p>
+      <h2 class="font-display text-3xl md:text-4xl font-bold leading-tight mb-6">{t('video.title')}</h2>
+      <p class="text-ink/70 leading-relaxed mb-4">{t('video.p1')}</p>
+      <p class="text-ink/70 leading-relaxed mb-4">{t('video.p2')}</p>
+      <p class="font-medium text-ink">{t('video.cta')}</p>
+    </div>
+  </div>
+</Section>

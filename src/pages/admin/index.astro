@@ -1,0 +1,131 @@
+---
+import AdminLayout from '~/layouts/AdminLayout.astro';
+import { listQuotes, getQuoteStats } from '~/lib/quotes';
+
+const showArchived = Astro.url.searchParams.get('arxivats') === '1';
+const quotes = await listQuotes({ includeArchived: showArchived });
+const stats = await Promise.all(quotes.map((q) => getQuoteStats(q.id)));
+
+function fmt(iso: string | null): string {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleString('ca-ES', { timeZone: 'Europe/Madrid', dateStyle: 'short', timeStyle: 'short' });
+}
+
+function humanSecs(n: number): string {
+  if (n < 60) return `${n}s`;
+  const m = Math.floor(n / 60);
+  const s = n % 60;
+  return `${m}m${s ? ` ${s}s` : ''}`;
+}
+
+function tempLabel(stats: { views: number; totalTimeSeconds: number; maxScroll: number }): { icon: string; color: string } {
+  if (stats.views === 0) return { icon: '⚪', color: 'text-gray-500' };
+  if (stats.totalTimeSeconds >= 180 || stats.maxScroll >= 80) return { icon: '🔥', color: 'text-red-600' };
+  if (stats.totalTimeSeconds >= 30) return { icon: '🙂', color: 'text-amber-600' };
+  return { icon: '❄️', color: 'text-blue-500' };
+}
+
+const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
+---
+
+<AdminLayout title="Pressupostos">
+  <div class="flex items-center justify-between mb-4">
+    <h1 class="font-display text-3xl font-bold">Pressupostos</h1>
+    <a href="/admin/new" class="bg-ink text-white px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors">+ Nou pressupost</a>
+  </div>
+
+  <div class="flex flex-wrap items-center gap-3 mb-6">
+    <input
+      type="text"
+      id="search-input"
+      placeholder="Cercar per nom o email..."
+      class="flex-1 min-w-[200px] px-3 py-2 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none"
+    />
+    <a
+      href={showArchived ? '/admin' : '/admin?arxivats=1'}
+      class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold transition-colors"
+    >
+      {showArchived ? '✕ Ocultar arxivats' : '📦 Mostrar arxivats'}
+    </a>
+  </div>
+
+  {quotes.length === 0 ? (
+    <p class="text-ink/60 text-center py-16">Encara no hi ha cap pressupost. <a href="/admin/new" class="text-gold underline">Crea'n un</a>.</p>
+  ) : (
+    <div class="overflow-x-auto bg-white border border-black/10">
+      <table class="w-full text-sm" id="quotes-table">
+        <thead class="bg-cream text-[0.7rem] font-bold tracking-widest uppercase">
+          <tr>
+            <th class="text-left px-4 py-3">Estat</th>
+            <th class="text-left px-4 py-3">Parella</th>
+            <th class="text-left px-4 py-3">Enviat</th>
+            <th class="text-left px-4 py-3">1a obertura</th>
+            <th class="text-right px-4 py-3">Visites</th>
+            <th class="text-right px-4 py-3">Temps</th>
+            <th class="text-right px-4 py-3">Scroll</th>
+            <th class="text-right px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {quotes.map((q, i) => {
+            const s = stats[i];
+            const t = tempLabel(s);
+            return (
+              <tr class:list={['border-t border-black/5 hover:bg-cream/50', q.archived && 'opacity-50']} data-search={`${q.coupleName} ${q.coupleEmail ?? ''}`.toLowerCase()}>
+                <td class={`px-4 py-3 text-lg ${t.color}`}>{t.icon}</td>
+                <td class="px-4 py-3">
+                  <a href={`/admin/${q.id}`} class="font-bold hover:text-gold">{q.coupleName}</a>
+                  {q.coupleEmail && <div class="text-xs text-ink/60">{q.coupleEmail}</div>}
+                  {q.archived && <span class="text-[0.65rem] bg-ink/10 text-ink/50 px-1.5 py-0.5 ml-1">ARXIVAT</span>}
+                </td>
+                <td class="px-4 py-3 text-ink/70">{fmt(q.createdAt)}</td>
+                <td class="px-4 py-3 text-ink/70">{fmt(s.firstViewAt)}</td>
+                <td class="px-4 py-3 text-right font-bold">{s.views}</td>
+                <td class="px-4 py-3 text-right">{humanSecs(s.totalTimeSeconds)}</td>
+                <td class="px-4 py-3 text-right">{s.maxScroll}%</td>
+                <td class="px-4 py-3 text-right">
+                  <button
+                    type="button"
+                    data-copy={`${siteUrl}/p/${q.token}`}
+                    class="text-gold text-xs font-bold tracking-widest uppercase hover:underline"
+                    title="Copiar enllaç"
+                  >
+                    Copiar
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  )}
+</AdminLayout>
+
+<script>
+  // Copy links
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const text = btn.dataset.copy!;
+      try {
+        await navigator.clipboard.writeText(text);
+        const old = btn.textContent;
+        btn.textContent = '✓ Copiat';
+        setTimeout(() => (btn.textContent = old), 1500);
+      } catch {
+        prompt('Copia aquest enllaç:', text);
+      }
+    });
+  });
+
+  // Search filter
+  const input = document.getElementById('search-input') as HTMLInputElement;
+  const rows = document.querySelectorAll<HTMLTableRowElement>('#quotes-table tbody tr');
+  input?.addEventListener('input', () => {
+    const q = input.value.toLowerCase().trim();
+    rows.forEach((row) => {
+      const hay = row.dataset.search ?? '';
+      row.style.display = !q || hay.includes(q) ? '' : 'none';
+    });
+  });
+</script>

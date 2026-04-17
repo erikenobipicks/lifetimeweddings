@@ -1,0 +1,46 @@
+---
+import { languages, type Lang, localePath } from '~/i18n/ui';
+
+interface Props {
+  current: Lang;
+  /** Path WITHOUT locale prefix, e.g. '/' or '/contacto' */
+  path: string;
+}
+
+const { current, path } = Astro.props;
+const langs = Object.keys(languages) as Lang[];
+---
+
+<div class="relative group" data-language-switcher>
+  <button
+    type="button"
+    class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold transition-colors flex items-center gap-1"
+    aria-haspopup="true"
+    aria-expanded="false"
+  >
+    {current.toUpperCase()}
+    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+      <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  </button>
+  <ul
+    class="absolute right-0 mt-2 min-w-[120px] bg-white shadow-lg border border-black/5 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all z-50"
+    role="menu"
+  >
+    {langs.map((l) => (
+      <li role="none">
+        <a
+          role="menuitem"
+          href={localePath(l, path)}
+          hreflang={l}
+          class:list={[
+            'block px-4 py-2 text-xs tracking-widest uppercase font-bold transition-colors',
+            l === current ? 'text-gold bg-cream' : 'text-ink hover:bg-cream',
+          ]}
+        >
+          {languages[l]}
+        </a>
+      </li>
+    ))}
+  </ul>
+</div>

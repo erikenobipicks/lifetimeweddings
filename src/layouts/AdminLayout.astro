@@ -1,0 +1,41 @@
+---
+import '~/styles/global.css';
+
+interface Props { title: string }
+const { title } = Astro.props;
+const user = Astro.locals.user;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} · Lifetime Admin</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+  </head>
+  <body class="bg-cream text-ink font-sans antialiased min-h-screen">
+    <header class="bg-ink text-white">
+      <div class="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
+        <a href="/admin" class="font-display text-xl font-bold">
+          Lifetime <span class="text-gold">Admin</span>
+        </a>
+        {user && (
+          <nav class="flex items-center gap-4 text-xs font-bold tracking-widest uppercase">
+            <a href="/admin" class="hover:text-gold">Pressupostos</a>
+            <a href="/admin/leads" class="hover:text-gold">Leads</a>
+            <a href="/admin/new" class="hover:text-gold">+ Nou</a>
+            <form method="POST" action="/admin/logout" class="inline">
+              <button type="submit" class="text-white/70 hover:text-gold">Sortir ({user})</button>
+            </form>
+          </nav>
+        )}
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-10">
+      <slot />
+    </main>
+  </body>
+</html>

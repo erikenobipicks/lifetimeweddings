@@ -1,0 +1,38 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import LegalPage from '~/components/LegalPage.astro';
+import { SITE } from '~/data/site';
+
+const lang = 'ca' as const;
+---
+
+<BaseLayout
+  lang={lang}
+  title="Avís legal | Lifetime Weddings"
+  description="Informació legal de Lifetime Weddings, responsable del lloc web lifetime.photo."
+  canonicalPath="/legal"
+>
+  <LegalPage lang={lang} title="Avís legal">
+    <h2>1. Dades identificatives del responsable</h2>
+    <p>En compliment de la Llei 34/2002, d’11 de juliol, de Serveis de la Societat de la Informació i de Comerç Electrònic (LSSI-CE), s’informa:</p>
+    <ul>
+      <li><strong>Titular:</strong> Lifetime Weddings (Eric Blasco i Ferran Blasco)</li>
+      <li><strong>Domicili:</strong> {SITE.address.street}, {SITE.address.postalCode} {SITE.address.city} ({SITE.address.region})</li>
+      <li><strong>Correu:</strong> <a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
+      <li><strong>Telèfon:</strong> <a href={`tel:${SITE.phone}`}>{SITE.phoneDisplay}</a></li>
+      <li><strong>Web:</strong> <a href={SITE.url}>{SITE.url}</a></li>
+    </ul>
+
+    <h2>2. Objecte</h2>
+    <p>Aquest avís legal regula l’ús del lloc web {SITE.url} (en endavant, «la web»), titularitat de Lifetime Weddings. La navegació per la web atribueix la condició d’usuari i implica l’acceptació plena de les condicions aquí exposades.</p>
+
+    <h2>3. Propietat intel·lectual i industrial</h2>
+    <p>Tots els continguts de la web, incloent-hi textos, fotografies, vídeos, dissenys, logotips, icones, codi font i qualsevol altre material són propietat de Lifetime Weddings o dels seus legítims titulars i estan protegits per la normativa sobre propietat intel·lectual i industrial. Queda prohibida la seva reproducció, distribució, comunicació pública o transformació sense l’autorització expressa del titular.</p>
+
+    <h2>4. Responsabilitat</h2>
+    <p>Lifetime Weddings no es responsabilitza de les possibles interrupcions, errors o incidències tècniques que puguin produir-se durant l’accés a la web, ni del contingut de llocs de tercers enllaçats des d’aquesta.</p>
+
+    <h2>5. Legislació aplicable i jurisdicció</h2>
+    <p>Aquestes condicions es regeixen per la legislació espanyola. Per a la resolució de qualsevol controvèrsia derivada de l’ús de la web, les parts es sotmeten als jutjats i tribunals de Tarragona.</p>
+  </LegalPage>
+</BaseLayout>

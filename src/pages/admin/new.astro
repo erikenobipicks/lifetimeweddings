@@ -1,0 +1,147 @@
+---
+import AdminLayout from '~/layouts/AdminLayout.astro';
+import { createQuote } from '~/lib/quotes';
+import { PACKS } from '~/data/packs';
+
+let error: string | null = null;
+let createdToken: string | null = null;
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const coupleName = String(form.get('couple_name') ?? '').trim();
+  const coupleEmail = String(form.get('couple_email') ?? '').trim();
+  const packIds = form.getAll('packs').map(String);
+  const notes = String(form.get('notes') ?? '').trim();
+  const password = String(form.get('password') ?? '').trim();
+  const expiresAt = String(form.get('expires_at') ?? '').trim();
+
+  if (!coupleName) {
+    error = 'Cal el nom de la parella.';
+  } else if (packIds.length === 0) {
+    error = 'Selecciona almenys un pack.';
+  } else {
+    const q = await createQuote({
+      coupleName,
+      coupleEmail: coupleEmail || undefined,
+      packIds,
+      notes: notes || undefined,
+      password: password || undefined,
+      expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
+      createdBy: Astro.locals.user,
+    });
+    createdToken = q.token;
+  }
+}
+
+const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
+---
+
+<AdminLayout title="Nou pressupost">
+  <h1 class="font-display text-3xl font-bold mb-8">Nou pressupost</h1>
+
+  {createdToken && (
+    <div class="mb-8 bg-white border border-gold p-6">
+      <p class="text-sm font-bold tracking-widest uppercase text-gold mb-2">✓ Creat</p>
+      <p class="mb-3 text-ink/80">Aquest és l'enllaç únic. Copia'l i envia'l a la parella:</p>
+      <div class="flex gap-2">
+        <input
+          readonly
+          value={`${siteUrl}/p/${createdToken}`}
+          class="flex-1 px-3 py-2 border border-black/15 bg-cream font-mono text-sm"
+          id="token-url"
+        />
+        <button
+          type="button"
+          data-copy={`${siteUrl}/p/${createdToken}`}
+          class="bg-ink text-white px-4 py-2 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors"
+        >
+          Copiar
+        </button>
+      </div>
+      <div class="mt-4 flex gap-3 text-xs">
+        <a href="/admin" class="text-gold underline">← Tornar al llistat</a>
+        <a href="/admin/new" class="text-gold underline">+ Crear-ne un altre</a>
+      </div>
+    </div>
+  )}
+
+  {error && <p class="mb-6 p-3 bg-red-50 border border-red-200 text-red-700 text-sm">{error}</p>}
+
+  <form method="POST" class="max-w-2xl space-y-6 bg-white p-6 border border-black/10">
+    <div>
+      <label for="couple_name" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Nom de la parella *</label>
+      <input id="couple_name" name="couple_name" required
+             class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none"
+             placeholder="Luis & Craig" />
+    </div>
+
+    <div>
+      <label for="couple_email" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Email (opcional)</label>
+      <input id="couple_email" name="couple_email" type="email"
+             class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none" />
+    </div>
+
+    <div>
+      <p class="text-xs font-bold tracking-widest uppercase mb-3">Packs a mostrar *</p>
+      <div class="space-y-2">
+        {PACKS.map((p) => (
+          <label class="flex items-start gap-3 cursor-pointer p-2 hover:bg-cream">
+            <input type="checkbox" name="packs" value={p.id} class="mt-1 accent-gold" />
+            <span class="flex-1">
+              <span class="font-bold">{p.emoji} {p.name.ca}</span>
+              <span class="block text-xs text-ink/60">{p.type} · {p.price}</span>
+            </span>
+          </label>
+        ))}
+      </div>
+    </div>
+
+    <div>
+      <label for="notes" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Notes personals (opcional)</label>
+      <textarea id="notes" name="notes" rows="3"
+                class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none resize-y"
+                placeholder="Missatge personalitzat que veurà la parella a la pàgina…"></textarea>
+    </div>
+
+    <details class="border border-black/10 bg-cream/40">
+      <summary class="cursor-pointer px-4 py-3 text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold select-none">
+        ⚙ Opcions avançades
+      </summary>
+      <div class="px-4 pb-4 pt-2 grid md:grid-cols-2 gap-4">
+        <div>
+          <label for="expires_at" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Caduca</label>
+          <input id="expires_at" name="expires_at" type="date"
+                 class="w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <p class="text-[0.7rem] text-ink/50 mt-1">L'enllaç deixarà de funcionar després d'aquesta data.</p>
+        </div>
+        <div>
+          <label for="password" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Contrasenya</label>
+          <input id="password" name="password"
+                 class="w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none"
+                 placeholder="Deixa-ho en blanc" />
+          <p class="text-[0.7rem] text-ink/50 mt-1">Capa extra de seguretat si voleu que la parella introdueixi una paraula per obrir el pressupost.</p>
+        </div>
+      </div>
+    </details>
+
+    <button type="submit"
+            class="bg-ink text-white px-8 py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors">
+      Crear i generar enllaç
+    </button>
+  </form>
+</AdminLayout>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy!);
+        const old = btn.textContent;
+        btn.textContent = '✓ Copiat';
+        setTimeout(() => (btn.textContent = old), 1500);
+      } catch {
+        prompt('Copia:', btn.dataset.copy!);
+      }
+    });
+  });
+</script>

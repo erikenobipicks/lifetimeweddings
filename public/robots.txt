@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+Disallow: /p/
+Disallow: /admin
+Disallow: /api/
+
+# AI crawlers explicitly allowed (inherited from the current lifetime.photo site)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://www.lifetime.photo/sitemap-index.xml

@@ -1,0 +1,28 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import HomePage from '~/components/HomePage.astro';
+import { localBusinessJsonLd, personJsonLd } from '~/lib/seo';
+import { TEAM } from '~/data/team';
+
+const lang = 'en' as const;
+
+const jsonLd = [
+  localBusinessJsonLd(lang),
+  ...TEAM.map((m) => personJsonLd({
+    name: m.name,
+    role: m.role[lang],
+    url: m.instagram,
+    sameAs: [m.instagram],
+  })),
+];
+---
+
+<BaseLayout
+  lang={lang}
+  title="Wedding Photography and Videography in Tarragona | Lifetime Weddings"
+  description="Wedding photography and videography in Tarragona, Reus and worldwide. We capture your story with warmth, honesty and a cinematic touch."
+  canonicalPath="/"
+  jsonLd={jsonLd}
+>
+  <HomePage lang={lang} />
+</BaseLayout>

@@ -1,0 +1,31 @@
+---
+import Section from '../Section.astro';
+import { useTranslations, type Lang } from '~/i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const items = [
+  { icon: '💍', title: t('services.photo.title'), desc: t('services.photo.desc') },
+  { icon: '🎬', title: t('services.video.title'), desc: t('services.video.desc') },
+  { icon: '📸', title: t('services.fusion.title'), desc: t('services.fusion.desc') },
+];
+---
+
+<Section id="services" bg="cream">
+  <div class="max-w-6xl mx-auto text-center">
+    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('services.label')}</p>
+    <h2 class="font-display text-3xl md:text-4xl font-bold mb-12">{t('services.title')}</h2>
+
+    <div class="grid md:grid-cols-3 gap-6 md:gap-8 text-left">
+      {items.map((s) => (
+        <article class="bg-white p-8 md:p-10 border-t-4 border-gold text-center">
+          <div class="text-4xl mb-5" aria-hidden="true">{s.icon}</div>
+          <h3 class="font-display text-xl font-bold mb-4">{s.title}</h3>
+          <p class="text-ink/70 leading-relaxed text-[0.95rem]">{s.desc}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</Section>

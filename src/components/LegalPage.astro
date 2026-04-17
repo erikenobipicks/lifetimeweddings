@@ -1,0 +1,32 @@
+---
+import Section from './Section.astro';
+import { useTranslations, type Lang } from '~/i18n/ui';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  updated?: string; // ISO
+}
+const { lang, title, updated = '2026-04-15' } = Astro.props;
+const t = useTranslations(lang);
+const fmt = new Date(updated).toLocaleDateString(
+  lang === 'es' ? 'es-ES' : lang === 'ca' ? 'ca-ES' : 'en-US',
+  { year: 'numeric', month: 'long', day: 'numeric' },
+);
+---
+
+<Section bg="cream" class="pt-32">
+  <article class="max-w-3xl mx-auto">
+    <h1 class="font-display text-4xl md:text-5xl font-bold mb-3">{title}</h1>
+    <p class="text-sm text-ink/60 mb-12">{t('legal.updated')}: {fmt}</p>
+
+    <div class="prose prose-neutral max-w-none space-y-6 text-ink/80 leading-relaxed
+                [&_h2]:font-display [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-10 [&_h2]:mb-3 [&_h2]:text-ink
+                [&_h3]:font-display [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:text-ink
+                [&_a]:text-gold [&_a]:underline [&_a:hover]:opacity-80
+                [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-2
+                [&_strong]:text-ink">
+      <slot />
+    </div>
+  </article>
+</Section>

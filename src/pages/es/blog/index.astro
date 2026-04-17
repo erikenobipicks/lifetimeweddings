@@ -1,0 +1,57 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Section from '~/components/Section.astro';
+import { BLOG_POSTS, BLOG_CATEGORIES } from '~/data/blog';
+
+const lang = 'es' as const;
+const posts = [...BLOG_POSTS].sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+const fmtDate = (iso: string | null) =>
+  iso ? new Date(iso).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+---
+
+<BaseLayout
+  lang={lang}
+  title="Blog | Lifetime Weddings — Foto y vídeo de boda"
+  description="Consejos, tendencias y bodas reales por Lifetime Weddings en Tarragona."
+  canonicalPath="/blog"
+>
+  <Section bg="cream" class="pt-32">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-12">
+        <h1 class="font-display text-4xl md:text-5xl font-bold mb-3">Blog</h1>
+        <p class="text-ink/75">Consejos, tendencias y nuestras bodas reales.</p>
+      </div>
+
+      <nav aria-label="Categorías" class="flex flex-wrap justify-center gap-3 mb-12 text-xs font-bold tracking-widest uppercase">
+        <a href="/es/blog" class="px-4 py-2 bg-ink text-white">Todas</a>
+        {Object.values(BLOG_CATEGORIES).map((c) => (
+          <a href={`/es/blog/categoria/${c.slug}`} class="px-4 py-2 border border-ink/20 hover:bg-ink hover:text-white transition-colors">
+            {c.es}
+          </a>
+        ))}
+      </nav>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {posts.map((p) => (
+          <article class="bg-white border border-black/5 group">
+            <a href={`/es/blog/${p.slug}`} class="block">
+              {p.cover ? (
+                <img src={p.cover} alt="" class="w-full aspect-[4/3] object-cover group-hover:opacity-90 transition-opacity" loading="lazy" decoding="async" />
+              ) : (
+                <div class="w-full aspect-[4/3] bg-cream flex items-center justify-center text-ink/30 text-sm">Próximamente</div>
+              )}
+              <div class="p-6">
+                <p class="text-[0.7rem] font-bold tracking-[0.18em] uppercase text-gold mb-2">
+                  {BLOG_CATEGORIES[p.category].es}
+                  {p.readingTime ? <span class="text-ink/50"> · {p.readingTime} min</span> : null}
+                </p>
+                <h2 class="font-display text-xl font-bold leading-tight mb-3 group-hover:text-gold transition-colors">{p.title}</h2>
+                {p.publishedAt && <p class="text-xs text-ink/60">{fmtDate(p.publishedAt)}</p>}
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+    </div>
+  </Section>
+</BaseLayout>

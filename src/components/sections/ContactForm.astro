@@ -1,0 +1,101 @@
+---
+import Section from '../Section.astro';
+import { useTranslations, type Lang } from '~/i18n/ui';
+
+interface Props {
+  lang: Lang;
+  /** Render compact (without label+title block), for when used inside /contacto page */
+  compact?: boolean;
+}
+const { lang, compact = false } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<Section id="contact" bg="cream">
+  <div class="max-w-xl mx-auto text-center">
+    {!compact && (
+      <>
+        <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('contact.label')}</p>
+        <h2 class="font-display text-3xl md:text-4xl font-bold mb-5">{t('contact.title')}</h2>
+        <p class="text-ink/75 leading-relaxed mb-10">{t('contact.subtitle')}</p>
+      </>
+    )}
+
+    <form
+      class="grid gap-5 text-left"
+      data-contact-form
+      action="https://formspree.io/f/REPLACE_ME"
+      method="POST"
+      novalidate
+    >
+      <input type="hidden" name="_language" value={lang} />
+      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+
+      <div>
+        <label for="name" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{t('contact.field.name')} *</label>
+        <input id="name" name="name" type="text" required autocomplete="name"
+               class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors" />
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-5">
+        <div>
+          <label for="email" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{t('contact.field.email')} *</label>
+          <input id="email" name="email" type="email" required autocomplete="email"
+                 class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors" />
+        </div>
+        <div>
+          <label for="phone" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{t('contact.field.phone')}</label>
+          <input id="phone" name="phone" type="tel" autocomplete="tel"
+                 class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors" />
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-5">
+        <div>
+          <label for="wedding_date" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{t('contact.field.date')}</label>
+          <input id="wedding_date" name="wedding_date" type="date"
+                 class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors" />
+        </div>
+        <div>
+          <label for="venue" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{t('contact.field.venue')}</label>
+          <input id="venue" name="venue" type="text"
+                 class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors" />
+        </div>
+      </div>
+
+      <div>
+        <label for="message" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{t('contact.field.message')} *</label>
+        <textarea id="message" name="message" required rows="5"
+                  class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors resize-y"></textarea>
+      </div>
+
+      <label class="flex items-start gap-2 text-sm text-ink/75">
+        <input type="checkbox" name="consent" required class="mt-1 accent-gold" />
+        <span>{t('contact.field.consent')}</span>
+      </label>
+
+      <button
+        type="submit"
+        class="justify-self-center border-2 border-ink bg-ink text-white px-14 py-4 text-xs font-bold tracking-[0.18em] uppercase hover:bg-gold hover:border-gold transition-colors"
+      >
+        {t('contact.submit')}
+      </button>
+
+      <p class="hidden text-center font-display italic text-gold" data-contact-success>{t('contact.success')}</p>
+      <p class="hidden text-center text-red-600" data-contact-error>{t('contact.error')}</p>
+    </form>
+  </div>
+</Section>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+  const ok = document.querySelector<HTMLElement>('[data-contact-success]');
+  const err = document.querySelector<HTMLElement>('[data-contact-error]');
+
+  form?.addEventListener('submit', async (e) => {
+    if (!form.action.includes('REPLACE_ME')) return; // real endpoint — let browser submit normally
+    e.preventDefault();
+    ok?.classList.remove('hidden');
+    form.reset();
+  });
+</script>

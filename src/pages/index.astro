@@ -1,0 +1,28 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import HomePage from '~/components/HomePage.astro';
+import { localBusinessJsonLd, personJsonLd } from '~/lib/seo';
+import { TEAM } from '~/data/team';
+
+const lang = 'ca' as const;
+
+const jsonLd = [
+  localBusinessJsonLd(lang),
+  ...TEAM.map((m) => personJsonLd({
+    name: m.name,
+    role: m.role[lang],
+    url: m.instagram,
+    sameAs: [m.instagram],
+  })),
+];
+---
+
+<BaseLayout
+  lang={lang}
+  title="Fotografia i Vídeo de Bodes a Tarragona | Lifetime Weddings"
+  description="Fotografia i vídeo de bodes a Tarragona, Reus i arreu del món. Capturem la vostra història amb naturalitat, emoció i un toc cinematogràfic."
+  canonicalPath="/"
+  jsonLd={jsonLd}
+>
+  <HomePage lang={lang} />
+</BaseLayout>

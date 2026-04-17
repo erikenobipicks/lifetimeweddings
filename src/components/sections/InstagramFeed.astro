@@ -1,0 +1,90 @@
+---
+import Section from '../Section.astro';
+import { useTranslations, type Lang } from '~/i18n/ui';
+import { SITE } from '~/data/site';
+import { getRecentPosts, type IgPost } from '~/lib/instagram';
+
+interface Props {
+  lang: Lang;
+  /** Number of posts to show in the grid (2 x 4 by default). */
+  count?: number;
+}
+const { lang, count = 8 } = Astro.props;
+const t = useTranslations(lang);
+
+// Fetch live Instagram posts. If the API isn't configured or fails, we fall
+// back to placeholder images so the section keeps its visual slot.
+const posts: IgPost[] = await getRecentPosts(count);
+
+const PLACEHOLDER_IDS = [
+  '1519741497674-611481863552',
+  '1465495976277-4387d4b0b4c6',
+  '1519225421980-715cb0215aed',
+  '1606216794079-73b9d4bbf9d6',
+  '1511285560929-80b456fea0bc',
+  '1534081333815-ae5019106622',
+  '1507003211169-0a1dd7228f2d',
+  '1500648767791-00dcc994a43e',
+];
+
+const showingLive = posts.length > 0;
+---
+
+<Section id="instagram">
+  <div class="max-w-5xl mx-auto text-center">
+    <h2 class="font-display text-2xl md:text-3xl font-bold mb-3">
+      {t('insta.title')} <span class="text-gold">{t('insta.handle')}</span>
+    </h2>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-1.5 mt-10">
+      {showingLive
+        ? posts.slice(0, count).map((p) => {
+            const isVideo = p.mediaType === 'VIDEO';
+            const alt = p.caption
+              ? p.caption.slice(0, 100) + (p.caption.length > 100 ? '…' : '')
+              : 'Lifetime Weddings · Instagram';
+            return (
+              <a
+                href={p.permalink}
+                target="_blank"
+                rel="noopener"
+                class="relative block aspect-square overflow-hidden group"
+                aria-label={alt}
+              >
+                <img
+                  src={p.thumbnailUrl}
+                  alt={alt}
+                  class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                  decoding="async"
+                />
+                {isVideo && (
+                  <span class="absolute top-2 right-2 bg-black/50 rounded-full p-1.5" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+                  </span>
+                )}
+                <span class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+              </a>
+            );
+          })
+        : PLACEHOLDER_IDS.slice(0, count).map((id, i) => (
+            <img
+              src={`https://images.unsplash.com/photo-${id}?w=400&auto=format&fit=crop`}
+              alt={`Lifetime Weddings Instagram ${i + 1}`}
+              class="w-full aspect-square object-cover hover:opacity-90 transition-opacity"
+              loading="lazy"
+              decoding="async"
+            />
+          ))}
+    </div>
+
+    <a
+      href={SITE.social.instagram}
+      target="_blank"
+      rel="noopener"
+      class="inline-block mt-8 border-2 border-ink px-8 py-3 text-xs font-bold tracking-[0.15em] uppercase hover:bg-ink hover:text-white transition-colors"
+    >
+      {t('insta.cta')}
+    </a>
+  </div>
+</Section>

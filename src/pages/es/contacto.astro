@@ -1,0 +1,44 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import ContactForm from '~/components/sections/ContactForm.astro';
+import Section from '~/components/Section.astro';
+import { SITE } from '~/data/site';
+import { useTranslations } from '~/i18n/ui';
+
+const lang = 'es' as const;
+const t = useTranslations(lang);
+---
+
+<BaseLayout
+  lang={lang}
+  title="Contacto | Lifetime Weddings"
+  description="Hablemos de vuestra boda. Escribidnos y os responderemos lo antes posible con toda la información."
+  canonicalPath="/contacto"
+>
+  <Section bg="cream" class="pt-32">
+    <div class="max-w-3xl mx-auto text-center">
+      <h1 class="font-display text-4xl md:text-5xl font-bold mb-4">Hablemos…</h1>
+      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-4">Foto y vídeo de boda</p>
+      <p class="text-ink/75 leading-relaxed max-w-xl mx-auto">
+        ¿Estáis buscando fotógrafo y videógrafo profesional para vuestra boda? Dejadnos vuestros datos y nos pondremos en contacto con vosotros muy pronto.
+      </p>
+    </div>
+  </Section>
+
+  <ContactForm lang={lang} compact />
+
+  <Section>
+    <div class="max-w-3xl mx-auto text-center">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">{t('contact.where.title')}</h2>
+      <p class="text-ink/75 leading-relaxed mb-6">{t('contact.where.desc')}</p>
+      <address class="not-italic space-y-1 text-ink/80">
+        <p><strong>{SITE.address.street}</strong> · {SITE.address.city} ({SITE.address.region})</p>
+        <p>
+          <a href={`mailto:${SITE.email}`} class="text-gold hover:underline">{SITE.email}</a>
+          <span class="mx-2 opacity-50">·</span>
+          <a href={`tel:${SITE.phone}`} class="text-gold hover:underline">{SITE.phoneDisplay}</a>
+        </p>
+      </address>
+    </div>
+  </Section>
+</BaseLayout>

@@ -1,0 +1,44 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import LegalPage from '~/components/LegalPage.astro';
+import { SITE } from '~/data/site';
+
+const lang = 'en' as const;
+---
+
+<BaseLayout
+  lang={lang}
+  title="Privacy policy | Lifetime Weddings"
+  description="How we collect, use and protect your personal data on lifetime.photo."
+  canonicalPath="/privacidad"
+>
+  <LegalPage lang={lang} title="Privacy policy">
+    <p>In compliance with Regulation (EU) 2016/679 (GDPR) and Spanish Organic Law 3/2018 on Personal Data Protection and guarantee of digital rights (LOPDGDD), we inform users about the processing of their personal data.</p>
+
+    <h2>1. Data controller</h2>
+    <ul>
+      <li><strong>Operator:</strong> Lifetime Weddings</li>
+      <li><strong>Address:</strong> {SITE.address.street}, {SITE.address.postalCode} {SITE.address.city}</li>
+      <li><strong>Email:</strong> <a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
+    </ul>
+
+    <h2>2. Purposes and legal basis</h2>
+    <ul>
+      <li><strong>Handling enquiries and requests</strong> sent through the contact form (legal basis: user consent).</li>
+      <li><strong>Sending commercial information</strong> about our services when you have ticked the relevant box (consent).</li>
+      <li><strong>Fulfilment of contractual obligations</strong> in case of engagement (contract performance).</li>
+    </ul>
+
+    <h2>3. Data retention</h2>
+    <p>Data will be kept for as long as a contractual or commercial relationship exists, until the user requests deletion, and for the legal retention periods when applicable.</p>
+
+    <h2>4. Recipients</h2>
+    <p>We do not share your data with third parties, except as required by law. We may use processors (hosting, email marketing, analytics) under contractual safeguards compliant with GDPR.</p>
+
+    <h2>5. Data-subject rights</h2>
+    <p>You can exercise your rights of access, rectification, erasure, objection, restriction of processing and portability at any time by writing to <a href={`mailto:${SITE.email}`}>{SITE.email}</a> proving your identity. If you believe your rights have not been properly addressed you can file a complaint with the Spanish Data Protection Agency (<a href="https://www.aepd.es" target="_blank" rel="noopener">aepd.es</a>).</p>
+
+    <h2>6. Security measures</h2>
+    <p>We apply appropriate technical and organisational measures to protect personal data against unauthorised access, alteration, loss or destruction.</p>
+  </LegalPage>
+</BaseLayout>

@@ -1,0 +1,212 @@
+---
+import '~/styles/global.css';
+import Section from '~/components/Section.astro';
+import QuoteTracker from '~/components/QuoteTracker.astro';
+import { getQuoteByToken, recordView, verifyQuotePassword, getLeadByQuoteId } from '~/lib/quotes';
+import { PACKS } from '~/data/packs';
+import { SHOWCASES } from '~/data/showcases';
+import { recommendShowcase } from '~/lib/matcher';
+import { SITE, waLink } from '~/data/site';
+
+const token = String(Astro.params.token ?? '');
+const quote = await getQuoteByToken(token);
+
+// 404 behaviour
+if (!quote || quote.archived) {
+  Astro.response.status = 404;
+}
+
+// Expiration
+const expired = quote?.expiresAt ? new Date(quote.expiresAt) < new Date() : false;
+
+// Password challenge flow
+let needsPassword = false;
+let passwordError: string | null = null;
+if (quote && !quote.archived && !expired && quote.hasPassword) {
+  const cookieName = `qp_${token}`;
+  const unlocked = Astro.cookies.get(cookieName)?.value === '1';
+  if (Astro.request.method === 'POST') {
+    const form = await Astro.request.formData();
+    const pw = String(form.get('password') ?? '');
+    if (await verifyQuotePassword(token, pw)) {
+      Astro.cookies.set(cookieName, '1', { path: `/p/${token}`, httpOnly: true, sameSite: 'lax' });
+    } else {
+      passwordError = 'Contrasenya incorrecta.';
+      needsPassword = true;
+    }
+  } else if (!unlocked) {
+    needsPassword = true;
+  }
+}
+
+// Record the view once we pass all checks
+if (quote && !quote.archived && !expired && !needsPassword) {
+  const headers = Astro.request.headers;
+  const ip =
+    headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    headers.get('x-real-ip') ||
+    (Astro as any).clientAddress ||
+    undefined;
+  const ua = headers.get('user-agent') ?? undefined;
+  // We need a session id from the cookie for de-dupe. Generate if absent.
+  const sidCookie = `qs_${token}`;
+  let sid = Astro.cookies.get(sidCookie)?.value;
+  if (!sid) {
+    sid = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    Astro.cookies.set(sidCookie, sid, { path: `/p/${token}`, httpOnly: true, sameSite: 'lax', maxAge: 60 * 60 * 24 });
+  }
+  await recordView(token, { userAgent: ua, ip, sessionId: sid });
+}
+
+const packs = quote ? PACKS.filter((p) => quote.packIds.includes(p.id)) : [];
+
+// Determine showcase from lead answers (if this quote came from the quiz)
+let showcaseSlug: string | null = null;
+if (quote && !quote.archived) {
+  const lead = await getLeadByQuoteId(quote.id);
+  if (lead?.ceremonyType && lead?.location) {
+    showcaseSlug = recommendShowcase({
+      location: lead.location,
+      ceremonyType: lead.ceremonyType,
+      serviceInterest: lead.serviceInterest ?? 'both',
+      budgetRange: lead.budgetRange ?? 'mid',
+    });
+  }
+}
+const showcase = showcaseSlug ? SHOWCASES.find((s) => s.slug === showcaseSlug) : null;
+
+function waForCouple(): string {
+  if (!quote) return waLink('Hola!');
+  return waLink(`Hola! Som ${quote.coupleName}. Hem vist el pressupost i ens agradaria concretar.`);
+}
+---
+
+<!doctype html>
+<html lang="ca">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{quote ? `Pressupost · ${quote.coupleName}` : 'Pressupost no trobat'}</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap"
+    />
+  </head>
+  <body class="bg-cream text-ink font-sans antialiased">
+    {!quote || quote.archived ? (
+      <Section class="min-h-screen flex items-center justify-center">
+        <div class="text-center max-w-md mx-auto">
+          <h1 class="font-display text-4xl font-bold mb-4">Pressupost no trobat</h1>
+          <p class="text-ink/70">Aquest enllaç no existeix o ha estat arxivat. Si creieu que és un error, escriviu-nos a <a href={`mailto:${SITE.email}`} class="text-gold underline">{SITE.email}</a>.</p>
+        </div>
+      </Section>
+    ) : expired ? (
+      <Section class="min-h-screen flex items-center justify-center">
+        <div class="text-center max-w-md mx-auto">
+          <h1 class="font-display text-4xl font-bold mb-4">Enllaç caducat</h1>
+          <p class="text-ink/70">Aquest pressupost ja no està disponible. Demaneu-nos un enllaç actualitzat a <a href={`mailto:${SITE.email}`} class="text-gold underline">{SITE.email}</a>.</p>
+        </div>
+      </Section>
+    ) : needsPassword ? (
+      <Section class="min-h-screen flex items-center justify-center">
+        <form method="POST" class="max-w-sm w-full bg-white p-8 border border-black/10">
+          <h1 class="font-display text-2xl font-bold mb-2 text-center">Contingut protegit</h1>
+          <p class="text-ink/70 text-sm mb-6 text-center">Introduïu la contrasenya que us hem compartit.</p>
+          {passwordError && <p class="mb-4 p-2 bg-red-50 border border-red-200 text-red-700 text-sm">{passwordError}</p>}
+          <input type="password" name="password" required autofocus
+                 class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none mb-4" />
+          <button type="submit"
+                  class="w-full bg-ink text-white py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors">
+            Entrar
+          </button>
+        </form>
+      </Section>
+    ) : (
+      <>
+        <!-- Hero -->
+        <section class="relative py-20 px-6 text-center bg-ink text-white overflow-hidden">
+          <img src="/logos/logo-triangular-white.png" alt="" aria-hidden="true" class="w-24 mx-auto mb-6 opacity-95" />
+          <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">Pressupost personalitzat</p>
+          <h1 class="font-display text-4xl md:text-5xl font-bold mb-4">{quote.coupleName}</h1>
+          <p class="max-w-xl mx-auto opacity-90">Gràcies per confiar en Lifetime Weddings. Aquí teniu la proposta que hem preparat per a vosaltres.</p>
+        </section>
+
+        {quote.notes && (
+          <Section>
+            <div class="max-w-2xl mx-auto bg-white border-l-4 border-gold p-6">
+              <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold mb-3">Una nota per a vosaltres</p>
+              <p class="text-ink/85 leading-relaxed whitespace-pre-wrap">{quote.notes}</p>
+            </div>
+          </Section>
+        )}
+
+        <!-- Packs -->
+        <Section bg="cream">
+          <div class="max-w-5xl mx-auto">
+            <h2 class="font-display text-3xl font-bold text-center mb-12">La proposta</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+              {packs.map((p) => (
+                <article class="bg-white p-7 border border-black/10">
+                  <div class="text-3xl mb-3">{p.emoji}</div>
+                  <h3 class="font-display text-xl font-bold mb-3">{p.name.ca}</h3>
+                  <p class="text-3xl font-display font-bold text-gold mb-5">{p.price}</p>
+                  <p class="text-xs font-bold tracking-[0.12em] uppercase text-ink/60 mb-3">Inclou</p>
+                  <ul class="space-y-2 text-sm text-ink/80">
+                    {p.includes.ca.map((it) => (
+                      <li class="flex gap-2"><span class="text-gold">✓</span><span>{it}</span></li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+          </div>
+        </Section>
+
+        {/* Showcase link */}
+        {showcase && (
+          <Section>
+            <div class="max-w-2xl mx-auto text-center">
+              <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">Treballs similars</p>
+              <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">{showcase.title.ca}</h2>
+              <p class="text-ink/75 mb-6">{showcase.description.ca}</p>
+              <a
+                href={`/showcase/${showcase.slug}`}
+                class="inline-block border-2 border-ink bg-ink text-white px-8 py-3 text-xs font-bold tracking-[0.15em] uppercase hover:bg-gold hover:border-gold transition-colors"
+              >
+                Veure la galeria i el vídeo
+              </a>
+            </div>
+          </Section>
+        )}
+
+        <!-- CTA -->
+        <Section bg="ink">
+          <div class="max-w-2xl mx-auto text-center text-white">
+            <h2 class="font-display text-3xl font-bold mb-4">Ens veiem aviat?</h2>
+            <p class="opacity-85 mb-8">Si teniu preguntes o voleu concretar alguna cosa, responeu aquest correu o escriviu-nos pel WhatsApp.</p>
+            <div class="flex flex-wrap justify-center gap-3">
+              <a href={`mailto:${SITE.email}`}
+                 class="inline-block border-2 border-white px-8 py-3 text-xs font-bold tracking-[0.15em] uppercase hover:bg-white hover:text-ink transition-colors">
+                Escriure per email
+              </a>
+              <a href={waForCouple()} target="_blank" rel="noopener"
+                 class="inline-block bg-[#25D366] border-2 border-[#25D366] text-white px-8 py-3 text-xs font-bold tracking-[0.15em] uppercase hover:brightness-110 transition">
+                Escriure per WhatsApp
+              </a>
+            </div>
+          </div>
+        </Section>
+
+        <footer class="bg-ink text-white/60 py-6 text-center text-xs border-t border-white/10">
+          <p>© Lifetime Weddings · <a href={`mailto:${SITE.email}`} class="text-gold hover:underline">{SITE.email}</a> · <a href={`tel:${SITE.phone}`} class="text-gold hover:underline">{SITE.phoneDisplay}</a></p>
+        </footer>
+
+        <QuoteTracker token={quote.token} />
+      </>
+    )}
+  </body>
+</html>

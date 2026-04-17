@@ -1,0 +1,52 @@
+---
+import AdminLayout from '~/layouts/AdminLayout.astro';
+import { verifyCredentials, createSession, isAuthConfigured, getUser } from '~/lib/auth';
+
+let error: string | null = null;
+
+// Already logged in? Go to dashboard.
+const existing = await getUser(Astro.cookies);
+if (existing) return Astro.redirect('/admin');
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const user = String(form.get('user') ?? '');
+  const password = String(form.get('password') ?? '');
+  if (await verifyCredentials(user, password)) {
+    await createSession(Astro.cookies, user);
+    return Astro.redirect('/admin');
+  }
+  error = 'Usuari o contrasenya incorrectes.';
+}
+---
+
+<AdminLayout title="Entrar">
+  <div class="max-w-sm mx-auto mt-10 bg-white p-8 border border-black/10">
+    <h1 class="font-display text-2xl font-bold mb-6 text-center">Entrar</h1>
+
+    {!isAuthConfigured() && (
+      <div class="mb-4 p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 text-xs">
+        ⚠️ <strong>ADMIN_PASSWORD_HASH</strong> no configurat. Mira el README per generar un hash i afegir-lo a <code>.env</code>.
+      </div>
+    )}
+
+    {error && <p class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm">{error}</p>}
+
+    <form method="POST" class="space-y-4">
+      <div>
+        <label for="user" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Usuari</label>
+        <input id="user" name="user" required autocomplete="username"
+               class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none" />
+      </div>
+      <div>
+        <label for="password" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Contrasenya</label>
+        <input id="password" name="password" type="password" required autocomplete="current-password"
+               class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none" />
+      </div>
+      <button type="submit"
+              class="w-full bg-ink text-white py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors">
+        Entrar
+      </button>
+    </form>
+  </div>
+</AdminLayout>

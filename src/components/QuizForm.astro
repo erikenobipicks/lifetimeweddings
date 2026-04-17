@@ -1,0 +1,272 @@
+---
+import { useTranslations, type Lang } from '~/i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const locations = [
+  { value: 'tarragona', label: t('quiz.loc.tarragona') },
+  { value: 'barcelona', label: t('quiz.loc.barcelona') },
+  { value: 'lleida', label: t('quiz.loc.lleida') },
+  { value: 'other_cat', label: t('quiz.loc.other_cat') },
+  { value: 'international', label: t('quiz.loc.international') },
+];
+
+const ceremonies = [
+  { value: 'civil', label: t('quiz.ceremony.civil') },
+  { value: 'religious', label: t('quiz.ceremony.religious') },
+  { value: 'symbolic', label: t('quiz.ceremony.symbolic') },
+];
+
+const services = [
+  { value: 'photo', label: t('quiz.svc.photo'), icon: '📸' },
+  { value: 'video', label: t('quiz.svc.video'), icon: '🎬' },
+  { value: 'both', label: t('quiz.svc.both'), icon: '💍' },
+];
+
+const budgets = [
+  { value: 'low', label: t('quiz.budget.low') },
+  { value: 'mid', label: t('quiz.budget.mid') },
+  { value: 'high', label: t('quiz.budget.high') },
+  { value: 'premium', label: t('quiz.budget.premium') },
+];
+
+const TOTAL_STEPS = 6;
+---
+
+<div id="quiz-root" class="max-w-lg mx-auto" data-lang={lang}>
+  <!-- Progress -->
+  <div class="mb-8">
+    <div class="flex justify-between text-xs font-bold tracking-widest uppercase text-ink/60 mb-2">
+      <span>{t('quiz.step')} <span id="q-step-num">1</span> {t('quiz.of')} {TOTAL_STEPS}</span>
+    </div>
+    <div class="w-full h-1.5 bg-black/10 overflow-hidden">
+      <div id="q-progress" class="h-full bg-gold transition-all duration-300" style="width:16.66%"></div>
+    </div>
+  </div>
+
+  <!-- Step 1: Date -->
+  <div data-step="1" class="quiz-step">
+    <h2 class="font-display text-2xl md:text-3xl font-bold mb-6 text-center">{t('quiz.q1')}</h2>
+    <input type="date" id="q-date" class="w-full px-4 py-3 border border-black/15 bg-white text-center text-lg focus:border-gold focus:outline-none" />
+  </div>
+
+  <!-- Step 2: Location -->
+  <div data-step="2" class="quiz-step hidden">
+    <h2 class="font-display text-2xl md:text-3xl font-bold mb-6 text-center">{t('quiz.q2')}</h2>
+    <div class="grid gap-3">
+      {locations.map((loc) => (
+        <button type="button" data-choice="location" data-value={loc.value}
+                class="quiz-option px-5 py-4 border border-black/15 text-left font-bold hover:border-gold hover:bg-cream transition-colors">
+          {loc.label}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <!-- Step 3: Ceremony -->
+  <div data-step="3" class="quiz-step hidden">
+    <h2 class="font-display text-2xl md:text-3xl font-bold mb-6 text-center">{t('quiz.q3')}</h2>
+    <div class="grid gap-3">
+      {ceremonies.map((c) => (
+        <button type="button" data-choice="ceremonyType" data-value={c.value}
+                class="quiz-option px-5 py-4 border border-black/15 text-left font-bold hover:border-gold hover:bg-cream transition-colors">
+          {c.label}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <!-- Step 4: Service -->
+  <div data-step="4" class="quiz-step hidden">
+    <h2 class="font-display text-2xl md:text-3xl font-bold mb-6 text-center">{t('quiz.q4')}</h2>
+    <div class="grid gap-3">
+      {services.map((s) => (
+        <button type="button" data-choice="serviceInterest" data-value={s.value}
+                class="quiz-option px-5 py-4 border border-black/15 text-left font-bold hover:border-gold hover:bg-cream transition-colors text-lg">
+          <span class="mr-2">{s.icon}</span> {s.label}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <!-- Step 5: Budget -->
+  <div data-step="5" class="quiz-step hidden">
+    <h2 class="font-display text-2xl md:text-3xl font-bold mb-6 text-center">{t('quiz.q5')}</h2>
+    <div class="grid gap-3">
+      {budgets.map((b) => (
+        <button type="button" data-choice="budgetRange" data-value={b.value}
+                class="quiz-option px-5 py-4 border border-black/15 text-left font-bold hover:border-gold hover:bg-cream transition-colors">
+          {b.label}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <!-- Step 6: Contact -->
+  <div data-step="6" class="quiz-step hidden">
+    <h2 class="font-display text-2xl md:text-3xl font-bold mb-6 text-center">{t('quiz.q6')}</h2>
+    <div class="space-y-4">
+      <div>
+        <label for="q-name" class="block text-xs font-bold tracking-[0.1em] uppercase mb-1.5">{t('quiz.name.label')} *</label>
+        <input id="q-name" type="text" required placeholder={t('quiz.name.placeholder')}
+               class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+      </div>
+      <div>
+        <label for="q-email" class="block text-xs font-bold tracking-[0.1em] uppercase mb-1.5">{t('quiz.email.label')} *</label>
+        <input id="q-email" type="email" required
+               class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+      </div>
+      <div>
+        <label for="q-phone" class="block text-xs font-bold tracking-[0.1em] uppercase mb-1.5">{t('quiz.phone.label')}</label>
+        <input id="q-phone" type="tel"
+               class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div id="q-loading" class="quiz-step hidden text-center py-16">
+    <div class="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+    <p class="font-display text-xl italic text-ink/80">{t('quiz.loading')}</p>
+  </div>
+
+  <!-- Error state -->
+  <p id="q-error" class="hidden text-center text-red-600 mt-4">{t('quiz.error')}</p>
+
+  <!-- Nav buttons -->
+  <div id="q-nav" class="flex justify-between mt-8">
+    <button type="button" id="q-back"
+            class="px-6 py-3 border border-black/15 text-xs font-bold tracking-widest uppercase hover:bg-cream transition-colors invisible">
+      {t('quiz.back')}
+    </button>
+    <button type="button" id="q-next"
+            class="px-8 py-3 bg-ink text-white text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors">
+      {t('quiz.next')}
+    </button>
+  </div>
+</div>
+
+<script define:vars={{ submitLabel: t('quiz.submit'), lang }}>
+  (function () {
+    const root = document.getElementById('quiz-root');
+    if (!root) return;
+
+    const steps = root.querySelectorAll('.quiz-step');
+    const progress = document.getElementById('q-progress');
+    const stepNum = document.getElementById('q-step-num');
+    const backBtn = document.getElementById('q-back');
+    const nextBtn = document.getElementById('q-next');
+    const loading = document.getElementById('q-loading');
+    const errorEl = document.getElementById('q-error');
+    const navEl = document.getElementById('q-nav');
+    const TOTAL = 6;
+
+    let current = 1;
+    const answers = {};
+
+    function show(step) {
+      current = step;
+      steps.forEach((s) => {
+        const n = Number(s.dataset.step);
+        s.classList.toggle('hidden', n !== step);
+      });
+      loading.classList.add('hidden');
+      errorEl.classList.add('hidden');
+      navEl.classList.remove('hidden');
+      progress.style.width = `${(step / TOTAL) * 100}%`;
+      stepNum.textContent = step;
+      backBtn.classList.toggle('invisible', step === 1);
+      nextBtn.textContent = step === TOTAL ? submitLabel : nextBtn.textContent;
+      if (step < TOTAL) nextBtn.textContent = root.querySelector('[id="q-next"]')?.dataset.origLabel || nextBtn.textContent;
+    }
+
+    // Store original label
+    nextBtn.dataset.origLabel = nextBtn.textContent;
+
+    // Choice buttons (steps 2-5): auto-advance on click
+    root.querySelectorAll('[data-choice]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.choice;
+        const val = btn.dataset.value;
+        answers[key] = val;
+        // Highlight selected
+        btn.parentElement.querySelectorAll('.quiz-option').forEach((o) => {
+          o.classList.toggle('border-gold', o === btn);
+          o.classList.toggle('bg-cream', o === btn);
+          o.classList.toggle('border-black/15', o !== btn);
+          o.classList.remove('bg-cream');
+        });
+        btn.classList.add('bg-cream');
+        // Auto-advance after a beat
+        setTimeout(() => show(current + 1), 250);
+      });
+    });
+
+    nextBtn.addEventListener('click', async () => {
+      if (current === 1) {
+        const d = document.getElementById('q-date').value;
+        if (d) answers.weddingDate = d;
+        show(2);
+        return;
+      }
+      if (current >= 2 && current < TOTAL) {
+        show(current + 1);
+        return;
+      }
+      // Step 6: submit
+      const name = document.getElementById('q-name').value.trim();
+      const email = document.getElementById('q-email').value.trim();
+      const phone = document.getElementById('q-phone').value.trim();
+      if (!name || !email) {
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      answers.coupleName = name;
+      answers.email = email;
+      if (phone) answers.phone = phone;
+      answers.lang = lang;
+
+      // Show loading
+      steps.forEach((s) => s.classList.add('hidden'));
+      loading.classList.remove('hidden');
+      navEl.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/quiz', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(answers),
+        });
+        const data = await res.json();
+        if (data.token) {
+          window.location.href = '/p/' + data.token;
+        } else {
+          throw new Error('No token');
+        }
+      } catch {
+        loading.classList.add('hidden');
+        errorEl.classList.remove('hidden');
+        navEl.classList.remove('hidden');
+        show(TOTAL);
+      }
+    });
+
+    backBtn.addEventListener('click', () => {
+      if (current > 1) show(current - 1);
+    });
+
+    // Update next label on step 6
+    const origNext = nextBtn.textContent;
+    const obs = new MutationObserver(() => {
+      nextBtn.textContent = current === TOTAL ? submitLabel : origNext;
+    });
+  })();
+</script>
+
+<style>
+  .quiz-option {
+    transition: border-color 0.15s, background 0.15s;
+  }
+</style>

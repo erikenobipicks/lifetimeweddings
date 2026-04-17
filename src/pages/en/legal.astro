@@ -1,0 +1,38 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import LegalPage from '~/components/LegalPage.astro';
+import { SITE } from '~/data/site';
+
+const lang = 'en' as const;
+---
+
+<BaseLayout
+  lang={lang}
+  title="Legal notice | Lifetime Weddings"
+  description="Legal information for Lifetime Weddings, operator of lifetime.photo."
+  canonicalPath="/legal"
+>
+  <LegalPage lang={lang} title="Legal notice">
+    <h2>1. Operator identification</h2>
+    <p>In compliance with Spanish Law 34/2002 on Information Society and E-commerce Services (LSSI-CE):</p>
+    <ul>
+      <li><strong>Operator:</strong> Lifetime Weddings (Eric Blasco and Ferran Blasco)</li>
+      <li><strong>Address:</strong> {SITE.address.street}, {SITE.address.postalCode} {SITE.address.city} ({SITE.address.region}, Spain)</li>
+      <li><strong>Email:</strong> <a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
+      <li><strong>Phone:</strong> <a href={`tel:${SITE.phone}`}>{SITE.phoneDisplay}</a></li>
+      <li><strong>Website:</strong> <a href={SITE.url}>{SITE.url}</a></li>
+    </ul>
+
+    <h2>2. Purpose</h2>
+    <p>This legal notice governs use of the website {SITE.url} (“the site”), operated by Lifetime Weddings. Browsing the site constitutes user status and full acceptance of the conditions set out here.</p>
+
+    <h2>3. Intellectual and industrial property</h2>
+    <p>All site content — text, photographs, videos, designs, logos, icons, source code and other materials — is owned by Lifetime Weddings or its legitimate rights holders and is protected by intellectual and industrial property laws. Reproduction, distribution, public communication or transformation without the operator’s express permission is prohibited.</p>
+
+    <h2>4. Liability</h2>
+    <p>Lifetime Weddings is not liable for interruptions, failures or technical incidents that may occur while accessing the site, nor for the content of third-party sites linked from it.</p>
+
+    <h2>5. Applicable law and jurisdiction</h2>
+    <p>These conditions are governed by Spanish law. Any dispute arising from use of the site shall be submitted to the courts and tribunals of Tarragona, Spain.</p>
+  </LegalPage>
+</BaseLayout>

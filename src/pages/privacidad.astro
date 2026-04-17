@@ -1,0 +1,44 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import LegalPage from '~/components/LegalPage.astro';
+import { SITE } from '~/data/site';
+
+const lang = 'ca' as const;
+---
+
+<BaseLayout
+  lang={lang}
+  title="Política de privacitat | Lifetime Weddings"
+  description="Com recollim, utilitzem i protegim les teves dades personals a lifetime.photo."
+  canonicalPath="/privacidad"
+>
+  <LegalPage lang={lang} title="Política de privacitat">
+    <p>En compliment del Reglament (UE) 2016/679 (RGPD) i de la Llei Orgànica 3/2018, de 5 de desembre, de Protecció de Dades Personals i garantia dels drets digitals (LOPDGDD), informem els usuaris sobre el tractament de les seves dades personals.</p>
+
+    <h2>1. Responsable del tractament</h2>
+    <ul>
+      <li><strong>Titular:</strong> Lifetime Weddings</li>
+      <li><strong>Adreça:</strong> {SITE.address.street}, {SITE.address.postalCode} {SITE.address.city}</li>
+      <li><strong>Correu:</strong> <a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
+    </ul>
+
+    <h2>2. Finalitats i base legal</h2>
+    <ul>
+      <li><strong>Gestió de consultes i sol·licituds</strong> enviades a través del formulari de contacte (consentiment de l’interessat).</li>
+      <li><strong>Enviament d’informació comercial</strong> sobre els nostres serveis, quan hagis marcat la casella corresponent (consentiment).</li>
+      <li><strong>Compliment d’obligacions contractuals</strong> en cas de contractació (execució de contracte).</li>
+    </ul>
+
+    <h2>3. Conservació de les dades</h2>
+    <p>Les dades es conservaran mentre existeixi una relació contractual o comercial, fins que l’interessat en sol·liciti la supressió, i durant els terminis legals de conservació quan escaigui.</p>
+
+    <h2>4. Destinataris</h2>
+    <p>No cedim les teves dades a tercers, excepte per obligació legal. Podrem utilitzar encarregats de tractament (hosting, email marketing, analítica) amb garanties contractuals conformes al RGPD.</p>
+
+    <h2>5. Drets dels interessats</h2>
+    <p>Pots exercir en qualsevol moment els teus drets d’accés, rectificació, supressió, oposició, limitació del tractament i portabilitat escrivint a <a href={`mailto:${SITE.email}`}>{SITE.email}</a> acreditant la teva identitat. Si consideres que els teus drets no han estat degudament atesos, pots presentar una reclamació davant l’<a href="https://apdcat.gencat.cat" target="_blank" rel="noopener">Autoritat Catalana de Protecció de Dades</a> o la <a href="https://www.aepd.es" target="_blank" rel="noopener">Agència Espanyola de Protecció de Dades</a>.</p>
+
+    <h2>6. Mesures de seguretat</h2>
+    <p>Apliquem mesures tècniques i organitzatives apropiades per protegir les dades personals davant d’accessos no autoritzats, alteració, pèrdua o destrucció.</p>
+  </LegalPage>
+</BaseLayout>

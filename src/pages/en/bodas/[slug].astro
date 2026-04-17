@@ -1,0 +1,71 @@
+---
+export const prerender = true;
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Section from '~/components/Section.astro';
+import { WEDDINGS, weddingCover, weddingGallery } from '~/data/weddings';
+
+export function getStaticPaths() {
+  return WEDDINGS.map((w) => ({ params: { slug: w.slug }, props: { wedding: w } }));
+}
+
+const { wedding } = Astro.props;
+const lang = 'en' as const;
+const cover = weddingCover(wedding);
+const gallery = weddingGallery(wedding);
+---
+
+<BaseLayout
+  lang={lang}
+  title={`${wedding.couple} · ${wedding.venue} · Lifetime Weddings`}
+  description={`Gallery of ${wedding.couple}'s wedding at ${wedding.venue} (${wedding.location}).`}
+  canonicalPath={`/bodas/${wedding.slug}`}
+>
+  {cover && (
+    <section class="relative h-[60vh] min-h-[420px] overflow-hidden">
+      <img src={cover} alt={`${wedding.couple} · ${wedding.venue}`} class="absolute inset-0 w-full h-full object-cover" loading="eager" />
+      <div class="absolute inset-0 bg-black/40"></div>
+      <div class="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-6">
+        <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">Weddings</p>
+        <h1 class="font-display text-4xl md:text-5xl font-bold">{wedding.couple}</h1>
+        <p class="mt-3 opacity-90">{wedding.venue !== '—' ? wedding.venue : ''} {wedding.venue !== '—' && wedding.location !== '—' ? '·' : ''} {wedding.location !== '—' ? wedding.location : ''}</p>
+      </div>
+    </section>
+  )}
+
+  {gallery.length > 0 ? (
+    <Section>
+      <div class="max-w-6xl mx-auto">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+          {gallery.map((img, i) => {
+            const span = img.orientation === 'landscape' ? 'md:col-span-2' : '';
+            return (
+              <a
+                href={img.variants.lg}
+                target="_blank"
+                rel="noopener"
+                class:list={['block overflow-hidden group', span]}
+                aria-label={`Photo ${i + 1}`}
+              >
+                <img
+                  src={img.variants.md}
+                  alt=""
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading={i < 2 ? 'eager' : 'lazy'}
+                  decoding="async"
+                  width={img.width}
+                  height={img.height}
+                />
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </Section>
+  ) : (
+    <Section>
+      <div class="max-w-2xl mx-auto text-center text-ink/75 leading-relaxed">
+        <p>Gallery in preparation.</p>
+      </div>
+    </Section>
+  )}
+</BaseLayout>

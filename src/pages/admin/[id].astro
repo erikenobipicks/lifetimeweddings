@@ -1,0 +1,180 @@
+---
+import AdminLayout from '~/layouts/AdminLayout.astro';
+import { getQuoteById, getQuoteStats, getQuoteEvents, archiveQuote, getLeadByQuoteId } from '~/lib/quotes';
+import { PACKS } from '~/data/packs';
+
+const id = Number(Astro.params.id);
+if (!Number.isFinite(id)) return Astro.redirect('/admin');
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  if (form.get('action') === 'archive') {
+    await archiveQuote(id);
+    return Astro.redirect('/admin');
+  }
+}
+
+const quote = await getQuoteById(id);
+if (!quote) return Astro.redirect('/admin');
+
+const stats = await getQuoteStats(quote.id);
+const events = await getQuoteEvents(quote.id, 100);
+const lead = await getLeadByQuoteId(quote.id);
+const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
+const url = `${siteUrl}/p/${quote.token}`;
+
+const packs = PACKS.filter((p) => quote.packIds.includes(p.id));
+
+function fmt(iso: string | null | undefined): string {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleString('ca-ES', { timeZone: 'Europe/Madrid', dateStyle: 'short', timeStyle: 'short' });
+}
+
+function humanSecs(n: number): string {
+  if (n < 60) return `${n}s`;
+  const m = Math.floor(n / 60);
+  const s = n % 60;
+  return `${m}m${s ? ` ${s}s` : ''}`;
+}
+---
+
+<AdminLayout title={quote.coupleName}>
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <p class="text-xs font-bold tracking-widest uppercase text-gold mb-1">Pressupost</p>
+      <h1 class="font-display text-3xl font-bold">{quote.coupleName}</h1>
+      {quote.coupleEmail && <p class="text-ink/60">{quote.coupleEmail}</p>}
+    </div>
+    <a href="/admin" class="text-xs text-ink/60 hover:text-gold">← Tornar</a>
+  </div>
+
+  <div class="bg-white border border-black/10 p-5 mb-8">
+    <p class="text-xs font-bold tracking-widest uppercase mb-2">Enllaç</p>
+    <div class="flex gap-2">
+      <input readonly value={url} class="flex-1 px-3 py-2 border border-black/15 bg-cream font-mono text-sm" />
+      <button type="button" data-copy={url} class="bg-ink text-white px-4 py-2 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors">Copiar</button>
+    </div>
+    <div class="mt-3 text-xs text-ink/60 flex flex-wrap gap-4">
+      <span>Creat: <strong>{fmt(quote.createdAt)}</strong></span>
+      {quote.createdBy && <span>per <strong>{quote.createdBy}</strong></span>}
+      {quote.expiresAt && <span>Caduca: <strong>{fmt(quote.expiresAt)}</strong></span>}
+      {quote.hasPassword && <span>🔒 Protegit amb contrasenya</span>}
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white p-5 border border-black/10 text-center">
+      <p class="text-xs font-bold tracking-widest uppercase text-ink/60">Visites</p>
+      <p class="font-display text-4xl font-bold">{stats.views}</p>
+    </div>
+    <div class="bg-white p-5 border border-black/10 text-center">
+      <p class="text-xs font-bold tracking-widest uppercase text-ink/60">Visitants únics</p>
+      <p class="font-display text-4xl font-bold">{stats.uniqueVisitors}</p>
+    </div>
+    <div class="bg-white p-5 border border-black/10 text-center">
+      <p class="text-xs font-bold tracking-widest uppercase text-ink/60">Temps màx.</p>
+      <p class="font-display text-4xl font-bold">{humanSecs(stats.totalTimeSeconds)}</p>
+    </div>
+    <div class="bg-white p-5 border border-black/10 text-center">
+      <p class="text-xs font-bold tracking-widest uppercase text-ink/60">Scroll màx.</p>
+      <p class="font-display text-4xl font-bold">{stats.maxScroll}%</p>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white border border-black/10 p-5">
+      <p class="text-xs font-bold tracking-widest uppercase mb-3">Packs inclosos</p>
+      <ul class="space-y-2 text-sm">
+        {packs.map((p) => (
+          <li>{p.emoji} <strong>{p.name.ca}</strong> — <span class="text-gold">{p.price}</span></li>
+        ))}
+      </ul>
+    </div>
+    <div class="bg-white border border-black/10 p-5">
+      <p class="text-xs font-bold tracking-widest uppercase mb-3">Notes personals</p>
+      <p class="text-sm text-ink/80 whitespace-pre-wrap">{quote.notes || '—'}</p>
+    </div>
+  </div>
+
+  {lead && (
+    <div class="bg-white border border-black/10 p-5 mb-8">
+      <p class="text-xs font-bold tracking-widest uppercase mb-3">Respostes del quiz</p>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+        {lead.weddingDate && (
+          <div><span class="text-ink/60">Data boda:</span> <strong>{lead.weddingDate}</strong></div>
+        )}
+        {lead.location && (
+          <div><span class="text-ink/60">Lloc:</span> <strong>{lead.location}</strong></div>
+        )}
+        {lead.ceremonyType && (
+          <div><span class="text-ink/60">Cerimònia:</span> <strong>{lead.ceremonyType}</strong></div>
+        )}
+        {lead.serviceInterest && (
+          <div><span class="text-ink/60">Servei:</span> <strong>{lead.serviceInterest}</strong></div>
+        )}
+        {lead.budgetRange && (
+          <div><span class="text-ink/60">Pressupost:</span> <strong>{lead.budgetRange}</strong></div>
+        )}
+        {lead.phone && (
+          <div><span class="text-ink/60">Telèfon:</span> <strong>{lead.phone}</strong></div>
+        )}
+      </div>
+    </div>
+  )}
+
+  <div class="bg-white border border-black/10 mb-8">
+    <p class="px-5 py-3 text-xs font-bold tracking-widest uppercase border-b border-black/10">Historial d'esdeveniments</p>
+    {events.length === 0 ? (
+      <p class="p-5 text-ink/60 text-sm">Encara no hi ha activitat.</p>
+    ) : (
+      <table class="w-full text-sm">
+        <thead class="text-[0.7rem] font-bold tracking-widest uppercase bg-cream/50">
+          <tr>
+            <th class="text-left px-4 py-2">Quan</th>
+            <th class="text-left px-4 py-2">Tipus</th>
+            <th class="text-right px-4 py-2">Temps</th>
+            <th class="text-right px-4 py-2">Scroll</th>
+            <th class="text-left px-4 py-2">User-Agent</th>
+          </tr>
+        </thead>
+        <tbody>
+          {events.map((e) => (
+            <tr class="border-t border-black/5">
+              <td class="px-4 py-2 text-ink/70">{fmt(e.createdAt)}</td>
+              <td class="px-4 py-2">
+                {e.kind === 'view' ? (
+                  <span class="text-red-600 font-bold">👁️ view</span>
+                ) : (
+                  <span class="text-blue-600">⏱️ heartbeat</span>
+                )}
+              </td>
+              <td class="px-4 py-2 text-right">{humanSecs(e.timeOnPage)}</td>
+              <td class="px-4 py-2 text-right">{e.maxScroll}%</td>
+              <td class="px-4 py-2 text-xs text-ink/50 truncate max-w-xs" title={e.userAgent ?? ''}>{e.userAgent ?? '—'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
+
+  <form method="POST" onsubmit="return confirm('Arxivar aquest pressupost? No es veurà al llistat.')">
+    <input type="hidden" name="action" value="archive" />
+    <button type="submit" class="text-xs text-red-600 hover:underline">🗑️ Arxivar pressupost</button>
+  </form>
+</AdminLayout>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy!);
+        const old = btn.textContent;
+        btn.textContent = '✓ Copiat';
+        setTimeout(() => (btn.textContent = old), 1500);
+      } catch {
+        prompt('Copia:', btn.dataset.copy!);
+      }
+    });
+  });
+</script>

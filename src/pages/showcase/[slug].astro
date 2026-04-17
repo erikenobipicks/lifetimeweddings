@@ -1,0 +1,97 @@
+---
+export const prerender = true;
+import '~/styles/global.css';
+import Section from '~/components/Section.astro';
+import { SHOWCASES } from '~/data/showcases';
+import { TESTIMONIALS } from '~/data/testimonials';
+import { SITE } from '~/data/site';
+
+export function getStaticPaths() {
+  return SHOWCASES.map((s) => ({ params: { slug: s.slug }, props: { showcase: s } }));
+}
+
+const { showcase } = Astro.props;
+const lang = 'ca' as const; // showcases default to CA; could be parameterised later
+const testimonial = showcase.testimonialId ? TESTIMONIALS.find((t) => t.id === showcase.testimonialId) : null;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{showcase.title[lang]} · Lifetime Weddings</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" />
+  </head>
+  <body class="bg-cream text-ink font-sans antialiased">
+    <!-- Hero -->
+    <section class="relative py-20 px-6 text-center bg-ink text-white">
+      <img src="/logos/logo-triangular-white.png" alt="" aria-hidden="true" class="w-20 mx-auto mb-5 opacity-95" />
+      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">Lifetime Weddings</p>
+      <h1 class="font-display text-3xl md:text-5xl font-bold mb-4">{showcase.title[lang]}</h1>
+      <p class="max-w-xl mx-auto opacity-90">{showcase.description[lang]}</p>
+    </section>
+
+    <!-- Video -->
+    <Section>
+      <div class="max-w-4xl mx-auto">
+        <h2 class="font-display text-2xl font-bold text-center mb-8">🎬 Vídeo</h2>
+        <div class="relative aspect-video bg-black">
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${showcase.videoId}`}
+            title={showcase.title[lang]}
+            class="absolute inset-0 w-full h-full"
+            loading="lazy"
+            allowfullscreen
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          ></iframe>
+        </div>
+      </div>
+    </Section>
+
+    <!-- Gallery -->
+    <Section bg="cream">
+      <div class="max-w-5xl mx-auto">
+        <h2 class="font-display text-2xl font-bold text-center mb-8">📸 Galeria</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+          {showcase.galleryImages.map((src, i) => (
+            <img
+              src={src}
+              alt={`${showcase.title[lang]} — foto ${i + 1}`}
+              class="w-full aspect-[3/4] object-cover hover:opacity-90 transition-opacity"
+              loading="lazy"
+              decoding="async"
+            />
+          ))}
+        </div>
+      </div>
+    </Section>
+
+    <!-- Testimonial -->
+    {testimonial && (
+      <Section>
+        <div class="max-w-2xl mx-auto text-center">
+          <img
+            src={testimonial.photo}
+            alt={testimonial.alt}
+            class="w-20 h-20 rounded-full object-cover mx-auto mb-5 ring-4 ring-gold"
+            loading="lazy"
+          />
+          <blockquote class="font-display italic text-lg leading-relaxed mb-4">
+            "{testimonial.quote[lang]}"
+          </blockquote>
+          <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold">— {testimonial.author}</p>
+        </div>
+      </Section>
+    )}
+
+    <!-- Footer -->
+    <footer class="bg-ink text-white/60 py-6 text-center text-xs border-t border-white/10">
+      <p>© Lifetime Weddings · <a href={`mailto:${SITE.email}`} class="text-gold hover:underline">{SITE.email}</a></p>
+    </footer>
+  </body>
+</html>

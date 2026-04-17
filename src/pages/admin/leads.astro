@@ -1,0 +1,71 @@
+---
+import AdminLayout from '~/layouts/AdminLayout.astro';
+import { listLeads } from '~/lib/quotes';
+
+const leads = await listLeads();
+
+function fmt(iso: string | null): string {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleString('ca-ES', { timeZone: 'Europe/Madrid', dateStyle: 'short', timeStyle: 'short' });
+}
+
+const labels: Record<string, string> = {
+  tarragona: 'Tarragona/Reus', barcelona: 'Barcelona', lleida: 'Lleida/Girona',
+  other_cat: 'Catalunya', international: 'Internacional',
+  civil: 'Civil', religious: 'Religiosa', symbolic: 'Simbòlica',
+  photo: '📸 Foto', video: '🎬 Vídeo', both: '💍 Ambdós',
+  low: '< 1.500 €', mid: '1.500-2.500 €', high: '2.500-3.500 €', premium: '> 3.500 €',
+};
+---
+
+<AdminLayout title="Leads">
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="font-display text-3xl font-bold">Leads (quiz)</h1>
+    <span class="text-xs text-ink/60">{leads.length} leads</span>
+  </div>
+
+  {leads.length === 0 ? (
+    <p class="text-ink/60 text-center py-16">Encara no hi ha leads del quiz.</p>
+  ) : (
+    <div class="overflow-x-auto bg-white border border-black/10">
+      <table class="w-full text-sm">
+        <thead class="bg-cream text-[0.7rem] font-bold tracking-widest uppercase">
+          <tr>
+            <th class="text-left px-4 py-3">Parella</th>
+            <th class="text-left px-4 py-3">Servei</th>
+            <th class="text-left px-4 py-3">Cerimònia</th>
+            <th class="text-left px-4 py-3">Lloc</th>
+            <th class="text-left px-4 py-3">Pressupost</th>
+            <th class="text-left px-4 py-3">Data boda</th>
+            <th class="text-left px-4 py-3">Rebut</th>
+            <th class="text-right px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {leads.map((l) => (
+            <tr class="border-t border-black/5 hover:bg-cream/50">
+              <td class="px-4 py-3">
+                <span class="font-bold">{l.coupleName}</span>
+                <div class="text-xs text-ink/60">{l.email}</div>
+                {l.phone && <div class="text-xs text-ink/60">{l.phone}</div>}
+              </td>
+              <td class="px-4 py-3">{labels[l.serviceInterest ?? ''] ?? l.serviceInterest}</td>
+              <td class="px-4 py-3">{labels[l.ceremonyType ?? ''] ?? l.ceremonyType}</td>
+              <td class="px-4 py-3">{labels[l.location ?? ''] ?? l.location}</td>
+              <td class="px-4 py-3">{labels[l.budgetRange ?? ''] ?? l.budgetRange}</td>
+              <td class="px-4 py-3 text-ink/70">{l.weddingDate ?? '—'}</td>
+              <td class="px-4 py-3 text-ink/70">{fmt(l.createdAt)}</td>
+              <td class="px-4 py-3 text-right">
+                {l.quoteId && (
+                  <a href={`/admin/${l.quoteId}`} class="text-gold text-xs font-bold tracking-widest uppercase hover:underline">
+                    Pressupost
+                  </a>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</AdminLayout>

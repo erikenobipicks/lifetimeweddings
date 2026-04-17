@@ -1,0 +1,17 @@
+---
+interface Props {
+  id?: string;
+  class?: string;
+  bg?: 'white' | 'cream' | 'ink';
+  as?: 'section' | 'div';
+}
+
+const { id, class: className = '', bg = 'white', as: Tag = 'section' } = Astro.props;
+
+const bgClass =
+  bg === 'cream' ? 'bg-cream text-ink' : bg === 'ink' ? 'bg-ink text-white' : 'bg-white text-ink';
+---
+
+<Tag id={id} class:list={[bgClass, 'py-20 md:py-28 px-6 md:px-12', className]}>
+  <slot />
+</Tag>

@@ -1,0 +1,31 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import LegalPage from '~/components/LegalPage.astro';
+import { SITE } from '~/data/site';
+
+const lang = 'en' as const;
+---
+
+<BaseLayout
+  lang={lang}
+  title="Cookie policy | Lifetime Weddings"
+  description="Which cookies we use on lifetime.photo and how to manage them."
+  canonicalPath="/cookies"
+>
+  <LegalPage lang={lang} title="Cookie policy">
+    <p>A cookie is a small file downloaded to your device when you visit a website. Cookies allow the site to remember information about your visit.</p>
+
+    <h2>Cookies we use</h2>
+    <ul>
+      <li><strong>Essential / technical</strong> — required for the basic operation of the site (session, language preference). They do not require consent.</li>
+      <li><strong>Analytics</strong> — allow us to analyse site usage anonymously to improve it. They require consent.</li>
+      <li><strong>Social / embedded</strong> — some content (YouTube, Instagram) may install third-party cookies when you interact with it.</li>
+    </ul>
+
+    <h2>Managing cookies</h2>
+    <p>You can accept, reject or customise cookie use via the banner shown the first time you visit the site, and delete cookies at any time from your browser settings.</p>
+
+    <h2>More information</h2>
+    <p>For more information about data processing arising from cookies, see our <a href="/en/privacidad">privacy policy</a>, or write to <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.</p>
+  </LegalPage>
+</BaseLayout>
