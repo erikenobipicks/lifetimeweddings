@@ -14,13 +14,15 @@ export interface EmailPayload {
   subject: string;
   html: string;
   to?: string | string[];
+  /** If present, replying from Gmail goes straight to this address (the lead). */
+  replyTo?: string;
 }
 
 export async function sendNotification(payload: EmailPayload): Promise<void> {
   const to = payload.to ?? TO;
   if (!resend) {
     // eslint-disable-next-line no-console
-    console.log('[email] (dev) would send:', { to, subject: payload.subject });
+    console.log('[email] (dev) would send:', { to, subject: payload.subject, replyTo: payload.replyTo });
     return;
   }
   try {
@@ -29,6 +31,7 @@ export async function sendNotification(payload: EmailPayload): Promise<void> {
       to: Array.isArray(to) ? to : [to],
       subject: payload.subject,
       html: payload.html,
+      ...(payload.replyTo ? { replyTo: payload.replyTo } : {}),
     });
   } catch (err) {
     // eslint-disable-next-line no-console

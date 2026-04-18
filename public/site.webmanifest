@@ -1,0 +1,13 @@
+{
+  "name": "Lifetime Weddings",
+  "short_name": "Lifetime",
+  "description": "Fotografia i vídeo de bodes a Tarragona, Reus i Lleida",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9f5f0",
+  "theme_color": "#c9a96e",
+  "icons": [
+    { "src": "/favicon.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/favicon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

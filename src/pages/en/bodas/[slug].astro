@@ -12,6 +12,7 @@ const { wedding } = Astro.props;
 const lang = 'en' as const;
 const cover = weddingCover(wedding);
 const gallery = weddingGallery(wedding);
+const coverLarge = gallery[0]?.variants.lg ?? cover;
 ---
 
 <BaseLayout
@@ -23,6 +24,7 @@ const gallery = weddingGallery(wedding);
     ? `Gallery of ${wedding.couple}'s wedding at ${wedding.venue} (${wedding.location}).`
     : `Gallery of ${wedding.couple}'s wedding.`}
   canonicalPath={`/bodas/${wedding.slug}`}
+  ogImage={cover ?? '/og-default.jpg'}
 >
   {cover && (
     <section class="relative h-[60vh] min-h-[420px] overflow-hidden">
@@ -52,9 +54,12 @@ const gallery = weddingGallery(wedding);
               >
                 <img
                   src={img.variants.md}
+                  srcset={`${img.variants.sm} 640w, ${img.variants.md} 1200w, ${img.variants.lg} 1920w`}
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   alt=""
                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   loading={i < 2 ? 'eager' : 'lazy'}
+                  fetchpriority={i === 0 ? 'high' : 'auto'}
                   decoding="async"
                   width={img.width}
                   height={img.height}

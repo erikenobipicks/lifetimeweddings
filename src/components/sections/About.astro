@@ -12,24 +12,36 @@ const t = useTranslations(lang);
     <div class="grid grid-cols-2 gap-3">
       <img
         src="/photos/josep-eli/005-md.jpg"
+        srcset="/photos/josep-eli/005-sm.jpg 640w, /photos/josep-eli/005-md.jpg 1200w"
+        sizes="(max-width: 768px) 100vw, 50vw"
         alt="Boda d'Elisabet i Josep a L’Orangerie Clos Barenys"
         class="col-span-2 h-64 md:h-80 w-full object-cover"
         loading="lazy"
         decoding="async"
+        width="1200"
+        height="800"
       />
       <img
         src="/photos/cristina-daniel/001-md.jpg"
+        srcset="/photos/cristina-daniel/001-sm.jpg 640w, /photos/cristina-daniel/001-md.jpg 1200w"
+        sizes="(max-width: 768px) 50vw, 25vw"
         alt="Boda de Cristina i Daniel a Mas La Boella"
         class="h-48 md:h-56 w-full object-cover"
         loading="lazy"
         decoding="async"
+        width="600"
+        height="600"
       />
       <img
         src="/photos/elena-jordi/001-md.jpg"
+        srcset="/photos/elena-jordi/001-sm.jpg 640w, /photos/elena-jordi/001-md.jpg 1200w"
+        sizes="(max-width: 768px) 50vw, 25vw"
         alt="Boda d'Elena i Jordi a Masia San Antonio"
         class="h-48 md:h-56 w-full object-cover"
         loading="lazy"
         decoding="async"
+        width="600"
+        height="600"
       />
     </div>
 
