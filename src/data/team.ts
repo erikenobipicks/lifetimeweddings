@@ -5,9 +5,8 @@ export interface TeamMember {
   name: string;
   role: Record<Lang, string>;
   instagram: string;
-  photo: string; // placeholder until real assets ingested
+  photo: string;
   bio: Record<Lang, string[]>;
-  cta: Record<Lang, string>;
 }
 
 export const TEAM: TeamMember[] = [
@@ -16,28 +15,26 @@ export const TEAM: TeamMember[] = [
     name: 'Eric Blasco',
     role: { es: 'Videógrafo', ca: 'Videògraf', en: 'Videographer' },
     instagram: 'https://www.instagram.com/lifetime.weddings/',
-    photo: '/team/eric.jpg',
+    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80',
     bio: {
-      es: [
-        'Soy Eric Blasco, videógrafo especializado en bodas, eventos y cualquier historia que merezca ser contada.',
-        'Resido en Reus, cerca de Tarragona, pero mi pasión por el vídeo y la narración me ha llevado a capturar historias en Barcelona, Lleida, Girona, Huesca, Castellón, Málaga e incluso Nueva York. Para mí, no hay distancias cuando se trata de mezclar mis dos grandes pasiones: viajar y contar historias.',
-        'Cada vídeo es más que un reportaje; es un legado. Mi objetivo es crear el mejor recuerdo posible para vosotros, un vídeo que perdure en el tiempo y os haga revivir cada emoción como si fuera el primer día.',
-      ],
       ca: [
-        'Sóc Eric Blasco, videògraf especialitzat en bodes, esdeveniments i qualsevol història que mereixi ser explicada.',
-        'Visc a Reus, a prop de Tarragona, però la meva passió pel vídeo i la narració m’ha portat a capturar històries a Barcelona, Lleida, Girona, Osca, Castelló, Màlaga i fins i tot Nova York. Per a mi no hi ha distàncies quan es tracta de barrejar les meves dues grans passions: viatjar i explicar històries.',
-        'Cada vídeo és més que un reportatge; és un llegat. El meu objectiu és crear el millor record possible per a vosaltres, un vídeo que perduri en el temps i us faci reviure cada emoció com si fos el primer dia.',
+        'Sóc l’Eric. Vídeo, sempre vídeo.',
+        'Em vaig enamorar del vídeo quan vaig entendre que una boda no és un dia — és hores de coses petites que mai tornen a passar igual. La mirada del pare de la núvia, el primer petó entre amigues que no es veien des de fa anys, el plor contingut durant els vots.',
+        'El meu estil és documental. No dirigeixo escenes, no demano «mireu-vos i rieu». Em poso on no molesto i deixo que el dia passi. Després, a l’edició, és quan construeixo la vostra pel·lícula.',
+        'He gravat bodes a Tarragona, Barcelona, Lleida, Osca, Màlaga i Nova York. No em fa por anar on faci falta.',
+      ],
+      es: [
+        'Soy Eric. Vídeo, siempre vídeo.',
+        'Me enamoré del vídeo cuando entendí que una boda no es un día — son horas de pequeñas cosas que nunca vuelven a pasar igual. La mirada del padre de la novia, el primer abrazo entre amigas que no se veían desde hace años, el llanto contenido durante los votos.',
+        'Mi estilo es documental. No dirijo escenas, no pido «miraos y reíd». Me pongo donde no molesto y dejo que el día pase. Después, en la edición, es cuando construyo vuestra película.',
+        'He grabado bodas en Tarragona, Barcelona, Lleida, Huesca, Málaga y Nueva York. No me da miedo ir donde haga falta.',
       ],
       en: [
-        'I’m Eric Blasco, a videographer specialising in weddings, events and any story that deserves to be told.',
-        'I live in Reus, near Tarragona, but my passion for video and storytelling has taken me to capture stories in Barcelona, Lleida, Girona, Huesca, Castellón, Málaga and even New York. For me, distance is no obstacle when I get to combine my two great passions: travelling and telling stories.',
-        'Every video is more than a report; it’s a legacy. My goal is to create the best possible memory for you — a film that stands the test of time and lets you relive every emotion as if it were the first day.',
+        'I’m Eric. Video, always video.',
+        'I fell for video when I realised a wedding isn’t one day — it’s hours of small things that never happen the same way twice. The bride’s father’s look. The first hug between friends who hadn’t seen each other in years. The held-back tears during the vows.',
+        'My style is documentary. I don’t direct scenes, I don’t ask for «look at each other and smile». I stay out of the way and let the day happen. Then, in the edit, I build your film.',
+        'I’ve shot weddings in Tarragona, Barcelona, Lleida, Huesca, Málaga and New York. I’m not afraid to travel.',
       ],
-    },
-    cta: {
-      es: '📽️ ¿Quieres que inmortalicemos tu historia? Hablemos y hagámoslo realidad.',
-      ca: '📽️ Vols que immortalitzem la teva història? Parlem-ne i fem-ho realitat.',
-      en: '📽️ Want us to immortalise your story? Let’s talk and make it happen.',
     },
   },
   {
@@ -45,28 +42,26 @@ export const TEAM: TeamMember[] = [
     name: 'Ferran Blasco',
     role: { es: 'Fotógrafo', ca: 'Fotògraf', en: 'Photographer' },
     instagram: 'https://www.instagram.com/ferryphotographer/',
-    photo: '/team/ferran.jpg',
+    photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&auto=format&fit=crop&q=80',
     bio: {
-      es: [
-        '¡Hola! Soy Ferran Blasco y tengo la gran suerte de dedicarme a lo que más me apasiona: la fotografía. A través de mi cámara, capturo momentos únicos que, de otro modo, se desvanecerían en el tiempo.',
-        'Mi misión es convertir cada imagen en un recuerdo eterno, capaz de transportaros a ese instante, reviviendo cada emoción como si fuera el primer día.',
-        'Además de ser fotógrafo y padre, soy un apasionado del fútbol, la música y el buen café. También disfruto del cine y las series, siempre buscando nuevas historias que me inspiren.',
-      ],
       ca: [
-        'Hola! Sóc Ferran Blasco i tinc la gran sort de dedicar-me al que més m’apassiona: la fotografia. A través de la meva càmera, capturo moments únics que, d’altra manera, es desdibuixarien en el temps.',
-        'La meva missió és convertir cada imatge en un record etern, capaç de transportar-vos a aquell instant, revivint cada emoció com si fos el primer dia.',
-        'A més de ser fotògraf i pare, sóc un apassionat del futbol, la música i el bon cafè. També gaudeixo del cinema i les sèries, sempre buscant noves històries que m’inspirin.',
+        'Sóc en Ferran. L’altre germà, el de la foto.',
+        'Porto una càmera al coll des que tinc memòria. Al final t’acostumes a mirar el món buscant la llum, la composició, l’instant just abans del que tothom espera.',
+        'A una boda, la meva feina no és fer fotos boniques — això és el mínim. És capturar el que passa quan ningú mira la càmera: la tieta que plora a l’última fila, l’amic que es desfà de riure, les mans que es toquen per sota de la taula durant el discurs.',
+        'Quan us entrego la galeria, no busco que digueu «quines fotos més maques» — busco que digueu «això és exactament com va ser aquell dia».',
+      ],
+      es: [
+        'Soy Ferran. El otro hermano, el de la foto.',
+        'Llevo una cámara al cuello desde que tengo memoria. Al final te acostumbras a mirar el mundo buscando la luz, la composición, el instante justo antes de lo que todos esperan.',
+        'En una boda, mi trabajo no es hacer fotos bonitas — eso es el mínimo. Es capturar lo que pasa cuando nadie mira a la cámara: la tía que llora en la última fila, el amigo que se parte de risa, las manos que se rozan por debajo de la mesa durante el discurso.',
+        'Cuando os entrego la galería, no busco que digáis «qué fotos tan bonitas» — busco que digáis «esto es exactamente como fue ese día».',
       ],
       en: [
-        'Hello! I’m Ferran Blasco and I’m lucky to work on what I love the most: photography. Through my camera, I capture unique moments that would otherwise fade with time.',
-        'My mission is to turn every image into an eternal memory that takes you back to that instant and lets you relive every emotion as if it were the first day.',
-        'Besides being a photographer and a dad, I’m passionate about football, music and good coffee. I also enjoy films and series, always looking for new stories that inspire me.',
+        'I’m Ferran. The other brother, the one with the camera.',
+        'I’ve had a camera around my neck for as long as I can remember. Eventually you learn to see the world in light, composition, the beat just before everyone expects.',
+        'At a wedding, my job isn’t to make nice pictures — that’s the minimum. It’s to catch what happens when no one is looking at the camera: the aunt crying in the back row, the friend doubled over laughing, hands brushing under the table during a speech.',
+        'When I hand you the gallery, I don’t want you to say «what beautiful photos» — I want you to say «this is exactly how that day felt».',
       ],
-    },
-    cta: {
-      es: '📸 ¿Quieres que capturemos juntos tu historia? Estaré encantado de hacerlo realidad.',
-      ca: '📸 Vols que capturem junts la teva història? Estaré encantat de fer-ho realitat.',
-      en: '📸 Want us to capture your story together? I’d love to make it happen.',
     },
   },
 ];

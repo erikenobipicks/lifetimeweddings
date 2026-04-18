@@ -8,39 +8,33 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 
 const featured = WEDDINGS.filter((w) => weddingCover(w)).slice(0, 6);
+
+function altFor(w: typeof featured[number]): string {
+  const venueOk = w.venue && w.venue !== '—';
+  return venueOk ? `Boda de ${w.couple} a ${w.venue}` : `Boda de ${w.couple}`;
+}
 ---
 
 <Section id="portfolio" bg="ink">
   <div class="max-w-6xl mx-auto text-center">
     <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('portfolio.label')}</p>
-    <h2 class="font-display text-3xl md:text-4xl font-bold mb-10 text-white">{t('portfolio.title')}</h2>
+    <h2 class="font-display text-3xl md:text-4xl font-bold mb-8 md:mb-10 text-white">{t('portfolio.title')}</h2>
 
-    <div class="flex justify-center gap-8 md:gap-12 mb-10" role="tablist">
-      <button type="button" class="font-display italic text-xl md:text-2xl font-bold text-white" role="tab" aria-selected="true">
-        {t('portfolio.tab.photo')}
-      </button>
-      <button type="button" class="font-display italic text-xl md:text-2xl font-bold text-white/40 hover:text-white transition-colors" role="tab" aria-selected="false">
-        {t('portfolio.tab.video')}
-      </button>
-    </div>
-
-    <div class="max-w-3xl mx-auto space-y-4 text-white/70 leading-relaxed">
-      <p>{t('portfolio.p1')}</p>
-      <p>{t('portfolio.p2')}</p>
-      <p>{t('portfolio.p3')}</p>
-      <p class="font-medium text-white">{t('portfolio.cta')}</p>
-    </div>
+    <p class="max-w-2xl mx-auto text-white/70 leading-relaxed text-[0.95rem] md:text-base">
+      {t('portfolio.intro')}
+    </p>
 
     {featured.length > 0 && (
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-14">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-12 md:mt-14">
         {featured.map((w) => (
           <a
             href={localePath(lang, `/bodas/${w.slug}`)}
             class="group relative block overflow-hidden aspect-[4/5] focus:outline-none focus:ring-2 focus:ring-gold"
+            aria-label={altFor(w)}
           >
             <img
               src={weddingCover(w) ?? ''}
-              alt={`${w.couple} · ${w.venue}`}
+              alt={altFor(w)}
               class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
               decoding="async"

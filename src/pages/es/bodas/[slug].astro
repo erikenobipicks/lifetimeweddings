@@ -16,13 +16,17 @@ const gallery = weddingGallery(wedding);
 
 <BaseLayout
   lang={lang}
-  title={`${wedding.couple} · ${wedding.venue} · Lifetime Weddings`}
-  description={`Galería de la boda de ${wedding.couple} en ${wedding.venue} (${wedding.location}).`}
+  title={wedding.venue && wedding.venue !== '—'
+    ? `${wedding.couple} · ${wedding.venue} · Lifetime Weddings`
+    : `${wedding.couple} · Lifetime Weddings`}
+  description={wedding.venue && wedding.venue !== '—'
+    ? `Galería de la boda de ${wedding.couple} en ${wedding.venue} (${wedding.location}).`
+    : `Galería de la boda de ${wedding.couple}.`}
   canonicalPath={`/bodas/${wedding.slug}`}
 >
   {cover && (
     <section class="relative h-[60vh] min-h-[420px] overflow-hidden">
-      <img src={cover} alt={`${wedding.couple} · ${wedding.venue}`} class="absolute inset-0 w-full h-full object-cover" loading="eager" />
+      <img src={cover} alt={wedding.venue && wedding.venue !== '—' ? `${wedding.couple} · ${wedding.venue}` : wedding.couple} class="absolute inset-0 w-full h-full object-cover" loading="eager" />
       <div class="absolute inset-0 bg-black/40"></div>
       <div class="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-6">
         <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">Bodas</p>

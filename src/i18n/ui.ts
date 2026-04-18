@@ -57,25 +57,13 @@ export const ui = {
     'about.cta': 'Ver bodas reales',
 
     // Team
-    'team.label': 'El equipo',
-    'team.title': 'Dos hermanos, un solo objetivo:',
-    'team.title.em': 'capturar vuestra historia',
-    'team.intro':
-      'Somos un equipo de fotógrafos especializados en bodas en Tarragona (Reus), con años de experiencia inmortalizando momentos únicos. Como hermanos, #BetterTogether no es solo un hashtag, sino nuestra filosofía: la compenetración, el respeto y la conexión son clave para capturar cada boda con autenticidad y emoción.',
-    'team.cta': '📸 ¿Queréis que inmortalicemos vuestro gran día? Escribidnos y hablemos sobre vuestra boda.',
+    'team.label': 'Los que estaremos allí',
 
     // Portfolio
     'portfolio.label': 'Nuestro trabajo',
-    'portfolio.title': 'Algunos de nuestros trabajos',
-    'portfolio.tab.photo': 'Fotografía de Boda',
-    'portfolio.tab.video': 'Vídeo de Boda',
-    'portfolio.p1':
-      'Nuestro estilo en fotografía y vídeo de bodas es el fotoperiodismo creativo: una combinación perfecta entre la captura espontánea y un enfoque artístico.',
-    'portfolio.p2':
-      'Buscamos inmortalizar cada sonrisa, cada lágrima, cada emoción y cada detalle de vuestro gran día de forma natural, sin interferir en el momento. Pasamos desapercibidos, pero estamos en cada instante, asegurándonos de contar vuestra historia con autenticidad y sensibilidad.',
-    'portfolio.p3':
-      'Nuestro objetivo es reflejar la realidad de vuestra boda, pero con un toque de magia y arte. Queremos que, al ver cada imagen o vídeo, podáis revivir la emoción de ese día como si estuvierais allí.',
-    'portfolio.cta': '📸 Capturamos instantes, contamos historias y transmitimos emociones.',
+    'portfolio.title': 'Algunas bodas recientes',
+    'portfolio.intro':
+      'Nuestro estilo es fotoperiodismo documental: pasamos desapercibidos, no dirigimos, no interrumpimos. Nuestro trabajo es que dentro de 20 años reviváis el día — no que recordéis al fotógrafo.',
 
     // Services
     'services.label': 'Lo que ofrecemos',
@@ -91,13 +79,13 @@ export const ui = {
       'Nos encanta descubrir los pequeños detalles, las miradas, los besos y esos instantes llenos de magia que hacen única vuestra historia. Nuestra creatividad nace de vosotros.',
 
     // Video / Love Stories
-    'video.label': '🇺🇸 Love Story · Nueva York',
-    'video.title': 'Love Stories Videos',
+    'video.label': 'Hasta donde haga falta',
+    'video.title': 'Nueva York, Málaga, Huesca, o a la vuelta de casa',
     'video.p1':
-      'Viajar a Nueva York fue una experiencia única para nosotros. Tuvimos el privilegio de compartir momentos con Ariadna & Clifton y contar su hermosa historia de amor a través de nuestra lente, recorriendo juntos las calles de Manhattan y Brooklyn.',
+      'Ariadna y Clifton se conocieron en Manhattan. Querían un recuerdo que empezara allí donde empezó todo, así que montamos la cámara y nos llevamos el vídeo a Brooklyn.',
     'video.p2':
-      'Cada rincón de la ciudad se convirtió en el escenario perfecto para capturar su complicidad, creando recuerdos que quedarán para siempre.',
-    'video.cta': '📸 Porque cada historia merece ser contada en el lugar donde nace la magia.',
+      'No todas las historias piden viajar a Nueva York — la mayoría se quedan en Tarragona y están muy bien así. Pero si la vuestra lo pide, vamos donde haga falta.',
+    'video.cta': 'Contadnos vuestra historia',
 
     // Testimonials
     'testi.label': 'Testimonios',
@@ -115,7 +103,8 @@ export const ui = {
     'contact.label': 'Contacto',
     'contact.title': 'Estamos deseando conoceros',
     'contact.subtitle':
-      'Rellenad este formulario contándonos todo lo que os gustaría que supiéramos sobre vuestra boda. Os responderemos lo antes posible con toda la información necesaria.',
+      'Contadnos sobre vuestra boda. Os respondemos en menos de 24h (l.–v.).',
+    'contact.date.placeholder': 'Aproximada (mes y año, o estación)',
     'contact.field.name': 'Nombre',
     'contact.field.email': 'Correo electrónico',
     'contact.field.phone': 'Teléfono',
@@ -220,7 +209,7 @@ export const ui = {
     'dossier.featured': 'Recomendado',
     'dossier.cta': 'Nos interesa',
     'dossier.offer.title': 'Oferta flash',
-    'dossier.offer.p1': '📸 Sesión preboda gratuita en Tarragona/Reus al contratar antes del 31/12/2026.',
+    'dossier.offer.p1': 'Sesión preboda gratuita en Tarragona/Reus al contratar antes del 31/12/2026.',
     'dossier.offer.p2': '🎥 10 % de descuento en el pack completo foto + vídeo si reserváis hoy.',
     'dossier.closing': 'Vuestra boda merece un recuerdo único. Estaremos encantados de capturar vuestra historia con naturalidad y elegancia.',
 
@@ -269,24 +258,12 @@ export const ui = {
       'Fem bodes a Tarragona, Reus, Lleida, Barcelona i allà on ens porti la història. I sí — si ens ho demaneu, muntem la càmera a Nova York també (ja ho hem fet).',
     'about.cta': 'Veure bodes reals',
 
-    'team.label': 'L’equip',
-    'team.title': 'Dos germans, un sol objectiu:',
-    'team.title.em': 'capturar la vostra història',
-    'team.intro':
-      'Som un equip de fotògrafs especialitzats en bodes a Tarragona (Reus), amb anys d’experiència immortalitzant moments únics. Com a germans, #BetterTogether no és només un hashtag, sinó la nostra filosofia: la compenetració, el respecte i la connexió són clau per capturar cada boda amb autenticitat i emoció.',
-    'team.cta': '📸 Voleu que immortalitzem el vostre gran dia? Contacteu-nos i parlem de la vostra boda.',
+    'team.label': 'Els que hi serem',
 
     'portfolio.label': 'La nostra feina',
-    'portfolio.title': 'Alguns dels nostres treballs',
-    'portfolio.tab.photo': 'Fotografia de Bodes',
-    'portfolio.tab.video': 'Vídeo de Bodes',
-    'portfolio.p1':
-      'El nostre estil en fotografia i vídeo de bodes és el fotoperiodisme creatiu: una combinació perfecta entre la captura espontània i un enfocament artístic.',
-    'portfolio.p2':
-      'Busquem immortalitzar cada somriure, cada llàgrima, cada emoció i cada detall del vostre gran dia de manera natural, sense interferir en el moment. Passem desapercebuts, però som a cada instant, assegurant-nos d’explicar la vostra història amb autenticitat i sensibilitat.',
-    'portfolio.p3':
-      'El nostre objectiu és reflectir la realitat de la vostra boda, però amb un toc de màgia i art. Volem que, en veure cada imatge o vídeo, pugueu reviure l’emoció d’aquell dia com si hi fóssiu.',
-    'portfolio.cta': '📸 Capturem instants, expliquem històries i transmetem emocions.',
+    'portfolio.title': 'Algunes bodes recents',
+    'portfolio.intro':
+      'El nostre estil és fotoperiodisme documental: passem desapercebuts, no dirigim, no interrompem. La nostra feina és que d’aquí 20 anys reviviu el dia — no que recordeu el fotògraf.',
 
     'services.label': 'El que oferim',
     'services.title': 'Serveis que oferim',
@@ -300,13 +277,13 @@ export const ui = {
     'services.fusion.desc':
       'Ens encanta descobrir els petits detalls, les mirades, els petons i aquells instants plens de màgia que fan única la vostra història. La nostra creativitat neix de vosaltres.',
 
-    'video.label': '🇺🇸 Love Story · Nova York',
-    'video.title': 'Love Stories Videos',
+    'video.label': 'Fins on calgui',
+    'video.title': 'Nova York, Màlaga, Osca, o a la vora de casa',
     'video.p1':
-      'Viatjar a Nova York va ser una experiència única per a nosaltres. Vam tenir el privilegi de compartir moments amb l’Ariadna i en Clifton i explicar la seva preciosa història d’amor a través del nostre objectiu, recorrent junts els carrers de Manhattan i Brooklyn.',
+      'L’Ariadna i en Clifton es van conèixer a Manhattan. Volien un record que comencés allà on va començar tot, així que vam muntar la càmera i ens vam endur el vídeo a Brooklyn.',
     'video.p2':
-      'Cada racó de la ciutat es va convertir en l’escenari perfecte per capturar la seva complicitat, creant records que quedaran per sempre.',
-    'video.cta': '📸 Perquè cada història mereix ser explicada al lloc on neix la màgia.',
+      'No totes les històries demanen viatjar a Nova York — la majoria es queden a Tarragona i estan molt bé així. Però si la vostra ho demana, anem on faci falta.',
+    'video.cta': 'Parleu-nos de la vostra història',
 
     'testi.label': 'Testimonis',
     'testi.title': 'Mireu què en diuen de nosaltres',
@@ -320,7 +297,8 @@ export const ui = {
     'contact.label': 'Contacte',
     'contact.title': 'Tenim ganes de conèixer-vos',
     'contact.subtitle':
-      'Empleneu aquest formulari i expliqueu-nos tot el que us agradaria que sabéssim sobre la vostra boda. Us respondrem al més aviat possible amb tota la informació necessària.',
+      'Expliqueu-nos la vostra boda. Us responem en menys de 24h (dl.–dv.).',
+    'contact.date.placeholder': 'Aproximada (mes i any, o estació)',
     'contact.field.name': 'Nom',
     'contact.field.email': 'Correu electrònic',
     'contact.field.phone': 'Telèfon',
@@ -418,7 +396,7 @@ export const ui = {
     'dossier.featured': 'Recomanat',
     'dossier.cta': 'Ens interessa',
     'dossier.offer.title': 'Oferta flash',
-    'dossier.offer.p1': '📸 Sessió preboda gratuïta a Tarragona/Reus si contracteu abans del 31/12/2026.',
+    'dossier.offer.p1': 'Sessió preboda gratuïta a Tarragona/Reus si contracteu abans del 31/12/2026.',
     'dossier.offer.p2': '🎥 10 % de descompte en el pack complet foto + vídeo si reserveu avui.',
     'dossier.closing': 'El vostre casament mereix un record únic. Estarem encantats de capturar la vostra història amb naturalitat i elegància.',
 
@@ -464,24 +442,12 @@ export const ui = {
       'We shoot weddings in Tarragona, Reus, Lleida, Barcelona and wherever the story takes us. And yes — if you ask, we’ll set up the camera in New York too (we’ve done it).',
     'about.cta': 'See real weddings',
 
-    'team.label': 'The team',
-    'team.title': 'Two brothers, one single goal:',
-    'team.title.em': 'to capture your story',
-    'team.intro':
-      'We are a team of wedding photographers and videographers based in Tarragona (Reus) with years of experience immortalising unique moments. As brothers, #BetterTogether is not just a hashtag but our philosophy: understanding, respect and connection are key to capturing every wedding with authenticity and emotion.',
-    'team.cta': '📸 Want us to capture your big day? Get in touch and let’s talk about your wedding.',
+    'team.label': 'Who’ll be there',
 
     'portfolio.label': 'Our work',
-    'portfolio.title': 'Some of our work',
-    'portfolio.tab.photo': 'Wedding Photography',
-    'portfolio.tab.video': 'Wedding Video',
-    'portfolio.p1':
-      'Our style in wedding photography and videography is creative photojournalism: the perfect combination of spontaneous capture and an artistic approach.',
-    'portfolio.p2':
-      'We aim to immortalise every smile, every tear, every emotion and every detail of your big day in a natural way, without interfering. We blend in, but we are there at every moment, making sure we tell your story with authenticity and sensitivity.',
-    'portfolio.p3':
-      'Our goal is to reflect the reality of your wedding, but with a touch of magic and art. We want you to relive that day — as if you were there — every time you see an image or video.',
-    'portfolio.cta': '📸 We capture moments, tell stories and convey emotions.',
+    'portfolio.title': 'Recent weddings',
+    'portfolio.intro':
+      'Our style is documentary photojournalism: we stay out of the way, we don’t direct, we don’t interrupt. Our job is that 20 years from now you relive the day — not that you remember the photographer.',
 
     'services.label': 'What we offer',
     'services.title': 'Services we offer',
@@ -495,13 +461,13 @@ export const ui = {
     'services.fusion.desc':
       'We love discovering the little details, the glances, the kisses and those magical moments that make your story unique. Our creativity comes from you.',
 
-    'video.label': '🇺🇸 Love Story · New York',
-    'video.title': 'Love Stories Videos',
+    'video.label': 'As far as it takes',
+    'video.title': 'New York, Málaga, Huesca, or just round the corner',
     'video.p1':
-      'Travelling to New York was a unique experience for us. We had the privilege of sharing moments with Ariadna & Clifton and telling their beautiful love story through our lens, walking together through the streets of Manhattan and Brooklyn.',
+      'Ariadna and Clifton met in Manhattan. They wanted a memory that started where everything started, so we packed the camera and shot the film in Brooklyn.',
     'video.p2':
-      'Every corner of the city became the perfect setting to capture their chemistry, creating memories that will last forever.',
-    'video.cta': '📸 Because every story deserves to be told where the magic begins.',
+      'Not every story calls for a trip to New York — most stay in Tarragona, and that’s great. But if yours calls for it, we’ll go wherever it takes.',
+    'video.cta': 'Tell us your story',
 
     'testi.label': 'Testimonials',
     'testi.title': 'See what couples say about us',
@@ -515,7 +481,8 @@ export const ui = {
     'contact.label': 'Contact',
     'contact.title': 'We’re looking forward to meeting you',
     'contact.subtitle':
-      'Fill in this form and tell us everything you would like us to know about your wedding. We will get back to you as soon as possible with all the information you need.',
+      'Tell us about your wedding. We reply within 24h (Mon–Fri).',
+    'contact.date.placeholder': 'Approximate (month + year, or season)',
     'contact.field.name': 'Name',
     'contact.field.email': 'Email',
     'contact.field.phone': 'Phone',
@@ -613,7 +580,7 @@ export const ui = {
     'dossier.featured': 'Recommended',
     'dossier.cta': 'We’re interested',
     'dossier.offer.title': 'Flash offer',
-    'dossier.offer.p1': '📸 Free pre-wedding session in Tarragona/Reus when booking before 31/12/2026.',
+    'dossier.offer.p1': 'Free pre-wedding session in Tarragona/Reus when booking before 31/12/2026.',
     'dossier.offer.p2': '🎥 10 % off on the full photo + video pack if you book today.',
     'dossier.closing': 'Your wedding deserves a unique memory. We’ll be delighted to capture your story with warmth and elegance.',
 

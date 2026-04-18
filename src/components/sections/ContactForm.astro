@@ -45,8 +45,8 @@ const t = useTranslations(lang);
 
       <div class="grid md:grid-cols-2 gap-5">
         <div>
-          <label for="wedding_date" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{t('contact.field.date')} *</label>
-          <input id="wedding_date" name="wedding_date" type="date" required
+          <label for="wedding_date" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{t('contact.field.date')}</label>
+          <input id="wedding_date" name="wedding_date" type="text" placeholder={t('contact.date.placeholder')}
                  class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors" />
         </div>
         <div>

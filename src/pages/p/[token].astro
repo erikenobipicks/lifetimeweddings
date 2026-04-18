@@ -7,6 +7,11 @@ import { PACKS } from '~/data/packs';
 import { SHOWCASES } from '~/data/showcases';
 import { recommendShowcase } from '~/lib/matcher';
 import { SITE, waLink } from '~/data/site';
+import Icon from '~/components/Icon.astro';
+
+function iconForType(t: 'photo' | 'video' | 'combo') {
+  return t === 'photo' ? 'camera' : t === 'video' ? 'video' : 'diamond';
+}
 
 const token = String(Astro.params.token ?? '');
 const quote = await getQuoteByToken(token);
@@ -151,7 +156,7 @@ function waForCouple(): string {
             <div class="grid md:grid-cols-2 gap-6">
               {packs.map((p) => (
                 <article class="bg-white p-7 border border-black/10">
-                  <div class="text-3xl mb-3">{p.emoji}</div>
+                  <div class="text-gold mb-3"><Icon name={iconForType(p.type) as any} size={28} /></div>
                   <h3 class="font-display text-xl font-bold mb-3">{p.name.ca}</h3>
                   <p class="text-3xl font-display font-bold text-gold mb-5">{p.price}</p>
                   <p class="text-xs font-bold tracking-[0.12em] uppercase text-ink/60 mb-3">Inclou</p>

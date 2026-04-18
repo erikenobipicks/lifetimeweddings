@@ -1,6 +1,6 @@
 ---
 import Section from '../Section.astro';
-import { useTranslations, type Lang } from '~/i18n/ui';
+import { useTranslations, localePath, type Lang } from '~/i18n/ui';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
@@ -12,7 +12,7 @@ const t = useTranslations(lang);
     <div class="relative overflow-hidden group">
       <img
         src="/photos/generic/006-lg.jpg"
-        alt="Love Story — sessió pre-boda"
+        alt="Sessió pre-boda a Brooklyn, Nova York"
         class="w-full h-80 md:h-[460px] object-cover transition-transform duration-500 group-hover:scale-105"
         loading="lazy"
         decoding="async"
@@ -31,9 +31,14 @@ const t = useTranslations(lang);
     <div>
       <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('video.label')}</p>
       <h2 class="font-display text-3xl md:text-4xl font-bold leading-tight mb-6">{t('video.title')}</h2>
-      <p class="text-ink/70 leading-relaxed mb-4">{t('video.p1')}</p>
-      <p class="text-ink/70 leading-relaxed mb-4">{t('video.p2')}</p>
-      <p class="font-medium text-ink">{t('video.cta')}</p>
+      <p class="text-ink/75 leading-relaxed mb-4">{t('video.p1')}</p>
+      <p class="text-ink/75 leading-relaxed mb-8">{t('video.p2')}</p>
+      <a
+        href={localePath(lang, '/quiz')}
+        class="inline-block border-2 border-ink bg-ink text-white px-8 py-3.5 text-xs font-bold tracking-[0.18em] uppercase hover:bg-gold hover:border-gold transition-colors"
+      >
+        {t('video.cta')}
+      </a>
     </div>
   </div>
 </Section>

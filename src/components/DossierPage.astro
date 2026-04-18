@@ -1,5 +1,6 @@
 ---
 import Section from './Section.astro';
+import Icon from './Icon.astro';
 import { PACKS, type PackType } from '~/data/packs';
 import { useTranslations, localePath, type Lang } from '~/i18n/ui';
 
@@ -7,11 +8,14 @@ interface Props { lang: Lang }
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 
-const groups: { type: PackType; label: string }[] = [
-  { type: 'photo', label: t('dossier.type.photo') },
-  { type: 'video', label: t('dossier.type.video') },
-  { type: 'combo', label: t('dossier.type.combo') },
+const groups: { type: PackType; label: string; icon: 'camera' | 'video' | 'diamond' }[] = [
+  { type: 'photo', label: t('dossier.type.photo'), icon: 'camera' },
+  { type: 'video', label: t('dossier.type.video'), icon: 'video' },
+  { type: 'combo', label: t('dossier.type.combo'), icon: 'diamond' },
 ];
+
+const iconByType = (type: PackType) =>
+  type === 'photo' ? 'camera' : type === 'video' ? 'video' : 'diamond';
 ---
 
 <Section bg="cream" class="pt-32">
@@ -42,7 +46,7 @@ const groups: { type: PackType; label: string }[] = [
                   {t('dossier.featured')}
                 </span>
               )}
-              <div class="text-3xl mb-3" aria-hidden="true">{p.emoji}</div>
+              <div class="text-gold mb-3"><Icon name={iconByType(p.type)} size={28} /></div>
               <h3 class="font-display text-lg font-bold mb-3">{p.name[lang]}</h3>
               <p class="text-2xl font-display font-bold text-gold mb-5">{p.price}</p>
               <p class="text-xs font-bold tracking-[0.12em] uppercase text-ink/60 mb-3">{t('dossier.includes')}</p>

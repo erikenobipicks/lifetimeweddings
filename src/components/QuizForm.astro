@@ -20,9 +20,9 @@ const ceremonies = [
 ];
 
 const services = [
-  { value: 'photo', label: t('quiz.svc.photo'), icon: '📸' },
-  { value: 'video', label: t('quiz.svc.video'), icon: '🎬' },
-  { value: 'both', label: t('quiz.svc.both'), icon: '💍' },
+  { value: 'photo', label: t('quiz.svc.photo') },
+  { value: 'video', label: t('quiz.svc.video') },
+  { value: 'both', label: t('quiz.svc.both') },
 ];
 
 const budgets = [
@@ -85,7 +85,7 @@ const TOTAL_STEPS = 6;
       {services.map((s) => (
         <button type="button" data-choice="serviceInterest" data-value={s.value}
                 class="quiz-option px-5 py-4 border border-black/15 text-left font-bold hover:border-gold hover:bg-cream transition-colors text-lg">
-          <span class="mr-2">{s.icon}</span> {s.label}
+          {s.label}
         </button>
       ))}
     </div>
