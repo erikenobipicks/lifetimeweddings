@@ -2,25 +2,27 @@
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import ContactForm from '~/components/sections/ContactForm.astro';
 import Section from '~/components/Section.astro';
-import { SITE } from '~/data/site';
+import { SITE, waLink } from '~/data/site';
 import { useTranslations } from '~/i18n/ui';
 
 const lang = 'en' as const;
 const t = useTranslations(lang);
+const waHref = waLink(t('wa.message'));
 ---
 
 <BaseLayout
   lang={lang}
-  title="Contact | Lifetime Weddings"
-  description="Let’s talk about your wedding. Drop us a line and we’ll get back to you very soon with all the info."
+  title="Contact | Lifetime Weddings — Wedding photographers in Tarragona"
+  description="Let’s talk about your wedding. We reply within 24h. Reus, Tarragona, Lleida, Barcelona and worldwide."
   canonicalPath="/contacto"
 >
   <Section bg="cream" class="pt-32">
-    <div class="max-w-3xl mx-auto text-center">
-      <h1 class="font-display text-4xl md:text-5xl font-bold mb-4">Let’s talk…</h1>
-      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-4">Wedding photo &amp; video</p>
-      <p class="text-ink/75 leading-relaxed max-w-xl mx-auto">
-        Looking for a professional wedding photographer and videographer? Leave us your details and we’ll get in touch very soon.
+    <div class="max-w-2xl mx-auto text-center">
+      <h1 class="font-display text-4xl md:text-5xl font-bold mb-5">{t('contact.h1')}</h1>
+      <p class="text-ink/75 leading-relaxed">
+        {t('contact.sub.pre')}
+        {' '}
+        <a href={waHref} target="_blank" rel="noopener" class="text-gold underline underline-offset-2 hover:text-ink">{t('contact.sub.wa')}</a>{t('contact.sub.post')}
       </p>
     </div>
   </Section>
@@ -28,17 +30,24 @@ const t = useTranslations(lang);
   <ContactForm lang={lang} compact />
 
   <Section>
-    <div class="max-w-3xl mx-auto text-center">
-      <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">{t('contact.where.title')}</h2>
-      <p class="text-ink/75 leading-relaxed mb-6">{t('contact.where.desc')}</p>
-      <address class="not-italic space-y-1 text-ink/80">
-        <p><strong>{SITE.address.street}</strong> · {SITE.address.city} ({SITE.address.region})</p>
-        <p>
+    <div class="max-w-3xl mx-auto">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-5 text-center">{t('contact.where.title')}</h2>
+      <p class="text-ink/75 leading-relaxed mb-8 text-center">{t('contact.where.desc')}</p>
+      <dl class="grid sm:grid-cols-2 gap-6 max-w-xl mx-auto text-sm">
+        <div>
+          <dt class="text-xs font-bold tracking-[0.18em] uppercase text-ink/60 mb-1">{t('contact.where.address')}</dt>
+          <dd class="text-ink/80">{SITE.address.street} · {SITE.address.city} ({SITE.address.region})</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-bold tracking-[0.18em] uppercase text-ink/60 mb-1">{t('contact.where.hours')}</dt>
+          <dd class="text-ink/80">{t('contact.where.hours.value')}</dd>
+        </div>
+        <div class="sm:col-span-2 flex flex-wrap gap-3 justify-center text-sm pt-2">
           <a href={`mailto:${SITE.email}`} class="text-gold hover:underline">{SITE.email}</a>
-          <span class="mx-2 opacity-50">·</span>
+          <span class="text-ink/30">·</span>
           <a href={`tel:${SITE.phone}`} class="text-gold hover:underline">{SITE.phoneDisplay}</a>
-        </p>
-      </address>
+        </div>
+      </dl>
     </div>
   </Section>
 </BaseLayout>

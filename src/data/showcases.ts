@@ -1,7 +1,12 @@
 // Showcase pages: curated collections of photos + video linked to ceremony types.
 // Each showcase is a hidden page (/showcase/[slug]) with noindex, shown to leads
 // via the quote page as "See similar work".
-// TODO: Replace placeholder images/videos with real content.
+//
+// NOTE: the gallery images currently use Unsplash placeholders because these
+// showcases aren't yet linked from public traffic (noindex + served only when
+// a /p/<token> quote points to them). Before sending a real quote that
+// references one of these showcases, swap the URLs below for actual wedding
+// photos. Tracked as TODO for content import.
 
 export interface Showcase {
   slug: string;

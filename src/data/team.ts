@@ -1,3 +1,5 @@
+// IMPORTANT: never use stock images here — always real team photos.
+// Files live at public/team/eric.jpg and public/team/ferran.jpg.
 import type { Lang } from '~/i18n/ui';
 
 export interface TeamMember {
@@ -15,7 +17,7 @@ export const TEAM: TeamMember[] = [
     name: 'Eric Blasco',
     role: { es: 'Videógrafo', ca: 'Videògraf', en: 'Videographer' },
     instagram: 'https://www.instagram.com/lifetime.weddings/',
-    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80',
+    photo: '/team/eric.jpg',
     bio: {
       ca: [
         'Sóc l’Eric. Vídeo, sempre vídeo.',
@@ -42,7 +44,7 @@ export const TEAM: TeamMember[] = [
     name: 'Ferran Blasco',
     role: { es: 'Fotógrafo', ca: 'Fotògraf', en: 'Photographer' },
     instagram: 'https://www.instagram.com/ferryphotographer/',
-    photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&auto=format&fit=crop&q=80',
+    photo: '/team/ferran.jpg',
     bio: {
       ca: [
         'Sóc en Ferran. L’altre germà, el de la foto.',

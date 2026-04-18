@@ -68,15 +68,15 @@ export const ui = {
     // Services
     'services.label': 'Lo que ofrecemos',
     'services.title': 'Servicios que ofrecemos',
-    'services.photo.title': 'Fotografía de Boda',
+    'services.photo.title': 'Fotografía de Bodas',
     'services.photo.desc':
-      'Capturamos cada instante de vuestro gran día con un estilo documental y artístico, sin posados forzados. Vuestras emociones, vuestra historia, contadas con autenticidad.',
-    'services.video.title': 'Vídeo de Boda',
+      '700–1.200 imágenes editadas, entregadas en galería privada en 3–4 semanas. Cobertura completa del día, del preparativo a la fiesta, con estilo documental.',
+    'services.video.title': 'Vídeo de Bodas',
     'services.video.desc':
-      'Creamos películas cinematográficas que os transportarán de vuelta a ese día especial. Más que un reportaje, un legado cinematográfico de vuestro amor.',
-    'services.fusion.title': 'Fusion Pre Boda',
+      'Película documental de 25–35 minutos, entregada en 8–10 semanas. Opcional: tráiler corto, discursos y ceremonia completa sin cortes.',
+    'services.fusion.title': 'Sesión pre-boda',
     'services.fusion.desc':
-      'Nos encanta descubrir los pequeños detalles, las miradas, los besos y esos instantes llenos de magia que hacen única vuestra historia. Nuestra creatividad nace de vosotros.',
+      'Una mañana o una tarde para conocernos y para que os familiaricéis con la cámara antes del gran día. En Tarragona, Reus o donde os venga bien.',
 
     // Video / Love Stories
     'video.label': 'Hasta donde haga falta',
@@ -117,9 +117,16 @@ export const ui = {
     'contact.error': 'Ha habido un error al enviar el mensaje. Intentadlo de nuevo o escribidnos a hola@lifetime.photo',
     'contact.microcopy': 'Os respondemos en menos de 24h (de lunes a viernes).',
     'contact.placeholder.message': 'Opcional: lugar, estilo, hora de la ceremonia, lo que queráis compartir…',
-    'contact.where.title': '¿Dónde nos podéis encontrar?',
+    'contact.where.title': 'De dónde venimos y hasta dónde vamos',
     'contact.where.desc':
-      'Aunque estamos basados en Reus (Tarragona), realizamos bodas por todo el mundo. No importa dónde os caséis, ¡llevamos nuestras cámaras hasta vosotros!',
+      'Nuestra base está en Reus (Tarragona). Cubrimos bodas sin coste de desplazamiento en Tarragona, Reus, Lleida, Barcelona y el resto de Cataluña. Para bodas fuera de Cataluña, os pasamos un presupuesto a medida.',
+    'contact.where.address': 'Dirección',
+    'contact.where.hours': 'Horario de respuesta',
+    'contact.where.hours.value': 'l.–v., 9h–19h',
+    'contact.h1': 'Hablemos de vuestra boda',
+    'contact.sub.pre': 'Os respondemos en menos de 24h (l.–v.). Si preferís, también podéis escribirnos por',
+    'contact.sub.wa': 'WhatsApp',
+    'contact.sub.post': '.',
 
     // Footer
     'footer.rights': 'Todos los derechos reservados.',
@@ -130,7 +137,7 @@ export const ui = {
     // WhatsApp float
     'wa.label': 'Escríbenos por WhatsApp',
     'wa.message':
-      '¡Hola! Nos gustaría información sobre vuestros packs de foto y vídeo de boda. Nos casamos en...',
+      '¡Hola! Nos gustaría información sobre vuestros packs de foto y vídeo de boda. Nos casamos el…',
 
     // FAQ
     'faq.label': 'Preguntas frecuentes',
@@ -269,13 +276,13 @@ export const ui = {
     'services.title': 'Serveis que oferim',
     'services.photo.title': 'Fotografia de Bodes',
     'services.photo.desc':
-      'Capturem cada instant del vostre gran dia amb un estil documental i artístic, sense posats forçats. Les vostres emocions, la vostra història, explicades amb autenticitat.',
+      '700–1.200 imatges editades, entregades en galeria privada en 3–4 setmanes. Cobertura completa del dia, de la preparació a la festa, amb estil documental.',
     'services.video.title': 'Vídeo de Bodes',
     'services.video.desc':
-      'Creem cinematic films que us transportaran de nou a aquell dia especial. Més que un reportatge, un llegat cinematogràfic del vostre amor.',
-    'services.fusion.title': 'Fusió Pre Boda',
+      'Pel·lícula documental de 25–35 minuts, entregada en 8–10 setmanes. Opcional: tràiler curt, discursos i cerimònia completa sense talls.',
+    'services.fusion.title': 'Sessió pre-boda',
     'services.fusion.desc':
-      'Ens encanta descobrir els petits detalls, les mirades, els petons i aquells instants plens de màgia que fan única la vostra història. La nostra creativitat neix de vosaltres.',
+      'Un matí o una tarda per conèixer-nos i perquè us familiaritzeu amb la càmera abans del gran dia. A Tarragona, Reus o allà on us vagi bé.',
 
     'video.label': 'Fins on calgui',
     'video.title': 'Nova York, Màlaga, Osca, o a la vora de casa',
@@ -311,9 +318,16 @@ export const ui = {
     'contact.error': 'Hi ha hagut un error en enviar el missatge. Torneu-ho a provar o escriviu-nos a hola@lifetime.photo',
     'contact.microcopy': 'Us responem en menys de 24h (de dilluns a divendres).',
     'contact.placeholder.message': 'Opcional: lloc, estil, hora de la cerimònia, res que vulgueu compartir…',
-    'contact.where.title': 'On ens podeu trobar?',
+    'contact.where.title': 'D’on venim i fins on anem',
     'contact.where.desc':
-      'Tot i que tenim la base a Reus (Tarragona), fem bodes arreu del món. No importa on us caseu: portem les càmeres fins a vosaltres!',
+      'La nostra base és a Reus (Tarragona). Cobrim bodes sense cost de desplaçament a Tarragona, Reus, Lleida, Barcelona i la resta de Catalunya. Per a bodes fora de Catalunya, us passem un pressupost a mida.',
+    'contact.where.address': 'Adreça',
+    'contact.where.hours': 'Horari de resposta',
+    'contact.where.hours.value': 'dl.–dv., 9h–19h',
+    'contact.h1': 'Parlem de la vostra boda',
+    'contact.sub.pre': 'Us responem en menys de 24h (dl.–dv.). Si preferiu, també podeu escriure-nos per',
+    'contact.sub.wa': 'WhatsApp',
+    'contact.sub.post': '.',
 
     'footer.rights': 'Tots els drets reservats.',
     'footer.legal': 'Avís legal',
@@ -323,7 +337,7 @@ export const ui = {
     'wa.label': 'Escriu-nos per WhatsApp',
     'wa.chat': 'Parla amb nosaltres',
     'wa.message':
-      'Hola! Estem pensant en la nostra boda i ens agradaria consultar disponibilitat.',
+      'Hola! Ens agradaria informació dels vostres packs de foto i vídeo de boda. Ens casem el…',
 
     'yt.more': 'Tots els tràilers i pel·lícules al nostre canal →',
 
@@ -453,13 +467,13 @@ export const ui = {
     'services.title': 'Services we offer',
     'services.photo.title': 'Wedding Photography',
     'services.photo.desc':
-      'We capture every moment of your big day with a documentary and artistic style, no forced poses. Your emotions, your story, told authentically.',
+      '700–1,200 edited images, delivered in a private online gallery in 3–4 weeks. Full-day coverage, from getting ready to the party, documentary style.',
     'services.video.title': 'Wedding Video',
     'services.video.desc':
-      'We create cinematic films that will take you back to that special day. More than a report: a cinematic legacy of your love.',
-    'services.fusion.title': 'Fusion Pre Wedding',
+      '25–35 minute documentary film, delivered in 8–10 weeks. Optional: short trailer, speeches and uncut ceremony.',
+    'services.fusion.title': 'Pre-wedding session',
     'services.fusion.desc':
-      'We love discovering the little details, the glances, the kisses and those magical moments that make your story unique. Our creativity comes from you.',
+      'A morning or afternoon to get to know each other and for you to get comfortable in front of the camera. In Tarragona, Reus or wherever suits you.',
 
     'video.label': 'As far as it takes',
     'video.title': 'New York, Málaga, Huesca, or just round the corner',
@@ -493,9 +507,16 @@ export const ui = {
     'contact.submit': 'Send message',
     'contact.success': 'Thanks a lot for reaching out! We’ll get back to you very soon.',
     'contact.error': 'There was an error sending the message. Please try again or email us at hola@lifetime.photo',
-    'contact.where.title': 'Where can you find us?',
+    'contact.where.title': 'Where we’re based and how far we go',
     'contact.where.desc':
-      'Although we are based in Reus (Tarragona), we shoot weddings all over the world. Wherever you get married, we bring our cameras to you!',
+      'Our base is in Reus (Tarragona). We cover weddings at no travel cost in Tarragona, Reus, Lleida, Barcelona and the rest of Catalonia. For weddings outside Catalonia, we’ll send you a custom quote.',
+    'contact.where.address': 'Address',
+    'contact.where.hours': 'Reply hours',
+    'contact.where.hours.value': 'Mon–Fri, 9am–7pm',
+    'contact.h1': 'Let’s talk about your wedding',
+    'contact.sub.pre': 'We reply within 24h (Mon–Fri). You can also reach us on',
+    'contact.sub.wa': 'WhatsApp',
+    'contact.sub.post': '.',
 
     'footer.rights': 'All rights reserved.',
     'footer.legal': 'Legal notice',
@@ -505,7 +526,7 @@ export const ui = {
     'wa.label': 'Message us on WhatsApp',
     'wa.chat': 'Chat with us',
     'wa.message':
-      'Hi! We’re planning our wedding and would like to check your availability.',
+      'Hi! We’d like info on your wedding photo and video packs. We’re getting married on…',
 
     'yt.more': 'All trailers and films on our channel →',
 
