@@ -11,8 +11,10 @@ export default {
         gold: '#c9a96e',
       },
       fontFamily: {
-        display: ['"Playfair Display"', 'serif'],
-        sans: ['Lato', 'system-ui', 'sans-serif'],
+        // Fraunces (display/headings, variable with SOFT axis)
+        // Inter (body/UI) — replaces Lato (too generic / overused)
+        display: ['Fraunces', 'Georgia', 'serif'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
       container: {
         center: true,

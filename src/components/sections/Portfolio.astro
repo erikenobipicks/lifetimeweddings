@@ -41,9 +41,9 @@ function altFor(w: typeof featured[number]): string {
             />
             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
             <div class="absolute bottom-4 left-4 right-4 text-left">
-              <p class="font-display text-lg text-white font-bold">{w.couple}</p>
+              <p class="font-display italic text-xl text-white" style="font-weight: 400; letter-spacing: -0.01em;">{w.couple}</p>
               {w.venue && w.venue !== '—' && (
-                <p class="text-xs uppercase tracking-wider text-white/70">{w.venue}</p>
+                <p class="text-xs uppercase tracking-[0.12em] text-white/70 mt-0.5">{w.venue}</p>
               )}
             </div>
           </a>

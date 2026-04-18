@@ -72,8 +72,8 @@ function smallLabelFor(p: Pack): string | null {
                   </p>
                 )}
                 <div class="text-gold mb-3"><Icon name={iconByType(p.type)} size={28} /></div>
-                <h3 class="font-display text-lg font-bold mb-3">{p.name[lang]}</h3>
-                <p class="text-2xl font-display font-bold text-gold mb-5">{p.price}</p>
+                <h3 class="font-display text-lg mb-3" style="font-weight: 500; letter-spacing: -0.01em;">{p.name[lang]}</h3>
+                <p class="pack-price text-2xl md:text-[1.75rem] text-gold mb-5">{p.price}</p>
                 <p class="text-xs font-bold tracking-[0.12em] uppercase text-ink/60 mb-3">{t('dossier.includes')}</p>
                 <ul class="space-y-2 text-sm text-ink/75 mb-6 flex-1">
                   {p.includes[lang].map((it) => (

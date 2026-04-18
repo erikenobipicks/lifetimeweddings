@@ -2,12 +2,121 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ────────────────────────────────────────────────────────────────
+   Type system — Fraunces (display) + Inter (body/UI)
+   Replaces the old Lato + Playfair stack in April 2026.
+   ──────────────────────────────────────────────────────────────── */
+
+:root {
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Fraunces SOFT axis: 0 (default) → 100 (max softness).
+     50 = warmer than default without feeling gimmicky. */
+  --fraunces-soft: 50;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
   }
+
+  body {
+    font-family: var(--font-body);
+    /* Inter stylistic sets: ss01 single-storey a, cv11 curved l, cv05 lower-g.
+       Slightly more elegant than default Inter. */
+    font-feature-settings: 'ss01', 'cv11', 'cv05';
+    font-optical-sizing: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Display headings */
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+    font-variation-settings: 'SOFT' var(--fraunces-soft);
+    font-optical-sizing: auto;
+    letter-spacing: -0.015em;
+  }
+  h1 {
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    font-weight: 400;
+  }
+  h2 {
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    font-weight: 400;
+  }
+  h3 {
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    font-weight: 500;
+  }
+
+  /* h4-h6 stay in Inter for visual hierarchy separation */
+  h4, h5, h6 {
+    font-family: var(--font-body);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+  }
+
+  /* Body paragraphs */
+  p {
+    line-height: 1.65;
+  }
+
+  /* Long-reading blocks (inside .prose already has good defaults from
+     @tailwindcss/typography; nudge line-height for Inter). */
+  .prose p,
+  .prose li {
+    line-height: 1.7;
+  }
+
+  /* Focus */
   :focus-visible {
     outline: 2px solid theme('colors.gold');
     outline-offset: 2px;
   }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   Component-level type fixes
+   ──────────────────────────────────────────────────────────────── */
+
+/* Fraunces reads heavy in font-weight 700 (default of Tailwind's .font-bold).
+   For our display stack, 500 hits the premium spot — substantial but not
+   chunky. Override the combo .font-display.font-bold to 500 without touching
+   every component. Weight 700 still available via explicit font-weight
+   when truly needed. */
+.font-display.font-bold,
+.font-display.font-semibold {
+  font-weight: 500;
+}
+
+/* Prices on /packs (Inter 600, not Fraunces — serifs hurt numeric legibility
+   at this size). */
+.pack-price {
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-feature-settings: 'tnum', 'ss01';
+}
+
+/* FAQ accordion: summaries in Inter (Fraunces creates visual clutter when
+   stacked). Override the display class applied via Tailwind. */
+summary.faq-summary {
+  font-family: var(--font-body);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+
+/* Eyebrow / kicker pattern */
+.eyebrow {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
 }
