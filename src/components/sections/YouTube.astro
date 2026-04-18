@@ -12,22 +12,19 @@ interface Props {
 const { lang, fallbackVideoId = 'Q8mJr2BnfUc' } = Astro.props;
 const t = useTranslations(lang);
 
-const videos = await getLatestVideos(7);
-const [featured, ...others] = videos;
+const videos = await getLatestVideos(1);
+const featured = videos[0];
 const featuredId = featured?.id ?? fallbackVideoId;
 const featuredTitle = featured?.title ?? t('yt.title');
 ---
 
 <Section id="youtube" bg="ink">
-  <div class="max-w-5xl mx-auto text-center">
-    <h2 class="font-display text-2xl md:text-3xl font-bold mb-3 text-white">{t('yt.title')}</h2>
-    <p class="text-white/60 text-xs font-bold tracking-[0.18em] uppercase mb-10">
-      <a href={SITE.social.youtube} target="_blank" rel="noopener" class="hover:text-gold transition-colors">
-        @lifetime.weddings →
-      </a>
-    </p>
+  <div class="max-w-4xl mx-auto text-center">
+    <h2 class="font-display text-2xl md:text-3xl lg:text-4xl font-bold mb-8 md:mb-10 text-white">
+      {t('yt.title')}
+    </h2>
 
-    <div class="relative aspect-video bg-black mb-4">
+    <div class="relative aspect-video bg-black mb-6 shadow-2xl">
       <iframe
         src={`https://www.youtube-nocookie.com/embed/${featuredId}`}
         title={featuredTitle}
@@ -38,38 +35,14 @@ const featuredTitle = featured?.title ?? t('yt.title');
         referrerpolicy="strict-origin-when-cross-origin"
       ></iframe>
     </div>
-    {featured && (
-      <p class="text-white/80 text-sm mb-10 max-w-3xl mx-auto">{featured.title}</p>
-    )}
 
-    {others.length > 0 && (
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-        {others.slice(0, 6).map((v) => (
-          <a
-            href={v.url}
-            target="_blank"
-            rel="noopener"
-            class="group block text-left"
-            aria-label={v.title}
-          >
-            <div class="relative aspect-video overflow-hidden bg-black/50">
-              <img
-                src={v.thumbnailUrl}
-                alt=""
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                loading="lazy"
-                decoding="async"
-              />
-              <span class="absolute inset-0 flex items-center justify-center">
-                <span class="w-12 h-12 bg-black/50 group-hover:bg-gold rounded-full flex items-center justify-center transition-colors">
-                  <svg viewBox="0 0 24 24" class="w-5 h-5 fill-white ml-0.5" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-                </span>
-              </span>
-            </div>
-            <p class="text-white/80 text-xs mt-2 line-clamp-2 group-hover:text-gold transition-colors">{v.title}</p>
-          </a>
-        ))}
-      </div>
-    )}
+    <a
+      href={SITE.social.youtube}
+      target="_blank"
+      rel="noopener"
+      class="inline-block text-xs md:text-sm font-bold tracking-[0.18em] uppercase text-gold hover:text-white transition-colors"
+    >
+      {t('yt.more')}
+    </a>
   </div>
 </Section>

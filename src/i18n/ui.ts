@@ -28,23 +28,33 @@ export const ui = {
     'nav.testimonials': 'Testimonios',
     'nav.blog': 'Blog',
     'nav.contact': 'Contacto',
-    'nav.book': 'Reservar cita',
+    'nav.book': 'Consultar disponibilidad',
 
     // Hero
-    'hero.title': 'Fotografía y Vídeo de Bodas en Tarragona',
-    'hero.subtitle': 'Capturamos los momentos más especiales de vuestro día con naturalidad y emoción.',
-    'hero.tagline': 'Capturamos & contamos · Momentos & historias',
-    'hero.cta': 'Explícanos tu historia',
+    'hero.eyebrow': 'Fotografía y vídeo de bodas · Tarragona · Reus · Lleida',
+    'hero.title': 'Dos hermanos. Una cámara y una de vídeo.',
+    'hero.title2': 'Vuestra historia, contada a cuatro manos.',
+    'hero.subtitle': 'Somos la segunda generación de una familia de fotógrafos. Llevamos más de 15 años contando bodas en Cataluña con un estilo documental, natural y sin poses forzadas.',
+    'hero.cta': 'Consultar disponibilidad',
+    'hero.cta.secondary': 'Ver bodas reales',
+
+    // Trust bar
+    'trust.weddings': '+150 bodas',
+    'trust.coverage': 'Tarragona · Lleida · Barcelona',
+    'trust.delivery': 'Entrega en 3–4 semanas',
+    'trust.rating': '5★ en Google',
 
     // About
-    'about.label': 'Somos',
-    'about.title': 'Lifetime Weddings',
-    'about.subtitle': 'Creando recuerdos eternos de vuestra historia de amor.',
+    'about.label': 'Quiénes somos',
+    'about.title': 'Nos hemos criado entre cámaras.',
+    'about.subtitle': 'Dos hermanos, la misma mirada en dos formatos.',
     'about.p1':
-      'Nos hemos criado entre cámaras, focos y carretes de fotografía, viendo incontables imágenes de bodas. Sí, somos la segunda generación de una familia dedicada a contar historias de amor. Con años de experiencia y un estilo propio en fotografía y vídeo de bodas, decidimos dar vida a Lifetime Weddings con un propósito claro: crear recuerdos que perduren en las familias para toda la vida.',
+      'Somos Eric y Ferran Blasco, dos hermanos y la segunda generación de una familia de fotógrafos. Antes de andar, ya había carretes, focos y álbumes de boda en casa. De alguna manera, eso te marca.',
     'about.p2':
-      'No nos limitamos a capturar una boda con simples posados. Buscamos fotografías que transmitan emociones, con un toque artístico, que cuenten la historia real de ese día. En vídeo, nos centramos en la historia de las personas que se aman y han decidido compartir su vida juntas, plasmando cada sentimiento con naturalidad y autenticidad.',
-    'about.cta': 'Conócenos',
+      'Creamos Lifetime Weddings porque queríamos contar las bodas de otra manera: sin poses forzadas, sin fórmulas y sin prisas. Uno lo hace en foto, el otro en vídeo. La misma mirada, dos formatos.',
+    'about.p3':
+      'Hacemos bodas en Tarragona, Reus, Lleida, Barcelona y allá donde nos lleve la historia. Y sí — si nos lo pedís, montamos la cámara en Nueva York también (ya lo hemos hecho).',
+    'about.cta': 'Ver bodas reales',
 
     // Team
     'team.label': 'El equipo',
@@ -116,6 +126,8 @@ export const ui = {
     'contact.submit': 'Enviar mensaje',
     'contact.success': '¡Muchas gracias por poneros en contacto con nosotros! Os responderemos muy pronto.',
     'contact.error': 'Ha habido un error al enviar el mensaje. Intentadlo de nuevo o escribidnos a hola@lifetime.photo',
+    'contact.microcopy': 'Os respondemos en menos de 24h (de lunes a viernes).',
+    'contact.placeholder.message': 'Opcional: lugar, estilo, hora de la ceremonia, lo que queráis compartir…',
     'contact.where.title': '¿Dónde nos podéis encontrar?',
     'contact.where.desc':
       'Aunque estamos basados en Reus (Tarragona), realizamos bodas por todo el mundo. No importa dónde os caséis, ¡llevamos nuestras cámaras hasta vosotros!',
@@ -131,9 +143,39 @@ export const ui = {
     'wa.message':
       '¡Hola! Nos gustaría información sobre vuestros packs de foto y vídeo de boda. Nos casamos en...',
 
+    // FAQ
+    'faq.label': 'Preguntas frecuentes',
+    'faq.title': 'Resolvemos las dudas más habituales',
+    'faq.q1': '¿Sois dos o uno? ¿Quién viene el día de la boda?',
+    'faq.a1': 'Venimos siempre Eric (vídeo) y Ferran (foto). Si el pack incluye segundo operador, se incorpora una persona más de confianza durante las horas clave (preparativos dobles, ceremonia o fiesta).',
+    'faq.q2': '¿Qué estilo de fotografía hacéis?',
+    'faq.a2': 'Fotoperiodismo creativo. Documental, natural, sin poses forzadas. Os guiamos cuando hace falta — por ejemplo en el retrato de pareja — pero el resto del día pasamos desapercibidos. El objetivo es que dentro de 20 años revivas el día, no que recuerdes al fotógrafo.',
+    'faq.q3': '¿Cuánto cuesta una boda con vosotros?',
+    'faq.a3': 'Los packs empiezan en 1.290 € + IVA solo fotografía y 2.480 € + IVA para foto + vídeo. Podéis ver todos los packs y precios o hacernos una consulta personalizada en 1 minuto.',
+    'faq.q4': '¿Cuándo recibimos las fotos y el vídeo?',
+    'faq.a4': 'Galería online con todas las fotos editadas en 3–4 semanas. Vídeo documental en 8–10 semanas. Tráiler, si lo habéis contratado, en 3–4 semanas.',
+    'faq.q5': '¿Viajáis fuera de Cataluña?',
+    'faq.a5': 'Sí. Nuestra base es Reus, pero hemos hecho bodas en Barcelona, Lleida, Girona, Huesca, Castellón, Málaga y Nueva York. Los desplazamientos fuera de Cataluña se presupuestan aparte.',
+    'faq.q6': '¿Hacéis sesión pre-boda?',
+    'faq.a6': 'Sí. Es opcional y la recomendamos: os ayuda a sentiros cómodos delante de la cámara y nos permite conoceros mejor antes del gran día.',
+    'faq.q7': '¿Y si llueve?',
+    'faq.a7': 'Pues llueve, y es precioso. Tenemos experiencia en bodas con lluvia, viento o sol de justicia. Nunca es un problema — solo otra historia que contar.',
+    'faq.q8': '¿Cómo se hace la reserva?',
+    'faq.a8': 'Confirmamos disponibilidad, firmamos un contrato simple y pedimos un 30% para bloquear la fecha. El resto se paga antes de la boda.',
+    'faq.q9': '¿Puedo ver una boda completa, no solo los mejores momentos?',
+    'faq.a9': 'Sí. Si nos escribís, os enviamos 1–2 galerías completas para que veáis la coherencia de todo el reportaje, no solo las fotos de Instagram.',
+    'faq.q10': '¿Hacéis álbum?',
+    'faq.a10': 'Sí, diseñamos álbumes de madera personalizados incluidos en algunos packs. También podemos diseñar álbumes extra para padres y padrinos.',
+
+    // WhatsApp float
+    'wa.chat': 'Habla con nosotros',
+
+    // YouTube
+    'yt.more': 'Todos los tráilers y películas en nuestro canal →',
+
     // Quiz funnel
-    'quiz.title': 'Vuestro presupuesto a medida',
-    'quiz.subtitle': 'Respondednos a unas breves preguntas y os prepararemos una propuesta personalizada en segundos.',
+    'quiz.title': 'Veamos si estamos libres vuestra fecha',
+    'quiz.subtitle': 'En 1 minuto os hacemos una propuesta personalizada.',
     'quiz.step': 'Paso',
     'quiz.of': 'de',
     'quiz.next': 'Siguiente',
@@ -202,21 +244,30 @@ export const ui = {
     'nav.testimonials': 'Testimonis',
     'nav.blog': 'Blog',
     'nav.contact': 'Contacte',
-    'nav.book': 'Reservar cita',
+    'nav.book': 'Consultar disponibilitat',
 
-    'hero.title': 'Fotografia i Vídeo de Bodes a Tarragona',
-    'hero.subtitle': 'Capturem els moments més especials del vostre dia amb naturalitat i emoció.',
-    'hero.tagline': 'Capturem & expliquem · Moments & històries',
-    'hero.cta': 'Expliqueu-nos la vostra història',
+    'hero.eyebrow': 'Fotografia i vídeo de bodes · Tarragona · Reus · Lleida',
+    'hero.title': 'Dos germans. Una càmera i una de vídeo.',
+    'hero.title2': 'La vostra història, explicada a quatre mans.',
+    'hero.subtitle': 'Som la segona generació d’una família de fotògrafs. Fa més de 15 anys que expliquem bodes a Catalunya amb un estil documental, natural i sense posats forçats.',
+    'hero.cta': 'Consultar disponibilitat',
+    'hero.cta.secondary': 'Veure bodes reals',
 
-    'about.label': 'Som',
-    'about.title': 'Lifetime Weddings',
-    'about.subtitle': 'Creant records inesborrables de la vostra història d’amor.',
+    'trust.weddings': '+150 bodes',
+    'trust.coverage': 'Tarragona · Lleida · Barcelona',
+    'trust.delivery': 'Entrega en 3–4 setmanes',
+    'trust.rating': '5★ a Google',
+
+    'about.label': 'Qui som',
+    'about.title': 'Ens hem criat entre càmeres.',
+    'about.subtitle': 'Dos germans, la mateixa mirada en dos formats.',
     'about.p1':
-      'Ens hem criat entre càmeres, focus i carrets de fotografia, veient incomptables imatges de bodes. Sí, som la segona generació d’una família dedicada a explicar històries d’amor. Amb anys d’experiència i un estil propi en fotografia i vídeo de bodes, vam decidir donar vida a Lifetime Weddings amb un propòsit clar: crear records que perdurin a les famílies per tota la vida.',
+      'Som l’Eric i en Ferran Blasco, dos germans i la segona generació d’una família de fotògrafs. Abans que caminéssim, ja hi havia carrets, focus i àlbums de boda a casa. D’alguna manera, això et marca.',
     'about.p2':
-      'No ens limitem a capturar una boda amb simples posats. Busquem fotografies que transmetin emocions, amb un toc artístic, que expliquin la història real d’aquell dia. En vídeo, ens centrem en la història de les persones que s’estimen i han decidit compartir la vida plegades, plasmant cada sentiment amb naturalitat i autenticitat.',
-    'about.cta': 'Coneix-nos',
+      'Vam crear Lifetime Weddings perquè volíem explicar les bodes d’una altra manera: sense posats forçats, sense fórmules i sense presses. Un ho fa en foto, l’altre en vídeo. La mateixa mirada, dos formats.',
+    'about.p3':
+      'Fem bodes a Tarragona, Reus, Lleida, Barcelona i allà on ens porti la història. I sí — si ens ho demaneu, muntem la càmera a Nova York també (ja ho hem fet).',
+    'about.cta': 'Veure bodes reals',
 
     'team.label': 'L’equip',
     'team.title': 'Dos germans, un sol objectiu:',
@@ -280,6 +331,8 @@ export const ui = {
     'contact.submit': 'Enviar missatge',
     'contact.success': 'Moltes gràcies per posar-vos en contacte! Us respondrem ben aviat.',
     'contact.error': 'Hi ha hagut un error en enviar el missatge. Torneu-ho a provar o escriviu-nos a hola@lifetime.photo',
+    'contact.microcopy': 'Us responem en menys de 24h (de dilluns a divendres).',
+    'contact.placeholder.message': 'Opcional: lloc, estil, hora de la cerimònia, res que vulgueu compartir…',
     'contact.where.title': 'On ens podeu trobar?',
     'contact.where.desc':
       'Tot i que tenim la base a Reus (Tarragona), fem bodes arreu del món. No importa on us caseu: portem les càmeres fins a vosaltres!',
@@ -290,11 +343,38 @@ export const ui = {
     'footer.cookies': 'Política de galetes',
 
     'wa.label': 'Escriu-nos per WhatsApp',
+    'wa.chat': 'Parla amb nosaltres',
     'wa.message':
-      'Hola! Ens agradaria informació sobre els vostres packs de foto i vídeo de boda. Ens casem a...',
+      'Hola! Estem pensant en la nostra boda i ens agradaria consultar disponibilitat.',
 
-    'quiz.title': 'El vostre pressupost a mida',
-    'quiz.subtitle': 'Responeu unes breus preguntes i us prepararem una proposta personalitzada en segons.',
+    'yt.more': 'Tots els tràilers i pel·lícules al nostre canal →',
+
+    // FAQ
+    'faq.label': 'Preguntes freqüents',
+    'faq.title': 'Resolem els dubtes més habituals',
+    'faq.q1': 'Sou dos o un? Qui ve el dia de la boda?',
+    'faq.a1': 'Venim sempre l’Eric (vídeo) i en Ferran (foto). Si el pack inclou segon operador, s’incorpora una persona més de confiança durant les hores clau (preparatius dobles, cerimònia o festa).',
+    'faq.q2': 'Quin estil de fotografia feu?',
+    'faq.a2': 'Fotoperiodisme creatiu. Documental, natural, sense posats forçats. Us guiem quan cal — per exemple en el retrat de parella — però la resta del dia passem desapercebuts. L’objectiu és que d’aquí 20 anys reviviu el dia, no que recordeu el fotògraf.',
+    'faq.q3': 'Quant costa una boda amb vosaltres?',
+    'faq.a3': 'Els packs comencen en 1.290 € + IVA només fotografia i 2.480 € + IVA per foto + vídeo. Podeu veure tots els packs i preus o fer-nos una consulta personalitzada en 1 minut.',
+    'faq.q4': 'Quan rebem les fotos i el vídeo?',
+    'faq.a4': 'Galeria online amb totes les fotos editades en 3–4 setmanes. Vídeo documental en 8–10 setmanes. Tràiler, si l’heu contractat, en 3–4 setmanes.',
+    'faq.q5': 'Viatgeu fora de Catalunya?',
+    'faq.a5': 'Sí. La nostra base és Reus, però hem fet bodes a Barcelona, Lleida, Girona, Osca, Castelló, Màlaga i Nova York. Els desplaçaments fora de Catalunya es pressuposten a part.',
+    'faq.q6': 'Feu sessió pre-boda?',
+    'faq.a6': 'Sí. És opcional i la recomanem: us ajuda a sentir-vos còmodes davant de la càmera i ens permet conèixer-vos millor abans del gran dia.',
+    'faq.q7': 'I si plou?',
+    'faq.a7': 'Doncs plou, i és preciós. Tenim experiència en bodes amb pluja, vent o sol de justícia. Mai és un problema — només una altra història per explicar.',
+    'faq.q8': 'Com es fa la reserva?',
+    'faq.a8': 'Confirmem disponibilitat, signem un contracte simple i demanem un 30 % per bloquejar la data. La resta es paga abans de la boda.',
+    'faq.q9': 'Puc veure una boda completa, no només els millors moments?',
+    'faq.a9': 'Sí. Si ens escriviu us enviem 1–2 galeries completes perquè veieu la coherència de tot el reportatge, no només les fotos d’Instagram.',
+    'faq.q10': 'Feu àlbum?',
+    'faq.a10': 'Sí, dissenyem àlbums de fusta personalitzats inclosos en alguns packs. També podem dissenyar àlbums extra per a pares i padrins.',
+
+    'quiz.title': 'Mirem si estem lliures la vostra data',
+    'quiz.subtitle': 'En 1 minut us fem una proposta personalitzada.',
     'quiz.step': 'Pas',
     'quiz.of': 'de',
     'quiz.next': 'Següent',
@@ -359,21 +439,30 @@ export const ui = {
     'nav.testimonials': 'Testimonials',
     'nav.blog': 'Blog',
     'nav.contact': 'Contact',
-    'nav.book': 'Book a call',
+    'nav.book': 'Check availability',
 
-    'hero.title': 'Wedding Photography and Videography in Tarragona',
-    'hero.subtitle': 'We capture the most meaningful moments of your day with warmth and honesty.',
-    'hero.tagline': 'We capture & tell · Moments & stories',
-    'hero.cta': 'Tell us your story',
+    'hero.eyebrow': 'Wedding photography & film · Tarragona · Reus · Lleida',
+    'hero.title': 'Two brothers. One camera, one film rig.',
+    'hero.title2': 'Your story, told with four hands.',
+    'hero.subtitle': 'We’re the second generation of a family of photographers. For over 15 years we’ve been telling wedding stories across Catalonia — documentary, natural, never posed.',
+    'hero.cta': 'Check availability',
+    'hero.cta.secondary': 'See real weddings',
 
-    'about.label': 'We are',
-    'about.title': 'Lifetime Weddings',
-    'about.subtitle': 'Creating timeless memories of your love story.',
+    'trust.weddings': '+150 weddings',
+    'trust.coverage': 'Tarragona · Lleida · Barcelona',
+    'trust.delivery': 'Delivery in 3–4 weeks',
+    'trust.rating': '5★ on Google',
+
+    'about.label': 'Who we are',
+    'about.title': 'We grew up with cameras.',
+    'about.subtitle': 'Two brothers, one vision in two formats.',
     'about.p1':
-      'We grew up surrounded by cameras, lights and rolls of film, looking at countless wedding images. Yes, we are the second generation of a family dedicated to telling love stories. With years of experience and our own style in wedding photography and videography, we decided to bring Lifetime Weddings to life with a clear purpose: to create memories that families will cherish for a lifetime.',
+      'We are Eric and Ferran Blasco, two brothers and the second generation of a family of photographers. Before we could walk, there were already rolls of film, lighting kits and wedding albums at home. Somehow, that shapes you.',
     'about.p2':
-      'We do not limit ourselves to capturing a wedding with simple posed shots. We look for photographs that convey emotion, with an artistic touch, that tell the real story of that day. In video, we focus on the story of the people who love each other and have decided to share their lives together, conveying every feeling with authenticity.',
-    'about.cta': 'Meet us',
+      'We created Lifetime Weddings because we wanted to tell weddings differently: no forced poses, no formulas, no rush. One works in photo, the other in video. The same eye, two formats.',
+    'about.p3':
+      'We shoot weddings in Tarragona, Reus, Lleida, Barcelona and wherever the story takes us. And yes — if you ask, we’ll set up the camera in New York too (we’ve done it).',
+    'about.cta': 'See real weddings',
 
     'team.label': 'The team',
     'team.title': 'Two brothers, one single goal:',
@@ -447,11 +536,40 @@ export const ui = {
     'footer.cookies': 'Cookie policy',
 
     'wa.label': 'Message us on WhatsApp',
+    'wa.chat': 'Chat with us',
     'wa.message':
-      'Hi! We’d love more info about your wedding photo and video packs. We are getting married in...',
+      'Hi! We’re planning our wedding and would like to check your availability.',
 
-    'quiz.title': 'Your custom quote',
-    'quiz.subtitle': `Answer a few quick questions and we'll prepare a personalised proposal in seconds.`,
+    'yt.more': 'All trailers and films on our channel →',
+
+    'faq.label': 'Frequently asked questions',
+    'faq.title': 'Answers to the most common questions',
+    'faq.q1': 'Are you two, or one? Who comes on the wedding day?',
+    'faq.a1': 'Eric (video) and Ferran (photo) always come together. If the pack includes a second operator, a trusted teammate joins during the key hours (dual getting-ready, ceremony or party).',
+    'faq.q2': 'What photography style do you shoot?',
+    'faq.a2': 'Creative photojournalism. Documentary, natural, no forced poses. We guide you when we need to — for the couple’s portrait, for example — but the rest of the day we stay out of the way. The goal is that 20 years from now you relive the day, not remember the photographer.',
+    'faq.q3': 'How much does a wedding with you cost?',
+    'faq.a3': 'Packs start at €1,290 + VAT for photo only and €2,480 + VAT for photo + video. You can view all packs and prices or get a personalised quote in under a minute.',
+    'faq.q4': 'When do we get the photos and video?',
+    'faq.a4': 'Online gallery with all edited photos in 3–4 weeks. Documentary film in 8–10 weeks. Trailer, if included, in 3–4 weeks.',
+    'faq.q5': 'Do you travel outside Catalonia?',
+    'faq.a5': 'Yes. Our base is Reus, but we’ve shot weddings in Barcelona, Lleida, Girona, Huesca, Castellón, Málaga and New York. Travel outside Catalonia is quoted separately.',
+    'faq.q6': 'Do you offer a pre-wedding session?',
+    'faq.a6': 'Yes. It’s optional and we recommend it: it helps you feel comfortable in front of the camera and lets us get to know you better before the big day.',
+    'faq.q7': 'What if it rains?',
+    'faq.a7': 'Then it rains, and it’s beautiful. We’ve shot through rain, wind and scorching sun. It’s never a problem — just another story to tell.',
+    'faq.q8': 'How do we book?',
+    'faq.a8': 'We confirm availability, sign a simple contract and ask for 30 % to hold the date. The rest is paid before the wedding.',
+    'faq.q9': 'Can I see a full wedding, not just the highlights?',
+    'faq.a9': 'Yes. Reach out and we’ll send 1–2 full galleries so you can see the consistency of the whole coverage, not just the Instagram picks.',
+    'faq.q10': 'Do you design albums?',
+    'faq.a10': 'Yes, we design personalised wooden albums included in selected packs. We can also design extra albums for parents and godparents.',
+
+    'contact.microcopy': 'We reply within 24h (Monday to Friday).',
+    'contact.placeholder.message': 'Optional: venue, style, ceremony time, anything you want to share…',
+
+    'quiz.title': 'Let’s see if we’re free on your date',
+    'quiz.subtitle': 'In 1 minute we’ll send you a personalised quote.',
     'quiz.step': 'Step',
     'quiz.of': 'of',
     'quiz.next': 'Next',

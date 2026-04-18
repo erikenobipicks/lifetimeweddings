@@ -26,6 +26,12 @@ const year = new Date().getFullYear();
       <a href={SITE.social.pinterest} target="_blank" rel="noopener" class="hover:text-gold">Pinterest</a>
     </p>
 
+    <p class="text-xs opacity-70 mt-1">
+      {lang === 'ca' ? 'Responem de dl. a dv., de 9 a 19h' : lang === 'es' ? 'Respondemos de L a V, de 9 a 19h' : 'We reply Mon–Fri, 9am–7pm'}
+      <span class="mx-2 opacity-50">·</span>
+      {lang === 'ca' ? 'Pagament fraccionat disponible' : lang === 'es' ? 'Pago fraccionado disponible' : 'Split payment available'}
+    </p>
+
     <nav aria-label="Legal" class="text-xs opacity-70">
       <a href={localePath(lang, '/packs')} class="hover:text-gold">Packs</a>
       <span class="mx-2 opacity-50">·</span>

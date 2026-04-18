@@ -37,23 +37,16 @@ const t = useTranslations(lang);
                class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors" />
       </div>
 
-      <div class="grid md:grid-cols-2 gap-5">
-        <div>
-          <label for="email" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{t('contact.field.email')} *</label>
-          <input id="email" name="email" type="email" required autocomplete="email"
-                 class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors" />
-        </div>
-        <div>
-          <label for="phone" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{t('contact.field.phone')}</label>
-          <input id="phone" name="phone" type="tel" autocomplete="tel"
-                 class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors" />
-        </div>
+      <div>
+        <label for="email" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{t('contact.field.email')} *</label>
+        <input id="email" name="email" type="email" required autocomplete="email"
+               class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors" />
       </div>
 
       <div class="grid md:grid-cols-2 gap-5">
         <div>
-          <label for="wedding_date" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{t('contact.field.date')}</label>
-          <input id="wedding_date" name="wedding_date" type="date"
+          <label for="wedding_date" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{t('contact.field.date')} *</label>
+          <input id="wedding_date" name="wedding_date" type="date" required
                  class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors" />
         </div>
         <div>
@@ -64,8 +57,8 @@ const t = useTranslations(lang);
       </div>
 
       <div>
-        <label for="message" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{t('contact.field.message')} *</label>
-        <textarea id="message" name="message" required rows="5"
+        <label for="message" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{t('contact.field.message')}</label>
+        <textarea id="message" name="message" rows="4" placeholder={t('contact.placeholder.message')}
                   class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors resize-y"></textarea>
       </div>
 
@@ -74,12 +67,15 @@ const t = useTranslations(lang);
         <span>{t('contact.field.consent')}</span>
       </label>
 
-      <button
-        type="submit"
-        class="justify-self-center border-2 border-ink bg-ink text-white px-14 py-4 text-xs font-bold tracking-[0.18em] uppercase hover:bg-gold hover:border-gold transition-colors"
-      >
-        {t('contact.submit')}
-      </button>
+      <div class="flex flex-col items-center gap-3">
+        <button
+          type="submit"
+          class="border-2 border-ink bg-ink text-white px-14 py-4 text-xs font-bold tracking-[0.18em] uppercase hover:bg-gold hover:border-gold transition-colors"
+        >
+          {t('contact.submit')}
+        </button>
+        <p class="text-xs text-ink/60">{t('contact.microcopy')}</p>
+      </div>
 
       <p class="hidden text-center font-display italic text-gold" data-contact-success>{t('contact.success')}</p>
       <p class="hidden text-center text-red-600" data-contact-error>{t('contact.error')}</p>

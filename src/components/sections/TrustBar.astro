@@ -1,0 +1,32 @@
+---
+// Thin horizontal bar with 4 trust signals. Rendered right after the hero so
+// the visitor sees credibility before scrolling into the portfolio.
+// TODO_i18n: 'trust.rating' assumes we link to Google Business Profile;
+// swap the URL once the real link is known.
+
+import { useTranslations, type Lang } from '~/i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const items = [
+  t('trust.weddings'),
+  t('trust.coverage'),
+  t('trust.delivery'),
+  t('trust.rating'),
+];
+---
+
+<section aria-label="Trust" class="bg-cream border-y border-black/5">
+  <div class="max-w-6xl mx-auto px-4 md:px-6 py-4 md:py-5">
+    <ul class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 md:gap-x-8 text-[0.65rem] md:text-[0.75rem] font-bold tracking-[0.16em] uppercase text-ink/70">
+      {items.map((it, i) => (
+        <li class="flex items-center">
+          {it}
+          {i < items.length - 1 && <span class="ml-4 md:ml-8 text-gold/60" aria-hidden="true">·</span>}
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

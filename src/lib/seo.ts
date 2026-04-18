@@ -11,7 +11,7 @@ export function localBusinessJsonLd(lang: Lang) {
     url: SITE.url,
     email: SITE.email,
     telephone: SITE.phone,
-    priceRange: '€€',
+    priceRange: '€€€',
     address: {
       '@type': 'PostalAddress',
       streetAddress: SITE.address.street,
@@ -20,6 +20,7 @@ export function localBusinessJsonLd(lang: Lang) {
       postalCode: SITE.address.postalCode,
       addressCountry: SITE.address.country,
     },
+    areaServed: ['Tarragona', 'Reus', 'Lleida', 'Barcelona', 'Catalunya'],
     sameAs: [SITE.social.instagram, SITE.social.youtube, SITE.social.pinterest].filter(Boolean),
     inLanguage: lang,
   };
