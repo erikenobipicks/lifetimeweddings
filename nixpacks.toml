@@ -15,4 +15,4 @@ cmds = ["npm install --legacy-peer-deps --no-audit --no-fund"]
 cmds = ["npm run build"]
 
 [start]
-cmd = "node ./dist/server/entry.mjs"
+cmd = "HOST=0.0.0.0 node ./dist/server/entry.mjs"

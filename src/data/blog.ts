@@ -32,7 +32,7 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedAt: '2026-01-21',
     readingTime: 4,
     category: 'bodas',
-    cover: 'https://static.wixstatic.com/media/2d4f94_badc69d2785f4093945141e6912ced7d~mv2.jpg',
+    cover: '/blog/7-errores-al-contratar-fotografo-de-boda/cover.jpg',
   },
   {
     slug: 'ferran-y-eric-fotografo-videografo-tarragona',
@@ -43,7 +43,7 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedAt: '2025-10-22',
     readingTime: 3,
     category: 'bodas',
-    cover: 'https://static.wixstatic.com/media/2d4f94_49774296935c47d680745274cae0d300~mv2.jpg',
+    cover: '/blog/ferran-y-eric-fotografo-videografo-tarragona/cover.jpg',
   },
   {
     slug: 'bodas-con-dron-en-tarragona',
@@ -64,7 +64,7 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedAt: '2025-07-29',
     readingTime: 4,
     category: 'bodas',
-    cover: 'https://static.wixstatic.com/media/2d4f94_8a85a58ab9224588a4bf89bb712bc336~mv2.jpg',
+    cover: '/blog/los-7-mejores-fotografos-de-boda-en-tarragona-2025/cover.jpg',
   },
   {
     slug: 'gafas-personalizadas-fotos-epicas-boda',
@@ -85,7 +85,7 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedAt: '2025-07-10',
     readingTime: 2,
     category: 'bodas',
-    cover: 'https://static.wixstatic.com/media/2d4f94_015ac072bcd14dd6bacb10b0f4f8bfb4~mv2.jpg',
+    cover: '/blog/chupitos-tequila-rosa-tendencia-bodas-2025/cover.jpg',
   },
   {
     slug: '10-fotos-imprescindibles-sesion-boda',
@@ -95,7 +95,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: null,
     updatedAt: '2025-07-03',
     category: 'fotografia',
-    cover: 'https://static.wixstatic.com/media/2d4f94_6359ca6104724739a67bbe3e64691161~mv2.jpg',
+    cover: '/blog/10-fotos-imprescindibles-sesion-boda/cover.jpg',
   },
   {
     slug: 'sesion-preboda-siurana-picnic-pizza',
@@ -106,7 +106,7 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedAt: '2025-06-18',
     readingTime: 2,
     category: 'bodas',
-    cover: 'https://static.wixstatic.com/media/2d4f94_692031755d7a4c5f92fc711df6fd3e14~mv2.jpg',
+    cover: '/blog/sesion-preboda-siurana-picnic-pizza/cover.jpg',
   },
   {
     slug: 'como-elegir-fotografo-videografo-bodas-tarragona',
@@ -117,7 +117,7 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedAt: '2025-03-20',
     readingTime: 3,
     category: 'bodas',
-    cover: 'https://static.wixstatic.com/media/2d4f94_732d97914da947be961943290ed15008~mv2.jpg',
+    cover: '/blog/como-elegir-fotografo-videografo-bodas-tarragona/cover.jpg',
   },
   {
     slug: 'boda-masia-can-marti-dani-marta',
@@ -127,7 +127,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: null,
     updatedAt: '2026-03-12',
     category: 'bodas',
-    cover: 'https://static.wixstatic.com/media/2d4f94_8f0156dff2c84faea2bd6bfdd9976eb2~mv2.jpg',
+    cover: '/blog/boda-masia-can-marti-dani-marta/cover.jpg',
   },
   {
     slug: 'boda-masia-can-marti-jennifer-albert',
@@ -137,7 +137,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: null,
     updatedAt: '2025-03-31',
     category: 'bodas',
-    cover: 'https://static.wixstatic.com/media/2d4f94_a0880c7e3958409d94b8b80718f21cd4~mv2.webp',
+    cover: '/blog/boda-masia-can-marti-jennifer-albert/cover.jpg',
   },
   {
     slug: 'boda-masia-heretat-sabartes-aitor-mariona',
@@ -148,7 +148,7 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedAt: '2026-04-09',
     readingTime: 3,
     category: 'bodas',
-    cover: 'https://static.wixstatic.com/media/2d4f94_38566471657245beaccf3c445833d6c3~mv2.jpg',
+    cover: '/blog/boda-masia-heretat-sabartes-aitor-mariona/cover.jpg',
   },
   {
     slug: 'boda-dosterras-wine-garden-idoya-pau',
@@ -159,7 +159,7 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedAt: '2025-03-21',
     readingTime: 2,
     category: 'bodas',
-    cover: 'https://static.wixstatic.com/media/2d4f94_2cd87019be8c45789e54c9f84053c246~mv2.webp',
+    cover: '/blog/boda-dosterras-wine-garden-idoya-pau/cover.jpg',
   },
   {
     slug: 'boda-masia-can-marti-lifetime',
@@ -169,7 +169,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: null,
     updatedAt: '2025-03-20',
     category: 'bodas',
-    cover: 'https://static.wixstatic.com/media/2d4f94_79276ff7f3df49c6984adfe6a00166fa~mv2.jpg',
+    cover: '/blog/boda-masia-can-marti-lifetime/cover.jpg',
   },
   {
     slug: 'review-sony-sel50f18f',
@@ -179,7 +179,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: null,
     updatedAt: '2025-03-20',
     category: 'fotografia',
-    cover: 'https://static.wixstatic.com/media/2d4f94_d0d19698c42f4ac4ab79d56f655a2b77~mv2.jpg',
+    cover: '/blog/review-sony-sel50f18f/cover.jpg',
   },
   {
     slug: 'boda-lgtb-bea-bea',
@@ -189,6 +189,6 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: null,
     updatedAt: '2025-03-19',
     category: 'bodas',
-    cover: 'https://static.wixstatic.com/media/2d4f94_c9c0c27cc03245ffae79c2e5396b6222~mv2.jpg',
+    cover: '/blog/boda-lgtb-bea-bea/cover.jpg',
   },
 ];

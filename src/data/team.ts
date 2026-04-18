@@ -16,7 +16,7 @@ export const TEAM: TeamMember[] = [
     name: 'Eric Blasco',
     role: { es: 'Videógrafo', ca: 'Videògraf', en: 'Videographer' },
     instagram: 'https://www.instagram.com/lifetime.weddings/',
-    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80',
+    photo: '/team/eric.jpg',
     bio: {
       es: [
         'Soy Eric Blasco, videógrafo especializado en bodas, eventos y cualquier historia que merezca ser contada.',
@@ -45,7 +45,7 @@ export const TEAM: TeamMember[] = [
     name: 'Ferran Blasco',
     role: { es: 'Fotógrafo', ca: 'Fotògraf', en: 'Photographer' },
     instagram: 'https://www.instagram.com/ferryphotographer/',
-    photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&auto=format&fit=crop&q=80',
+    photo: '/team/ferran.jpg',
     bio: {
       es: [
         '¡Hola! Soy Ferran Blasco y tengo la gran suerte de dedicarme a lo que más me apasiona: la fotografía. A través de mi cámara, capturo momentos únicos que, de otro modo, se desvanecerían en el tiempo.',

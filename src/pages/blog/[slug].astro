@@ -4,6 +4,7 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 import Section from '~/components/Section.astro';
 import { BLOG_POSTS, BLOG_CATEGORIES } from '~/data/blog';
 import { TEAM } from '~/data/team';
+import { getEntry, render } from 'astro:content';
 
 export function getStaticPaths() {
   return BLOG_POSTS.map((p) => ({ params: { slug: p.slug }, props: { post: p } }));
@@ -16,6 +17,11 @@ const author = post.author ? TEAM.find((m) => m.id === post.author) : null;
 const category = BLOG_CATEGORIES[post.category];
 const fmt = (iso: string | null) =>
   iso ? new Date(iso).toLocaleDateString('ca-ES', { year: 'numeric', month: 'long', day: 'numeric' }) : null;
+
+// Look up the migrated Markdown body (if any). Posts without a .md file
+// fall back to the "in preparation" placeholder.
+const entry = await getEntry('blog', post.slug);
+const Content = entry ? (await render(entry)).Content : null;
 ---
 
 <BaseLayout
@@ -44,10 +50,16 @@ const fmt = (iso: string | null) =>
   )}
 
   <Section>
-    <article class="max-w-2xl mx-auto prose prose-neutral">
-      <p class="text-ink/75 leading-relaxed">
-        Contingut en preparació. Mentrestant, si voleu llegir aquest article podeu consultar la <a href={`https://www.lifetime.photo/post/${post.legacySlug}`} target="_blank" rel="noopener" class="text-gold underline">versió actual a lifetime.photo</a>.
-      </p>
+    <article class="max-w-2xl mx-auto prose prose-neutral prose-img:rounded-lg prose-img:my-8 prose-headings:font-display">
+      {Content ? (
+        <Content />
+      ) : (
+        <>
+          <p class="text-ink/75 leading-relaxed">
+            Contingut en preparació. Mentrestant, si voleu llegir aquest article podeu consultar la <a href={`https://www.lifetime.photo/post/${post.legacySlug}`} target="_blank" rel="noopener" class="text-gold underline">versió actual a lifetime.photo</a>.
+          </p>
+        </>
+      )}
       <p class="mt-8"><a href="/blog" class="text-gold underline text-sm">← Tornar al blog</a></p>
     </article>
   </Section>
