@@ -206,19 +206,34 @@ export const ui = {
     'quiz.error': 'Ha habido un error. Inténtalo de nuevo.',
 
     // Dossier
-    'dossier.badge': 'Natural, elegante y auténtico',
-    'dossier.title': 'Packs y precios 2026',
-    'dossier.lead': 'Especialistas en convertir vuestro gran día en recuerdos emocionantes que perduren para siempre.',
+    'dossier.badge': 'Packs 2026',
+    'dossier.title': 'Packs de fotografía, vídeo y foto+vídeo',
+    'dossier.lead':
+      'Todas las bodas son distintas. Estos son nuestros packs base — a partir de aquí, nos adaptamos a la vuestra. Si no encontráis lo que buscáis, preguntadnos y hablamos.',
+    'dossier.lead2':
+      'Bodas en Tarragona, Reus, Lleida, Barcelona y resto de Cataluña sin coste de desplazamiento.',
     'dossier.type.photo': 'Fotografía',
     'dossier.type.video': 'Vídeo',
-    'dossier.type.combo': 'Foto + Vídeo (#BetterTogether)',
+    'dossier.type.combo': 'Foto + Vídeo',
     'dossier.includes': 'Incluye',
-    'dossier.featured': 'Recomendado',
-    'dossier.cta': 'Nos interesa',
-    'dossier.offer.title': 'Oferta flash',
-    'dossier.offer.p1': 'Sesión preboda gratuita en Tarragona/Reus al contratar antes del 31/12/2026.',
-    'dossier.offer.p2': '🎥 10 % de descuento en el pack completo foto + vídeo si reserváis hoy.',
-    'dossier.closing': 'Vuestra boda merece un recuerdo único. Estaremos encantados de capturar vuestra historia con naturalidad y elegancia.',
+    'dossier.badge.star': 'Lo que recomendamos',
+    'dossier.badge.picked.photo': 'Más elegido en fotografía',
+    'dossier.badge.picked.video': 'Más elegido en vídeo',
+    'dossier.cta': 'Consultar disponibilidad',
+    'dossier.offer.title': 'Dos detalles',
+    'dossier.offer.p1': 'Sesión pre-boda incluida si reserváis antes del 31/12/2026.',
+    'dossier.offer.p2': 'Pago fraccionado sin intereses disponible en todos los packs.',
+
+    // Packs — next steps block
+    'dossier.next.title': '¿Y ahora qué?',
+    'dossier.next.s1': 'Nos escribís. Nos contáis la fecha, el lugar y el pack que os interesa.',
+    'dossier.next.s2': 'Os confirmamos disponibilidad en menos de 24h.',
+    'dossier.next.s3': 'Si os cuadra, firmamos un contrato simple y bloqueamos la fecha con un 30 %.',
+    'dossier.next.s4': 'El resto, unos días antes de la boda. Sin sorpresas.',
+    'dossier.next.personalise':
+      'Todos los packs se pueden personalizar. Si queréis más o menos cobertura, un álbum extra o un tráiler con música concreta — lo hablamos.',
+    'dossier.next.cta.primary': 'Consultar disponibilidad',
+    'dossier.next.cta.secondary': 'Habla con nosotros por WhatsApp',
 
     // Legal
     'legal.updated': 'Última actualización',
@@ -400,19 +415,33 @@ export const ui = {
     'quiz.phone.label': 'Telèfon (opcional)',
     'quiz.error': 'Hi ha hagut un error. Torneu-ho a provar.',
 
-    'dossier.badge': 'Natural, elegant i autèntic',
-    'dossier.title': 'Packs i preus 2026',
-    'dossier.lead': 'Especialistes a convertir el vostre gran dia en records emocionants que perdurin per sempre.',
+    'dossier.badge': 'Packs 2026',
+    'dossier.title': 'Packs de fotografia, vídeo i foto+vídeo',
+    'dossier.lead':
+      'Totes les bodes són diferents. Aquests són els nostres packs base — a partir d’aquí, ens adaptem a la vostra. Si no trobeu el que busqueu, pregunteu-nos i en parlem.',
+    'dossier.lead2':
+      'Bodes a Tarragona, Reus, Lleida, Barcelona i resta de Catalunya sense cost de desplaçament.',
     'dossier.type.photo': 'Fotografia',
     'dossier.type.video': 'Vídeo',
-    'dossier.type.combo': 'Foto + Vídeo (#BetterTogether)',
+    'dossier.type.combo': 'Foto + Vídeo',
     'dossier.includes': 'Inclou',
-    'dossier.featured': 'Recomanat',
-    'dossier.cta': 'Ens interessa',
-    'dossier.offer.title': 'Oferta flash',
-    'dossier.offer.p1': 'Sessió preboda gratuïta a Tarragona/Reus si contracteu abans del 31/12/2026.',
-    'dossier.offer.p2': '🎥 10 % de descompte en el pack complet foto + vídeo si reserveu avui.',
-    'dossier.closing': 'El vostre casament mereix un record únic. Estarem encantats de capturar la vostra història amb naturalitat i elegància.',
+    'dossier.badge.star': 'El que recomanem',
+    'dossier.badge.picked.photo': 'Més escollit en fotografia',
+    'dossier.badge.picked.video': 'Més escollit en vídeo',
+    'dossier.cta': 'Consultar disponibilitat',
+    'dossier.offer.title': 'Dos detalls',
+    'dossier.offer.p1': 'Sessió pre-boda inclosa si reserveu abans del 31/12/2026.',
+    'dossier.offer.p2': 'Pagament fraccionat sense interessos disponible en tots els packs.',
+
+    'dossier.next.title': 'I ara què?',
+    'dossier.next.s1': 'Ens escriviu. Ens expliqueu la data, el lloc i el pack que us interessa.',
+    'dossier.next.s2': 'Us confirmem disponibilitat en menys de 24h.',
+    'dossier.next.s3': 'Si us quadra, signem un contracte simple i bloquegem la data amb un 30 %.',
+    'dossier.next.s4': 'La resta, uns dies abans de la boda. Sense sorpreses.',
+    'dossier.next.personalise':
+      'Tots els packs es poden personalitzar. Si voleu més o menys cobertura, un àlbum extra o un tràiler amb música concreta — ho parlem.',
+    'dossier.next.cta.primary': 'Consultar disponibilitat',
+    'dossier.next.cta.secondary': 'Parla amb nosaltres per WhatsApp',
 
     'legal.updated': 'Darrera actualització',
 
@@ -591,19 +620,33 @@ export const ui = {
     'quiz.phone.label': 'Phone (optional)',
     'quiz.error': 'Something went wrong. Please try again.',
 
-    'dossier.badge': 'Natural, elegant and authentic',
-    'dossier.title': 'Packs and prices 2026',
-    'dossier.lead': 'Specialists in turning your big day into moving memories that last forever.',
+    'dossier.badge': '2026 packs',
+    'dossier.title': 'Photography, video and photo+video packs',
+    'dossier.lead':
+      'Every wedding is different. These are our base packs — from here, we adapt to yours. If you don’t see what you’re looking for, just ask.',
+    'dossier.lead2':
+      'Weddings in Tarragona, Reus, Lleida, Barcelona and the rest of Catalonia with no travel fee.',
     'dossier.type.photo': 'Photography',
     'dossier.type.video': 'Video',
-    'dossier.type.combo': 'Photo + Video (#BetterTogether)',
+    'dossier.type.combo': 'Photo + Video',
     'dossier.includes': 'Includes',
-    'dossier.featured': 'Recommended',
-    'dossier.cta': 'We’re interested',
-    'dossier.offer.title': 'Flash offer',
-    'dossier.offer.p1': 'Free pre-wedding session in Tarragona/Reus when booking before 31/12/2026.',
-    'dossier.offer.p2': '🎥 10 % off on the full photo + video pack if you book today.',
-    'dossier.closing': 'Your wedding deserves a unique memory. We’ll be delighted to capture your story with warmth and elegance.',
+    'dossier.badge.star': 'What we recommend',
+    'dossier.badge.picked.photo': 'Most picked in photography',
+    'dossier.badge.picked.video': 'Most picked in video',
+    'dossier.cta': 'Check availability',
+    'dossier.offer.title': 'Two small things',
+    'dossier.offer.p1': 'Pre-wedding session included if you book before 31/12/2026.',
+    'dossier.offer.p2': 'Interest-free split payment available on all packs.',
+
+    'dossier.next.title': 'What happens next?',
+    'dossier.next.s1': 'You write to us. Tell us the date, the venue and the pack you’re interested in.',
+    'dossier.next.s2': 'We confirm availability within 24h.',
+    'dossier.next.s3': 'If it works for you, we sign a simple contract and hold the date with a 30 % deposit.',
+    'dossier.next.s4': 'The rest, a few days before the wedding. No surprises.',
+    'dossier.next.personalise':
+      'All packs can be personalised. If you want more or less coverage, an extra album or a trailer with a specific song — let’s talk.',
+    'dossier.next.cta.primary': 'Check availability',
+    'dossier.next.cta.secondary': 'Chat with us on WhatsApp',
 
     'legal.updated': 'Last updated',
 

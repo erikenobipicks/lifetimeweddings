@@ -1,90 +1,147 @@
 ---
 import Section from './Section.astro';
 import Icon from './Icon.astro';
-import { PACKS, type PackType } from '~/data/packs';
+import { PACKS, type PackType, type Pack } from '~/data/packs';
 import { useTranslations, localePath, type Lang } from '~/i18n/ui';
+import { waLink } from '~/data/site';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const t = useTranslations(lang);
+const waHref = waLink(t('wa.message'));
 
-const groups: { type: PackType; label: string; icon: 'camera' | 'video' | 'diamond' }[] = [
-  { type: 'photo', label: t('dossier.type.photo'), icon: 'camera' },
-  { type: 'video', label: t('dossier.type.video'), icon: 'video' },
-  { type: 'combo', label: t('dossier.type.combo'), icon: 'diamond' },
+const groups: { type: PackType; label: string }[] = [
+  { type: 'photo', label: t('dossier.type.photo') },
+  { type: 'video', label: t('dossier.type.video') },
+  { type: 'combo', label: t('dossier.type.combo') },
 ];
 
-const iconByType = (type: PackType) =>
-  type === 'photo' ? 'camera' : type === 'video' ? 'video' : 'diamond';
+const iconByType = (type: PackType): 'camera' | 'video' | 'heart' =>
+  type === 'photo' ? 'camera' : type === 'video' ? 'video' : 'heart';
+
+function smallLabelFor(p: Pack): string | null {
+  if (p.highlight === 'picked-photo') return t('dossier.badge.picked.photo');
+  if (p.highlight === 'picked-video') return t('dossier.badge.picked.video');
+  return null;
+}
 ---
 
+<!-- Hero de /packs -->
 <Section bg="cream" class="pt-32">
   <div class="max-w-3xl mx-auto text-center">
-    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('dossier.badge')}</p>
-    <h1 class="font-display text-4xl md:text-5xl font-bold mb-5">{t('dossier.title')}</h1>
+    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-4">{t('dossier.badge')}</p>
+    <h1 class="font-display text-3xl md:text-5xl font-bold mb-6 leading-[1.15]">{t('dossier.title')}</h1>
     <p class="text-ink/75 leading-relaxed">{t('dossier.lead')}</p>
+    <p class="text-xs md:text-sm text-ink/60 mt-4">{t('dossier.lead2')}</p>
   </div>
 </Section>
 
-{groups.map((g) => {
+<!-- Grups de packs -->
+{groups.map((g, gi) => {
   const items = PACKS.filter((p) => p.type === g.type);
   return (
-    <Section bg={g.type === 'video' ? 'cream' : 'white'}>
+    <Section bg={gi % 2 === 0 ? 'white' : 'cream'}>
       <div class="max-w-6xl mx-auto">
         <h2 class="font-display text-2xl md:text-3xl font-bold text-center mb-10">{g.label}</h2>
         <div class:list={[
           'grid gap-6 md:gap-8',
-          items.length === 1 ? 'md:grid-cols-1 max-w-xl mx-auto' : items.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-4',
+          items.length === 1
+            ? 'md:grid-cols-1 max-w-xl mx-auto'
+            : items.length === 2
+              ? 'md:grid-cols-2 max-w-4xl mx-auto'
+              : 'md:grid-cols-2 lg:grid-cols-4',
         ]}>
-          {items.map((p) => (
-            <article class:list={[
-              'relative bg-white p-8 border border-black/10 flex flex-col',
-              p.featured ? 'ring-2 ring-gold' : '',
-            ]}>
-              {p.featured && (
-                <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-white text-[0.65rem] font-bold tracking-[0.18em] uppercase px-3 py-1">
-                  {t('dossier.featured')}
-                </span>
-              )}
-              <div class="text-gold mb-3"><Icon name={iconByType(p.type)} size={28} /></div>
-              <h3 class="font-display text-lg font-bold mb-3">{p.name[lang]}</h3>
-              <p class="text-2xl font-display font-bold text-gold mb-5">{p.price}</p>
-              <p class="text-xs font-bold tracking-[0.12em] uppercase text-ink/60 mb-3">{t('dossier.includes')}</p>
-              <ul class="space-y-2 text-sm text-ink/75 mb-6 flex-1">
-                {p.includes[lang].map((it) => (
-                  <li class="flex gap-2"><span class="text-gold">✓</span><span>{it}</span></li>
-                ))}
-              </ul>
-              <a
-                href={localePath(lang, '/contacto')}
-                class="block text-center border-2 border-ink bg-ink text-white px-6 py-3 text-xs font-bold tracking-[0.15em] uppercase hover:bg-gold hover:border-gold transition-colors"
-              >
-                {t('dossier.cta')}
-              </a>
-            </article>
-          ))}
+          {items.map((p) => {
+            const isStar = p.highlight === 'star';
+            const small = smallLabelFor(p);
+            return (
+              <article class:list={[
+                'relative flex flex-col p-7 md:p-8 transition-shadow',
+                isStar
+                  ? 'bg-white border-2 border-gold shadow-[0_8px_24px_rgba(201,169,110,0.15)]'
+                  : 'bg-white border border-black/10',
+              ]}>
+                {isStar && (
+                  <span class="absolute -top-3 right-5 bg-gold text-white text-[0.65rem] md:text-[0.7rem] font-bold tracking-[0.18em] uppercase px-3 py-1 rounded-full">
+                    {t('dossier.badge.star')}
+                  </span>
+                )}
+                {small && !isStar && (
+                  <p class="text-[0.7rem] italic tracking-[0.08em] text-gold mb-2">
+                    {small}
+                  </p>
+                )}
+                <div class="text-gold mb-3"><Icon name={iconByType(p.type)} size={28} /></div>
+                <h3 class="font-display text-lg font-bold mb-3">{p.name[lang]}</h3>
+                <p class="text-2xl font-display font-bold text-gold mb-5">{p.price}</p>
+                <p class="text-xs font-bold tracking-[0.12em] uppercase text-ink/60 mb-3">{t('dossier.includes')}</p>
+                <ul class="space-y-2 text-sm text-ink/75 mb-6 flex-1">
+                  {p.includes[lang].map((it) => (
+                    <li class="flex gap-2"><span class="text-gold">✓</span><span>{it}</span></li>
+                  ))}
+                </ul>
+                <a
+                  href={localePath(lang, '/contacto')}
+                  class:list={[
+                    'block text-center border-2 px-6 py-3 text-xs font-bold tracking-[0.15em] uppercase transition-colors',
+                    isStar
+                      ? 'bg-gold border-gold text-white hover:bg-ink hover:border-ink'
+                      : 'bg-ink border-ink text-white hover:bg-gold hover:border-gold',
+                  ]}
+                >
+                  {t('dossier.cta')}
+                </a>
+              </article>
+            );
+          })}
         </div>
       </div>
     </Section>
   );
 })}
 
+<!-- I ara què? -->
 <Section bg="ink">
-  <div class="max-w-3xl mx-auto text-center text-white">
-    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('dossier.offer.title')}</p>
-    <p class="text-lg md:text-xl mb-3">{t('dossier.offer.p1')}</p>
-    <p class="text-lg md:text-xl mb-8">{t('dossier.offer.p2')}</p>
-    <a
-      href={localePath(lang, '/contacto')}
-      class="inline-block border-2 border-white px-10 py-4 text-xs font-bold tracking-[0.18em] uppercase hover:bg-white hover:text-ink transition-colors"
-    >
-      {t('dossier.cta')}
-    </a>
+  <div class="max-w-3xl mx-auto text-white">
+    <h2 class="font-display text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-10 md:mb-12">{t('dossier.next.title')}</h2>
+
+    <ol class="space-y-5 mb-10 md:mb-12 max-w-xl mx-auto">
+      {[1, 2, 3, 4].map((n) => (
+        <li class="flex items-start gap-4">
+          <span class="shrink-0 w-8 h-8 rounded-full border border-gold text-gold font-display font-bold flex items-center justify-center text-sm">{n}</span>
+          <p class="text-white/85 leading-relaxed pt-1">{t(`dossier.next.s${n}` as any)}</p>
+        </li>
+      ))}
+    </ol>
+
+    <p class="text-center text-white/70 text-sm md:text-base italic max-w-xl mx-auto mb-10">
+      {t('dossier.next.personalise')}
+    </p>
+
+    <div class="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-stretch sm:items-center">
+      <a
+        href={localePath(lang, '/quiz')}
+        class="inline-block bg-white text-ink border-2 border-white px-8 md:px-10 py-3.5 md:py-4 text-xs md:text-sm font-bold tracking-[0.18em] uppercase text-center hover:bg-gold hover:border-gold hover:text-white transition-colors"
+      >
+        {t('dossier.next.cta.primary')}
+      </a>
+      <a
+        href={waHref}
+        target="_blank"
+        rel="noopener"
+        class="inline-block border-2 border-white/70 text-white px-8 md:px-10 py-3.5 md:py-4 text-xs md:text-sm font-bold tracking-[0.18em] uppercase text-center hover:bg-white/10 transition-colors"
+      >
+        {t('dossier.next.cta.secondary')}
+      </a>
+    </div>
   </div>
 </Section>
 
+<!-- Oferta flash (sobria) -->
 <Section>
-  <p class="max-w-2xl mx-auto font-display italic text-center text-lg md:text-xl text-ink/80 leading-relaxed">
-    {t('dossier.closing')}
-  </p>
+  <div class="max-w-2xl mx-auto text-center">
+    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-5">{t('dossier.offer.title')}</p>
+    <p class="text-ink/70 text-sm md:text-base leading-relaxed mb-2">{t('dossier.offer.p1')}</p>
+    <p class="text-ink/70 text-sm md:text-base leading-relaxed">{t('dossier.offer.p2')}</p>
+  </div>
 </Section>

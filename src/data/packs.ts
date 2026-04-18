@@ -2,14 +2,22 @@ import type { Lang } from '~/i18n/ui';
 
 export type PackType = 'photo' | 'video' | 'combo';
 
+/**
+ * Visual priority on the /packs page.
+ *   - 'star'          → strong highlight, only ONE pack should use this.
+ *   - 'picked-photo'  → subtle "most picked in photography" label.
+ *   - 'picked-video'  → subtle "most picked in video" label.
+ *   - undefined       → default card, no badge.
+ */
+export type PackHighlight = 'star' | 'picked-photo' | 'picked-video';
+
 export interface Pack {
   id: string;
   type: PackType;
-  emoji: string;
   name: Record<Lang, string>;
   price: string; // formatted
   includes: Record<Lang, string[]>;
-  featured?: boolean;
+  highlight?: PackHighlight;
 }
 
 export const PACKS: Pack[] = [
@@ -17,13 +25,13 @@ export const PACKS: Pack[] = [
   {
     id: 'como-conoci',
     type: 'photo',
-    emoji: '📷',
     name: {
       es: 'Cómo conocí a vuestra madre',
       ca: 'Com vaig conèixer la vostra mare',
       en: 'How I Met Your Mother',
     },
     price: '1.290 € + IVA',
+    highlight: 'picked-photo',
     includes: {
       es: [
         'Cobertura completa del día',
@@ -48,7 +56,6 @@ export const PACKS: Pack[] = [
   {
     id: 'lqsa',
     type: 'photo',
-    emoji: '📷',
     name: { es: '¡La que se avecina!', ca: 'La que s’atansa!', en: 'Here It Comes!' },
     price: '1.740 € + IVA',
     includes: {
@@ -56,16 +63,15 @@ export const PACKS: Pack[] = [
       ca: ['Tot el del pack anterior', 'Àlbum de fusta personalitzat 30×40 cm (30 pàgines)'],
       en: ['Everything in the previous pack', 'Personalised wooden album 30×40 cm (30 pages)'],
     },
-    featured: true,
   },
 
   // ─── VIDEO ─────────────────────────────────────────────
   {
     id: 'this-is-us',
     type: 'video',
-    emoji: '🎥',
     name: { es: 'This Is Us', ca: 'This Is Us', en: 'This Is Us' },
     price: '1.290 € + IVA',
+    highlight: 'picked-video',
     includes: {
       es: [
         'Cobertura completa con 1 cámara',
@@ -87,7 +93,6 @@ export const PACKS: Pack[] = [
   {
     id: 'outlander',
     type: 'video',
-    emoji: '🎥',
     name: { es: 'Outlander', ca: 'Outlander', en: 'Outlander' },
     price: '1.590 € + IVA',
     includes: {
@@ -95,14 +100,12 @@ export const PACKS: Pack[] = [
       ca: ['Tot el de This Is Us', 'Extres (discursos, cerimònia completa…)', 'Tràiler de boda'],
       en: ['Everything in This Is Us', 'Extras (speeches, full ceremony…)', 'Wedding trailer'],
     },
-    featured: true,
   },
 
-  // ─── COMBO (#BetterTogether) ───────────────────────────
+  // ─── COMBO (foto + vídeo) ──────────────────────────────
   {
     id: 'combo-cc-tu',
     type: 'combo',
-    emoji: '💍',
     name: {
       es: 'Cómo conocí + This Is Us',
       ca: 'Com vaig conèixer + This Is Us',
@@ -118,7 +121,6 @@ export const PACKS: Pack[] = [
   {
     id: 'combo-cc-ol',
     type: 'combo',
-    emoji: '💍',
     name: {
       es: 'Cómo conocí + Outlander',
       ca: 'Com vaig conèixer + Outlander',
@@ -134,13 +136,13 @@ export const PACKS: Pack[] = [
   {
     id: 'combo-lqsa-tu',
     type: 'combo',
-    emoji: '💍',
     name: {
       es: '¡La que se avecina! + This Is Us',
       ca: 'La que s’atansa! + This Is Us',
       en: 'Here It Comes! + This Is Us',
     },
     price: '2.900 € + IVA',
+    highlight: 'star',
     includes: {
       es: ['Fotos', 'Caja Vintage', 'Galería online', 'Álbum de boda', 'Vídeo', 'Edición documental'],
       ca: ['Fotos', 'Caixa Vintage', 'Galeria online', 'Àlbum de boda', 'Vídeo', 'Edició documental'],
@@ -150,7 +152,6 @@ export const PACKS: Pack[] = [
   {
     id: 'combo-lqsa-ol',
     type: 'combo',
-    emoji: '💍',
     name: {
       es: '¡La que se avecina! + Outlander',
       ca: 'La que s’atansa! + Outlander',
@@ -162,6 +163,5 @@ export const PACKS: Pack[] = [
       ca: ['Fotos', 'Caixa Vintage', 'Galeria online', 'Àlbum de boda', 'Vídeo', 'Edició documental', 'Tràiler', 'Extres'],
       en: ['Photos', 'Vintage box', 'Online gallery', 'Wedding album', 'Video', 'Documentary edit', 'Trailer', 'Extras'],
     },
-    featured: true,
   },
 ];
