@@ -132,6 +132,15 @@ const TOTAL_STEPS = 6;
     <p class="font-display text-xl italic text-ink/80">{t('quiz.loading')}</p>
   </div>
 
+  <!-- Success state -->
+  <div id="q-success" class="quiz-step hidden text-center py-12 md:py-16">
+    <div class="w-14 h-14 rounded-full bg-gold/15 text-gold flex items-center justify-center mx-auto mb-6">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-7 h-7"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">{t('quiz.success.title')}</h2>
+    <p class="text-ink/75 leading-relaxed max-w-md mx-auto">{t('quiz.success.desc')}</p>
+  </div>
+
   <!-- Error state -->
   <p id="q-error" class="hidden text-center text-red-600 mt-4">{t('quiz.error')}</p>
 
@@ -240,11 +249,12 @@ const TOTAL_STEPS = 6;
           body: JSON.stringify(answers),
         });
         const data = await res.json();
-        if (data.token) {
-          window.location.href = '/p/' + data.token;
-        } else {
-          throw new Error('No token');
-        }
+        if (!res.ok || !data?.ok) throw new Error('submit failed');
+        // Reveal the success panel instead of redirecting — we let Eric/Ferran
+        // review the lead and send the quote manually from /admin.
+        loading.classList.add('hidden');
+        const success = document.getElementById('q-success');
+        success?.classList.remove('hidden');
       } catch {
         loading.classList.add('hidden');
         errorEl.classList.remove('hidden');

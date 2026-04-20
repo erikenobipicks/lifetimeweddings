@@ -204,6 +204,8 @@ export const ui = {
     'quiz.email.label': 'Correo electrónico',
     'quiz.phone.label': 'Teléfono (opcional)',
     'quiz.error': 'Ha habido un error. Inténtalo de nuevo.',
+    'quiz.success.title': '¡Gracias! Os hemos recibido.',
+    'quiz.success.desc': 'Revisamos vuestras respuestas y os enviamos una propuesta personalizada en menos de 24h (l.–v.).',
 
     // Dossier
     'dossier.badge': 'Packs 2026',
@@ -414,6 +416,8 @@ export const ui = {
     'quiz.email.label': 'Correu electrònic',
     'quiz.phone.label': 'Telèfon (opcional)',
     'quiz.error': 'Hi ha hagut un error. Torneu-ho a provar.',
+    'quiz.success.title': 'Gràcies! Us hem rebut.',
+    'quiz.success.desc': 'Revisem les vostres respostes i us enviem una proposta personalitzada en menys de 24h (dl.–dv.).',
 
     'dossier.badge': 'Packs 2026',
     'dossier.title': 'Packs de fotografia, vídeo i foto+vídeo',
@@ -619,6 +623,8 @@ export const ui = {
     'quiz.email.label': 'Email',
     'quiz.phone.label': 'Phone (optional)',
     'quiz.error': 'Something went wrong. Please try again.',
+    'quiz.success.title': 'Thanks! We’ve received your message.',
+    'quiz.success.desc': 'We’ll review your answers and send you a personalised proposal within 24h (Mon–Fri).',
 
     'dossier.badge': '2026 packs',
     'dossier.title': 'Photography, video and photo+video packs',

@@ -53,7 +53,21 @@ function humanSecs(n: number): string {
     <div class="flex gap-2">
       <input readonly value={url} class="flex-1 px-3 py-2 border border-black/15 bg-cream font-mono text-sm" />
       <button type="button" data-copy={url} class="bg-ink text-white px-4 py-2 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors">Copiar</button>
+      {quote.coupleEmail && (
+        <button
+          type="button"
+          data-send-quote
+          data-quote-id={quote.id}
+          data-email={quote.coupleEmail}
+          class="bg-gold text-white px-4 py-2 text-xs font-bold tracking-widest uppercase hover:brightness-110 transition"
+        >
+          📧 Enviar
+        </button>
+      )}
     </div>
+    {quote.coupleEmail && (
+      <p class="text-[0.7rem] text-ink/50 mt-2" data-send-feedback></p>
+    )}
     <div class="mt-3 text-xs text-ink/60 flex flex-wrap gap-4">
       <span>Creat: <strong>{fmt(quote.createdAt)}</strong></span>
       {quote.createdBy && <span>per <strong>{quote.createdBy}</strong></span>}
@@ -165,6 +179,41 @@ function humanSecs(n: number): string {
 </AdminLayout>
 
 <script>
+  // Send the quote link to the couple's email
+  document.querySelectorAll<HTMLButtonElement>('[data-send-quote]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const quoteId = Number(btn.dataset.quoteId);
+      const email = btn.dataset.email ?? '';
+      const feedback = document.querySelector<HTMLElement>('[data-send-feedback]');
+      if (!confirm(`Enviar l'enllaç del pressupost a ${email}?`)) return;
+      btn.disabled = true;
+      const old = btn.textContent;
+      btn.textContent = 'Enviant…';
+      try {
+        const res = await fetch('/api/admin/send-quote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ quoteId }),
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        btn.textContent = '✓ Enviat';
+        if (feedback) {
+          feedback.textContent = `Enviat a ${email} · ` + new Date().toLocaleString('ca-ES');
+          feedback.style.color = '#c9a96e';
+        }
+      } catch (err) {
+        console.error(err);
+        btn.textContent = old ?? '📧 Enviar';
+        if (feedback) {
+          feedback.textContent = 'Error enviant. Torna-ho a provar.';
+          feedback.style.color = '#b91c1c';
+        }
+      } finally {
+        setTimeout(() => { btn.disabled = false; }, 2000);
+      }
+    });
+  });
+
   document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
     btn.addEventListener('click', async () => {
       try {

@@ -1,7 +1,11 @@
+// Quiz submission endpoint. Saves a lead (no auto-quote) and notifies
+// Eric/Ferran via Telegram + email with a deep-link to /admin/new?lead=<id>,
+// so they can review, adjust packs and send the quote manually when ready.
+
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
-import { createQuote, createLead } from '~/lib/quotes';
-import { recommendPacks, recommendShowcase, generateNote } from '~/lib/matcher';
+import { createLead } from '~/lib/quotes';
+import { recommendPacks } from '~/lib/matcher';
 import { sendNotification, sendTelegramNotification } from '~/lib/email';
 
 const schema = z.object({
@@ -18,12 +22,33 @@ const schema = z.object({
 
 const SITE_URL = process.env.PUBLIC_SITE_URL ?? 'http://localhost:4321';
 
+const LABELS: Record<string, string> = {
+  tarragona: 'Tarragona/Reus',
+  barcelona: 'Barcelona',
+  lleida: 'Lleida/Girona',
+  other_cat: 'Catalunya',
+  international: 'Internacional',
+  civil: 'Civil',
+  religious: 'Religiosa',
+  symbolic: 'Simbòlica',
+  photo: 'Foto',
+  video: 'Vídeo',
+  both: 'Foto+Vídeo',
+  low: '< 1.500 €',
+  mid: '1.500-2.500 €',
+  high: '2.500-3.500 €',
+  premium: '> 3.500 €',
+};
+
 export const POST: APIRoute = async ({ request }) => {
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Bad JSON' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ error: 'Bad JSON' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   const parsed = schema.safeParse(body);
@@ -34,79 +59,83 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  const data = parsed.data;
+  const d = parsed.data;
   const answers = {
-    weddingDate: data.weddingDate,
-    location: data.location,
-    ceremonyType: data.ceremonyType,
-    serviceInterest: data.serviceInterest,
-    budgetRange: data.budgetRange,
+    weddingDate: d.weddingDate,
+    location: d.location,
+    ceremonyType: d.ceremonyType,
+    serviceInterest: d.serviceInterest,
+    budgetRange: d.budgetRange,
   };
 
-  // Recommend packs + showcase
-  const packIds = recommendPacks(answers);
-  const showcaseSlug = recommendShowcase(answers);
-  const note = generateNote(answers, data.coupleName);
+  // Recommend packs up-front so Telegram/email can show them as a hint —
+  // but DO NOT create a quote. Eric/Ferran decide when and what to send.
+  const recommendedPacks = recommendPacks(answers);
 
-  // Create the quote (auto-generated, no admin)
-  const quote = await createQuote({
-    coupleName: data.coupleName,
-    coupleEmail: data.email,
-    packIds,
-    notes: note,
-    createdBy: 'quiz',
+  const lead = await createLead({
+    coupleName: d.coupleName,
+    email: d.email,
+    phone: d.phone,
+    weddingDate: d.weddingDate,
+    location: d.location,
+    ceremonyType: d.ceremonyType,
+    serviceInterest: d.serviceInterest,
+    budgetRange: d.budgetRange,
   });
 
-  // Create lead (links quiz answers to the quote)
-  await createLead({
-    quoteId: quote.id,
-    coupleName: data.coupleName,
-    email: data.email,
-    phone: data.phone,
-    weddingDate: data.weddingDate,
-    location: data.location,
-    ceremonyType: data.ceremonyType,
-    serviceInterest: data.serviceInterest,
-    budgetRange: data.budgetRange,
-  });
-
-  // Notify admin
-  const url = `${SITE_URL}/p/${quote.token}`;
-  const labels: Record<string, string> = {
-    tarragona: 'Tarragona/Reus', barcelona: 'Barcelona', lleida: 'Lleida/Girona',
-    other_cat: 'Catalunya', international: 'Internacional',
-    civil: 'Civil', religious: 'Religiosa', symbolic: 'Simbòlica',
-    photo: 'Foto', video: 'Vídeo', both: 'Foto+Vídeo',
-    low: '< 1.500 €', mid: '1.500-2.500 €', high: '2.500-3.500 €', premium: '> 3.500 €',
-  };
-
+  // Deep-link to /admin/new pre-filled with this lead's id. The admin page
+  // reads ?lead=<id> and prepares the form with name/email/recommended packs.
+  const reviewUrl = `${SITE_URL}/admin/new?lead=${lead.id}`;
   const hora = new Date().toLocaleString('ca-ES', { timeZone: 'Europe/Madrid' });
 
   await sendNotification({
-    subject: `🆕 Nou lead via quiz · ${data.coupleName}`,
+    subject: `🆕 Nou lead · ${d.coupleName}`,
+    replyTo: d.email,
     html: `
-      <h2>Nou lead des del quiz!</h2>
+      <h2>Nou lead des del quiz</h2>
       <ul>
-        <li><strong>Parella:</strong> ${data.coupleName}</li>
-        <li><strong>Email:</strong> ${data.email}</li>
-        ${data.phone ? `<li><strong>Telèfon:</strong> ${data.phone}</li>` : ''}
-        ${data.weddingDate ? `<li><strong>Data boda:</strong> ${data.weddingDate}</li>` : ''}
-        <li><strong>Lloc:</strong> ${labels[data.location] ?? data.location}</li>
-        <li><strong>Cerimònia:</strong> ${labels[data.ceremonyType] ?? data.ceremonyType}</li>
-        <li><strong>Servei:</strong> ${labels[data.serviceInterest] ?? data.serviceInterest}</li>
-        <li><strong>Pressupost:</strong> ${labels[data.budgetRange] ?? data.budgetRange}</li>
+        <li><strong>Parella:</strong> ${d.coupleName}</li>
+        <li><strong>Email:</strong> <a href="mailto:${d.email}">${d.email}</a></li>
+        ${d.phone ? `<li><strong>Telèfon:</strong> ${d.phone}</li>` : ''}
+        ${d.weddingDate ? `<li><strong>Data boda:</strong> ${d.weddingDate}</li>` : ''}
+        <li><strong>Lloc:</strong> ${LABELS[d.location] ?? d.location}</li>
+        <li><strong>Cerimònia:</strong> ${LABELS[d.ceremonyType] ?? d.ceremonyType}</li>
+        <li><strong>Servei:</strong> ${LABELS[d.serviceInterest] ?? d.serviceInterest}</li>
+        <li><strong>Pressupost:</strong> ${LABELS[d.budgetRange] ?? d.budgetRange}</li>
+        <li><strong>Hora:</strong> ${hora}</li>
       </ul>
-      <p>📋 <strong>Packs recomanats:</strong> ${packIds.join(', ')}</p>
-      <p>🔗 <a href="${url}">Veure pressupost</a></p>
+      <p>🤖 <strong>Recomanació automàtica:</strong> ${recommendedPacks.join(', ')}</p>
+      <p style="margin-top:20px">
+        <a href="${reviewUrl}"
+           style="display:inline-block;background:#1a1a1a;color:#fff;padding:12px 22px;text-decoration:none;font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:13px">
+          Revisar i crear pressupost
+        </a>
+      </p>
     `,
   });
 
   await sendTelegramNotification(
-    `🆕 <b>Nou lead</b>\n${data.coupleName}\n📍 ${labels[data.location] ?? data.location} · ${labels[data.ceremonyType] ?? data.ceremonyType}\n💼 ${labels[data.serviceInterest] ?? data.serviceInterest} · ${labels[data.budgetRange] ?? data.budgetRange}\n🔗 ${url}`,
+    [
+      `🆕 <b>Nou lead</b>`,
+      ``,
+      `<b>${escapeHtml(d.coupleName)}</b>`,
+      `📧 ${escapeHtml(d.email)}${d.phone ? ` · 📱 ${escapeHtml(d.phone)}` : ''}`,
+      ``,
+      `${d.weddingDate ? `📅 ${d.weddingDate}\n` : ''}📍 ${LABELS[d.location] ?? d.location} · ⛪ ${LABELS[d.ceremonyType] ?? d.ceremonyType}`,
+      `📸 ${LABELS[d.serviceInterest] ?? d.serviceInterest} · 💰 ${LABELS[d.budgetRange] ?? d.budgetRange}`,
+      ``,
+      `🤖 Recomanació: <code>${recommendedPacks.join(', ')}</code>`,
+      ``,
+      `<a href="${reviewUrl}">▶ Revisar i crear pressupost</a>`,
+    ].join('\n'),
   );
 
   return new Response(
-    JSON.stringify({ token: quote.token, showcaseSlug }),
+    JSON.stringify({ ok: true, leadId: lead.id }),
     { status: 200, headers: { 'Content-Type': 'application/json' } },
   );
 };
+
+function escapeHtml(s: string): string {
+  return s.replace(/[<>&]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c] as string));
+}

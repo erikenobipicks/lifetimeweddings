@@ -341,3 +341,18 @@ export async function getLeadByQuoteId(quoteId: number): Promise<Lead | null> {
   });
   return res.rows[0] ? rowToLead(res.rows[0]) : null;
 }
+
+export async function getLeadById(id: number): Promise<Lead | null> {
+  await initSchema();
+  const res = await db.execute({ sql: 'SELECT * FROM leads WHERE id = ?', args: [id] });
+  return res.rows[0] ? rowToLead(res.rows[0]) : null;
+}
+
+/** Link a newly created quote to an existing lead (set leads.quote_id). */
+export async function linkLeadToQuote(leadId: number, quoteId: number): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: 'UPDATE leads SET quote_id = ? WHERE id = ?',
+    args: [quoteId, leadId],
+  });
+}

@@ -26,5 +26,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
     context.locals.user = user;
   }
+  // Admin API endpoints: same cookie guard, but return 401 JSON instead of
+  // redirecting (the caller is fetch(), not a browser nav).
+  if (path.startsWith('/api/admin/')) {
+    const user = await getUser(context.cookies);
+    if (!user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    context.locals.user = user;
+  }
   return next();
 });

@@ -1,10 +1,17 @@
 ---
 import AdminLayout from '~/layouts/AdminLayout.astro';
-import { createQuote } from '~/lib/quotes';
+import { createQuote, getLeadById, linkLeadToQuote } from '~/lib/quotes';
 import { PACKS } from '~/data/packs';
+import { recommendPacks } from '~/lib/matcher';
+
+// Support ?lead=<id> deep-link from Telegram/email so the form comes
+// pre-filled with the lead's name/email and the recommended packs ticked.
+const leadId = Number(Astro.url.searchParams.get('lead'));
+const lead = Number.isFinite(leadId) && leadId > 0 ? await getLeadById(leadId) : null;
 
 let error: string | null = null;
 let createdToken: string | null = null;
+let postedLeadId: number | null = null;
 
 if (Astro.request.method === 'POST') {
   const form = await Astro.request.formData();
@@ -14,6 +21,8 @@ if (Astro.request.method === 'POST') {
   const notes = String(form.get('notes') ?? '').trim();
   const password = String(form.get('password') ?? '').trim();
   const expiresAt = String(form.get('expires_at') ?? '').trim();
+  const linkLeadId = Number(form.get('lead_id') ?? '');
+  postedLeadId = Number.isFinite(linkLeadId) && linkLeadId > 0 ? linkLeadId : null;
 
   if (!coupleName) {
     error = 'Cal el nom de la parella.';
@@ -29,15 +38,57 @@ if (Astro.request.method === 'POST') {
       expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
       createdBy: Astro.locals.user,
     });
+    if (postedLeadId) {
+      try { await linkLeadToQuote(postedLeadId, q.id); } catch { /* non-fatal */ }
+    }
     createdToken = q.token;
   }
 }
 
 const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
+
+// Pre-fill values: form resubmission errors preserve user input; lead deep-link
+// populates from DB; otherwise everything is blank.
+const initialName = lead?.coupleName ?? '';
+const initialEmail = lead?.email ?? '';
+const recommendedPackIds: string[] = lead
+  ? recommendPacks({
+      weddingDate: lead.weddingDate ?? undefined,
+      location: lead.location ?? 'tarragona',
+      ceremonyType: lead.ceremonyType ?? 'civil',
+      serviceInterest: lead.serviceInterest ?? 'both',
+      budgetRange: lead.budgetRange ?? 'mid',
+    })
+  : [];
+
+const LABELS: Record<string, string> = {
+  tarragona: 'Tarragona/Reus', barcelona: 'Barcelona', lleida: 'Lleida/Girona',
+  other_cat: 'Catalunya', international: 'Internacional',
+  civil: 'Civil', religious: 'Religiosa', symbolic: 'Simbòlica',
+  photo: 'Foto', video: 'Vídeo', both: 'Foto+Vídeo',
+  low: '< 1.500 €', mid: '1.500-2.500 €', high: '2.500-3.500 €', premium: '> 3.500 €',
+};
 ---
 
 <AdminLayout title="Nou pressupost">
   <h1 class="font-display text-3xl font-bold mb-8">Nou pressupost</h1>
+
+  {lead && !createdToken && (
+    <div class="mb-8 bg-cream border border-gold/40 p-5">
+      <p class="text-xs font-bold tracking-widest uppercase text-gold mb-3">Respostes del quiz · lead #{lead.id}</p>
+      <dl class="grid sm:grid-cols-2 gap-2 text-sm mb-3">
+        <div><dt class="inline text-ink/60">Parella:</dt> <dd class="inline font-bold">{lead.coupleName}</dd></div>
+        <div><dt class="inline text-ink/60">Email:</dt> <dd class="inline">{lead.email}</dd></div>
+        {lead.phone && <div><dt class="inline text-ink/60">Tel:</dt> <dd class="inline">{lead.phone}</dd></div>}
+        {lead.weddingDate && <div><dt class="inline text-ink/60">Data:</dt> <dd class="inline">{lead.weddingDate}</dd></div>}
+        {lead.location && <div><dt class="inline text-ink/60">Lloc:</dt> <dd class="inline">{LABELS[lead.location] ?? lead.location}</dd></div>}
+        {lead.ceremonyType && <div><dt class="inline text-ink/60">Cerimònia:</dt> <dd class="inline">{LABELS[lead.ceremonyType] ?? lead.ceremonyType}</dd></div>}
+        {lead.serviceInterest && <div><dt class="inline text-ink/60">Servei:</dt> <dd class="inline">{LABELS[lead.serviceInterest] ?? lead.serviceInterest}</dd></div>}
+        {lead.budgetRange && <div><dt class="inline text-ink/60">Pressupost:</dt> <dd class="inline">{LABELS[lead.budgetRange] ?? lead.budgetRange}</dd></div>}
+      </dl>
+      <p class="text-xs text-ink/60">🤖 Packs pre-marcats segons la recomanació automàtica. Marca/desmarca els que vulguis abans de crear l'enllaç.</p>
+    </div>
+  )}
 
   {createdToken && (
     <div class="mb-8 bg-white border border-gold p-6">
@@ -68,16 +119,18 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
   {error && <p class="mb-6 p-3 bg-red-50 border border-red-200 text-red-700 text-sm">{error}</p>}
 
   <form method="POST" class="max-w-2xl space-y-6 bg-white p-6 border border-black/10">
+    {lead && <input type="hidden" name="lead_id" value={lead.id} />}
+
     <div>
       <label for="couple_name" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Nom de la parella *</label>
-      <input id="couple_name" name="couple_name" required
+      <input id="couple_name" name="couple_name" required value={initialName}
              class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none"
              placeholder="Luis & Craig" />
     </div>
 
     <div>
       <label for="couple_email" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Email (opcional)</label>
-      <input id="couple_email" name="couple_email" type="email"
+      <input id="couple_email" name="couple_email" type="email" value={initialEmail}
              class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none" />
     </div>
 
@@ -86,7 +139,9 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
       <div class="space-y-2">
         {PACKS.map((p) => (
           <label class="flex items-start gap-3 cursor-pointer p-2 hover:bg-cream">
-            <input type="checkbox" name="packs" value={p.id} class="mt-1 accent-gold" />
+            <input type="checkbox" name="packs" value={p.id}
+                   checked={recommendedPackIds.includes(p.id)}
+                   class="mt-1 accent-gold" />
             <span class="flex-1">
               <span class="font-bold">{p.name.ca}</span>
               <span class="block text-xs text-ink/60">{p.type} · {p.price}</span>
