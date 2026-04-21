@@ -8,8 +8,14 @@ import { getUser } from '~/lib/auth';
 const CANONICAL_HOST = process.env.CANONICAL_HOST;
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  const path = context.url.pathname;
+  const method = context.request.method;
+  const isApi = path.startsWith('/api/');
+
   // ── Canonical host redirect (SEO + link hygiene) ────────────────────────
-  if (CANONICAL_HOST) {
+  // Skip for /api/* — a 301 on POST strips the body in most browsers and
+  // breaks form submissions. APIs should work on whatever host they land on.
+  if (CANONICAL_HOST && !isApi) {
     const incomingHost = context.url.host;
     if (incomingHost && incomingHost !== CANONICAL_HOST) {
       const target = new URL(context.url.pathname + context.url.search, `https://${CANONICAL_HOST}`);
@@ -18,7 +24,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // ── Admin auth guard ────────────────────────────────────────────────────
-  const path = context.url.pathname;
   if (path.startsWith('/admin') && path !== '/admin/login') {
     const user = await getUser(context.cookies);
     if (!user) {
@@ -38,5 +43,25 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
     context.locals.user = user;
   }
-  return next();
+
+  // Log every /api/* request so we can see in Railway logs exactly what
+  // content-type / host / method reached the server (vs. being blocked at
+  // the edge by Cloudflare / Astro CSRF).
+  if (isApi) {
+    const ct = context.request.headers.get('content-type') ?? '';
+    console.log(`[api] ${method} ${path} host=${context.url.host} ct=${ct}`);
+  }
+
+  const response = await next();
+
+  // Tell Cloudflare / browsers not to cache HTML. Static assets under /_astro
+  // / /images etc. keep their long-lived cache headers (set elsewhere). This
+  // prevents the "deploy shipped new JS but cached HTML still loads old JS"
+  // failure mode.
+  const respCt = response.headers.get('content-type') ?? '';
+  if (respCt.includes('text/html')) {
+    response.headers.set('Cache-Control', 'no-store, must-revalidate');
+  }
+
+  return response;
 });
