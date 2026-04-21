@@ -17,6 +17,9 @@ interface Props {
   jsonLd?: unknown[];
   /** Hide header/footer (e.g. for landing pages) */
   chromeless?: boolean;
+  /** Tell search engines not to index this page (e.g. /packs is only shared
+   *  privately via email/WhatsApp, never crawled). */
+  noindex?: boolean;
 }
 
 const {
@@ -27,6 +30,7 @@ const {
   ogImage = '/og-default.jpg',
   jsonLd,
   chromeless = false,
+  noindex = false,
 } = Astro.props;
 
 const site = Astro.site ?? new URL('https://www.lifetime.photo');
@@ -54,6 +58,7 @@ const alternates: { hreflang: string; href: string }[] = [
 
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
     <link rel="canonical" href={canonical} />
 
     {alternates.map((a) => (

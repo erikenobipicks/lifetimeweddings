@@ -31,7 +31,10 @@ export default defineConfig({
         defaultLocale: 'ca',
         locales: { ca: 'ca-ES', es: 'es-ES', en: 'en-US' },
       },
-      filter: (page) => !page.includes('/p/') && !page.includes('/admin'),
+      filter: (page) =>
+        !page.includes('/p/') &&
+        !page.includes('/admin') &&
+        !page.includes('/packs'),
     }),
   ],
   build: {

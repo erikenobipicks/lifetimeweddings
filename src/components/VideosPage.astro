@@ -1,0 +1,123 @@
+---
+import Section from './Section.astro';
+import { useTranslations, localePath, type Lang } from '~/i18n/ui';
+import { SITE } from '~/data/site';
+import {
+  videos,
+  videoThumb,
+  videoThumbFallback,
+  videoEmbed,
+  videoWatch,
+} from '~/data/videos';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const dateFmt: Record<Lang, Intl.LocalesArgument> = { ca: 'ca-ES', es: 'es-ES', en: 'en-GB' };
+function formatDate(iso: string): string {
+  return new Date(iso + 'T00:00:00').toLocaleDateString(dateFmt[lang], {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
+// Description rendered on the card + used in JSON-LD VideoObject.description.
+function describe(coupleName: string, venue: string, date: string): string {
+  const d = formatDate(date);
+  if (lang === 'es') return `Tráiler de boda de ${coupleName} en ${venue} — ${d}.`;
+  if (lang === 'en') return `Wedding trailer of ${coupleName} at ${venue} — ${d}.`;
+  return `Tràiler de boda de ${coupleName} a ${venue} — ${d}.`;
+}
+---
+
+<Section bg="cream" class="pt-32">
+  <div class="max-w-3xl mx-auto text-center">
+    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('videos.eyebrow')}</p>
+    <h1 class="font-display text-4xl md:text-5xl font-bold mb-5">{t('videos.h1')}</h1>
+    <p class="text-ink/75 leading-relaxed">{t('videos.intro')}</p>
+  </div>
+</Section>
+
+<Section bg="white">
+  <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 md:gap-10">
+    {videos.map((v) => (
+      <article class="group">
+        <button
+          type="button"
+          class="relative block w-full aspect-video bg-black overflow-hidden focus:outline-none focus:ring-2 focus:ring-gold"
+          data-video-id={v.youtubeId}
+          data-video-title={describe(v.coupleName, v.venue, v.date)}
+          aria-label={`${t('videos.play.aria')} — ${v.coupleName}`}
+        >
+          <img
+            src={videoThumb(v.youtubeId)}
+            data-fallback={videoThumbFallback(v.youtubeId)}
+            alt={`${v.coupleName} · ${v.venue}`}
+            class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+            decoding="async"
+          />
+          <span class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors"></span>
+          <span class="absolute inset-0 flex items-center justify-center">
+            <span class="w-16 h-16 md:w-20 md:h-20 bg-white/90 rounded-full flex items-center justify-center group-hover:bg-white transition-colors shadow-lg">
+              <svg viewBox="0 0 24 24" class="w-7 h-7 md:w-8 md:h-8 fill-ink ml-1" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+            </span>
+          </span>
+        </button>
+        <div class="pt-4">
+          <h2 class="font-display text-xl md:text-2xl font-bold text-ink">{v.coupleName}</h2>
+          <p class="text-ink/70 text-sm mt-1">{v.venue} · {formatDate(v.date)}</p>
+        </div>
+      </article>
+    ))}
+  </div>
+
+  <div class="max-w-3xl mx-auto text-center mt-14">
+    <a
+      href={SITE.social.youtube}
+      target="_blank"
+      rel="noopener"
+      class="inline-block border-2 border-ink bg-ink text-white px-8 py-3.5 text-xs font-bold tracking-[0.18em] uppercase hover:bg-gold hover:border-gold transition-colors"
+    >
+      {t('videos.channel.cta')}
+    </a>
+  </div>
+</Section>
+
+<script>
+  // Lazy-load: the YouTube iframe (heavy, sets cookies) is swapped in only
+  // when the user clicks. Thumbnail + play button until then.
+  const cards = document.querySelectorAll<HTMLButtonElement>('[data-video-id]');
+  cards.forEach((btn) => {
+    const img = btn.querySelector<HTMLImageElement>('img[data-fallback]');
+    if (img) {
+      img.addEventListener(
+        'error',
+        () => {
+          const fallback = img.dataset.fallback;
+          if (fallback && img.src !== fallback) img.src = fallback;
+        },
+        { once: true },
+      );
+    }
+
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.videoId;
+      const title = btn.dataset.videoTitle ?? '';
+      if (!id) return;
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+      iframe.title = title;
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.setAttribute('allowfullscreen', '');
+      iframe.className = 'absolute inset-0 w-full h-full';
+      // Wrap the iframe so we preserve the aspect-video container.
+      const wrap = document.createElement('div');
+      wrap.className = 'relative block w-full aspect-video bg-black overflow-hidden';
+      wrap.appendChild(iframe);
+      btn.replaceWith(wrap);
+    });
+  });
+</script>

@@ -1,0 +1,36 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import VideosPage from '~/components/VideosPage.astro';
+import { videos, videoThumb, videoEmbed, videoWatch } from '~/data/videos';
+
+const lang = 'es' as const;
+
+const jsonLd = videos.map((v) => ({
+  '@context': 'https://schema.org',
+  '@type': 'VideoObject',
+  name: `Tráiler de boda · ${v.coupleName}`,
+  description: `Tráiler de boda de ${v.coupleName} en ${v.venue}.`,
+  thumbnailUrl: [videoThumb(v.youtubeId)],
+  uploadDate: v.date,
+  contentUrl: videoWatch(v.youtubeId),
+  embedUrl: videoEmbed(v.youtubeId),
+  publisher: {
+    '@type': 'Organization',
+    name: 'Lifetime Weddings',
+    logo: {
+      '@type': 'ImageObject',
+      url: 'https://www.lifetime.photo/logos/logo-circle-color.png',
+    },
+  },
+}));
+---
+
+<BaseLayout
+  lang={lang}
+  title="Vídeos de boda · Tráilers reales | Lifetime Weddings"
+  description="Tráilers de bodas filmadas por Lifetime Weddings en Tarragona, Reus y por toda Cataluña. Estilo documental, sin poses forzadas."
+  canonicalPath="/videos"
+  jsonLd={jsonLd}
+>
+  <VideosPage lang={lang} />
+</BaseLayout>
