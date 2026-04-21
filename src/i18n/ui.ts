@@ -24,6 +24,7 @@ export const ui = {
     'nav.home': 'Inicio',
     'nav.about': 'Nosotros',
     'nav.portfolio': 'Portfolio',
+    'nav.videos': 'Vídeos',
     'nav.services': 'Servicios',
     'nav.testimonials': 'Testimonios',
     'nav.blog': 'Blog',
@@ -127,6 +128,14 @@ export const ui = {
     'contact.sub.pre': 'Os respondemos en menos de 24h (l.–v.). Si preferís, también podéis escribirnos por',
     'contact.sub.wa': 'WhatsApp',
     'contact.sub.post': '.',
+
+    // Videos page
+    'videos.eyebrow': 'Tráilers',
+    'videos.h1': 'Vídeos de boda',
+    'videos.intro':
+      'Películas documentales de bodas filmadas en Tarragona, Reus y por toda Cataluña. Sin poses forzadas, sin guion — solo lo que pasa de verdad.',
+    'videos.play.aria': 'Reproducir tráiler',
+    'videos.channel.cta': 'Ver más vídeos en nuestro canal de YouTube →',
 
     // Footer
     'footer.rights': 'Todos los derechos reservados.',
@@ -253,6 +262,7 @@ export const ui = {
     'nav.home': 'Inici',
     'nav.about': 'Nosaltres',
     'nav.portfolio': 'Portfolio',
+    'nav.videos': 'Vídeos',
     'nav.services': 'Serveis',
     'nav.testimonials': 'Testimonis',
     'nav.blog': 'Blog',
@@ -345,6 +355,14 @@ export const ui = {
     'contact.sub.pre': 'Us responem en menys de 24h (dl.–dv.). Si preferiu, també podeu escriure-nos per',
     'contact.sub.wa': 'WhatsApp',
     'contact.sub.post': '.',
+
+    // Videos page
+    'videos.eyebrow': 'Tràilers',
+    'videos.h1': 'Vídeos de boda',
+    'videos.intro':
+      'Pel·lícules documentals de bodes filmades a Tarragona, Reus i arreu de Catalunya. Sense posats forçats, sense guió — només el que passa de veritat.',
+    'videos.play.aria': 'Reproduir tràiler',
+    'videos.channel.cta': 'Veure més vídeos al nostre canal de YouTube →',
 
     'footer.rights': 'Tots els drets reservats.',
     'footer.legal': 'Avís legal',
@@ -460,6 +478,7 @@ export const ui = {
     'nav.home': 'Home',
     'nav.about': 'About',
     'nav.portfolio': 'Portfolio',
+    'nav.videos': 'Videos',
     'nav.services': 'Services',
     'nav.testimonials': 'Testimonials',
     'nav.blog': 'Blog',
@@ -550,6 +569,14 @@ export const ui = {
     'contact.sub.pre': 'We reply within 24h (Mon–Fri). You can also reach us on',
     'contact.sub.wa': 'WhatsApp',
     'contact.sub.post': '.',
+
+    // Videos page
+    'videos.eyebrow': 'Trailers',
+    'videos.h1': 'Wedding videos',
+    'videos.intro':
+      'Documentary wedding films shot in Tarragona, Reus and across Catalonia. No forced poses, no script — only what actually happens.',
+    'videos.play.aria': 'Play trailer',
+    'videos.channel.cta': 'Watch more videos on our YouTube channel →',
 
     'footer.rights': 'All rights reserved.',
     'footer.legal': 'Legal notice',
