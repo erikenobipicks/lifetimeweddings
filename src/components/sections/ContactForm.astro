@@ -98,11 +98,22 @@ const t = useTranslations(lang);
     if (submitBtn) submitBtn.disabled = true;
 
     try {
+      // Send as JSON, not multipart. Astro 5's security.checkOrigin rejects
+      // multipart/form-data POSTs with 403 "Cross-site POST form submissions
+      // are forbidden" when a proxy (Cloudflare/Railway) strips or rewrites
+      // the Origin header — which is what was happening in production.
+      const payload: Record<string, string> = {};
+      for (const [k, v] of new FormData(form).entries()) payload[k] = String(v);
+
       const res = await fetch(form.action, {
         method: 'POST',
-        body: new FormData(form),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+      if (!res.ok) {
+        const detail = await res.text().catch(() => '');
+        throw new Error('HTTP ' + res.status + (detail ? ' ' + detail : ''));
+      }
       ok?.classList.remove('hidden');
       form.reset();
     } catch (error) {
