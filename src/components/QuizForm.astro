@@ -5,6 +5,9 @@ interface Props { lang: Lang }
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 
+// Turnstile sitekey. Skipped entirely when not configured (dev/staging).
+const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
+
 const locations = [
   { value: 'tarragona', label: t('quiz.loc.tarragona') },
   { value: 'barcelona', label: t('quiz.loc.barcelona') },
@@ -123,6 +126,9 @@ const TOTAL_STEPS = 6;
         <input id="q-phone" type="tel"
                class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none" />
       </div>
+      {turnstileSitekey && (
+        <div class="cf-turnstile flex justify-center pt-2" data-sitekey={turnstileSitekey} data-theme="light" data-size="flexible"></div>
+      )}
     </div>
   </div>
 
@@ -156,6 +162,10 @@ const TOTAL_STEPS = 6;
     </button>
   </div>
 </div>
+
+{turnstileSitekey && (
+  <script is:inline async defer src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
+)}
 
 <script define:vars={{ submitLabel: t('quiz.submit'), lang }}>
   (function () {
@@ -236,6 +246,10 @@ const TOTAL_STEPS = 6;
       answers.email = email;
       if (phone) answers.phone = phone;
       answers.lang = lang;
+
+      // Pull Turnstile token if the widget rendered. Absent in dev/staging.
+      const tkInput = root.querySelector('input[name="cf-turnstile-response"]');
+      if (tkInput && tkInput.value) answers.captchaToken = tkInput.value;
 
       // Show loading
       steps.forEach((s) => s.classList.add('hidden'));

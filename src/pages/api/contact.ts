@@ -10,6 +10,7 @@ import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { sendNotification, sendTelegramNotification } from '~/lib/email';
 import { createLead } from '~/lib/quotes';
+import { verifyTurnstile, clientIp } from '~/lib/captcha';
 
 // Coerce "" → undefined for optional fields so we don't persist empty strings
 // and so zod's `.optional()` short-circuits length checks on blank inputs.
@@ -23,6 +24,7 @@ const schema = z.object({
   message: z.preprocess(blankToUndef, z.string().max(5000).optional()),
   consent: z.preprocess(blankToUndef, z.string().optional()),
   _language: z.preprocess(blankToUndef, z.enum(['ca', 'es', 'en']).optional()),
+  captchaToken: z.preprocess(blankToUndef, z.string().optional()),
 });
 
 function esc(s: string | undefined | null): string {
@@ -55,6 +57,16 @@ export const POST: APIRoute = async ({ request }) => {
     if (typeof raw._gotcha === 'string' && raw._gotcha.length > 0) {
       return new Response(JSON.stringify({ ok: true }), {
         status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Captcha (Turnstile) before the expensive work. No-op when the secret
+    // key isn't configured — useful for local dev.
+    const captchaOk = await verifyTurnstile(raw.captchaToken, clientIp(request));
+    if (!captchaOk) {
+      return new Response(JSON.stringify({ error: 'Captcha failed' }), {
+        status: 403,
         headers: { 'Content-Type': 'application/json' },
       });
     }
