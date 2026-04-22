@@ -1,4 +1,5 @@
 import { defineMiddleware } from 'astro:middleware';
+import { getCollection } from 'astro:content';
 import { getUser } from '~/lib/auth';
 
 /** Canonical host for production. When set, any request coming in on a
@@ -7,10 +8,54 @@ import { getUser } from '~/lib/auth';
  *  Leave unset in dev/staging. Example: CANONICAL_HOST=www.lifetime.photo */
 const CANONICAL_HOST = process.env.CANONICAL_HOST;
 
+const DIACRITIC = new RegExp('[\u0300-\u036f]', 'g');
+
+/** Strip accents and lowercase so /post/fotógrafos and /post/fotografos
+ *  both resolve to the same legacy-slug entry. */
+function normalizeSlug(s: string): string {
+  return s.normalize('NFD').replace(DIACRITIC, '').toLowerCase();
+}
+
+/** Map from (legacy slug or its normalized form) → current blog post slug.
+ *  Built once per process on first request that actually hits `/post/*`. */
+let legacySlugMap: Map<string, string> | null = null;
+async function getLegacySlugMap(): Promise<Map<string, string>> {
+  if (legacySlugMap) return legacySlugMap;
+  const map = new Map<string, string>();
+  const posts = await getCollection('blog');
+  for (const p of posts) {
+    const slug = p.id;
+    const legacy = p.data.legacySlug;
+    // Always include the current slug (raw + normalized) so even
+    // /post/<current-slug> redirects cleanly to /blog/<current-slug>.
+    map.set(slug, slug);
+    map.set(normalizeSlug(slug), slug);
+    if (legacy) {
+      map.set(legacy, slug);
+      map.set(normalizeSlug(legacy), slug);
+    }
+  }
+  legacySlugMap = map;
+  return map;
+}
+
 export const onRequest = defineMiddleware(async (context, next) => {
   const path = context.url.pathname;
   const method = context.request.method;
   const isApi = path.startsWith('/api/');
+
+  // ── Legacy Wix /post/<slug> → /es/blog/<new-slug> redirects ─────────────
+  // Old Wix URLs are still indexed by Google under /post/<accented-slug>.
+  // Map them back via the `legacySlug` frontmatter on each blog post.
+  // Unknown /post/* falls back to /es/blog so the visitor isn't stranded.
+  if (path.startsWith('/post/')) {
+    const raw = path.slice('/post/'.length).replace(/\/+$/, '');
+    const decoded = decodeURIComponent(raw);
+    const map = await getLegacySlugMap();
+    const target = map.get(decoded) ?? map.get(normalizeSlug(decoded));
+    if (target) return context.redirect(`/es/blog/${target}`, 301);
+    return context.redirect('/es/blog', 301);
+  }
 
   // ── Canonical host redirect (SEO + link hygiene) ────────────────────────
   // Skip for /api/* — a 301 on POST strips the body in most browsers and
