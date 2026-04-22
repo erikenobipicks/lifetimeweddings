@@ -20,7 +20,7 @@ const fmt = (iso: string | null) =>
 // Load the migrated Markdown body. Prefer a per-language variant
 // (`<slug>.en.md`) if one exists; otherwise fall back to the canonical
 // `<slug>` entry so every language at least shows real content.
-const entry = (await getEntry('blog', `${post.slug}.en`)) ?? (await getEntry('blog', post.slug));
+const entry = (await getEntry('blog', `${post.slug}-en`)) ?? (await getEntry('blog', post.slug));
 const Content = entry ? (await render(entry)).Content : null;
 const description = entry?.data.description ?? post.title;
 ---
