@@ -21,7 +21,7 @@ const fmt = (iso: string | null) =>
 // Look up the Markdown body: prefer a per-language variant (`<slug>.ca.md`)
 // if one exists, otherwise fall back to the canonical `<slug>` entry.
 // Posts without any .md file fall back to the "in preparation" placeholder.
-const entry = (await getEntry('blog', `${post.slug}.ca`)) ?? (await getEntry('blog', post.slug));
+const entry = (await getEntry('blog', `${post.slug}-ca`)) ?? (await getEntry('blog', post.slug));
 const Content = entry ? (await render(entry)).Content : null;
 const description = entry?.data.description ?? post.title;
 ---
