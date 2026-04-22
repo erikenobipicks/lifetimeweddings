@@ -9,6 +9,10 @@ interface Props {
 }
 const { lang, compact = false } = Astro.props;
 const t = useTranslations(lang);
+
+// Turnstile sitekey. If not configured, the widget is skipped entirely and
+// the server also skips verification — forms keep working in dev/staging.
+const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
 ---
 
 <Section id="contact" bg="cream">
@@ -67,6 +71,10 @@ const t = useTranslations(lang);
         <span>{t('contact.field.consent')}</span>
       </label>
 
+      {turnstileSitekey && (
+        <div class="cf-turnstile flex justify-center" data-sitekey={turnstileSitekey} data-theme="light" data-size="flexible"></div>
+      )}
+
       <div class="flex flex-col items-center gap-3">
         <button
           type="submit"
@@ -82,6 +90,10 @@ const t = useTranslations(lang);
     </form>
   </div>
 </Section>
+
+{turnstileSitekey && (
+  <script is:inline async defer src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
+)}
 
 <script>
   // Intercept the submit and POST via fetch so we can swap the success/error
@@ -104,6 +116,13 @@ const t = useTranslations(lang);
       // the Origin header — which is what was happening in production.
       const payload: Record<string, string> = {};
       for (const [k, v] of new FormData(form).entries()) payload[k] = String(v);
+
+      // Cloudflare Turnstile injects its token into a hidden input named
+      // `cf-turnstile-response`. Move it into the `captchaToken` field the
+      // server expects. Absent when the widget isn't configured.
+      const tkInput = form.querySelector<HTMLInputElement>('input[name="cf-turnstile-response"]');
+      if (tkInput?.value) payload.captchaToken = tkInput.value;
+      delete payload['cf-turnstile-response'];
 
       const res = await fetch(form.action, {
         method: 'POST',

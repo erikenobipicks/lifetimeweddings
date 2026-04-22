@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { createLead } from '~/lib/quotes';
 import { recommendPacks } from '~/lib/matcher';
 import { sendNotification, sendTelegramNotification } from '~/lib/email';
+import { verifyTurnstile, clientIp } from '~/lib/captcha';
 
 const schema = z.object({
   weddingDate: z.string().optional(),
@@ -18,6 +19,7 @@ const schema = z.object({
   email: z.string().email(),
   phone: z.string().max(30).optional(),
   lang: z.enum(['es', 'ca', 'en']).optional(),
+  captchaToken: z.string().optional(),
 });
 
 const SITE_URL = process.env.PUBLIC_SITE_URL ?? 'http://localhost:4321';
@@ -55,6 +57,15 @@ export const POST: APIRoute = async ({ request }) => {
   if (!parsed.success) {
     return new Response(JSON.stringify({ error: 'Invalid data', details: parsed.error.flatten() }), {
       status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Captcha (Turnstile). No-op when the secret key isn't configured.
+  const captchaOk = await verifyTurnstile(parsed.data.captchaToken, clientIp(request));
+  if (!captchaOk) {
+    return new Response(JSON.stringify({ error: 'Captcha failed' }), {
+      status: 403,
       headers: { 'Content-Type': 'application/json' },
     });
   }
