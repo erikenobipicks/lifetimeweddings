@@ -137,6 +137,10 @@ export const ui = {
     'videos.play.aria': 'Reproducir tráiler',
     'videos.channel.cta': 'Ver más vídeos en nuestro canal de YouTube →',
 
+    // Landings (hidden per-typology proposal pages)
+    'landings.deliverables.title': 'Qué os entregamos',
+    'landings.packs.title': 'Packs recomendados',
+
     // Footer
     'footer.rights': 'Todos los derechos reservados.',
     'footer.legal': 'Aviso legal',
@@ -364,6 +368,10 @@ export const ui = {
     'videos.play.aria': 'Reproduir tràiler',
     'videos.channel.cta': 'Veure més vídeos al nostre canal de YouTube →',
 
+    // Landings
+    'landings.deliverables.title': 'Què us entreguem',
+    'landings.packs.title': 'Packs recomanats',
+
     'footer.rights': 'Tots els drets reservats.',
     'footer.legal': 'Avís legal',
     'footer.privacy': 'Política de privacitat',
@@ -577,6 +585,10 @@ export const ui = {
       'Documentary wedding films shot in Tarragona, Reus and across Catalonia. No forced poses, no script — only what actually happens.',
     'videos.play.aria': 'Play trailer',
     'videos.channel.cta': 'Watch more videos on our YouTube channel →',
+
+    // Landings
+    'landings.deliverables.title': 'What you get',
+    'landings.packs.title': 'Recommended packs',
 
     'footer.rights': 'All rights reserved.',
     'footer.legal': 'Legal notice',

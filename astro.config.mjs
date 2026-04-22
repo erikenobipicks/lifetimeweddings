@@ -34,7 +34,8 @@ export default defineConfig({
       filter: (page) =>
         !page.includes('/p/') &&
         !page.includes('/admin') &&
-        !page.includes('/packs'),
+        !page.includes('/packs') &&
+        !page.includes('/ofertes'),
     }),
   ],
   build: {
