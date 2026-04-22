@@ -45,8 +45,8 @@ export const LANDINGS: Landing[] = [
     slug: 'boda-civil-foto',
     ceremony: 'civil',
     service: 'photo',
-    heroImage: g(12),
-    galleryImages: [g(3), g(18), g(26), g(41), g(55), g(68)],
+    heroImage: g(5),
+    galleryImages: [g(1), g(11), g(18), g(23), g(28), g(32)],
     recommendedPackIds: ['como-conoci', 'lqsa'],
     copy: {
       ca: {
@@ -108,8 +108,8 @@ export const LANDINGS: Landing[] = [
     slug: 'boda-civil-foto-video',
     ceremony: 'civil',
     service: 'photo-video',
-    heroImage: g(15),
-    galleryImages: [g(7), g(22), g(33), g(48), g(61), g(77)],
+    heroImage: g(8),
+    galleryImages: [g(3), g(14), g(19), g(22), g(27), g(31)],
     recommendedPackIds: ['combo-cc-tu', 'combo-lqsa-tu', 'combo-lqsa-ol'],
     copy: {
       ca: {
@@ -171,8 +171,8 @@ export const LANDINGS: Landing[] = [
     slug: 'boda-religiosa-foto',
     ceremony: 'religious',
     service: 'photo',
-    heroImage: g(24),
-    galleryImages: [g(11), g(29), g(37), g(52), g(64), g(81)],
+    heroImage: g(12),
+    galleryImages: [g(2), g(7), g(15), g(21), g(26), g(33)],
     recommendedPackIds: ['como-conoci', 'lqsa'],
     copy: {
       ca: {
@@ -234,8 +234,8 @@ export const LANDINGS: Landing[] = [
     slug: 'boda-religiosa-foto-video',
     ceremony: 'religious',
     service: 'photo-video',
-    heroImage: g(30),
-    galleryImages: [g(9), g(17), g(35), g(44), g(59), g(72)],
+    heroImage: g(16),
+    galleryImages: [g(4), g(10), g(17), g(20), g(25), g(29)],
     recommendedPackIds: ['combo-cc-tu', 'combo-lqsa-tu', 'combo-lqsa-ol'],
     copy: {
       ca: {
@@ -297,8 +297,8 @@ export const LANDINGS: Landing[] = [
     slug: 'boda-simbolica-foto-video',
     ceremony: 'symbolic',
     service: 'photo-video',
-    heroImage: g(42),
-    galleryImages: [g(5), g(20), g(38), g(50), g(63), g(79)],
+    heroImage: g(24),
+    galleryImages: [g(6), g(13), g(22), g(27), g(30), g(33)],
     recommendedPackIds: ['combo-cc-tu', 'combo-lqsa-tu'],
     copy: {
       ca: {
@@ -360,8 +360,8 @@ export const LANDINGS: Landing[] = [
     slug: 'boda-destination-foto-video',
     ceremony: 'destination',
     service: 'photo-video',
-    heroImage: g(54),
-    galleryImages: [g(13), g(25), g(40), g(57), g(71), g(88)],
+    heroImage: g(9),
+    galleryImages: [g(2), g(11), g(16), g(21), g(28), g(33)],
     recommendedPackIds: ['combo-lqsa-tu', 'combo-lqsa-ol'],
     copy: {
       ca: {
