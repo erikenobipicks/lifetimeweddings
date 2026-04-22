@@ -8,7 +8,7 @@
 
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
-import { sendNotification, sendTelegramNotification } from '~/lib/email';
+import { sendNotification, sendTelegramNotification, sendAutoReplyToLead } from '~/lib/email';
 import { createLead } from '~/lib/quotes';
 import { verifyTurnstile, clientIp } from '~/lib/captcha';
 
@@ -119,6 +119,15 @@ export const POST: APIRoute = async ({ request }) => {
     await sendTelegramNotification(
       `💌 <b>Nou contacte</b>\n${esc(d.name)}\n📧 ${esc(d.email)}${d.wedding_date ? `\n📅 ${esc(d.wedding_date)}` : ''}${d.venue ? `\n📍 ${esc(d.venue)}` : ''}`,
     );
+
+    // Auto-reply to the lead. No ceremony/service captured in this form, so
+    // `slugForLead(null, null)` returns null → the helper falls back to
+    // /packs as a generic proposal link.
+    await sendAutoReplyToLead({
+      email: d.email,
+      name: d.name,
+      lang,
+    });
 
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,
