@@ -18,16 +18,18 @@ const category = BLOG_CATEGORIES[post.category];
 const fmt = (iso: string | null) =>
   iso ? new Date(iso).toLocaleDateString('ca-ES', { year: 'numeric', month: 'long', day: 'numeric' }) : null;
 
-// Look up the migrated Markdown body (if any). Posts without a .md file
-// fall back to the "in preparation" placeholder.
-const entry = await getEntry('blog', post.slug);
+// Look up the Markdown body: prefer a per-language variant (`<slug>.ca.md`)
+// if one exists, otherwise fall back to the canonical `<slug>` entry.
+// Posts without any .md file fall back to the "in preparation" placeholder.
+const entry = (await getEntry('blog', `${post.slug}.ca`)) ?? (await getEntry('blog', post.slug));
 const Content = entry ? (await render(entry)).Content : null;
+const description = entry?.data.description ?? post.title;
 ---
 
 <BaseLayout
   lang={lang}
   title={`${post.title} | Lifetime Weddings`}
-  description={post.title}
+  description={description}
   canonicalPath={`/blog/${post.slug}`}
   ogImage={post.cover}
 >

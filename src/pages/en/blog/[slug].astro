@@ -4,6 +4,7 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 import Section from '~/components/Section.astro';
 import { BLOG_POSTS, BLOG_CATEGORIES } from '~/data/blog';
 import { TEAM } from '~/data/team';
+import { getEntry, render } from 'astro:content';
 
 export function getStaticPaths() {
   return BLOG_POSTS.map((p) => ({ params: { slug: p.slug }, props: { post: p } }));
@@ -15,12 +16,19 @@ const author = post.author ? TEAM.find((m) => m.id === post.author) : null;
 const category = BLOG_CATEGORIES[post.category];
 const fmt = (iso: string | null) =>
   iso ? new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : null;
+
+// Load the migrated Markdown body. Prefer a per-language variant
+// (`<slug>.en.md`) if one exists; otherwise fall back to the canonical
+// `<slug>` entry so every language at least shows real content.
+const entry = (await getEntry('blog', `${post.slug}.en`)) ?? (await getEntry('blog', post.slug));
+const Content = entry ? (await render(entry)).Content : null;
+const description = entry?.data.description ?? post.title;
 ---
 
 <BaseLayout
   lang={lang}
   title={`${post.title} | Lifetime Weddings`}
-  description={post.title}
+  description={description}
   canonicalPath={`/blog/${post.slug}`}
   ogImage={post.cover}
 >
@@ -43,10 +51,14 @@ const fmt = (iso: string | null) =>
   )}
 
   <Section>
-    <article class="max-w-2xl mx-auto">
-      <p class="text-ink/75 leading-relaxed">
-        Content in preparation. In the meantime, you can read this article on the <a href={`https://www.lifetime.photo/post/${post.legacySlug}`} target="_blank" rel="noopener" class="text-gold underline">current lifetime.photo site</a>.
-      </p>
+    <article class="max-w-2xl mx-auto prose prose-neutral prose-img:rounded-lg prose-img:my-8 prose-headings:font-display">
+      {Content ? (
+        <Content />
+      ) : (
+        <p class="text-ink/75 leading-relaxed">
+          Content in preparation. In the meantime, you can read this article on the <a href={`https://www.lifetime.photo/post/${post.legacySlug}`} target="_blank" rel="noopener" class="text-gold underline">current lifetime.photo site</a>.
+        </p>
+      )}
       <p class="mt-8"><a href="/en/blog" class="text-gold underline text-sm">← Back to the blog</a></p>
     </article>
   </Section>
