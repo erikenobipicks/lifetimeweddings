@@ -6,7 +6,7 @@ import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { createLead } from '~/lib/quotes';
 import { recommendPacks } from '~/lib/matcher';
-import { sendNotification, sendTelegramNotification } from '~/lib/email';
+import { sendNotification, sendTelegramNotification, sendAutoReplyToLead } from '~/lib/email';
 import { verifyTurnstile, clientIp } from '~/lib/captcha';
 
 const schema = z.object({
@@ -140,6 +140,16 @@ export const POST: APIRoute = async ({ request }) => {
       `<a href="${reviewUrl}">▶ Revisar i crear pressupost</a>`,
     ].join('\n'),
   );
+
+  // Auto-reply to the couple with a link to the typology-matched landing.
+  await sendAutoReplyToLead({
+    email: d.email,
+    name: d.coupleName,
+    lang: d.lang ?? 'ca',
+    ceremonyType: d.ceremonyType,
+    serviceInterest: d.serviceInterest,
+    location: d.location,
+  });
 
   return new Response(
     JSON.stringify({ ok: true, leadId: lead.id }),
