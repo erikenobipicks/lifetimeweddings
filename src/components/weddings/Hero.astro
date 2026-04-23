@@ -1,0 +1,42 @@
+---
+// Hero block for the rich wedding case page. Full-bleed cover image with
+// eyebrow label, couple name and venue · location subtitle overlay.
+import { useTranslations, type Lang } from '~/i18n/ui';
+
+interface Props {
+  lang: Lang;
+  couple: string;
+  venueName?: string;
+  location?: string;
+  /** Image URL (largest variant available). */
+  coverLarge: string;
+  coverWidth?: number;
+  coverHeight?: number;
+}
+
+const { lang, couple, venueName, location, coverLarge, coverWidth = 1920, coverHeight = 1280 } =
+  Astro.props;
+const t = useTranslations(lang);
+const subtitleParts = [venueName, location].filter((x) => x && x !== '—');
+---
+
+<section class="relative h-[60vh] min-h-[420px] overflow-hidden">
+  <img
+    src={coverLarge}
+    alt={venueName ? `${couple} · ${venueName}` : couple}
+    class="absolute inset-0 w-full h-full object-cover"
+    loading="eager"
+    fetchpriority="high"
+    decoding="async"
+    width={coverWidth}
+    height={coverHeight}
+  />
+  <div class="absolute inset-0 bg-black/40"></div>
+  <div class="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-6">
+    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('case.eyebrow')}</p>
+    <h1 class="font-display text-4xl md:text-5xl font-bold">{couple}</h1>
+    {subtitleParts.length > 0 && (
+      <p class="mt-3 opacity-90">{subtitleParts.join(' · ')}</p>
+    )}
+  </div>
+</section>
