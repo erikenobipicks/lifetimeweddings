@@ -2,8 +2,12 @@
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Section from '~/components/Section.astro';
 import { BLOG_POSTS, BLOG_CATEGORIES } from '~/data/blog';
+import { useTranslations } from '~/i18n/ui';
+import { SITE } from '~/data/site';
+import { breadcrumbJsonLd } from '~/lib/seo';
 
 const lang = 'ca' as const;
+const t = useTranslations(lang);
 
 // Sort posts newest-first by updatedAt (publishedAt might be null for stub entries)
 const posts = [...BLOG_POSTS].sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
@@ -12,6 +16,13 @@ function fmtDate(iso: string | null): string {
   if (!iso) return '';
   return new Date(iso).toLocaleDateString('ca-ES', { year: 'numeric', month: 'long', day: 'numeric' });
 }
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: t('schema.breadcrumb.home'), url: `${SITE.url}/` },
+    { name: t('schema.breadcrumb.blog'), url: `${SITE.url}/blog` },
+  ]),
+];
 ---
 
 <BaseLayout
@@ -19,6 +30,7 @@ function fmtDate(iso: string | null): string {
   title="Blog | Lifetime Weddings — Foto i vídeo de boda"
   description="Consells, tendències i bodes reals de Lifetime Weddings a Tarragona."
   canonicalPath="/blog"
+  jsonLd={jsonLd}
 >
   <Section bg="cream" class="pt-32">
     <div class="max-w-6xl mx-auto">

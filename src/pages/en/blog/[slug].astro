@@ -5,6 +5,9 @@ import Section from '~/components/Section.astro';
 import { BLOG_POSTS, BLOG_CATEGORIES } from '~/data/blog';
 import { TEAM } from '~/data/team';
 import { getEntry, render } from 'astro:content';
+import { useTranslations } from '~/i18n/ui';
+import { SITE } from '~/data/site';
+import { breadcrumbJsonLd, blogPostingJsonLd } from '~/lib/seo';
 
 export function getStaticPaths() {
   return BLOG_POSTS.map((p) => ({ params: { slug: p.slug }, props: { post: p } }));
@@ -12,6 +15,7 @@ export function getStaticPaths() {
 
 const { post } = Astro.props;
 const lang = 'en' as const;
+const t = useTranslations(lang);
 const author = post.author ? TEAM.find((m) => m.id === post.author) : null;
 const category = BLOG_CATEGORIES[post.category];
 const fmt = (iso: string | null) =>
@@ -23,6 +27,15 @@ const fmt = (iso: string | null) =>
 const entry = (await getEntry('blog', `${post.slug}-en`)) ?? (await getEntry('blog', post.slug));
 const Content = entry ? (await render(entry)).Content : null;
 const description = entry?.data.description ?? post.title;
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: t('schema.breadcrumb.home'), url: `${SITE.url}/en` },
+    { name: t('schema.breadcrumb.blog'), url: `${SITE.url}/en/blog` },
+    { name: post.title, url: `${SITE.url}/en/blog/${post.slug}` },
+  ]),
+  blogPostingJsonLd({ post, lang, description, canonicalPath: `/blog/${post.slug}` }),
+];
 ---
 
 <BaseLayout
@@ -31,6 +44,7 @@ const description = entry?.data.description ?? post.title;
   description={description}
   canonicalPath={`/blog/${post.slug}`}
   ogImage={post.cover}
+  jsonLd={jsonLd}
 >
   {post.cover && (
     <section class="relative h-[50vh] min-h-[360px] overflow-hidden">

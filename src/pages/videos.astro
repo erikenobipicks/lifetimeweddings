@@ -2,12 +2,16 @@
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import VideosPage from '~/components/VideosPage.astro';
 import { videos, videoThumb, videoEmbed, videoWatch } from '~/data/videos';
+import { useTranslations } from '~/i18n/ui';
+import { SITE } from '~/data/site';
+import { breadcrumbJsonLd, ID } from '~/lib/seo';
 
 const lang = 'ca' as const;
+const t = useTranslations(lang);
 
 // One VideoObject per trailer. Gives Google everything it needs to show
 // the clip enriched in search and in the Videos tab.
-const jsonLd = videos.map((v) => ({
+const videoBlocks = videos.map((v) => ({
   '@context': 'https://schema.org',
   '@type': 'VideoObject',
   name: `Tràiler de boda · ${v.coupleName}`,
@@ -16,15 +20,16 @@ const jsonLd = videos.map((v) => ({
   uploadDate: v.date,
   contentUrl: videoWatch(v.youtubeId),
   embedUrl: videoEmbed(v.youtubeId),
-  publisher: {
-    '@type': 'Organization',
-    name: 'Lifetime Weddings',
-    logo: {
-      '@type': 'ImageObject',
-      url: 'https://www.lifetime.photo/logos/logo-circle-color.png',
-    },
-  },
+  publisher: { '@id': ID.business },
 }));
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: t('schema.breadcrumb.home'), url: `${SITE.url}/` },
+    { name: t('schema.breadcrumb.videos'), url: `${SITE.url}/videos` },
+  ]),
+  ...videoBlocks,
+];
 ---
 
 <BaseLayout
