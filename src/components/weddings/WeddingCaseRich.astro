@@ -1,0 +1,87 @@
+---
+// Orchestrator for the rich wedding case page. Composes the individual
+// blocks (Hero / Intro / Gallery / Ficha / Testimoni / Similars / Blog /
+// CTA) from the legacy Wedding + the Content Collection entry.
+//
+// The route file decides between this and the simple template based on
+// getWeddingCase() result. This component assumes `mode === 'rich'` has
+// already been determined and the stub guard has passed.
+
+import type { Wedding } from '~/data/weddings';
+import type { CollectionEntry } from 'astro:content';
+import { weddingGallery, weddingCover } from '~/data/weddings';
+import type { Lang } from '~/i18n/ui';
+
+import Hero from './Hero.astro';
+import IntroBlock from './IntroBlock.astro';
+import GallerySections from './GallerySections.astro';
+import FichaDia from './FichaDia.astro';
+import Testimoni from './Testimoni.astro';
+import BodesSimilars from './BodesSimilars.astro';
+import BlogPostLink from './BlogPostLink.astro';
+import CTA from './CTA.astro';
+
+interface Props {
+  lang: Lang;
+  legacy: Wedding;
+  rich: CollectionEntry<'weddings'>['data'];
+  body: string;
+}
+
+const { lang, legacy, rich } = Astro.props;
+
+const gallery = weddingGallery(legacy);
+const cover = weddingCover(legacy);
+// Cover: either rich.gallery.cover (photo id) takes precedence, else first image.
+let coverLarge = gallery[0]?.variants.lg ?? cover ?? '';
+if (rich.gallery?.cover && gallery.length > 0) {
+  const idx = parseInt(rich.gallery.cover, 10) - 1;
+  if (idx >= 0 && idx < gallery.length) {
+    coverLarge = gallery[idx].variants.lg;
+  }
+}
+
+const intro = rich.content?.intro?.[lang]?.trim() ?? '';
+const venueName = rich.venue?.name ?? (legacy.venue !== '—' ? legacy.venue : undefined);
+const location = rich.venue?.city ?? (legacy.location !== '—' ? legacy.location : undefined);
+const testimonial = rich.testimonial?.[lang];
+---
+
+<Hero
+  lang={lang}
+  couple={rich.couple}
+  venueName={venueName}
+  location={location}
+  coverLarge={coverLarge}
+/>
+
+{intro && <IntroBlock lang={lang} intro={intro} />}
+
+{gallery.length > 0 && (
+  <GallerySections
+    lang={lang}
+    couple={rich.couple}
+    venueName={venueName}
+    location={location}
+    images={gallery}
+    sections={rich.gallery?.sections}
+  />
+)}
+
+<FichaDia
+  lang={lang}
+  date={rich.date}
+  venue={rich.venue}
+  details={rich.details}
+  suppliers={rich.suppliers}
+/>
+
+<Testimoni lang={lang} quote={testimonial ?? undefined} author={rich.couple} />
+
+{rich.related && rich.related.length > 0 && (
+  <BodesSimilars lang={lang} slugs={rich.related} currentSlug={legacy.slug} />
+)}
+
+<BlogPostLink lang={lang} slug={rich.blogPost} />
+
+<CTA lang={lang} />

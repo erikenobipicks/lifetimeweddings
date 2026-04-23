@@ -1,0 +1,166 @@
+---
+// Wedding gallery split into narrative sections. Each section renders as an
+// uninterrupted grid; separation between sections is pure whitespace — no
+// <hr>, no alternating backgrounds, no dividers. H2 sits above its grid with
+// generous padding-top; optional localized intro sits below the H2.
+//
+// If `sections` is empty or undefined, the gallery falls back to one uniform
+// grid (same layout as the simple template).
+//
+// Image alt text mirrors the existing localized pattern from the simple
+// template, so no SEO regression on the 400+ existing alt texts.
+
+import { parseSectionRange } from '~/lib/weddings-rich';
+import type { Lang } from '~/i18n/ui';
+
+type GalleryImage = {
+  variants: { sm: string; md: string; lg: string };
+  orientation?: 'landscape' | 'portrait' | 'square';
+  width?: number;
+  height?: number;
+};
+
+interface Section {
+  key: string;
+  range: string;
+  title: { ca?: string; es?: string; en?: string };
+  intro?: { ca?: string; es?: string; en?: string };
+}
+
+interface Props {
+  lang: Lang;
+  couple: string;
+  venueName?: string;
+  location?: string;
+  images: GalleryImage[];
+  sections?: Section[];
+}
+
+const { lang, couple, venueName, location, images, sections } = Astro.props;
+const total = images.length;
+const hasVenue = !!venueName && venueName !== '—';
+const hasLocation = !!location && location !== '—';
+
+function galleryAlt(i: number): string {
+  const nn = String(i).padStart(2, '0');
+  const count = String(total).padStart(2, '0');
+  if (lang === 'en') {
+    if (hasVenue && hasLocation) return `${couple}'s wedding at ${venueName} · ${location} · Photo ${nn} of ${count}`;
+    if (hasVenue) return `${couple}'s wedding at ${venueName} · Photo ${nn} of ${count}`;
+    return `${couple}'s wedding · Lifetime Weddings · Photo ${nn} of ${count}`;
+  }
+  if (lang === 'es') {
+    if (hasVenue && hasLocation) return `Boda de ${couple} en ${venueName} · ${location} · Foto ${nn} de ${count}`;
+    if (hasVenue) return `Boda de ${couple} en ${venueName} · Foto ${nn} de ${count}`;
+    return `Boda de ${couple} · Lifetime Weddings · Foto ${nn} de ${count}`;
+  }
+  // ca
+  if (hasVenue && hasLocation) return `Boda de ${couple} a ${venueName} · ${location} · Foto ${nn} de ${count}`;
+  if (hasVenue) return `Boda de ${couple} a ${venueName} · Foto ${nn} de ${count}`;
+  return `Boda de ${couple} · Lifetime Weddings · Foto ${nn} de ${count}`;
+}
+
+// Resolve sections against images; skip invalid ranges silently.
+const resolvedSections =
+  sections
+    ?.map((s) => {
+      const r = parseSectionRange(s.range);
+      if (!r) return null;
+      const slice = images.slice(r.from - 1, r.to);
+      if (slice.length === 0) return null;
+      return {
+        key: s.key,
+        title: s.title[lang] ?? s.title.ca ?? s.title.es ?? s.title.en ?? '',
+        intro: s.intro?.[lang]?.trim() ?? '',
+        images: slice,
+        offset: r.from - 1, // for alt numbering
+      };
+    })
+    .filter((x): x is NonNullable<typeof x> => x !== null) ?? [];
+
+const hasSections = resolvedSections.length > 0;
+---
+
+{hasSections ? (
+  <div class="bg-white text-ink">
+    {resolvedSections.map((sec, idx) => (
+      <section class:list={[
+        'px-6 md:px-12',
+        // First section gets smaller top padding (IntroBlock already has
+        // its own bottom padding). Subsequent sections open with bigger
+        // whitespace to breathe between blocks. Intro sections need more
+        // vertical room so the H2 + intro + grid reads as one unit.
+        idx === 0 ? 'pt-8 md:pt-12' : sec.intro ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16',
+        'pb-4 md:pb-6',
+      ]}>
+        <div class="max-w-6xl mx-auto">
+          <h2 class="font-display text-xl md:text-2xl font-bold mb-2 text-ink">{sec.title}</h2>
+          {sec.intro && (
+            <p class="text-ink/70 leading-relaxed mb-6 md:mb-8 max-w-2xl">{sec.intro}</p>
+          )}
+          {!sec.intro && <div class="mb-6 md:mb-8"></div>}
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+            {sec.images.map((img, i) => {
+              const globalIdx = sec.offset + i;
+              const span = img.orientation === 'landscape' ? 'md:col-span-2' : '';
+              return (
+                <a
+                  href={img.variants.lg}
+                  target="_blank"
+                  rel="noopener"
+                  class:list={['block overflow-hidden group', span]}
+                  aria-label={`${globalIdx + 1}`}
+                >
+                  <img
+                    src={img.variants.md}
+                    srcset={`${img.variants.sm} 640w, ${img.variants.md} 1200w, ${img.variants.lg} 1920w`}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    alt={galleryAlt(globalIdx + 1)}
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading={globalIdx < 2 ? 'eager' : 'lazy'}
+                    fetchpriority={globalIdx === 0 ? 'high' : 'auto'}
+                    decoding="async"
+                    width={img.width}
+                    height={img.height}
+                  />
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+    ))}
+  </div>
+) : (
+  <section class="px-6 md:px-12 py-12 md:py-16 bg-white">
+    <div class="max-w-6xl mx-auto">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+        {images.map((img, i) => {
+          const span = img.orientation === 'landscape' ? 'md:col-span-2' : '';
+          return (
+            <a
+              href={img.variants.lg}
+              target="_blank"
+              rel="noopener"
+              class:list={['block overflow-hidden group', span]}
+              aria-label={`${i + 1}`}
+            >
+              <img
+                src={img.variants.md}
+                srcset={`${img.variants.sm} 640w, ${img.variants.md} 1200w, ${img.variants.lg} 1920w`}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                alt={galleryAlt(i + 1)}
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                loading={i < 2 ? 'eager' : 'lazy'}
+                fetchpriority={i === 0 ? 'high' : 'auto'}
+                decoding="async"
+                width={img.width}
+                height={img.height}
+              />
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+)}

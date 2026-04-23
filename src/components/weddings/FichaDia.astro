@@ -1,0 +1,123 @@
+---
+// Structured summary of the day. Sits below the gallery, opens with a
+// subtle top border — this IS a real narrative break (gallery → facts), so
+// a divider is appropriate here (unlike between gallery sections).
+//
+// Empty blocks never render. If the case has no venue AND no details AND
+// no suppliers, this whole section is skipped by the orchestrator.
+
+import { useTranslations, type Lang } from '~/i18n/ui';
+
+interface Supplier { name: string; url?: string }
+
+interface Props {
+  lang: Lang;
+  date?: Date;
+  venue?: { name: string; city?: string; region?: string };
+  details?: {
+    guests?: number;
+    ceremonyType?: 'civil' | 'religiosa' | 'simbolica';
+    style?: string;
+    weather?: string;
+  };
+  suppliers?: {
+    planner?: Supplier;
+    catering?: Supplier;
+    florist?: Supplier;
+    music?: Supplier;
+    makeup?: Supplier;
+    dress?: Supplier;
+  };
+}
+
+const { lang, date, venue, details, suppliers } = Astro.props;
+const t = useTranslations(lang);
+
+// Build rows with only non-empty values.
+type Row = { label: string; value: string };
+const rows: Row[] = [];
+if (date) {
+  const locale = lang === 'ca' ? 'ca-ES' : lang === 'es' ? 'es-ES' : 'en-GB';
+  rows.push({
+    label: t('case.ficha.date'),
+    value: date.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }),
+  });
+}
+if (venue?.name) rows.push({ label: t('case.ficha.venue'), value: venue.name });
+const locationParts = [venue?.city, venue?.region].filter((x) => x && x !== venue?.city ? true : !!x);
+// Avoid duplicating city twice when city === region. Use a simple rule:
+const locationText = [venue?.city, venue?.region && venue.region !== venue.city ? venue.region : null]
+  .filter(Boolean)
+  .join(' · ');
+if (locationText) rows.push({ label: t('case.ficha.location'), value: locationText });
+if (details?.guests) rows.push({ label: t('case.ficha.guests'), value: String(details.guests) });
+if (details?.ceremonyType) {
+  rows.push({
+    label: t('case.ficha.ceremony'),
+    value: t(`case.ceremony.${details.ceremonyType}` as any),
+  });
+}
+if (details?.style?.trim()) rows.push({ label: t('case.ficha.style'), value: details.style.trim() });
+if (details?.weather?.trim()) rows.push({ label: t('case.ficha.weather'), value: details.weather.trim() });
+
+// Supplier rows: only entries with non-empty name.
+type SupplierRow = { label: string; name: string; url?: string };
+const supplierRows: SupplierRow[] = [];
+const supplierMap: Array<[keyof NonNullable<Props['suppliers']>, string]> = [
+  ['planner', t('case.suppliers.planner')],
+  ['catering', t('case.suppliers.catering')],
+  ['florist', t('case.suppliers.florist')],
+  ['music', t('case.suppliers.music')],
+  ['makeup', t('case.suppliers.makeup')],
+  ['dress', t('case.suppliers.dress')],
+];
+for (const [key, label] of supplierMap) {
+  const s = suppliers?.[key];
+  if (s?.name && s.name.trim() !== '') {
+    supplierRows.push({ label, name: s.name.trim(), url: s.url });
+  }
+}
+
+const hasAnything = rows.length > 0 || supplierRows.length > 0;
+---
+
+{hasAnything && (
+  <section class="px-6 md:px-12 pt-16 md:pt-24 pb-20 md:pb-28 bg-white text-ink border-t border-ink/10 mt-12 md:mt-16">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-8">{t('case.ficha.heading')}</h2>
+
+      {rows.length > 0 && (
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 mb-10">
+          {rows.map((r) => (
+            <div class="flex flex-col">
+              <dt class="text-xs font-semibold tracking-[0.15em] uppercase text-ink/50 mb-1">{r.label}</dt>
+              <dd class="text-base">{r.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      {supplierRows.length > 0 && (
+        <>
+          <h3 class="font-display text-lg md:text-xl font-bold mb-4">{t('case.suppliers.heading')}</h3>
+          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+            {supplierRows.map((s) => (
+              <div class="flex flex-col">
+                <dt class="text-xs font-semibold tracking-[0.15em] uppercase text-ink/50 mb-1">{s.label}</dt>
+                <dd class="text-base">
+                  {s.url ? (
+                    <a href={s.url} target="_blank" rel="noopener nofollow" class="hover:text-gold underline-offset-4 hover:underline">
+                      {s.name}
+                    </a>
+                  ) : (
+                    s.name
+                  )}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </>
+      )}
+    </div>
+  </section>
+)}

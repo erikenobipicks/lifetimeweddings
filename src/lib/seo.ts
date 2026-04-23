@@ -297,6 +297,27 @@ export function blogPostingJsonLd(args: {
   };
 }
 
+// ─── Wedding case (rich page) ───────────────────────────────────────────────
+// Fase 3 will populate this with ImageGallery + Article + Event + Review
+// (when testimonial is present) + BreadcrumbList. For Fase 2 it returns an
+// empty array so the route file can already wire the call without emitting
+// anything extra beyond the existing breadcrumb block.
+//
+// Keep the signature stable: callers pass the rich data + legacy + lang +
+// canonical path. Fase 3 will populate the body.
+import type { Wedding } from '~/data/weddings';
+import type { CollectionEntry } from 'astro:content';
+
+export function weddingCaseJsonLd(_args: {
+  legacy: Wedding;
+  rich: CollectionEntry<'weddings'>['data'];
+  lang: Lang;
+  /** Path without locale prefix, starting with /bodas/... */
+  canonicalPath: string;
+}): object[] {
+  return [];
+}
+
 // ─── Convenience: full home-page JSON-LD bundle ─────────────────────────────
 /**
  * Returns the full array of JSON-LD blocks emitted on the home in a given

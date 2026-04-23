@@ -1,0 +1,25 @@
+---
+// Final CTA: contextualized "if you love this style, tell us about your
+// wedding" → /quiz. Microcopy lives in the i18n dictionary (case.cta.*).
+import { useTranslations, localePath, type Lang } from '~/i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section class="px-6 md:px-12 py-20 md:py-28 bg-ink text-white text-center">
+  <div class="max-w-2xl mx-auto">
+    <h2 class="font-display text-3xl md:text-4xl font-bold mb-4">{t('case.cta.heading')}</h2>
+    <p class="text-white/80 leading-relaxed mb-8">{t('case.cta.subtitle')}</p>
+    <a
+      href={localePath(lang, '/quiz')}
+      class="inline-block bg-gold text-ink font-bold px-8 py-4 hover:bg-white transition-colors"
+    >
+      {t('case.cta.button')}
+    </a>
+  </div>
+</section>
