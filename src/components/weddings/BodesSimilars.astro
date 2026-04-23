@@ -1,0 +1,72 @@
+---
+// Related wedding cases. Renders 2–3 cards linking to sibling cases that
+// exist in WEDDINGS. Silently skips slugs that don't exist (so a typo in
+// the frontmatter doesn't break the build).
+import { WEDDINGS, weddingCover } from '~/data/weddings';
+import { useTranslations, localePath, type Lang } from '~/i18n/ui';
+
+interface Props {
+  lang: Lang;
+  /** Slugs of other weddings to feature. */
+  slugs: string[];
+  /** Current slug — filtered out even if accidentally included. */
+  currentSlug: string;
+}
+
+const { lang, slugs, currentSlug } = Astro.props;
+const t = useTranslations(lang);
+
+const cards = slugs
+  .filter((s) => s !== currentSlug)
+  .map((s) => WEDDINGS.find((w) => w.slug === s))
+  .filter((w): w is NonNullable<typeof w> => !!w)
+  .map((w) => ({
+    slug: w.slug,
+    couple: w.couple,
+    venue: w.venue && w.venue !== '—' ? w.venue : '',
+    location: w.location && w.location !== '—' ? w.location : '',
+    cover: weddingCover(w),
+  }))
+  .filter((c) => !!c.cover);
+
+const altFor = (couple: string, venue: string) => {
+  if (venue) return `${couple} · ${venue}`;
+  return couple;
+};
+---
+
+{cards.length > 0 && (
+  <section class="px-6 md:px-12 py-20 md:py-28 bg-white text-ink">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-10 text-center">
+        {t('case.related.heading')}
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+        {cards.map((c) => (
+          <a
+            href={localePath(lang, `/bodas/${c.slug}`)}
+            class="group block overflow-hidden"
+          >
+            <div class="aspect-[4/5] overflow-hidden bg-cream">
+              <img
+                src={c.cover!}
+                alt={altFor(c.couple, c.venue)}
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <div class="pt-4">
+              <p class="font-display text-lg md:text-xl font-bold leading-tight">{c.couple}</p>
+              {(c.venue || c.location) && (
+                <p class="text-sm text-ink/60 mt-1">
+                  {c.venue}{c.venue && c.location ? ' · ' : ''}{c.location}
+                </p>
+              )}
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
