@@ -4,10 +4,18 @@ import ContactForm from '~/components/sections/ContactForm.astro';
 import Section from '~/components/Section.astro';
 import { SITE, waLink } from '~/data/site';
 import { useTranslations } from '~/i18n/ui';
+import { breadcrumbJsonLd } from '~/lib/seo';
 
 const lang = 'en' as const;
 const t = useTranslations(lang);
 const waHref = waLink(t('wa.message'));
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: t('schema.breadcrumb.home'), url: `${SITE.url}/en` },
+    { name: t('schema.breadcrumb.contact'), url: `${SITE.url}/en/contacto` },
+  ]),
+];
 ---
 
 <BaseLayout
@@ -15,6 +23,7 @@ const waHref = waLink(t('wa.message'));
   title="Contact | Lifetime Weddings — Wedding photographers in Tarragona"
   description="Let’s talk about your wedding. We reply within 24h. Reus, Tarragona, Lleida, Barcelona and worldwide."
   canonicalPath="/contacto"
+  jsonLd={jsonLd}
 >
   <Section bg="cream" class="pt-32">
     <div class="max-w-2xl mx-auto text-center">

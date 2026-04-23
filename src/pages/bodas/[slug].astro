@@ -3,6 +3,9 @@ export const prerender = true;
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Section from '~/components/Section.astro';
 import { WEDDINGS, weddingCover, weddingGallery } from '~/data/weddings';
+import { useTranslations } from '~/i18n/ui';
+import { SITE } from '~/data/site';
+import { breadcrumbJsonLd } from '~/lib/seo';
 
 export function getStaticPaths() {
   return WEDDINGS.map((w) => ({ params: { slug: w.slug }, props: { wedding: w } }));
@@ -10,10 +13,19 @@ export function getStaticPaths() {
 
 const { wedding } = Astro.props;
 const lang = 'ca' as const;
+const t = useTranslations(lang);
 const cover = weddingCover(wedding);
 const gallery = weddingGallery(wedding);
 // Hero cover in largest size for above-the-fold quality.
 const coverLarge = gallery[0]?.variants.lg ?? cover;
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: t('schema.breadcrumb.home'), url: `${SITE.url}/` },
+    { name: t('schema.breadcrumb.bodas'), url: `${SITE.url}/#portfolio` },
+    { name: wedding.couple, url: `${SITE.url}/bodas/${wedding.slug}` },
+  ]),
+];
 ---
 
 <BaseLayout
@@ -25,6 +37,7 @@ const coverLarge = gallery[0]?.variants.lg ?? cover;
     ? `Galeria de la boda de ${wedding.couple} a ${wedding.venue} (${wedding.location}).`
     : `Galeria de la boda de ${wedding.couple}.`}
   canonicalPath={`/bodas/${wedding.slug}`}
+  jsonLd={jsonLd}
   ogImage={cover ?? '/og-default.jpg'}
 >
   {cover && (

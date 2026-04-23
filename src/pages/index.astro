@@ -1,20 +1,10 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import HomePage from '~/components/HomePage.astro';
-import { localBusinessJsonLd, personJsonLd } from '~/lib/seo';
-import { TEAM } from '~/data/team';
+import { homeJsonLd } from '~/lib/seo';
 
 const lang = 'ca' as const;
-
-const jsonLd = [
-  localBusinessJsonLd(lang),
-  ...TEAM.map((m) => personJsonLd({
-    name: m.name,
-    role: m.role[lang],
-    url: m.instagram,
-    sameAs: [m.instagram],
-  })),
-];
+const jsonLd = await homeJsonLd(lang);
 ---
 
 <BaseLayout

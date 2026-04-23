@@ -3,9 +3,18 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 import Section from '~/components/Section.astro';
 import QuizForm from '~/components/QuizForm.astro';
 import { useTranslations } from '~/i18n/ui';
+import { SITE } from '~/data/site';
+import { breadcrumbJsonLd } from '~/lib/seo';
 
 const lang = 'en' as const;
 const t = useTranslations(lang);
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: t('schema.breadcrumb.home'), url: `${SITE.url}/en` },
+    { name: t('schema.breadcrumb.quiz'), url: `${SITE.url}/en/quiz` },
+  ]),
+];
 ---
 
 <BaseLayout
@@ -13,6 +22,7 @@ const t = useTranslations(lang);
   title="Custom quote | Lifetime Weddings"
   description="Answer a few questions and we'll prepare a personalised proposal for your wedding."
   canonicalPath="/quiz"
+  jsonLd={jsonLd}
 >
   <Section bg="cream" class="pt-28 pb-6">
     <div class="max-w-lg mx-auto text-center">

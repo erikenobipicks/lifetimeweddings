@@ -253,6 +253,31 @@ export const ui = {
     // Legal
     'legal.updated': 'Última actualización',
 
+    // Schema.org (not user-visible; consumed by src/lib/seo.ts)
+    'schema.org.description':
+      'Fotógrafos y videógrafos de bodas en Tarragona, Reus, Lleida y Barcelona. Dos hermanos, segunda generación de fotógrafos. Estilo documental, natural, sin poses.',
+    'schema.service.foto.name': 'Fotografía de boda',
+    'schema.service.foto.description':
+      'Cobertura fotográfica completa de boda: 700–1.200 imágenes editadas en galería privada, entregadas en 3–4 semanas. Estilo documental.',
+    'schema.service.video.name': 'Vídeo de boda',
+    'schema.service.video.description':
+      'Película documental de 25–35 minutos, entregada en 8–10 semanas. Opcional: tráiler corto, discursos y ceremonia completa sin cortes.',
+    'schema.service.preboda.name': 'Sesión pre-boda',
+    'schema.service.preboda.description':
+      'Sesión de pareja previa a la boda para conoceros y que os sintáis cómodos con la cámara. En Tarragona, Reus o donde os venga bien.',
+    'schema.service.combo.name': 'Pack Foto + Vídeo de boda',
+    'schema.service.combo.description':
+      'Pack combinado con fotografía (Ferran) y vídeo (Eric). Dos hermanos, un equipo, una boda por día. Desde 2.480 € + IVA.',
+    'schema.breadcrumb.home': 'Inicio',
+    'schema.breadcrumb.blog': 'Blog',
+    'schema.breadcrumb.bodas': 'Bodas',
+    'schema.breadcrumb.contact': 'Contacto',
+    'schema.breadcrumb.quiz': 'Consultar disponibilidad',
+    'schema.breadcrumb.videos': 'Vídeos',
+    'schema.breadcrumb.legal': 'Aviso legal',
+    'schema.breadcrumb.privacy': 'Política de privacidad',
+    'schema.breadcrumb.cookies': 'Política de cookies',
+
     // Cookies
     'cookies.title': 'Privacidad y cookies',
     'cookies.desc': 'Usamos cookies esenciales para que la web funcione y, opcionalmente, cookies analíticas para mejorar vuestra experiencia. Podéis aceptarlas, rechazarlas o personalizar vuestra elección.',
@@ -475,6 +500,31 @@ export const ui = {
 
     'legal.updated': 'Darrera actualització',
 
+    // Schema.org
+    'schema.org.description':
+      'Fotògrafs i videògrafs de bodes a Tarragona, Reus, Lleida i Barcelona. Dos germans, segona generació de fotògrafs. Estil documental, natural, sense posats.',
+    'schema.service.foto.name': 'Fotografia de boda',
+    'schema.service.foto.description':
+      'Cobertura fotogràfica completa de boda: 700–1.200 imatges editades en galeria privada, entregades en 3–4 setmanes. Estil documental.',
+    'schema.service.video.name': 'Vídeo de boda',
+    'schema.service.video.description':
+      'Pel·lícula documental de 25–35 minuts, entregada en 8–10 setmanes. Opcional: tràiler curt, discursos i cerimònia completa sense talls.',
+    'schema.service.preboda.name': 'Sessió pre-boda',
+    'schema.service.preboda.description':
+      'Sessió de parella prèvia a la boda per conèixer-nos i perquè us sentiu còmodes davant la càmera. A Tarragona, Reus o allà on us vagi bé.',
+    'schema.service.combo.name': 'Pack Foto + Vídeo de boda',
+    'schema.service.combo.description':
+      'Pack combinat amb fotografia (Ferran) i vídeo (Eric). Dos germans, un equip, una boda per dia. Des de 2.480 € + IVA.',
+    'schema.breadcrumb.home': 'Inici',
+    'schema.breadcrumb.blog': 'Blog',
+    'schema.breadcrumb.bodas': 'Bodes',
+    'schema.breadcrumb.contact': 'Contacte',
+    'schema.breadcrumb.quiz': 'Consultar disponibilitat',
+    'schema.breadcrumb.videos': 'Vídeos',
+    'schema.breadcrumb.legal': 'Avís legal',
+    'schema.breadcrumb.privacy': 'Política de privacitat',
+    'schema.breadcrumb.cookies': 'Política de galetes',
+
     'cookies.title': 'Privacitat i galetes',
     'cookies.desc': 'Fem servir galetes essencials perquè la web funcioni i, opcionalment, galetes analítiques per millorar la vostra experiència. Podeu acceptar-les, rebutjar-les o personalitzar la vostra tria.',
     'cookies.accept': 'Acceptar totes',
@@ -694,6 +744,31 @@ export const ui = {
     'dossier.next.cta.secondary': 'Chat with us on WhatsApp',
 
     'legal.updated': 'Last updated',
+
+    // Schema.org
+    'schema.org.description':
+      'Wedding photographers and videographers in Tarragona, Reus, Lleida and Barcelona. Two brothers, second generation of photographers. Documentary style, natural, no posing.',
+    'schema.service.foto.name': 'Wedding photography',
+    'schema.service.foto.description':
+      'Full-day wedding photo coverage: 700–1,200 edited images in a private online gallery, delivered in 3–4 weeks. Documentary style.',
+    'schema.service.video.name': 'Wedding videography',
+    'schema.service.video.description':
+      '25–35 min documentary film, delivered in 8–10 weeks. Optional: short trailer, speeches and uncut ceremony.',
+    'schema.service.preboda.name': 'Pre-wedding session',
+    'schema.service.preboda.description':
+      'Pre-wedding couple session to get to know each other and help you feel comfortable on camera. In Tarragona, Reus or wherever suits you.',
+    'schema.service.combo.name': 'Photo + Video wedding pack',
+    'schema.service.combo.description':
+      'Combined pack with photography (Ferran) and video (Eric). Two brothers, one team, one wedding per day. From €2,480 + VAT.',
+    'schema.breadcrumb.home': 'Home',
+    'schema.breadcrumb.blog': 'Blog',
+    'schema.breadcrumb.bodas': 'Weddings',
+    'schema.breadcrumb.contact': 'Contact',
+    'schema.breadcrumb.quiz': 'Check availability',
+    'schema.breadcrumb.videos': 'Videos',
+    'schema.breadcrumb.legal': 'Legal notice',
+    'schema.breadcrumb.privacy': 'Privacy policy',
+    'schema.breadcrumb.cookies': 'Cookie policy',
 
     'cookies.title': 'Privacy and cookies',
     'cookies.desc': 'We use essential cookies so the site works and, optionally, analytics cookies to improve your experience. You can accept them, reject them or customise your choice.',
