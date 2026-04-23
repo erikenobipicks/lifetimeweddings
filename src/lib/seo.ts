@@ -17,6 +17,7 @@ import { TEAM } from '~/data/team';
 import { TESTIMONIALS } from '~/data/testimonials';
 import type { BlogPost } from '~/data/blog';
 import { useTranslations, type Lang } from '~/i18n/ui';
+import { getGbpRating, type GbpRating } from './gbp-rating';
 
 // ─── IDs ────────────────────────────────────────────────────────────────────
 // Stable identifiers used to cross-reference nodes across the graph.
@@ -39,19 +40,26 @@ function abs(path: string): string {
 
 // ─── Organization + LocalBusiness (home only) ───────────────────────────────
 /**
- * Combined Organization / LocalBusiness / ProfessionalService node. Lives in
- * the home of every locale. All other pages reference it by `@id`.
+ * Combined LocalBusiness / ProfessionalService node. Lives in the home of
+ * every locale. All other pages reference it by `@id`.
  *
- * Includes the 3 testimonials as `Review` children so `LocalBusiness` can
- * surface rich-result stars in the SERP.
+ * Includes the 3 testimonials as `Review` children and the Google Business
+ * Profile rating as `aggregateRating`, so Google can surface rich-result
+ * stars in the SERP. `ProfessionalService` is a subtype of `LocalBusiness`
+ * (which is a subtype of `Organization`), so both narrower types are
+ * sufficient — no need to list `Organization` too.
+ *
+ * The `rating` argument is pre-resolved by the caller (`homeJsonLd`) because
+ * fetching it from Places API is async.
  */
-export function organizationJsonLd(lang: Lang) {
+export function organizationJsonLd(lang: Lang, rating: GbpRating) {
   const t = useTranslations(lang);
   return {
     '@context': 'https://schema.org',
-    '@type': ['Organization', 'LocalBusiness', 'ProfessionalService'],
+    '@type': ['LocalBusiness', 'ProfessionalService'],
     '@id': ID.business,
     name: SITE.name,
+    alternateName: 'Lifetime Weddings – Fotógrafo y Videógrafo de Bodas en Tarragona',
     legalName: SITE.name,
     description: t('schema.org.description'),
     url: SITE.url,
@@ -70,6 +78,11 @@ export function organizationJsonLd(lang: Lang) {
       postalCode: SITE.address.postalCode,
       addressCountry: SITE.address.country,
     },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 41.151273,
+      longitude: 1.1013458,
+    },
     areaServed: ['Tarragona', 'Reus', 'Lleida', 'Barcelona', 'Catalunya', 'España'],
     openingHoursSpecification: [
       {
@@ -85,7 +98,15 @@ export function organizationJsonLd(lang: Lang) {
       SITE.social.instagramFerran,
       SITE.social.youtube,
       SITE.social.pinterest,
+      'https://maps.app.goo.gl/rw51XWxVHw6dYehc7',
     ].filter(Boolean),
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: rating.ratingValue,
+      reviewCount: rating.reviewCount,
+      bestRating: 5,
+      worstRating: 1,
+    },
     review: TESTIMONIALS.map((testi) => ({
       '@type': 'Review',
       '@id': `${SITE.url}/#review-${testi.id}`,
@@ -136,13 +157,17 @@ export function personJsonLd(memberId: 'eric' | 'ferran', lang: Lang) {
 // combo pack offered on the home. It lives as its own Service rather than a
 // nested Offer so it surfaces cleanly in Google service carousels and is
 // referenceable on its own (`#service-combo`).
+//
+// We intentionally do NOT add a `performer` property: it's not defined on
+// `Service` in schema.org. Which brother handles which service is conveyed
+// through the localised `description` and through `Person.knowsAbout` on the
+// two Person nodes.
 
 interface ServiceSpec {
   id: string;
   serviceType: string;
   nameKey: `schema.service.${string}.name`;
   descKey: `schema.service.${string}.description`;
-  performerId: string; // @id ref of Person
   priceMin: number; // EUR, sin IVA
 }
 
@@ -152,7 +177,6 @@ const SERVICES: ServiceSpec[] = [
     serviceType: 'Wedding photography',
     nameKey: 'schema.service.foto.name',
     descKey: 'schema.service.foto.description',
-    performerId: ID.personFerran,
     priceMin: 1290,
   },
   {
@@ -160,7 +184,6 @@ const SERVICES: ServiceSpec[] = [
     serviceType: 'Wedding videography',
     nameKey: 'schema.service.video.name',
     descKey: 'schema.service.video.description',
-    performerId: ID.personEric,
     priceMin: 1290,
   },
   {
@@ -168,7 +191,6 @@ const SERVICES: ServiceSpec[] = [
     serviceType: 'Engagement photography session',
     nameKey: 'schema.service.preboda.name',
     descKey: 'schema.service.preboda.description',
-    performerId: ID.personFerran,
     priceMin: 290,
   },
   {
@@ -176,7 +198,6 @@ const SERVICES: ServiceSpec[] = [
     serviceType: 'Wedding photography and videography package',
     nameKey: 'schema.service.combo.name',
     descKey: 'schema.service.combo.description',
-    performerId: ID.personFerran, // headline performer; Eric referenced via description
     priceMin: 2480,
   },
 ];
@@ -191,7 +212,6 @@ export function servicesJsonLd(lang: Lang) {
     description: t(s.descKey as any),
     serviceType: s.serviceType,
     provider: { '@id': ID.business },
-    performer: { '@id': s.performerId },
     areaServed: ['Tarragona', 'Reus', 'Lleida', 'Barcelona', 'Catalunya'],
     offers: {
       '@type': 'Offer',
@@ -280,13 +300,17 @@ export function blogPostingJsonLd(args: {
 // ─── Convenience: full home-page JSON-LD bundle ─────────────────────────────
 /**
  * Returns the full array of JSON-LD blocks emitted on the home in a given
- * locale. Index pages should pass this directly to BaseLayout's `jsonLd` prop.
- * The FAQPage block is NOT included here — it is emitted by `Faq.astro`
- * itself (unchanged).
+ * locale. Index pages should `await` this and pass the result to
+ * BaseLayout's `jsonLd` prop. The FAQPage block is NOT included here — it is
+ * emitted by `Faq.astro` itself (unchanged).
+ *
+ * Async because the LocalBusiness node needs the live GBP rating (from
+ * Places API, cached in-memory 24h with stale-while-revalidate + fallback).
  */
-export function homeJsonLd(lang: Lang) {
+export async function homeJsonLd(lang: Lang) {
+  const rating = await getGbpRating();
   return [
-    organizationJsonLd(lang),
+    organizationJsonLd(lang, rating),
     personJsonLd('eric', lang),
     personJsonLd('ferran', lang),
     websiteJsonLd(lang),

@@ -4,7 +4,7 @@ import HomePage from '~/components/HomePage.astro';
 import { homeJsonLd } from '~/lib/seo';
 
 const lang = 'es' as const;
-const jsonLd = homeJsonLd(lang);
+const jsonLd = await homeJsonLd(lang);
 ---
 
 <BaseLayout
