@@ -1,0 +1,72 @@
+---
+// Hero block of the booking proposal page. Personal greeting, one-paragraph
+// pitch, big photo (or solid bg if no cover), primary CTA + expiry mention.
+//
+// Mobile-first: photo behind a subtle dark gradient so text always reads;
+// CTA visible without scrolling on a 375px viewport.
+
+import { useTranslations, type Lang } from '~/i18n/ui';
+import { tpl } from '~/lib/bookings/format';
+
+interface Props {
+  lang: Lang;
+  n1: string;
+  n2: string;
+  venueName: string;
+  weddingDateLong: string;
+  expiresShort: string | null;
+  /** Optional cover image URL. Falls back to a solid background. */
+  coverUrl?: string;
+}
+
+const { lang, n1, n2, venueName, weddingDateLong, expiresShort, coverUrl } = Astro.props;
+const t = useTranslations(lang);
+
+const greeting = tpl(t('reserva.hero.greeting'), { n1, n2 });
+const body = tpl(t('reserva.hero.body'), { venue: venueName, date: weddingDateLong });
+const expiryLine = expiresShort
+  ? tpl(t('reserva.cta.expires'), { expires: expiresShort })
+  : null;
+---
+
+<section class="relative min-h-[90vh] flex items-center overflow-hidden bg-ink text-white">
+  {coverUrl && (
+    <img
+      src={coverUrl}
+      alt=""
+      aria-hidden="true"
+      class="absolute inset-0 w-full h-full object-cover"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+    />
+  )}
+  <div
+    class="absolute inset-0"
+    style={coverUrl
+      ? 'background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.75) 100%);'
+      : 'background: linear-gradient(180deg, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.4) 100%);'}
+  ></div>
+
+  <div class="relative z-10 w-full px-6 md:px-12 py-20 md:py-28">
+    <div class="max-w-3xl mx-auto md:mx-0">
+      <h1 class="font-display text-3xl md:text-5xl font-bold leading-tight mb-6">
+        {greeting}
+      </h1>
+      <p class="text-base md:text-lg leading-relaxed text-white/90 whitespace-pre-line mb-8 max-w-2xl">
+        {body}
+      </p>
+      <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
+        <a
+          href="#reservar"
+          class="inline-flex items-center justify-center bg-gold text-ink font-bold px-8 py-4 text-base hover:bg-white transition-colors"
+        >
+          {t('reserva.cta.primary')}
+        </a>
+        {expiryLine && (
+          <span class="text-sm text-white/70 sm:ml-2">{expiryLine}</span>
+        )}
+      </div>
+    </div>
+  </div>
+</section>

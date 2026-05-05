@@ -278,6 +278,95 @@ export const ui = {
     'schema.breadcrumb.privacy': 'Política de privacidad',
     'schema.breadcrumb.cookies': 'Política de cookies',
 
+    // ─── Reserva (booking proposal page) ─────────────────────────────────
+    // Copy locked in docs/booking-spec.md. Keep it in sync there.
+    // Variables rendered with template literals at component level.
+    'reserva.cta.primary': 'Reservar nuestra fecha',
+    'reserva.cta.expires': 'Esta propuesta es válida hasta el {expires}',
+
+    // Hero
+    'reserva.hero.greeting': 'Hola {n1} y {n2},',
+    'reserva.hero.body':
+      'Hemos preparado esta página pensando en vuestra boda en {venue}, el {date}.\n\nAquí encontraréis nuestra propuesta, el proceso que seguiremos si decidís reservar con nosotros, y las respuestas a las preguntas que suelen hacer todas las parejas antes de dar el sí.\n\nSi todo os encaja, en menos de 10 minutos podemos dejarlo todo reservado.',
+
+    // Why us
+    'reserva.why.heading': 'Somos dos hermanos. La segunda generación.',
+    'reserva.why.body':
+      'Nuestro padre ya hacía fotos y vídeos de bodas en Reus hace más de treinta años. Hoy lo hacemos nosotros, con el mismo cuidado y una mirada actual.\n\nCuando reserváis con Lifetime, nos reserváis a los dos. El trabajo del día lo hacemos nosotros en persona — no un equipo rotatorio que cambia según el fin de semana.\n\nEsa diferencia la notaréis el día, y la veréis después en el material.',
+
+    // Visual proof
+    'reserva.proof.eyebrow': 'Bodas reales',
+    'reserva.proof.heading': 'Algunas bodas que hemos hecho',
+    'reserva.proof.testimonial.author': '— {author}, casados en {venue}',
+
+    // Pack
+    'reserva.pack.eyebrow': 'Vuestra propuesta',
+    'reserva.pack.heading': 'Pack {name}',
+    'reserva.pack.includes': 'Qué incluye:',
+    'reserva.pack.excludes': 'Qué no incluye:',
+    'reserva.pack.addons': 'Add-ons opcionales:',
+    'reserva.pack.invest': 'Inversión total',
+    'reserva.pack.deposit': 'Depósito para reservar',
+    'reserva.pack.terms': 'Pago restante',
+
+    // Steps
+    'reserva.steps.heading': 'Si todo os encaja, así funciona:',
+    'reserva.steps.s1.title': 'Rellenáis el formulario de reserva',
+    'reserva.steps.s1.body': '5 minutos. Recogemos los datos necesarios para preparar el contrato.',
+    'reserva.steps.s2.title': 'Os enviamos el contrato para firmar online',
+    'reserva.steps.s2.body': 'Sin imprimir, sin escanear. Lo haréis desde el móvil en 2 minutos.',
+    'reserva.steps.s3.title': 'Pagáis el depósito',
+    'reserva.steps.s3.body': 'Con tarjeta o transferencia, como mejor os vaya.',
+    'reserva.steps.s4.title': 'Vuestra fecha queda reservada',
+    'reserva.steps.s4.body': 'Bloqueamos el calendario solo para vosotros.',
+    'reserva.steps.outro':
+      'A partir de aquí, os acompañamos hasta el día. Meses antes os enviaremos un cuestionario para planificar el timeline, y las semanas previas repasamos la logística juntos.',
+
+    // FAQ
+    'reserva.faq.heading': 'Preguntas frecuentes',
+    'reserva.faq.q1.q': '¿Qué pasa si llueve?',
+    'reserva.faq.q1.a':
+      'Trabajamos con dos cámaras y material preparado para cualquier condición. La lluvia muchas veces da las mejores fotos del día — y ya lo hemos vivido muchas veces.',
+    'reserva.faq.q2.q': '¿Y si tenéis otra boda nuestro día?',
+    'reserva.faq.q2.a':
+      'Cuando reserváis, bloqueamos el calendario solo para vosotros. No hacemos dos bodas el mismo día, nunca.',
+    'reserva.faq.q3.q': '¿Podemos ajustar el pack a nuestras necesidades?',
+    'reserva.faq.q3.a':
+      'Sí. El pack es un punto de partida. Si necesitáis más horas, menos horas, solo foto, solo vídeo, o algo distinto, lo hablamos y lo ajustamos.',
+    'reserva.faq.q4.q': '¿Cuándo recibimos las fotos y el vídeo?',
+    'reserva.faq.q4.a':
+      'Material editado completo entre 8 y 12 semanas después de la boda. Una selección breve (10-15 fotos) os la enviamos la semana siguiente para que podáis compartirla con la familia.',
+    'reserva.faq.q5.q': '¿Cómo se paga el resto?',
+    'reserva.faq.q5.a':
+      '50% al firmar, 50% un mes antes del día. Lo podemos ajustar si os va mejor otro reparto.',
+    'reserva.faq.q6.q': '¿Qué pasa si tuviéramos que cancelar?',
+    'reserva.faq.q6.a':
+      'Política clara en el contrato. Resumiendo: el depósito no es reembolsable, pero la fecha se puede mover una vez sin coste si avisáis con tiempo suficiente.',
+    'reserva.faq.q7.q': '¿Estáis federados? ¿Tenéis seguro?',
+    'reserva.faq.q7.a':
+      'Sí. Trabajamos como autónomos federados, con seguro de responsabilidad civil y factura oficial.',
+
+    // Final CTA
+    'reserva.final.heading': 'Si os encaja, hagámoslo.',
+    'reserva.final.whatsapp':
+      'Si tenéis cualquier duda antes de reservar, escribidnos por WhatsApp.',
+
+    // Status banner
+    'reserva.banner.submitted.title': 'Ya nos habéis enviado vuestros datos',
+    'reserva.banner.submitted.body':
+      'Os enviamos el contrato en menos de 24h. Si necesitáis modificar algo, escribidnos por WhatsApp.',
+
+    // Expired view
+    'reserva.expired.title': 'Esta propuesta caducó el {date}',
+    'reserva.expired.body':
+      'Escribidnos y os la refrescamos en un momento.',
+    'reserva.expired.cta': 'Contactar por WhatsApp',
+
+    // Not found view
+    'reserva.notfound.title': 'No hemos encontrado esta propuesta',
+    'reserva.notfound.body':
+      'El enlace puede ser incorrecto o haberse retirado. Si pensáis que es un error, escribidnos.',
+
     // Cookies
     'cookies.title': 'Privacidad y cookies',
     'cookies.desc': 'Usamos cookies esenciales para que la web funcione y, opcionalmente, cookies analíticas para mejorar vuestra experiencia. Podéis aceptarlas, rechazarlas o personalizar vuestra elección.',
@@ -525,6 +614,95 @@ export const ui = {
     'schema.breadcrumb.privacy': 'Política de privacitat',
     'schema.breadcrumb.cookies': 'Política de galetes',
 
+    // ─── Reserva (booking proposal page) ─────────────────────────────────
+    'reserva.cta.primary': 'Reservar la nostra data',
+    'reserva.cta.expires': 'Aquesta proposta és vàlida fins al {expires}',
+
+    // Hero
+    'reserva.hero.greeting': 'Hola {n1} i {n2},',
+    'reserva.hero.body':
+      'Hem preparat aquesta pàgina pensant en la vostra boda a {venue}, el {date}.\n\nAquí trobareu la nostra proposta, el procés que seguirem si decidiu reservar amb nosaltres, i les respostes a les preguntes que sol fer tothom abans de dir que sí.\n\nSi tot us encaixa, en menys de 10 minuts ho podem deixar tot reservat.',
+
+    // Why us
+    'reserva.why.heading': 'Som dos germans. La segona generació.',
+    'reserva.why.body':
+      'El nostre pare ja feia fotos i vídeos de bodes a Reus fa més de trenta anys. Avui ho fem nosaltres, amb la mateixa cura i una mirada actual.\n\nQuan reserveu amb Lifetime, ens reserveu a tots dos. La feina del vostre dia la fem nosaltres en persona — no un equip rotatori que canvia segons el cap de setmana.\n\nAquesta diferència la notareu el dia, i la veureu després al material.',
+
+    // Visual proof
+    'reserva.proof.eyebrow': 'Bodes reals',
+    'reserva.proof.heading': 'Algunes bodes que hem fet',
+    'reserva.proof.testimonial.author': '— {author}, casats al {venue}',
+
+    // Pack
+    'reserva.pack.eyebrow': 'La vostra proposta',
+    'reserva.pack.heading': 'Pack {name}',
+    'reserva.pack.includes': 'Què inclou:',
+    'reserva.pack.excludes': 'Què no inclou:',
+    'reserva.pack.addons': 'Add-ons opcionals:',
+    'reserva.pack.invest': 'Inversió total',
+    'reserva.pack.deposit': 'Dipòsit per reservar',
+    'reserva.pack.terms': 'Pagament restant',
+
+    // Steps
+    'reserva.steps.heading': 'Si tot us encaixa, així funciona:',
+    'reserva.steps.s1.title': 'Ompliu el formulari de reserva',
+    'reserva.steps.s1.body':
+      '5 minuts. Recollim les dades necessàries per preparar el contracte.',
+    'reserva.steps.s2.title': 'Us enviem el contracte per signar online',
+    'reserva.steps.s2.body':
+      'Sense imprimir, sense escanejar. Ho fareu des del mòbil en 2 minuts.',
+    'reserva.steps.s3.title': 'Pagueu el dipòsit',
+    'reserva.steps.s3.body': 'Amb targeta o transferència, com us vagi millor.',
+    'reserva.steps.s4.title': 'La vostra data queda reservada',
+    'reserva.steps.s4.body': 'Bloquegem el calendari només per vosaltres.',
+    'reserva.steps.outro':
+      "A partir d'aquí, us acompanyem fins al dia. Mesos abans us enviarem un qüestionari per planificar el timeline, i les setmanes prèvies repassem la logística junts.",
+
+    // FAQ
+    'reserva.faq.heading': 'Preguntes freqüents',
+    'reserva.faq.q1.q': 'Què passa si plou?',
+    'reserva.faq.q1.a':
+      'Treballem amb dues càmeres i material preparat per qualsevol condició. La pluja sovint dona les fotos més bones del dia — i ja ho hem viscut moltes vegades.',
+    'reserva.faq.q2.q': 'I si teniu una altra boda el nostre dia?',
+    'reserva.faq.q2.a':
+      'Quan reserveu, bloquegem el calendari només per vosaltres. No fem dues bodes el mateix dia, mai.',
+    'reserva.faq.q3.q': 'Podem ajustar el pack a les nostres necessitats?',
+    'reserva.faq.q3.a':
+      'Sí. El pack és un punt de partida. Si necessiteu més hores, menys hores, només foto, només vídeo, o alguna cosa diferent, ho parlem i ho ajustem.',
+    'reserva.faq.q4.q': 'Quan rebem les fotos i el vídeo?',
+    'reserva.faq.q4.a':
+      "Material editat complet entre 8 i 12 setmanes després de la boda. Una selecció breu (10-15 fotos) us l'enviem la setmana següent perquè pugueu compartir-la amb la família.",
+    'reserva.faq.q5.q': 'Com es paga la resta?',
+    'reserva.faq.q5.a':
+      '50% en signar, 50% un mes abans del dia. Ho podem ajustar si us va millor un altre repartiment.',
+    'reserva.faq.q6.q': "Què passa si haguéssim de cancel·lar?",
+    'reserva.faq.q6.a':
+      'Política clara al contracte. Resumint: el dipòsit és no reembossable, però la data es pot moure una vegada sense cost si avisem amb temps suficient.',
+    'reserva.faq.q7.q': 'Esteu federats? Teniu assegurança?',
+    'reserva.faq.q7.a':
+      'Sí. Treballem com a autònoms federats, amb assegurança de responsabilitat civil i factura oficial.',
+
+    // Final CTA
+    'reserva.final.heading': 'Si us encaixa, fem-ho.',
+    'reserva.final.whatsapp':
+      'Si teniu cap dubte abans de reservar, escriviu-nos pel WhatsApp.',
+
+    // Status banner
+    'reserva.banner.submitted.title': 'Ja ens heu enviat les vostres dades',
+    'reserva.banner.submitted.body':
+      'Us enviem el contracte en menys de 24h. Si heu de modificar alguna cosa, escriviu-nos pel WhatsApp.',
+
+    // Expired view
+    'reserva.expired.title': 'Aquesta proposta va caducar el {date}',
+    'reserva.expired.body':
+      'Escriviu-nos i us la refresquem en un moment.',
+    'reserva.expired.cta': 'Contactar per WhatsApp',
+
+    // Not found view
+    'reserva.notfound.title': 'No hem trobat aquesta proposta',
+    'reserva.notfound.body':
+      "L'enllaç pot ser incorrecte o haver-se retirat. Si penseu que és un error, escriviu-nos.",
+
     'cookies.title': 'Privacitat i galetes',
     'cookies.desc': 'Fem servir galetes essencials perquè la web funcioni i, opcionalment, galetes analítiques per millorar la vostra experiència. Podeu acceptar-les, rebutjar-les o personalitzar la vostra tria.',
     'cookies.accept': 'Acceptar totes',
@@ -769,6 +947,67 @@ export const ui = {
     'schema.breadcrumb.legal': 'Legal notice',
     'schema.breadcrumb.privacy': 'Privacy policy',
     'schema.breadcrumb.cookies': 'Cookie policy',
+
+    // ─── Reserva (booking proposal page) ─────────────────────────────────
+    // EN strings are TODO — keys exist so the type system is complete and so
+    // `useTranslations('en')` can be called without throwing. Until properly
+    // translated, the helper falls back to the CA defaults via the
+    // `(ui[defaultLang] as ...)[key]` branch. Mark each string with TODO so
+    // it's grep-able when we sit down to translate.
+    'reserva.cta.primary': 'TODO: Book our date',
+    'reserva.cta.expires': 'TODO: This proposal is valid until {expires}',
+    'reserva.hero.greeting': 'TODO: Hi {n1} and {n2},',
+    'reserva.hero.body': 'TODO: EN copy for hero body — see docs/booking-spec.md',
+    'reserva.why.heading': 'TODO: Two brothers. Second generation.',
+    'reserva.why.body': 'TODO: EN copy for why-us — see docs/booking-spec.md',
+    'reserva.proof.eyebrow': 'TODO: Real weddings',
+    'reserva.proof.heading': 'TODO: A few weddings we have shot',
+    'reserva.proof.testimonial.author': 'TODO: — {author}, married at {venue}',
+    'reserva.pack.eyebrow': 'TODO: Your proposal',
+    'reserva.pack.heading': 'TODO: {name} pack',
+    'reserva.pack.includes': 'TODO: What is included:',
+    'reserva.pack.excludes': 'TODO: What is not included:',
+    'reserva.pack.addons': 'TODO: Optional add-ons:',
+    'reserva.pack.invest': 'TODO: Total investment',
+    'reserva.pack.deposit': 'TODO: Deposit to book',
+    'reserva.pack.terms': 'TODO: Remaining payment',
+    'reserva.steps.heading': 'TODO: If everything fits, here is how it works:',
+    'reserva.steps.s1.title': 'TODO: Fill in the booking form',
+    'reserva.steps.s1.body': 'TODO: 5 minutes — see spec',
+    'reserva.steps.s2.title': 'TODO: We send the contract to sign online',
+    'reserva.steps.s2.body': 'TODO: see spec',
+    'reserva.steps.s3.title': 'TODO: You pay the deposit',
+    'reserva.steps.s3.body': 'TODO: card or transfer',
+    'reserva.steps.s4.title': 'TODO: Your date is locked in',
+    'reserva.steps.s4.body': 'TODO: only for you',
+    'reserva.steps.outro': 'TODO: see spec',
+    'reserva.faq.heading': 'TODO: Frequently asked',
+    'reserva.faq.q1.q': 'TODO: What if it rains?',
+    'reserva.faq.q1.a': 'TODO: see spec',
+    'reserva.faq.q2.q': 'TODO: What if you have another wedding our day?',
+    'reserva.faq.q2.a': 'TODO: see spec',
+    'reserva.faq.q3.q': 'TODO: Can we adjust the pack?',
+    'reserva.faq.q3.a': 'TODO: see spec',
+    'reserva.faq.q4.q': 'TODO: When do we get the photos and video?',
+    'reserva.faq.q4.a': 'TODO: see spec',
+    'reserva.faq.q5.q': 'TODO: How do we pay the rest?',
+    'reserva.faq.q5.a': 'TODO: see spec',
+    'reserva.faq.q6.q': 'TODO: What if we had to cancel?',
+    'reserva.faq.q6.a': 'TODO: see spec',
+    'reserva.faq.q7.q': 'TODO: Are you registered? Do you have insurance?',
+    'reserva.faq.q7.a': 'TODO: see spec',
+    'reserva.final.heading': 'TODO: If it fits, let us do it.',
+    'reserva.final.whatsapp':
+      'TODO: If you have any questions before booking, message us on WhatsApp.',
+    'reserva.banner.submitted.title': 'TODO: We have received your details',
+    'reserva.banner.submitted.body':
+      'TODO: We will send the contract within 24h.',
+    'reserva.expired.title': 'TODO: This proposal expired on {date}',
+    'reserva.expired.body': 'TODO: Drop us a line and we will refresh it.',
+    'reserva.expired.cta': 'TODO: Contact via WhatsApp',
+    'reserva.notfound.title': 'TODO: We could not find this proposal',
+    'reserva.notfound.body':
+      'TODO: The link may be wrong or withdrawn. If you think this is a mistake, contact us.',
 
     'cookies.title': 'Privacy and cookies',
     'cookies.desc': 'We use essential cookies so the site works and, optionally, analytics cookies to improve your experience. You can accept them, reject them or customise your choice.',

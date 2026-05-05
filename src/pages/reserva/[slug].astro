@@ -1,0 +1,236 @@
+---
+// Public booking proposal page. SSR (no prerender) — content comes from the
+// bookings table at request time.
+//
+// Status flow (read at top, sets visual state):
+//   - slug not found / status === 'archived' / inactive → 404 view (200 OK)
+//   - status === 'sent'           → mark as 'viewed', render full page
+//   - status === 'viewed'         → render full page
+//   - status === 'form_submitted' → render full page + StatusBanner at top
+//   - expires_at in the past      → render expired view (no form CTA)
+//
+// Always emits noindex,nofollow — proposals are private and shared via
+// WhatsApp/email only. Never appear in search.
+//
+// Form is intentionally NOT rendered yet (Fase 2 of this work). The CTA
+// anchor #reservar resolves to a placeholder section so the link doesn't
+// 404 internally; the actual form drops in next iteration.
+
+export const prerender = false;
+
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { useTranslations, type Lang } from '~/i18n/ui';
+import { SITE } from '~/data/site';
+import { getBookingBySlug, markBookingViewed } from '~/lib/bookings/repository';
+import {
+  formatExpiresShort,
+  formatPrice,
+  formatWeddingDateLong,
+  whatsappLinkFor,
+  tpl,
+} from '~/lib/bookings/format';
+
+import Hero from '~/components/reserva/Hero.astro';
+import WhyUs from '~/components/reserva/WhyUs.astro';
+import VisualProof from '~/components/reserva/VisualProof.astro';
+import PackDetail from '~/components/reserva/PackDetail.astro';
+import WhatHappensNext from '~/components/reserva/WhatHappensNext.astro';
+import FAQ from '~/components/reserva/FAQ.astro';
+import FinalCTA from '~/components/reserva/FinalCTA.astro';
+import StatusBanner from '~/components/reserva/StatusBanner.astro';
+
+const slug = Astro.params.slug!;
+const booking = await getBookingBySlug(slug);
+
+const isMissingOrArchived = !booking || booking.status === 'archived';
+const isExpired =
+  booking && booking.expiresAt instanceof Date && booking.expiresAt.getTime() < Date.now();
+
+// Auto-transition sent → viewed on first visit (idempotent).
+if (booking && booking.status === 'sent' && !isExpired) {
+  await markBookingViewed(slug);
+}
+
+// Set HTTP 404 for missing/archived so search engines and our own tooling
+// see the right status code. The body still renders a friendly message.
+if (isMissingOrArchived) {
+  Astro.response.status = 404;
+}
+
+// Decide language: booking's preferred_language wins. Fallback to CA.
+const lang: Lang = booking ? booking.preferredLanguage : 'ca';
+const t = useTranslations(lang);
+
+// Build display strings (only meaningful when booking exists).
+const weddingDateLong = booking ? formatWeddingDateLong(booking.weddingDate, lang) : '';
+const expiresShort =
+  booking && booking.expiresAt ? formatExpiresShort(booking.expiresAt, lang) : null;
+const whatsapp = whatsappLinkFor(slug, lang);
+
+// Hero cover: sample fallback for the prototype. Once we have CMS-driven
+// reference photos per booking, the resolver moves out of here. For now,
+// pick a hero image stored under /photos/reserva-default.jpg if present;
+// the component degrades gracefully to a solid background otherwise.
+const heroCoverUrl = '/photos/josep-eli/001-lg.jpg';
+
+// Visual-proof images: hard-coded sample set drawn from existing wedding
+// photos in /photos/josep-eli (24 images available). When CMS-driven this
+// will resolve from booking.referenceTestimonial / a separate field.
+const sampleProofImages = [
+  { src: '/photos/josep-eli/003-md.jpg', alt: '', orientation: 'portrait' as const },
+  { src: '/photos/josep-eli/008-md.jpg', alt: '', orientation: 'landscape' as const },
+  { src: '/photos/josep-eli/012-md.jpg', alt: '', orientation: 'portrait' as const },
+  { src: '/photos/josep-eli/015-md.jpg', alt: '', orientation: 'portrait' as const },
+  { src: '/photos/josep-eli/018-md.jpg', alt: '', orientation: 'landscape' as const },
+  { src: '/photos/josep-eli/022-md.jpg', alt: '', orientation: 'portrait' as const },
+];
+// Localised alt text once couple data is known.
+const proofImagesWithAlt = booking
+  ? sampleProofImages.map((img, i) => ({
+      ...img,
+      alt:
+        lang === 'en'
+          ? `Real wedding by Lifetime · photo ${i + 1}`
+          : lang === 'es'
+            ? `Boda real por Lifetime · foto ${i + 1}`
+            : `Boda real per Lifetime · foto ${i + 1}`,
+    }))
+  : [];
+
+// Page title & description (kept private — noindex).
+const title = booking
+  ? `${booking.coupleName1} & ${booking.coupleName2} · Lifetime`
+  : 'Lifetime · Reserva';
+const description = booking
+  ? `Propuesta de reserva para ${booking.coupleName1} y ${booking.coupleName2}`
+  : 'Lifetime — propuesta de reserva';
+---
+
+<BaseLayout
+  lang={lang}
+  title={title}
+  description={description}
+  canonicalPath={`/reserva/${slug}`}
+  noindex={true}
+  chromeless={true}
+>
+  <!-- Minimal header: logo only. Language is locked to the booking's
+       preferred_language; we don't expose a switcher because mixing two
+       languages on a personal proposal is more confusing than helpful. -->
+  <header class="px-6 md:px-12 py-5 border-b border-ink/10 bg-white">
+    <a href="/" class="inline-flex items-center gap-2">
+      <img
+        src="/logos/logo-circle-color.png"
+        alt="Lifetime Weddings"
+        width="36"
+        height="36"
+        class="h-9 w-9"
+      />
+      <span class="font-display text-base font-bold tracking-wide">Lifetime</span>
+    </a>
+  </header>
+
+  {isMissingOrArchived ? (
+    <!-- 404 / archived view. Friendly, on-brand. -->
+    <section class="px-6 md:px-12 py-32 md:py-40 bg-cream text-ink text-center">
+      <div class="max-w-xl mx-auto">
+        <h1 class="font-display text-3xl md:text-4xl font-bold mb-6">
+          {t('reserva.notfound.title')}
+        </h1>
+        <p class="text-ink/75 leading-relaxed mb-8">{t('reserva.notfound.body')}</p>
+        <a
+          href={SITE.whatsappBase}
+          target="_blank"
+          rel="noopener"
+          class="inline-block bg-gold text-ink font-bold px-8 py-4 hover:bg-ink hover:text-white transition-colors"
+        >
+          WhatsApp →
+        </a>
+      </div>
+    </section>
+  ) : isExpired ? (
+    <!-- Expired view. Replaces the full proposal with a single message. -->
+    <section class="px-6 md:px-12 py-32 md:py-40 bg-cream text-ink text-center">
+      <div class="max-w-xl mx-auto">
+        <h1 class="font-display text-3xl md:text-4xl font-bold mb-6 leading-tight">
+          {tpl(t('reserva.expired.title'), { date: expiresShort ?? '' })}
+        </h1>
+        <p class="text-ink/75 leading-relaxed mb-8">{t('reserva.expired.body')}</p>
+        <a
+          href={whatsapp}
+          target="_blank"
+          rel="noopener"
+          class="inline-block bg-gold text-ink font-bold px-8 py-4 hover:bg-ink hover:text-white transition-colors"
+        >
+          {t('reserva.expired.cta')}
+        </a>
+      </div>
+    </section>
+  ) : (
+    <>
+      {booking!.status === 'form_submitted' && (
+        <StatusBanner lang={lang} whatsappLink={whatsapp} />
+      )}
+
+      <Hero
+        lang={lang}
+        n1={booking!.coupleName1}
+        n2={booking!.coupleName2}
+        venueName={booking!.venueName}
+        weddingDateLong={weddingDateLong}
+        expiresShort={expiresShort}
+        coverUrl={heroCoverUrl}
+      />
+
+      <WhyUs lang={lang} />
+
+      <VisualProof
+        lang={lang}
+        images={proofImagesWithAlt}
+        testimonial={booking!.referenceTestimonial
+          ? {
+              quote: booking!.referenceTestimonial.quote,
+              author: booking!.referenceTestimonial.author,
+              context: booking!.referenceTestimonial.context,
+            }
+          : null}
+      />
+
+      <PackDetail
+        lang={lang}
+        packName={booking!.packName}
+        packDescription={booking!.packDescription}
+        includes={booking!.packIncludes}
+        excludes={booking!.packExcludes}
+        addons={booking!.packAddons}
+        priceCents={booking!.packPriceCents}
+        depositCents={booking!.depositCents}
+        paymentTerms={booking!.paymentTerms}
+      />
+
+      <WhatHappensNext lang={lang} />
+
+      <FAQ lang={lang} />
+
+      <FinalCTA lang={lang} expiresShort={expiresShort} whatsappLink={whatsapp} />
+
+      <!-- Form anchor placeholder. The actual form drops in next iteration. -->
+      <section id="reservar" class="px-6 md:px-12 py-16 md:py-20 bg-cream text-ink text-center">
+        <div class="max-w-2xl mx-auto">
+          <p class="font-display text-lg text-ink/60 italic">
+            {lang === 'es'
+              ? '[Formulario de reserva — pendiente de la próxima fase]'
+              : lang === 'en'
+                ? '[Booking form — coming in next phase]'
+                : '[Formulari de reserva — pendent de la pròxima fase]'}
+          </p>
+        </div>
+      </section>
+    </>
+  )}
+
+  <!-- Minimal footer: legal-only, no public nav. -->
+  <footer class="px-6 md:px-12 py-8 bg-ink text-white/70 text-center text-xs">
+    <p>© {new Date().getFullYear()} Lifetime Weddings · {SITE.address.city}</p>
+  </footer>
+</BaseLayout>

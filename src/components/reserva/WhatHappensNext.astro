@@ -1,0 +1,37 @@
+---
+import { useTranslations, type Lang } from '~/i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const steps = [1, 2, 3, 4] as const;
+---
+
+<section class="px-6 md:px-12 py-20 md:py-28 bg-cream text-ink">
+  <div class="max-w-4xl mx-auto">
+    <h2 class="font-display text-3xl md:text-4xl font-bold mb-12">
+      {t('reserva.steps.heading')}
+    </h2>
+    <ol class="space-y-10">
+      {steps.map((n) => (
+        <li class="grid grid-cols-[auto_1fr] gap-6 items-start">
+          <span class="font-display text-4xl md:text-5xl font-bold text-gold leading-none w-12 text-center">
+            {n}
+          </span>
+          <div class="pt-1">
+            <h3 class="font-display text-xl md:text-2xl font-bold mb-2">
+              {t(`reserva.steps.s${n}.title` as any)}
+            </h3>
+            <p class="text-ink/75 leading-relaxed">
+              {t(`reserva.steps.s${n}.body` as any)}
+            </p>
+          </div>
+        </li>
+      ))}
+    </ol>
+    <p class="mt-12 text-ink/70 leading-relaxed border-l-2 border-gold pl-6 max-w-2xl">
+      {t('reserva.steps.outro')}
+    </p>
+  </div>
+</section>

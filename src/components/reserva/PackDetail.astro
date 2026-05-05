@@ -1,0 +1,119 @@
+---
+// The proposal pack itself — name, description, includes/excludes,
+// optional add-ons, total investment, deposit, payment terms.
+//
+// Visual hierarchy: clean two-column layout on desktop (left = lists,
+// right = price card with sticky-feel). On mobile, single column with the
+// price card as a full-width highlighted block at the bottom.
+//
+// "Inversió" / "Inversión" is intentional (see CRO note in spec §2.4).
+
+import { useTranslations, type Lang } from '~/i18n/ui';
+import { tpl, formatPrice } from '~/lib/bookings/format';
+import type { PackAddon } from '~/lib/bookings/types';
+
+interface Props {
+  lang: Lang;
+  packName: string;
+  packDescription: string | null;
+  includes: string[];
+  excludes: string[];
+  addons: PackAddon[];
+  priceCents: number;
+  depositCents: number;
+  paymentTerms: string | null;
+}
+
+const { lang, packName, packDescription, includes, excludes, addons, priceCents, depositCents, paymentTerms } =
+  Astro.props;
+const t = useTranslations(lang);
+---
+
+<section class="px-6 md:px-12 py-20 md:py-28 bg-white text-ink">
+  <div class="max-w-5xl mx-auto">
+    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">
+      {t('reserva.pack.eyebrow')}
+    </p>
+    <h2 class="font-display text-3xl md:text-4xl font-bold mb-4">
+      {tpl(t('reserva.pack.heading'), { name: packName })}
+    </h2>
+    {packDescription && (
+      <p class="text-lg text-ink/75 leading-relaxed mb-12 max-w-3xl whitespace-pre-line">
+        {packDescription}
+      </p>
+    )}
+
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-12 md:gap-16 items-start">
+      <!-- Left: lists -->
+      <div class="md:col-span-3 space-y-10">
+        {includes.length > 0 && (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-4">{t('reserva.pack.includes')}</h3>
+            <ul class="space-y-2">
+              {includes.map((item) => (
+                <li class="flex gap-3 leading-relaxed">
+                  <span class="text-gold flex-shrink-0 mt-1.5" aria-hidden="true">✓</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {excludes.length > 0 && (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-4">{t('reserva.pack.excludes')}</h3>
+            <ul class="space-y-2">
+              {excludes.map((item) => (
+                <li class="flex gap-3 leading-relaxed text-ink/70">
+                  <span class="flex-shrink-0 mt-1.5" aria-hidden="true">—</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {addons.length > 0 && (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-4">{t('reserva.pack.addons')}</h3>
+            <ul class="divide-y divide-ink/10 border-y border-ink/10">
+              {addons.map((a) => (
+                <li class="flex justify-between gap-6 py-3">
+                  <span>{a.name}</span>
+                  <span class="font-semibold whitespace-nowrap">+ {formatPrice(a.price_cents, lang)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      <!-- Right: price card -->
+      <div class="md:col-span-2">
+        <div class="bg-cream p-8 md:p-10 border-l-4 border-gold">
+          <div class="mb-6">
+            <p class="text-xs font-semibold tracking-[0.15em] uppercase text-ink/50 mb-2">
+              {t('reserva.pack.invest')}
+            </p>
+            <p class="font-display text-4xl md:text-5xl font-bold text-ink">
+              {formatPrice(priceCents, lang)}
+            </p>
+          </div>
+          <dl class="space-y-3 text-sm border-t border-ink/10 pt-6">
+            <div class="flex justify-between gap-4">
+              <dt class="text-ink/60">{t('reserva.pack.deposit')}</dt>
+              <dd class="font-semibold">{formatPrice(depositCents, lang)}</dd>
+            </div>
+            {paymentTerms && (
+              <div class="flex justify-between gap-4">
+                <dt class="text-ink/60">{t('reserva.pack.terms')}</dt>
+                <dd class="text-right">{paymentTerms}</dd>
+              </div>
+            )}
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

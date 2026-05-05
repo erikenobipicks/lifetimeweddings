@@ -1,0 +1,25 @@
+---
+// Sticky-top banner shown when status === 'form_submitted'. Reassures the
+// couple that their data has been received and tells them what's next.
+import { useTranslations, type Lang } from '~/i18n/ui';
+
+interface Props {
+  lang: Lang;
+  whatsappLink: string;
+}
+const { lang, whatsappLink } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<aside class="bg-gold/15 border-b border-gold/40 text-ink px-6 md:px-12 py-4">
+  <div class="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm">
+    <strong class="font-display font-bold">{t('reserva.banner.submitted.title')}.</strong>
+    <span class="text-ink/80">{t('reserva.banner.submitted.body')}</span>
+    <a
+      href={whatsappLink}
+      target="_blank"
+      rel="noopener"
+      class="ml-auto whitespace-nowrap font-semibold underline underline-offset-4 hover:text-gold"
+    >WhatsApp →</a>
+  </div>
+</aside>
