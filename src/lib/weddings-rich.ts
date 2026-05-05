@@ -27,8 +27,10 @@ export type WeddingCase =
   | {
       mode: 'rich';
       legacy: Wedding;
-      rich: CollectionEntry<'weddings'>['data'];
-      body: string;
+      /** The full collection entry. Carries `data` (frontmatter) and the
+       *  `render()` method needed to emit the optional Markdown body as
+       *  rendered HTML. Components destructure what they need. */
+      entry: CollectionEntry<'weddings'>;
     }
   | { mode: 'simple'; legacy: Wedding };
 
@@ -77,7 +79,7 @@ export async function getWeddingCase(
     }
   }
 
-  return { mode: 'rich', legacy, rich: rich.data, body: rich.body ?? '' };
+  return { mode: 'rich', legacy, entry: rich };
 }
 
 /** Parse "NNN-NNN" gallery section range into inclusive numeric bounds.

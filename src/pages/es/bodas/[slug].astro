@@ -48,15 +48,15 @@ const jsonLd = [
   ...(caseResult.mode === 'rich'
     ? weddingCaseJsonLd({
         legacy: caseResult.legacy,
-        rich: caseResult.rich,
+        rich: caseResult.entry.data,
         lang,
         canonicalPath: `/bodas/${wedding.slug}`,
       })
     : []),
 ];
 
-const richTitle = caseResult.mode === 'rich' ? caseResult.rich.seo?.title?.[lang] : undefined;
-const richDesc = caseResult.mode === 'rich' ? caseResult.rich.seo?.description?.[lang] : undefined;
+const richTitle = caseResult.mode === 'rich' ? caseResult.entry.data.seo?.title?.[lang] : undefined;
+const richDesc = caseResult.mode === 'rich' ? caseResult.entry.data.seo?.description?.[lang] : undefined;
 const pageTitle =
   richTitle ??
   (hasVenue
@@ -81,8 +81,7 @@ const pageDesc =
     <WeddingCaseRich
       lang={lang}
       legacy={caseResult.legacy}
-      rich={caseResult.rich}
-      body={caseResult.body}
+      entry={caseResult.entry}
     />
   ) : (
     <>

@@ -36,7 +36,7 @@ if (caseResult.mode !== 'rich') {
   );
 }
 
-const pageTitle = `[PREVIEW] ${caseResult.rich.couple} — ${lang}`;
+const pageTitle = `[PREVIEW] ${caseResult.entry.data.couple} — ${lang}`;
 ---
 
 <BaseLayout lang={lang} title={pageTitle} description="Dev preview" canonicalPath="/preview" noindex>
@@ -46,7 +46,6 @@ const pageTitle = `[PREVIEW] ${caseResult.rich.couple} — ${lang}`;
   <WeddingCaseRich
     lang={lang}
     legacy={caseResult.legacy}
-    rich={caseResult.rich}
-    body={caseResult.body}
+    entry={caseResult.entry}
   />
 </BaseLayout>

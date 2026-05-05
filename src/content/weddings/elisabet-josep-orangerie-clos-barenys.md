@@ -118,6 +118,6 @@ related:
 <!--
 The body below is optional. Most cases will leave it empty and populate
 everything in the frontmatter above. If a particular case deserves a long
-narrative beyond content.intro, write it here in MDX and it will render
-below the intro block.
+narrative beyond content.intro, write it in Markdown here and it will be
+rendered below the intro block via Astro's <Content /> component.
 -->
