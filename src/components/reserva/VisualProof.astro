@@ -1,0 +1,89 @@
+---
+// Visual proof block: 4-6 photos from a similar wedding + optional quote.
+// Photos for now come from a fixed list passed from the page. Out-of-scope
+// (per spec §8) is a CMS-driven gallery — that'll come later.
+
+import { useTranslations, type Lang } from '~/i18n/ui';
+import { tpl } from '~/lib/bookings/format';
+
+interface ImageItem {
+  /** Display URL (md or lg variant). */
+  src: string;
+  /** Optional href for lightbox; if omitted, src is used. */
+  href?: string;
+  alt: string;
+  /** Visual ratio hint, defaults to portrait. */
+  orientation?: 'portrait' | 'landscape' | 'square';
+  width?: number;
+  height?: number;
+}
+
+interface Testimonial {
+  quote: string;
+  author: string;
+  /** e.g. "Mas la Boella, Tarragona" */
+  context?: string;
+}
+
+interface Props {
+  lang: Lang;
+  images: ImageItem[];
+  testimonial?: Testimonial | null;
+}
+
+const { lang, images, testimonial } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section class="px-6 md:px-12 py-20 md:py-28 bg-cream text-ink">
+  <div class="max-w-6xl mx-auto">
+    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3 text-center">
+      {t('reserva.proof.eyebrow')}
+    </p>
+    <h2 class="font-display text-3xl md:text-4xl font-bold text-center mb-12">
+      {t('reserva.proof.heading')}
+    </h2>
+
+    {images.length > 0 && (
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+        {images.map((img, i) => {
+          const span = img.orientation === 'landscape' ? 'md:col-span-2' : '';
+          return (
+            <a
+              href={img.href ?? img.src}
+              target="_blank"
+              rel="noopener"
+              class:list={['block overflow-hidden group', span]}
+            >
+              <img
+                src={img.src}
+                alt={img.alt}
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                loading={i < 2 ? 'eager' : 'lazy'}
+                decoding="async"
+                width={img.width}
+                height={img.height}
+              />
+            </a>
+          );
+        })}
+      </div>
+    )}
+
+    {testimonial && testimonial.quote.trim() !== '' && (
+      <figure class="mt-16 md:mt-20 max-w-2xl mx-auto text-center">
+        <blockquote class="font-display text-xl md:text-2xl leading-snug italic text-ink/85 whitespace-pre-line">
+          “{testimonial.quote}”
+        </blockquote>
+        <figcaption class="mt-6 text-sm text-ink/60">
+          {testimonial.context
+            ? tpl(t('reserva.proof.testimonial.author'), {
+                author: testimonial.author,
+                venue: testimonial.context,
+              })
+            : `— ${testimonial.author}`}
+        </figcaption>
+      </figure>
+    )}
+  </div>
+</section>

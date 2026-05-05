@@ -1,0 +1,39 @@
+---
+import { useTranslations, type Lang } from '~/i18n/ui';
+import { tpl } from '~/lib/bookings/format';
+
+interface Props {
+  lang: Lang;
+  expiresShort: string | null;
+  whatsappLink: string;
+}
+const { lang, expiresShort, whatsappLink } = Astro.props;
+const t = useTranslations(lang);
+const expiry = expiresShort ? tpl(t('reserva.cta.expires'), { expires: expiresShort }) : null;
+---
+
+<section class="px-6 md:px-12 py-20 md:py-28 bg-ink text-white text-center">
+  <div class="max-w-2xl mx-auto">
+    <h2 class="font-display text-3xl md:text-5xl font-bold mb-10 leading-tight">
+      {t('reserva.final.heading')}
+    </h2>
+    <a
+      href="#reservar"
+      class="inline-flex items-center justify-center bg-gold text-ink font-bold px-10 py-5 text-base md:text-lg hover:bg-white transition-colors"
+    >
+      {t('reserva.cta.primary')}
+    </a>
+    {expiry && (
+      <p class="mt-6 text-sm text-white/70">{expiry}</p>
+    )}
+    <p class="mt-10 text-white/80 leading-relaxed">{t('reserva.final.whatsapp')}</p>
+    <a
+      href={whatsappLink}
+      target="_blank"
+      rel="noopener"
+      class="mt-3 inline-block text-gold hover:text-white text-sm font-semibold underline-offset-4 hover:underline"
+    >
+      WhatsApp →
+    </a>
+  </div>
+</section>
