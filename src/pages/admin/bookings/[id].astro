@@ -1,0 +1,298 @@
+---
+// Admin: detail and edit view for a single booking. The page is split:
+//   - Top sidebar: status, public URL with copy button, status transitions,
+//     archive button, summary metadata.
+//   - Main: full edit form posting to /api/admin/bookings/[id]/update with
+//     _action=update.
+//   - Bottom: form_response display if the couple already submitted.
+import AdminLayout from '~/layouts/AdminLayout.astro';
+import { getBookingById, getFormResponseForBooking } from '~/lib/bookings/repository';
+import type { BookingStatus } from '~/lib/bookings/types';
+
+const id = Astro.params.id!;
+const booking = await getBookingById(id);
+if (!booking) return new Response('Not found', { status: 404 });
+
+const formResponse = await getFormResponseForBooking(booking.id);
+
+const params = Astro.url.searchParams;
+const ok = params.get('ok');
+const err = params.get('error');
+
+const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
+const publicUrl = `${siteUrl}/reserva/${booking.slug}`;
+
+const STATUS_LABEL: Record<BookingStatus, string> = {
+  draft: 'Draft',
+  sent: 'Enviat',
+  viewed: 'Vist',
+  form_submitted: 'Reservat',
+  archived: 'Arxivat',
+};
+const STATUS_BADGE: Record<BookingStatus, string> = {
+  draft: 'bg-gray-100 text-gray-700',
+  sent: 'bg-blue-100 text-blue-700',
+  viewed: 'bg-amber-100 text-amber-800',
+  form_submitted: 'bg-emerald-100 text-emerald-800',
+  archived: 'bg-gray-200 text-gray-500',
+};
+
+const eurosFromCents = (c: number): string => (c / 100).toFixed(0);
+const yyyymmdd = (d: Date | null): string => (d ? d.toISOString().slice(0, 10) : '');
+const fmtDateTime = (d: Date | null): string => {
+  if (!d) return '—';
+  return d.toLocaleString('ca-ES', { timeZone: 'Europe/Madrid', dateStyle: 'short', timeStyle: 'short' });
+};
+
+const includesText = booking.packIncludes.join('\n');
+const excludesText = booking.packExcludes.join('\n');
+const addonsText = booking.packAddons
+  .map((a) => `${a.name} | ${eurosFromCents(a.price_cents)}`)
+  .join('\n');
+
+const couple = `${booking.coupleName1} & ${booking.coupleName2}`;
+const t = booking.referenceTestimonial;
+---
+
+<AdminLayout title={`Reserva · ${couple}`}>
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <a href="/admin/bookings" class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold">← Llistat</a>
+      <h1 class="font-display text-3xl font-bold mt-1">{couple}</h1>
+    </div>
+    <span class:list={['inline-block text-xs font-bold tracking-widest uppercase px-3 py-1.5', STATUS_BADGE[booking.status]]}>
+      {STATUS_LABEL[booking.status]}
+    </span>
+  </div>
+
+  {ok && (
+    <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
+      {ok === 'created' && 'Reserva creada correctament.'}
+      {ok === 'updated' && 'Canvis desats.'}
+      {ok?.startsWith('status:') && `Estat actualitzat a ${ok.split(':')[1]}.`}
+    </div>
+  )}
+  {err && (
+    <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-800 text-sm">
+      <strong>Error:</strong> {err}
+    </div>
+  )}
+
+  <!-- Sidebar: URL + accions ràpides -->
+  <div class="bg-white border border-black/10 p-5 mb-6">
+    <div class="flex flex-col md:flex-row md:items-center gap-4">
+      <div class="flex-1 min-w-0">
+        <p class="text-[11px] font-bold tracking-widest uppercase text-ink/50 mb-1">URL pública</p>
+        <code class="text-sm break-all text-ink/80">{publicUrl}</code>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          data-copy={publicUrl}
+          class="bg-gold text-ink text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-ink hover:text-white transition-colors"
+        >Copiar</button>
+        <a
+          href={publicUrl}
+          target="_blank"
+          rel="noopener"
+          class="border border-black/15 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:border-gold hover:text-gold transition-colors"
+        >Obrir →</a>
+
+        {booking.status === 'draft' && (
+          <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline">
+            <input type="hidden" name="_action" value="status" />
+            <input type="hidden" name="status" value="sent" />
+            <button type="submit" class="bg-blue-600 text-white text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-blue-700 transition-colors">
+              Marcar com a enviat
+            </button>
+          </form>
+        )}
+
+        {booking.status !== 'archived' && (
+          <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline" onsubmit="return confirm('Arxivar aquesta reserva? La pàgina pública deixarà de servir-se.')">
+            <input type="hidden" name="_action" value="status" />
+            <input type="hidden" name="status" value="archived" />
+            <button type="submit" class="border border-red-300 text-red-700 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-red-50 transition-colors">
+              Arxivar
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+    <dl class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5 pt-5 border-t border-black/10 text-xs">
+      <div><dt class="text-ink/50 mb-1">Creat</dt><dd>{fmtDateTime(booking.createdAt)}</dd></div>
+      <div><dt class="text-ink/50 mb-1">Actualitzat</dt><dd>{fmtDateTime(booking.updatedAt)}</dd></div>
+      <div><dt class="text-ink/50 mb-1">Primera vista</dt><dd>{fmtDateTime(booking.firstViewedAt)}</dd></div>
+      <div><dt class="text-ink/50 mb-1">Form enviat</dt><dd>{fmtDateTime(booking.formSubmittedAt)}</dd></div>
+    </dl>
+  </div>
+
+  {formResponse && (
+    <section class="bg-emerald-50 border border-emerald-200 p-5 md:p-6 mb-6">
+      <h2 class="font-display text-xl font-bold mb-4">Dades enviades per la parella</h2>
+      <p class="text-xs text-ink/60 mb-5">Enviades el {fmtDateTime(formResponse.submittedAt)} · IP: {formResponse.ipAddress ?? '—'}</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+        <div>
+          <h3 class="font-bold mb-2">Contraent 1</h3>
+          <dl class="space-y-1">
+            <div class="flex gap-2"><dt class="text-ink/50 w-24 flex-shrink-0">Nom</dt><dd>{formResponse.c1FullName}</dd></div>
+            <div class="flex gap-2"><dt class="text-ink/50 w-24 flex-shrink-0">DNI</dt><dd>{formResponse.c1Dni}</dd></div>
+            <div class="flex gap-2"><dt class="text-ink/50 w-24 flex-shrink-0">Naixement</dt><dd>{yyyymmdd(formResponse.c1BirthDate) || '—'}</dd></div>
+            <div class="flex gap-2"><dt class="text-ink/50 w-24 flex-shrink-0">Adreça</dt><dd>{formResponse.c1Address}</dd></div>
+            <div class="flex gap-2"><dt class="text-ink/50 w-24 flex-shrink-0">Email</dt><dd>{formResponse.c1Email}</dd></div>
+            <div class="flex gap-2"><dt class="text-ink/50 w-24 flex-shrink-0">Tel</dt><dd>{formResponse.c1Phone}</dd></div>
+          </dl>
+        </div>
+        <div>
+          <h3 class="font-bold mb-2">Contraent 2</h3>
+          <dl class="space-y-1">
+            <div class="flex gap-2"><dt class="text-ink/50 w-24 flex-shrink-0">Nom</dt><dd>{formResponse.c2FullName}</dd></div>
+            <div class="flex gap-2"><dt class="text-ink/50 w-24 flex-shrink-0">DNI</dt><dd>{formResponse.c2Dni}</dd></div>
+            <div class="flex gap-2"><dt class="text-ink/50 w-24 flex-shrink-0">Naixement</dt><dd>{yyyymmdd(formResponse.c2BirthDate) || '—'}</dd></div>
+            <div class="flex gap-2"><dt class="text-ink/50 w-24 flex-shrink-0">Adreça</dt><dd>{formResponse.c2Address}</dd></div>
+            <div class="flex gap-2"><dt class="text-ink/50 w-24 flex-shrink-0">Email</dt><dd>{formResponse.c2Email}</dd></div>
+            <div class="flex gap-2"><dt class="text-ink/50 w-24 flex-shrink-0">Tel</dt><dd>{formResponse.c2Phone}</dd></div>
+          </dl>
+        </div>
+        <div class="md:col-span-2 border-t border-emerald-300/60 pt-4">
+          <h3 class="font-bold mb-2">El dia</h3>
+          <dl class="space-y-1">
+            <div class="flex gap-2"><dt class="text-ink/50 w-40 flex-shrink-0">Data confirmada</dt><dd>{formResponse.weddingDateConfirmed ? 'Sí' : `No (alt: ${yyyymmdd(formResponse.weddingDateAlt)})`}</dd></div>
+            <div class="flex gap-2"><dt class="text-ink/50 w-40 flex-shrink-0">Venue confirmat</dt><dd>{formResponse.venueConfirmed ? 'Sí' : `No (alt: ${formResponse.venueAltName ?? '—'})`}</dd></div>
+            <div class="flex gap-2"><dt class="text-ink/50 w-40 flex-shrink-0">Hora cerimònia</dt><dd>{formResponse.ceremonyTime ?? '—'}</dd></div>
+            <div class="flex gap-2"><dt class="text-ink/50 w-40 flex-shrink-0">Fi del servei</dt><dd>{formResponse.serviceEndTime ?? '—'}</dd></div>
+            <div class="flex gap-2"><dt class="text-ink/50 w-40 flex-shrink-0">Convidats estim.</dt><dd>{formResponse.guestCountEstimate ?? '—'}</dd></div>
+          </dl>
+        </div>
+        <div class="md:col-span-2 border-t border-emerald-300/60 pt-4">
+          <h3 class="font-bold mb-2">Preferències i context</h3>
+          <dl class="space-y-1">
+            <div class="flex gap-2"><dt class="text-ink/50 w-40 flex-shrink-0">Comunicació</dt><dd>{formResponse.preferredCommunication ?? '—'}</dd></div>
+            <div class="flex gap-2"><dt class="text-ink/50 w-40 flex-shrink-0">Idioma</dt><dd>{formResponse.preferredLanguage ?? '—'}</dd></div>
+            <div class="flex gap-2"><dt class="text-ink/50 w-40 flex-shrink-0">Pagament</dt><dd>{formResponse.preferredPaymentMethod ?? '—'}</dd></div>
+            <div class="flex gap-2"><dt class="text-ink/50 w-40 flex-shrink-0">Com ens van conèixer</dt><dd>{formResponse.howDidYouFindUs ?? '—'}</dd></div>
+            {formResponse.importantNotes && (
+              <div class="flex gap-2 mt-3"><dt class="text-ink/50 w-40 flex-shrink-0">Notes importants</dt><dd class="whitespace-pre-line">{formResponse.importantNotes}</dd></div>
+            )}
+          </dl>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Edit form -->
+  <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="space-y-10 bg-white border border-black/10 p-6 md:p-8">
+    <input type="hidden" name="_action" value="update" />
+
+    {booking.status !== 'draft' && (
+      <p class="px-4 py-3 bg-amber-50 border border-amber-200 text-amber-900 text-sm">
+        ⚠️ Aquesta reserva ja està en estat <strong>{STATUS_LABEL[booking.status]}</strong>. Els canvis aquí afecten la pàgina pública immediatament.
+      </p>
+    )}
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-3">Parella</legend>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Nom 1</span><input name="coupleName1" value={booking.coupleName1} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Nom 2</span><input name="coupleName2" value={booking.coupleName2} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Email principal</span><input type="email" name="coupleEmailPrimary" value={booking.coupleEmailPrimary} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Telèfon</span><input name="couplePhonePrimary" value={booking.couplePhonePrimary ?? ''} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Idioma de la pàgina</span>
+          <select name="preferredLanguage" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+            {[['ca','Català'],['es','Castellano'],['en','English']].map(([code,label]) => (
+              <option value={code} selected={booking.preferredLanguage === code}>{label}</option>
+            ))}
+          </select>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-3">Boda</legend>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Data</span><input type="date" name="weddingDate" value={yyyymmdd(booking.weddingDate)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Venue</span><input name="venueName" value={booking.venueName} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Ciutat</span><input name="venueCity" value={booking.venueCity ?? ''} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Adreça</span><input name="venueAddress" value={booking.venueAddress ?? ''} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-3">Pack</legend>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block md:col-span-2"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Nom del pack</span><input name="packName" value={booking.packName} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block md:col-span-2">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Descripció</span>
+          <textarea name="packDescription" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{booking.packDescription ?? ''}</textarea>
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Què inclou</span>
+          <span class="block text-[11px] text-ink/50 mb-1">una línia per ítem</span>
+          <textarea name="packIncludes" rows="6" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{includesText}</textarea>
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Què no inclou</span>
+          <span class="block text-[11px] text-ink/50 mb-1">una línia per ítem</span>
+          <textarea name="packExcludes" rows="6" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{excludesText}</textarea>
+        </label>
+        <label class="block md:col-span-2">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Add-ons</span>
+          <span class="block text-[11px] text-ink/50 mb-1">una línia per ítem · format <code class="bg-cream px-1">Nom | preu_en_euros</code></span>
+          <textarea name="packAddons" rows="4" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{addonsText}</textarea>
+        </label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Inversió total (€)</span><input name="packPriceEuros" inputmode="decimal" pattern="\d+([.,]\d+)?" value={eurosFromCents(booking.packPriceCents)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Dipòsit (€)</span><input name="depositEuros" inputmode="decimal" pattern="\d+([.,]\d+)?" value={eurosFromCents(booking.depositCents)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block md:col-span-2"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Termes de pagament</span><input name="paymentTerms" value={booking.paymentTerms ?? ''} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-3">Personalització</legend>
+      <label class="block">
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Intro personalitzada</span>
+        <textarea name="customIntro" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{booking.customIntro ?? ''}</textarea>
+      </label>
+      <div class="border-t border-black/10 pt-4">
+        <p class="text-xs font-bold tracking-widest uppercase text-ink/60 mb-3">Testimoni de referència</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <label class="block md:col-span-2"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Quote</span><textarea name="testimonialQuote" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{t?.quote ?? ''}</textarea></label>
+          <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Autor</span><input name="testimonialAuthor" value={t?.author ?? ''} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+          <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Context</span><input name="testimonialContext" value={t?.context ?? ''} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend class="font-display text-xl font-bold mb-3">Vigència</legend>
+      <label class="block max-w-sm">
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Vàlid fins</span>
+        <input type="date" name="expiresAt" value={yyyymmdd(booking.expiresAt)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+      </label>
+    </fieldset>
+
+    <div class="flex items-center gap-4 pt-4 border-t border-black/10">
+      <button type="submit" class="bg-ink text-white px-6 py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors">
+        Desar canvis
+      </button>
+      <a href="/admin/bookings" class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold">Cancel·lar</a>
+    </div>
+  </form>
+</AdminLayout>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const text = btn.dataset.copy!;
+      try {
+        await navigator.clipboard.writeText(text);
+        const old = btn.textContent;
+        btn.textContent = '✓ Copiat';
+        setTimeout(() => (btn.textContent = old), 1500);
+      } catch {
+        prompt('Copia:', text);
+      }
+    });
+  });
+</script>

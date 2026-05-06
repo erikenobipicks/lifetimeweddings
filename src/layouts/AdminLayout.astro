@@ -24,6 +24,7 @@ const user = Astro.locals.user;
         {user && (
           <nav class="flex items-center gap-4 text-xs font-bold tracking-widest uppercase">
             <a href="/admin" class="hover:text-gold">Pressupostos</a>
+            <a href="/admin/bookings" class="hover:text-gold">Reserves</a>
             <a href="/admin/leads" class="hover:text-gold">Leads</a>
             <a href="/admin/new" class="hover:text-gold">+ Nou</a>
             <form method="POST" action="/admin/logout" class="inline">
