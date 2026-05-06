@@ -1,0 +1,186 @@
+---
+// Admin listing of bookings.
+// Filters: ?status=<status>, ?archived=1 to include archived.
+// Search: client-side filter on couple/venue text.
+import AdminLayout from '~/layouts/AdminLayout.astro';
+import { listBookings } from '~/lib/bookings/repository';
+import type { BookingStatus } from '~/lib/bookings/types';
+
+const statusFilter = (Astro.url.searchParams.get('status') ?? '') as BookingStatus | '';
+const includeArchived = Astro.url.searchParams.get('archived') === '1';
+const ok = Astro.url.searchParams.get('ok');
+
+const all = await listBookings({ includeArchived });
+const bookings = statusFilter ? all.filter((b) => b.status === statusFilter) : all;
+
+const STATUS_BADGE: Record<BookingStatus, { label: string; classes: string }> = {
+  draft:           { label: 'Draft',     classes: 'bg-gray-100 text-gray-700' },
+  sent:            { label: 'Enviat',    classes: 'bg-blue-100 text-blue-700' },
+  viewed:          { label: 'Vist',      classes: 'bg-amber-100 text-amber-800' },
+  form_submitted:  { label: 'Reservat',  classes: 'bg-emerald-100 text-emerald-800' },
+  archived:        { label: 'Arxivat',   classes: 'bg-gray-200 text-gray-500' },
+};
+
+function fmtDate(d: Date | null): string {
+  if (!d) return '—';
+  return d.toLocaleDateString('ca-ES', { timeZone: 'Europe/Madrid', year: 'numeric', month: 'short', day: 'numeric' });
+}
+function fmtRelative(d: Date | null): string {
+  if (!d) return '—';
+  const diff = Date.now() - d.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'ara mateix';
+  if (mins < 60) return `fa ${mins} min`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `fa ${hours}h`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `fa ${days}d`;
+  return d.toLocaleDateString('ca-ES', { timeZone: 'Europe/Madrid', day: 'numeric', month: 'short' });
+}
+
+const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
+
+const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
+  { key: '',               label: 'Tot' },
+  { key: 'draft',          label: 'Draft' },
+  { key: 'sent',           label: 'Enviats' },
+  { key: 'viewed',         label: 'Vistos' },
+  { key: 'form_submitted', label: 'Reservats' },
+];
+---
+
+<AdminLayout title="Reserves">
+  <div class="flex items-center justify-between mb-4">
+    <h1 class="font-display text-3xl font-bold">Reserves</h1>
+    <a
+      href="/admin/bookings/new"
+      class="bg-ink text-white px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors"
+    >
+      + Nova reserva
+    </a>
+  </div>
+
+  {ok === 'created' && (
+    <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
+      Reserva creada. Copia l'enllaç des de la fila per enviar-la.
+    </div>
+  )}
+
+  <div class="flex flex-wrap items-center gap-2 mb-4">
+    {STATUS_TABS.map((tab) => {
+      const isActive = (tab.key === '' && !statusFilter) || tab.key === statusFilter;
+      const href = tab.key === '' ? '/admin/bookings' : `/admin/bookings?status=${tab.key}`;
+      return (
+        <a
+          href={href}
+          class:list={[
+            'text-xs font-bold tracking-widest uppercase px-3 py-1.5 border transition-colors',
+            isActive ? 'bg-ink text-white border-ink' : 'border-black/15 text-ink/60 hover:text-gold hover:border-gold',
+          ]}
+        >
+          {tab.label}
+        </a>
+      );
+    })}
+    <span class="flex-1"></span>
+    <input
+      type="text"
+      id="search-input"
+      placeholder="Cercar per nom o venue..."
+      class="px-3 py-2 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none w-64"
+    />
+    <a
+      href={includeArchived ? '/admin/bookings' : '/admin/bookings?archived=1'}
+      class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold transition-colors"
+    >
+      {includeArchived ? '✕ Ocultar arxivats' : '📦 Mostrar arxivats'}
+    </a>
+  </div>
+
+  {bookings.length === 0 ? (
+    <p class="text-ink/60 text-center py-16">
+      Cap reserva en aquesta vista.
+      <a href="/admin/bookings/new" class="text-gold underline">Crea'n una</a>.
+    </p>
+  ) : (
+    <div class="overflow-x-auto bg-white border border-black/10">
+      <table class="w-full text-sm" id="bookings-table">
+        <thead class="bg-cream text-[0.7rem] font-bold tracking-widest uppercase">
+          <tr>
+            <th class="text-left px-4 py-3">Estat</th>
+            <th class="text-left px-4 py-3">Parella</th>
+            <th class="text-left px-4 py-3">Data boda</th>
+            <th class="text-left px-4 py-3">Venue</th>
+            <th class="text-left px-4 py-3">Actualitzat</th>
+            <th class="text-right px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {bookings.map((b) => {
+            const badge = STATUS_BADGE[b.status];
+            const couple = `${b.coupleName1} & ${b.coupleName2}`;
+            return (
+              <tr
+                class="border-t border-black/5 hover:bg-cream/50"
+                data-search={`${couple} ${b.venueName} ${b.coupleEmailPrimary}`.toLowerCase()}
+              >
+                <td class="px-4 py-3">
+                  <span class:list={['inline-block text-[0.65rem] font-bold tracking-widest uppercase px-2 py-1 rounded-sm', badge.classes]}>
+                    {badge.label}
+                  </span>
+                </td>
+                <td class="px-4 py-3">
+                  <a href={`/admin/bookings/${b.id}`} class="font-bold hover:text-gold">{couple}</a>
+                  <div class="text-xs text-ink/60">{b.coupleEmailPrimary} · {b.preferredLanguage.toUpperCase()}</div>
+                </td>
+                <td class="px-4 py-3 text-ink/70">{fmtDate(b.weddingDate)}</td>
+                <td class="px-4 py-3 text-ink/70">
+                  {b.venueName}
+                  {b.venueCity && <span class="text-ink/50"> · {b.venueCity}</span>}
+                </td>
+                <td class="px-4 py-3 text-ink/70">{fmtRelative(b.updatedAt)}</td>
+                <td class="px-4 py-3 text-right whitespace-nowrap">
+                  <button
+                    type="button"
+                    data-copy={`${siteUrl}/reserva/${b.slug}`}
+                    class="text-gold text-xs font-bold tracking-widest uppercase hover:underline mr-3"
+                    title="Copiar enllaç"
+                  >Copiar</button>
+                  <a href={`/admin/bookings/${b.id}`} class="text-ink/60 text-xs font-bold tracking-widest uppercase hover:text-gold">
+                    Veure →
+                  </a>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  )}
+</AdminLayout>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const text = btn.dataset.copy!;
+      try {
+        await navigator.clipboard.writeText(text);
+        const old = btn.textContent;
+        btn.textContent = '✓ Copiat';
+        setTimeout(() => (btn.textContent = old), 1500);
+      } catch {
+        prompt('Copia aquest enllaç:', text);
+      }
+    });
+  });
+
+  const input = document.getElementById('search-input') as HTMLInputElement | null;
+  const rows = document.querySelectorAll<HTMLTableRowElement>('#bookings-table tbody tr');
+  input?.addEventListener('input', () => {
+    const q = input.value.toLowerCase().trim();
+    rows.forEach((row) => {
+      const hay = row.dataset.search ?? '';
+      row.style.display = !q || hay.includes(q) ? '' : 'none';
+    });
+  });
+</script>

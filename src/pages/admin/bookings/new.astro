@@ -1,0 +1,165 @@
+---
+// Admin: form to create a new booking proposal.
+// All fields render in a single tall page (this is internal tooling — UX
+// optimisation goes to the /reserva pages, not here). On submit posts to
+// /api/admin/bookings/create which redirects either to the new detail page
+// or back here with ?error=... preserving values.
+import AdminLayout from '~/layouts/AdminLayout.astro';
+
+const params = Astro.url.searchParams;
+const error = params.get('error');
+// Preserved values from a failed submit: keys prefixed v_<fieldname>.
+function v(name: string): string {
+  return params.get(`v_${name}`) ?? '';
+}
+---
+
+<AdminLayout title="Nova reserva">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="font-display text-3xl font-bold">Nova reserva</h1>
+    <a href="/admin/bookings" class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold">← Tornar al llistat</a>
+  </div>
+
+  {error && (
+    <div class="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-800 text-sm">
+      <strong class="font-bold">Error:</strong> {error}
+    </div>
+  )}
+
+  <form method="POST" action="/api/admin/bookings/create" class="space-y-10 bg-white border border-black/10 p-6 md:p-8">
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-3">Parella</legend>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Nom 1 *</span>
+          <input name="coupleName1" required value={v('coupleName1')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Nom 2 *</span>
+          <input name="coupleName2" required value={v('coupleName2')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Email principal *</span>
+          <input type="email" name="coupleEmailPrimary" required value={v('coupleEmailPrimary')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Telèfon</span>
+          <input name="couplePhonePrimary" value={v('couplePhonePrimary')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Idioma de la pàgina *</span>
+          <select name="preferredLanguage" required class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+            {[['ca','Català'],['es','Castellano'],['en','English']].map(([code,label]) => (
+              <option value={code} selected={v('preferredLanguage') === code || (!v('preferredLanguage') && code === 'ca')}>{label}</option>
+            ))}
+          </select>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-3">Boda</legend>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Data *</span>
+          <input type="date" name="weddingDate" required value={v('weddingDate')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Venue *</span>
+          <input name="venueName" required value={v('venueName')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Ciutat</span>
+          <input name="venueCity" value={v('venueCity')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Adreça</span>
+          <input name="venueAddress" value={v('venueAddress')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-3">Pack</legend>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block md:col-span-2">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Nom del pack *</span>
+          <input name="packName" required value={v('packName')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block md:col-span-2">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Descripció</span>
+          <textarea name="packDescription" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{v('packDescription')}</textarea>
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Què inclou</span>
+          <span class="block text-[11px] text-ink/50 mb-1">una línia per ítem</span>
+          <textarea name="packIncludes" rows="6" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('packIncludes')}</textarea>
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Què no inclou</span>
+          <span class="block text-[11px] text-ink/50 mb-1">una línia per ítem</span>
+          <textarea name="packExcludes" rows="6" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('packExcludes')}</textarea>
+        </label>
+        <label class="block md:col-span-2">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Add-ons</span>
+          <span class="block text-[11px] text-ink/50 mb-1">una línia per ítem · format <code class="bg-cream px-1">Nom | preu_en_euros</code> · ex: <code class="bg-cream px-1">Àlbum 30x30 | 390</code></span>
+          <textarea name="packAddons" rows="4" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('packAddons')}</textarea>
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Inversió total (€) *</span>
+          <input name="packPriceEuros" required inputmode="decimal" pattern="\d+([.,]\d+)?" value={v('packPriceEuros')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Dipòsit (€) *</span>
+          <input name="depositEuros" required inputmode="decimal" pattern="\d+([.,]\d+)?" value={v('depositEuros')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block md:col-span-2">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Termes de pagament</span>
+          <input name="paymentTerms" value={v('paymentTerms')} placeholder="50% en signar, 50% un mes abans" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-3">Personalització</legend>
+      <label class="block">
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Intro personalitzada</span>
+        <span class="block text-[11px] text-ink/50 mb-1">opcional, sobre l'intro standard del hero</span>
+        <textarea name="customIntro" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{v('customIntro')}</textarea>
+      </label>
+      <div class="border-t border-black/10 pt-4">
+        <p class="text-xs font-bold tracking-widest uppercase text-ink/60 mb-3">Testimoni de referència (opcional)</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <label class="block md:col-span-2">
+            <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Quote</span>
+            <textarea name="testimonialQuote" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{v('testimonialQuote')}</textarea>
+          </label>
+          <label class="block">
+            <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Autor</span>
+            <input name="testimonialAuthor" value={v('testimonialAuthor')} placeholder="ex: Cristina i Daniel" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          </label>
+          <label class="block">
+            <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Context</span>
+            <input name="testimonialContext" value={v('testimonialContext')} placeholder="ex: Mas la Boella, Tarragona" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          </label>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend class="font-display text-xl font-bold mb-3">Vigència</legend>
+      <label class="block max-w-sm">
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Vàlid fins (opcional)</span>
+        <input type="date" name="expiresAt" value={v('expiresAt')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+      </label>
+    </fieldset>
+
+    <div class="flex items-center gap-4 pt-4 border-t border-black/10">
+      <button type="submit" class="bg-ink text-white px-6 py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors">
+        Crear (estat: draft)
+      </button>
+      <a href="/admin/bookings" class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold">Cancel·lar</a>
+    </div>
+  </form>
+</AdminLayout>

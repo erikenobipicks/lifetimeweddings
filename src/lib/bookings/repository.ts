@@ -234,6 +234,96 @@ export async function setBookingStatus(id: string, status: BookingStatus): Promi
   });
 }
 
+/** Partial update for the editable fields of a booking. Slug, id, status,
+ *  timestamps and tracking fields are deliberately NOT exposed here — those
+ *  have their own helpers (markBookingViewed, setBookingStatus) so the call
+ *  sites stay obvious. JSON fields are serialised internally. */
+export type BookingUpdate = Partial<{
+  coupleName1: string;
+  coupleName2: string;
+  coupleEmailPrimary: string;
+  couplePhonePrimary: string | null;
+  preferredLanguage: Lang;
+  weddingDate: Date;
+  venueName: string;
+  venueCity: string | null;
+  venueAddress: string | null;
+  packName: string;
+  packDescription: string | null;
+  packIncludes: string[];
+  packExcludes: string[];
+  packAddons: PackAddon[];
+  packPriceCents: number;
+  depositCents: number;
+  paymentTerms: string | null;
+  customIntro: string | null;
+  referenceTestimonial: ReferenceTestimonial | null;
+  expiresAt: Date | null;
+}>;
+
+const COLUMN_FOR: Record<keyof BookingUpdate, string> = {
+  coupleName1: 'couple_name_1',
+  coupleName2: 'couple_name_2',
+  coupleEmailPrimary: 'couple_email_primary',
+  couplePhonePrimary: 'couple_phone_primary',
+  preferredLanguage: 'preferred_language',
+  weddingDate: 'wedding_date',
+  venueName: 'venue_name',
+  venueCity: 'venue_city',
+  venueAddress: 'venue_address',
+  packName: 'pack_name',
+  packDescription: 'pack_description',
+  packIncludes: 'pack_includes',
+  packExcludes: 'pack_excludes',
+  packAddons: 'pack_addons',
+  packPriceCents: 'pack_price_cents',
+  depositCents: 'deposit_cents',
+  paymentTerms: 'payment_terms',
+  customIntro: 'custom_intro',
+  referenceTestimonial: 'reference_testimonial',
+  expiresAt: 'expires_at',
+};
+
+const JSON_FIELDS: Set<keyof BookingUpdate> = new Set([
+  'packIncludes',
+  'packExcludes',
+  'packAddons',
+  'referenceTestimonial',
+]);
+const DATE_FIELDS: Set<keyof BookingUpdate> = new Set(['weddingDate', 'expiresAt']);
+
+export async function updateBooking(id: string, patch: BookingUpdate): Promise<void> {
+  await initSchema();
+  const setClauses: string[] = [];
+  const args: (string | number | null)[] = [];
+
+  for (const [key, value] of Object.entries(patch) as [keyof BookingUpdate, unknown][]) {
+    if (value === undefined) continue;
+    const column = COLUMN_FOR[key];
+    setClauses.push(`${column} = ?`);
+
+    if (value === null) {
+      args.push(null);
+    } else if (JSON_FIELDS.has(key)) {
+      args.push(JSON.stringify(value));
+    } else if (DATE_FIELDS.has(key)) {
+      const d = value as Date;
+      // weddingDate stored as YYYY-MM-DD; expiresAt as full ISO.
+      args.push(key === 'weddingDate' ? d.toISOString().slice(0, 10) : d.toISOString());
+    } else {
+      args.push(value as string | number);
+    }
+  }
+
+  if (setClauses.length === 0) return; // No-op patch.
+
+  args.push(id);
+  await db.execute({
+    sql: `UPDATE bookings SET ${setClauses.join(', ')} WHERE id = ?`,
+    args,
+  });
+}
+
 // ─── Form responses ──────────────────────────────────────────────────────
 export async function getFormResponseForBooking(
   bookingId: string,
