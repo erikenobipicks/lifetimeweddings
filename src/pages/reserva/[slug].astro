@@ -38,6 +38,7 @@ import WhatHappensNext from '~/components/reserva/WhatHappensNext.astro';
 import FAQ from '~/components/reserva/FAQ.astro';
 import FinalCTA from '~/components/reserva/FinalCTA.astro';
 import StatusBanner from '~/components/reserva/StatusBanner.astro';
+import ReservationForm from '~/components/reserva/ReservationForm.astro';
 
 const slug = Astro.params.slug!;
 const booking = await getBookingBySlug(slug);
@@ -214,18 +215,29 @@ const description = booking
 
       <FinalCTA lang={lang} expiresShort={expiresShort} whatsappLink={whatsapp} />
 
-      <!-- Form anchor placeholder. The actual form drops in next iteration. -->
-      <section id="reservar" class="px-6 md:px-12 py-16 md:py-20 bg-cream text-ink text-center">
-        <div class="max-w-2xl mx-auto">
-          <p class="font-display text-lg text-ink/60 italic">
-            {lang === 'es'
-              ? '[Formulario de reserva — pendiente de la próxima fase]'
-              : lang === 'en'
-                ? '[Booking form — coming in next phase]'
-                : '[Formulari de reserva — pendent de la pròxima fase]'}
-          </p>
-        </div>
-      </section>
+      <!-- Reservation form (or "already submitted" placeholder if the
+           couple already filled it once — StatusBanner up top covers the
+           same message and we don't want a stale form re-rendering). -->
+      {booking!.status === 'form_submitted' ? (
+        <section id="reservar" class="px-6 md:px-12 py-16 md:py-20 bg-cream text-ink text-center">
+          <div class="max-w-xl mx-auto">
+            <p class="font-display text-lg text-ink/70 leading-relaxed">
+              {lang === 'es'
+                ? 'Ya nos habéis enviado vuestros datos. Si necesitáis modificar algo, escribidnos por WhatsApp.'
+                : lang === 'en'
+                  ? 'You have already sent us your details. If you need to change anything, message us on WhatsApp.'
+                  : 'Ja ens heu enviat les vostres dades. Si heu de modificar alguna cosa, escriviu-nos pel WhatsApp.'}
+            </p>
+          </div>
+        </section>
+      ) : (
+        <ReservationForm
+          lang={lang}
+          slug={slug}
+          weddingDate={booking!.weddingDate.toISOString().slice(0, 10)}
+          venueName={booking!.venueName}
+        />
+      )}
     </>
   )}
 
