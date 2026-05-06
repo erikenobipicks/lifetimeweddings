@@ -1,0 +1,280 @@
+---
+// Public reservation form (Fase 1, PR2). Six sections rendered as a single
+// vertical scroll — not multi-step — matching the spec §2.8.
+//
+// Submit is a `fetch()` call to /api/reserva/submit with JSON. The form
+// degrades to a sensible error message if JS is disabled (no submit) but
+// we accept this trade-off for a single internal-leaning page where the
+// audience is the booked couple, not anonymous traffic.
+//
+// Defaults pre-fill from the booking: weddingDate, venueName, language.
+// Couple can adjust by toggling the "confirmada" radio to "No".
+
+import { useTranslations, type Lang } from '~/i18n/ui';
+
+interface Props {
+  lang: Lang;
+  slug: string;
+  /** ISO YYYY-MM-DD — pre-fills the "Fecha confirmada" hidden field +
+   *  alternative date placeholder. */
+  weddingDate: string;
+  /** Pre-fills the venue label + alternative venue placeholder. */
+  venueName: string;
+}
+
+const { lang, slug, weddingDate, venueName } = Astro.props;
+const t = useTranslations(lang);
+
+// Render sentinel: server passes initial defaults, client takes over for
+// dynamic UI (toggling alt-date / alt-venue / billing-not-same fields).
+---
+
+<section id="reservar" class="px-6 md:px-12 py-16 md:py-24 bg-cream text-ink">
+  <div class="max-w-3xl mx-auto">
+    <h2 class="font-display text-3xl md:text-4xl font-bold mb-3">{t('reserva.form.heading')}</h2>
+    <p class="text-ink/75 leading-relaxed mb-10 max-w-2xl">{t('reserva.form.intro')}</p>
+
+    <!-- Status messages (rendered by JS on submit) -->
+    <div id="reserva-status" class="hidden mb-8" role="status" aria-live="polite"></div>
+
+    <form id="reserva-form" novalidate class="space-y-12 bg-white p-6 md:p-10 border border-ink/10">
+      <input type="hidden" name="slug" value={slug} />
+
+      <!-- ─── Section 1: Contraente 1 ─────────────────────────────── -->
+      <fieldset class="space-y-4">
+        <legend class="font-display text-xl md:text-2xl font-bold mb-4">{t('reserva.form.section.c1')}</legend>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <label class="block md:col-span-2"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.fullName')} *</span><input name="c1FullName" required maxlength="120" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+          <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.dni')} *</span><input name="c1Dni" required maxlength="12" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+          <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.birthDate')}</span><input type="date" name="c1BirthDate" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+          <label class="block md:col-span-2"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.address')} *</span><input name="c1Address" required maxlength="200" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+          <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.email')} *</span><input type="email" name="c1Email" required maxlength="120" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+          <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.phone')} *</span><input type="tel" name="c1Phone" required maxlength="40" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+        </div>
+      </fieldset>
+
+      <!-- ─── Section 2: Contraente 2 ─────────────────────────────── -->
+      <fieldset class="space-y-4">
+        <legend class="font-display text-xl md:text-2xl font-bold mb-4">{t('reserva.form.section.c2')}</legend>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <label class="block md:col-span-2"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.fullName')} *</span><input name="c2FullName" required maxlength="120" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+          <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.dni')} *</span><input name="c2Dni" required maxlength="12" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+          <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.birthDate')}</span><input type="date" name="c2BirthDate" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+          <label class="block md:col-span-2"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.address')} *</span><input name="c2Address" required maxlength="200" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+          <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.email')} *</span><input type="email" name="c2Email" required maxlength="120" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+          <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.phone')} *</span><input type="tel" name="c2Phone" required maxlength="40" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+        </div>
+      </fieldset>
+
+      <!-- ─── Section 3: Billing ──────────────────────────────────── -->
+      <fieldset class="space-y-4">
+        <legend class="font-display text-xl md:text-2xl font-bold mb-4">{t('reserva.form.section.billing')}</legend>
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input type="checkbox" name="billingAddressSame" value="1" checked id="billingSameToggle" class="h-5 w-5 accent-gold" />
+          <span class="text-sm">{t('reserva.form.field.billingSame')}</span>
+        </label>
+        <div id="billingFields" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          <label class="block md:col-span-2"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.billingName')}</span><input name="billingName" maxlength="120" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+          <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.billingDni')}</span><input name="billingDni" maxlength="12" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+          <label class="block md:col-span-2"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.billingAddress')}</span><input name="billingAddress" maxlength="200" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+        </div>
+      </fieldset>
+
+      <!-- ─── Section 4: Day confirmation ──────────────────────────── -->
+      <fieldset class="space-y-4">
+        <legend class="font-display text-xl md:text-2xl font-bold mb-4">{t('reserva.form.section.day')}</legend>
+
+        <!-- Date confirm -->
+        <div>
+          <p class="text-sm font-semibold text-ink/70 mb-2">{t('reserva.form.field.dateConfirmed')} ({weddingDate})</p>
+          <div class="flex gap-6">
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="weddingDateConfirmed" value="yes" checked class="accent-gold" data-day-toggle="date" data-toggle-value="yes" />{t('reserva.form.opt.yes')}</label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="weddingDateConfirmed" value="no" class="accent-gold" data-day-toggle="date" data-toggle-value="no" />{t('reserva.form.opt.no')}</label>
+          </div>
+          <label class="block mt-3 hidden" id="weddingDateAltField">
+            <span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.dateAlt')}</span>
+            <input type="date" name="weddingDateAlt" class="mt-1.5 w-full md:w-auto px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+          </label>
+        </div>
+
+        <!-- Venue confirm -->
+        <div class="pt-4 border-t border-ink/10">
+          <p class="text-sm font-semibold text-ink/70 mb-2">{t('reserva.form.field.venueConfirmed')} ({venueName})</p>
+          <div class="flex gap-6">
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="venueConfirmed" value="yes" checked class="accent-gold" data-day-toggle="venue" data-toggle-value="yes" />{t('reserva.form.opt.yes')}</label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="venueConfirmed" value="no" class="accent-gold" data-day-toggle="venue" data-toggle-value="no" />{t('reserva.form.opt.no')}</label>
+          </div>
+          <label class="block mt-3 hidden" id="venueAltField">
+            <span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.venueAlt')}</span>
+            <input name="venueAltName" maxlength="120" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+          </label>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-ink/10">
+          <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.ceremonyTime')}</span><input type="time" name="ceremonyTime" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+          <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.serviceEndTime')}</span><input type="time" name="serviceEndTime" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+          <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.guestCount')}</span><input type="number" name="guestCountEstimate" min="1" max="2000" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+        </div>
+      </fieldset>
+
+      <!-- ─── Section 5: Preferences ──────────────────────────────── -->
+      <fieldset class="space-y-4">
+        <legend class="font-display text-xl md:text-2xl font-bold mb-4">{t('reserva.form.section.preferences')}</legend>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <label class="block">
+            <span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.communication')}</span>
+            <select name="preferredCommunication" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none">
+              <option value="">—</option>
+              <option value="email">{t('reserva.form.opt.email')}</option>
+              <option value="whatsapp">{t('reserva.form.opt.whatsapp')}</option>
+              <option value="phone">{t('reserva.form.opt.phone')}</option>
+            </select>
+          </label>
+          <label class="block">
+            <span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.language')}</span>
+            <select name="preferredLanguage" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none">
+              <option value="ca" selected={lang === 'ca'}>Català</option>
+              <option value="es" selected={lang === 'es'}>Castellano</option>
+              <option value="en" selected={lang === 'en'}>English</option>
+            </select>
+          </label>
+          <label class="block">
+            <span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.payment')}</span>
+            <select name="preferredPaymentMethod" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none">
+              <option value="">—</option>
+              <option value="card">{t('reserva.form.opt.card')}</option>
+              <option value="transfer">{t('reserva.form.opt.transfer')}</option>
+            </select>
+          </label>
+        </div>
+      </fieldset>
+
+      <!-- ─── Section 6: Optional ──────────────────────────────────── -->
+      <fieldset class="space-y-4">
+        <legend class="font-display text-xl md:text-2xl font-bold mb-4">{t('reserva.form.section.optional')}</legend>
+        <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.howFound')}</span><textarea name="howDidYouFindUs" rows="2" maxlength="500" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea></label>
+        <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.notes')}</span><textarea name="importantNotes" rows="4" maxlength="2000" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea></label>
+      </fieldset>
+
+      <!-- ─── Submit ──────────────────────────────────────────────── -->
+      <div class="pt-2">
+        <button
+          type="submit"
+          id="reserva-submit"
+          class="inline-flex items-center justify-center bg-gold text-ink font-bold px-8 py-4 hover:bg-ink hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {t('reserva.form.submit')}
+        </button>
+        <p class="text-sm text-ink/60 mt-4 max-w-xl">{t('reserva.form.submit.microcopy')}</p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<script
+  is:inline
+  define:vars={{
+    successTitle: t('reserva.form.success.title'),
+    successBody: t('reserva.form.success.body'),
+    errorGeneric: t('reserva.form.error.generic'),
+    errorAlready: t('reserva.form.error.alreadySubmitted'),
+    errorRate: t('reserva.form.error.rateLimited'),
+    errorValidation: t('reserva.form.error.validation'),
+    submitting: t('reserva.form.submitting'),
+    submitLabel: t('reserva.form.submit'),
+  }}
+>
+  (() => {
+    const form = document.getElementById('reserva-form');
+    const status = document.getElementById('reserva-status');
+    const submitBtn = document.getElementById('reserva-submit');
+    if (!form || !status || !submitBtn) return;
+
+    // Toggle billing fields visibility based on checkbox.
+    const billingChk = document.getElementById('billingSameToggle');
+    const billingFields = document.getElementById('billingFields');
+    const syncBilling = () => {
+      const same = billingChk.checked;
+      billingFields.classList.toggle('hidden', same);
+      billingFields.classList.toggle('grid', !same);
+    };
+    billingChk.addEventListener('change', syncBilling);
+    syncBilling();
+
+    // Toggle date / venue alt fields based on radio.
+    document.querySelectorAll('[data-day-toggle]').forEach((el) => {
+      el.addEventListener('change', () => {
+        const which = el.getAttribute('data-day-toggle');
+        const checkedNo = document.querySelector(
+          `[data-day-toggle="${which}"][data-toggle-value="no"]`,
+        ).checked;
+        const target = document.getElementById(which === 'date' ? 'weddingDateAltField' : 'venueAltField');
+        target.classList.toggle('hidden', !checkedNo);
+      });
+    });
+
+    // Show a status banner.
+    function showStatus(kind, title, body) {
+      const colors = {
+        ok: 'bg-emerald-50 border-emerald-300 text-emerald-900',
+        err: 'bg-red-50 border-red-300 text-red-900',
+      }[kind];
+      status.className = `mb-8 p-5 border ${colors}`;
+      status.innerHTML = `<p class="font-display text-lg font-bold mb-2">${title}</p><p class="text-sm leading-relaxed">${body}</p>`;
+      status.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      // Native browser validation pass first (required, email, etc.).
+      if (!form.reportValidity()) return;
+
+      submitBtn.disabled = true;
+      const oldLabel = submitBtn.textContent;
+      submitBtn.textContent = submitting;
+
+      const fd = new FormData(form);
+      const obj = Object.fromEntries(fd.entries());
+      // Normalise booleans: checkbox absent → false; radio "yes"/"no" → bool.
+      obj.billingAddressSame = fd.has('billingAddressSame');
+      obj.weddingDateConfirmed = obj.weddingDateConfirmed !== 'no';
+      obj.venueConfirmed = obj.venueConfirmed !== 'no';
+      // Empty optional time/date fields → undefined.
+      for (const k of ['c1BirthDate','c2BirthDate','weddingDateAlt','ceremonyTime','serviceEndTime']) {
+        if (obj[k] === '') delete obj[k];
+      }
+
+      try {
+        const res = await fetch('/api/reserva/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(obj),
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (res.status === 200 && data.ok) {
+          form.style.display = 'none';
+          showStatus('ok', successTitle, successBody);
+          return;
+        }
+        if (res.status === 409) {
+          showStatus('err', successTitle, errorAlready);
+          form.style.display = 'none';
+          return;
+        }
+        if (res.status === 429) {
+          showStatus('err', '⚠', errorRate);
+        } else if (res.status === 400) {
+          showStatus('err', '⚠', errorValidation);
+        } else {
+          showStatus('err', '⚠', errorGeneric);
+        }
+      } catch (e) {
+        showStatus('err', '⚠', errorGeneric);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = oldLabel;
+      }
+    });
+  })();
+</script>

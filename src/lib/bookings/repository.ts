@@ -336,3 +336,111 @@ export async function getFormResponseForBooking(
   const row = res.rows[0];
   return row ? rowToFormResponse(row as unknown as Record<string, unknown>) : null;
 }
+
+/** Input shape for creating a form response (matches the public form
+ *  exactly). Repository validates structure but NOT business rules — that
+ *  belongs in the API endpoint (DNI regex, idempotency, etc.). */
+export interface FormResponseCreateInput {
+  bookingId: string;
+
+  c1FullName: string;
+  c1Dni: string;
+  c1BirthDate?: Date | null;
+  c1Address: string;
+  c1Email: string;
+  c1Phone: string;
+
+  c2FullName: string;
+  c2Dni: string;
+  c2BirthDate?: Date | null;
+  c2Address: string;
+  c2Email: string;
+  c2Phone: string;
+
+  billingAddressSame: boolean;
+  billingName?: string | null;
+  billingDni?: string | null;
+  billingAddress?: string | null;
+
+  weddingDateConfirmed: boolean;
+  weddingDateAlt?: Date | null;
+  venueConfirmed: boolean;
+  venueAltName?: string | null;
+  ceremonyTime?: string | null;
+  serviceEndTime?: string | null;
+  guestCountEstimate?: number | null;
+
+  preferredCommunication?: 'email' | 'whatsapp' | 'phone' | null;
+  preferredLanguage?: Lang | null;
+  preferredPaymentMethod?: 'card' | 'transfer' | null;
+
+  howDidYouFindUs?: string | null;
+  importantNotes?: string | null;
+
+  ipAddress?: string | null;
+  userAgent?: string | null;
+}
+
+/** Insert a form response AND transition the parent booking to
+ *  'form_submitted' in a single libSQL batch (the closest thing we have to
+ *  a transaction here). If either statement fails, neither commits.
+ *
+ *  Returns the booking.id whose form was recorded (for symmetry — caller
+ *  already has it but it makes the flow obvious). */
+export async function createFormResponse(input: FormResponseCreateInput): Promise<string> {
+  await initSchema();
+  const id = randomUUID();
+  const now = nowIso();
+
+  await db.batch(
+    [
+      {
+        sql: `INSERT INTO booking_form_responses (
+          id, booking_id,
+          c1_full_name, c1_dni, c1_birth_date, c1_address, c1_email, c1_phone,
+          c2_full_name, c2_dni, c2_birth_date, c2_address, c2_email, c2_phone,
+          billing_address_same, billing_name, billing_dni, billing_address,
+          wedding_date_confirmed, wedding_date_alt, venue_confirmed, venue_alt_name,
+          ceremony_time, service_end_time, guest_count_estimate,
+          preferred_communication, preferred_language, preferred_payment_method,
+          how_did_you_find_us, important_notes,
+          submitted_at, ip_address, user_agent
+        ) VALUES (
+          ?, ?,
+          ?, ?, ?, ?, ?, ?,
+          ?, ?, ?, ?, ?, ?,
+          ?, ?, ?, ?,
+          ?, ?, ?, ?,
+          ?, ?, ?,
+          ?, ?, ?,
+          ?, ?,
+          ?, ?, ?
+        )`,
+        args: [
+          id, input.bookingId,
+          input.c1FullName, input.c1Dni, toIso(input.c1BirthDate ?? null), input.c1Address, input.c1Email, input.c1Phone,
+          input.c2FullName, input.c2Dni, toIso(input.c2BirthDate ?? null), input.c2Address, input.c2Email, input.c2Phone,
+          toBoolInt(input.billingAddressSame),
+          input.billingName ?? null, input.billingDni ?? null, input.billingAddress ?? null,
+          toBoolInt(input.weddingDateConfirmed, true),
+          toIso(input.weddingDateAlt ?? null),
+          toBoolInt(input.venueConfirmed, true),
+          input.venueAltName ?? null,
+          input.ceremonyTime ?? null, input.serviceEndTime ?? null, input.guestCountEstimate ?? null,
+          input.preferredCommunication ?? null, input.preferredLanguage ?? null, input.preferredPaymentMethod ?? null,
+          input.howDidYouFindUs ?? null, input.importantNotes ?? null,
+          now, input.ipAddress ?? null, input.userAgent ?? null,
+        ],
+      },
+      {
+        sql: `UPDATE bookings
+              SET status = 'form_submitted', form_submitted_at = ?
+              WHERE id = ?`,
+        args: [now, input.bookingId],
+      },
+    ],
+    'write',
+  );
+
+  return id;
+}
