@@ -123,6 +123,11 @@ export async function initSchema() {
         custom_intro TEXT,
         reference_testimonial TEXT,
 
+        /* Optional override for the embedded "flagship" trailer on the
+           public proposal page. Stores a YouTube id from src/data/videos.ts.
+           When NULL, the page falls back to a hard-coded default. */
+        flagship_video_id TEXT,
+
         status TEXT NOT NULL DEFAULT 'draft'
           CHECK (status IN ('draft', 'sent', 'viewed', 'form_submitted', 'archived')),
         expires_at TEXT,
@@ -205,6 +210,7 @@ export async function initSchema() {
   // ALTER TABLE here, swallowing the "duplicate column" error so subsequent
   // boots are idempotent.
   await ensureColumn('quotes', 'flagship_video_id', 'TEXT');
+  await ensureColumn('bookings', 'flagship_video_id', 'TEXT');
 
   // Retention cleanup: drop quotes older than 6 months at boot.
   const cutoff = new Date();

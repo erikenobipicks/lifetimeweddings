@@ -57,6 +57,9 @@ export interface Booking {
   // Personalisation
   customIntro: string | null;
   referenceTestimonial: ReferenceTestimonial | null;
+  /** Optional YouTube id (from src/data/videos.ts) to feature on the
+   *  proposal page. null → hard-coded default fallback. */
+  flagshipVideoId: string | null;
 
   // State
   status: BookingStatus;
@@ -94,6 +97,7 @@ export interface BookingCreateInput {
 
   customIntro?: string;
   referenceTestimonial?: ReferenceTestimonial;
+  flagshipVideoId?: string;
 
   expiresAt?: Date;
 }

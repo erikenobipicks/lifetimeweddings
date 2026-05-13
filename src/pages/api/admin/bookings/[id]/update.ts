@@ -66,6 +66,8 @@ const updateSchema = z.object({
   testimonialAuthor: z.string().max(120).optional(),
   testimonialContext: z.string().max(120).optional(),
 
+  flagshipVideoId: z.string().max(40).optional(),
+
   expiresAt: z.string().optional(),
 });
 
@@ -138,6 +140,9 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
   if (d.paymentTerms !== undefined) patch.paymentTerms = d.paymentTerms.trim() || null;
 
   if (d.customIntro !== undefined) patch.customIntro = d.customIntro.trim() || null;
+
+  // Flagship video: empty string means "go back to default" → null.
+  if (d.flagshipVideoId !== undefined) patch.flagshipVideoId = d.flagshipVideoId.trim() || null;
 
   // Testimonial: any of the three fields touching → rebuild the object.
   // A single empty `testimonialQuote` field clears it.
