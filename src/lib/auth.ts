@@ -1,6 +1,6 @@
 import './env';
 import bcrypt from 'bcryptjs';
-import { db } from './db';
+import { db, initSchema } from './db';
 import { sessionId } from './tokens';
 import type { AstroCookies } from 'astro';
 
@@ -27,6 +27,7 @@ export async function verifyCredentials(user: string, password: string): Promise
 }
 
 export async function createSession(cookies: AstroCookies, user: string): Promise<string> {
+  await initSchema();
   const id = sessionId();
   const now = new Date();
   const expires = new Date(now.getTime() + SESSION_TTL_DAYS * 24 * 60 * 60 * 1000);
@@ -47,6 +48,7 @@ export async function createSession(cookies: AstroCookies, user: string): Promis
 export async function destroySession(cookies: AstroCookies) {
   const id = cookies.get(COOKIE)?.value;
   if (id) {
+    await initSchema();
     await db.execute({ sql: 'DELETE FROM sessions WHERE id = ?', args: [id] });
   }
   cookies.delete(COOKIE, { path: '/' });
@@ -55,6 +57,7 @@ export async function destroySession(cookies: AstroCookies) {
 export async function getUser(cookies: AstroCookies): Promise<string | null> {
   const id = cookies.get(COOKIE)?.value;
   if (!id) return null;
+  await initSchema();
   const res = await db.execute({
     sql: 'SELECT user, expires_at FROM sessions WHERE id = ?',
     args: [id],
