@@ -21,6 +21,7 @@ export const prerender = false;
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { useTranslations, type Lang } from '~/i18n/ui';
 import { SITE } from '~/data/site';
+import { videos } from '~/data/videos';
 import { getBookingBySlug, markBookingViewed } from '~/lib/bookings/repository';
 import {
   formatExpiresShort,
@@ -72,14 +73,22 @@ const expiresShort =
 const whatsapp = whatsappLinkFor(slug, lang);
 const whatsappVideocall = whatsappVideocallLinkFor(slug, lang);
 
-// Flagship trailer for the video embed. Hard-coded to Elena i Jordi for
-// now — most recent and most representative of the editing style. Future
-// iteration can let the admin pick per-booking from src/data/videos.ts.
-const flagshipVideo = {
+// Flagship trailer for the video embed. Resolution order:
+//   1. booking.flagshipVideoId (admin override) → look up in catalog.
+//   2. Hard-coded default (Elena i Jordi) if no override OR the override
+//      doesn't match any entry in src/data/videos.ts (defensive — covers
+//      the case where a video gets retired from the catalog while a
+//      booking still references its id).
+const DEFAULT_FLAGSHIP = {
   youtubeId: 'gXpPjD_APAE',
   coupleName: 'Elena i Jordi',
   venue: 'Montferri · Masia San Antonio',
 };
+const overrideId = booking?.flagshipVideoId;
+const overrideHit = overrideId ? videos.find((v) => v.youtubeId === overrideId) : null;
+const flagshipVideo = overrideHit
+  ? { youtubeId: overrideHit.youtubeId, coupleName: overrideHit.coupleName, venue: overrideHit.venue }
+  : DEFAULT_FLAGSHIP;
 
 // Hero cover: sample fallback for the prototype. Once we have CMS-driven
 // reference photos per booking, the resolver moves out of here. For now,

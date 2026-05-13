@@ -77,6 +77,11 @@ const formSchema = z.object({
   testimonialAuthor: z.string().max(120).optional(),
   testimonialContext: z.string().max(120).optional(),
 
+  // YouTube id chosen from the admin dropdown. Format is loose on purpose
+  // — empty string means "use default", any other value is treated as a
+  // YouTube id (validated against the catalog at render time, not here).
+  flagshipVideoId: z.string().max(40).optional(),
+
   expiresAt: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Format: YYYY-MM-DD')
@@ -128,6 +133,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 
     customIntro: d.customIntro?.trim() || undefined,
     referenceTestimonial: parseTestimonial(d.testimonialQuote, d.testimonialAuthor, d.testimonialContext),
+    flagshipVideoId: d.flagshipVideoId?.trim() || undefined,
 
     expiresAt: d.expiresAt && d.expiresAt.length > 0
       ? new Date(`${d.expiresAt}T23:59:59Z`)

@@ -75,6 +75,7 @@ function rowToBooking(row: Record<string, unknown>): Booking {
       row.reference_testimonial,
       null,
     ),
+    flagshipVideoId: row.flagship_video_id ? String(row.flagship_video_id) : null,
 
     status: String(row.status) as BookingStatus,
     expiresAt: fromIso(row.expires_at),
@@ -148,7 +149,7 @@ export async function createBooking(input: BookingCreateInput): Promise<Booking>
       wedding_date, venue_name, venue_city, venue_address,
       pack_name, pack_description, pack_includes, pack_excludes, pack_addons,
       pack_price_cents, deposit_cents, payment_terms,
-      custom_intro, reference_testimonial,
+      custom_intro, reference_testimonial, flagship_video_id,
       status, expires_at,
       created_at, updated_at
     ) VALUES (
@@ -157,7 +158,7 @@ export async function createBooking(input: BookingCreateInput): Promise<Booking>
       ?, ?, ?, ?,
       ?, ?, ?, ?, ?,
       ?, ?, ?,
-      ?, ?,
+      ?, ?, ?,
       'draft', ?,
       ?, ?
     )`,
@@ -173,6 +174,7 @@ export async function createBooking(input: BookingCreateInput): Promise<Booking>
       input.packPriceCents, input.depositCents, input.paymentTerms ?? null,
       input.customIntro ?? null,
       input.referenceTestimonial ? JSON.stringify(input.referenceTestimonial) : null,
+      input.flagshipVideoId ?? null,
       toIso(input.expiresAt ?? null),
       now, now,
     ],
@@ -258,6 +260,7 @@ export type BookingUpdate = Partial<{
   paymentTerms: string | null;
   customIntro: string | null;
   referenceTestimonial: ReferenceTestimonial | null;
+  flagshipVideoId: string | null;
   expiresAt: Date | null;
 }>;
 
@@ -281,6 +284,7 @@ const COLUMN_FOR: Record<keyof BookingUpdate, string> = {
   paymentTerms: 'payment_terms',
   customIntro: 'custom_intro',
   referenceTestimonial: 'reference_testimonial',
+  flagshipVideoId: 'flagship_video_id',
   expiresAt: 'expires_at',
 };
 
