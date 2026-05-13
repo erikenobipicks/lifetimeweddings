@@ -15,6 +15,9 @@ export interface Quote {
   createdAt: string;
   createdBy: string | null;
   archived: boolean;
+  /** Optional YouTube id (from src/data/videos.ts) to feature on the
+   *  public /p/<token> page. null → hard-coded default fallback. */
+  flagshipVideoId: string | null;
 }
 
 export interface QuoteStats {
@@ -34,6 +37,7 @@ export interface CreateQuoteInput {
   password?: string;
   expiresAt?: string; // ISO
   createdBy?: string;
+  flagshipVideoId?: string;
 }
 
 const IP_SALT = process.env.IP_HASH_SALT ?? 'lifetime-dev-salt';
@@ -52,6 +56,7 @@ function rowToQuote(r: any): Quote {
     createdAt: r.created_at,
     createdBy: r.created_by ?? null,
     archived: !!r.archived,
+    flagshipVideoId: r.flagship_video_id ?? null,
   };
 }
 
@@ -61,8 +66,8 @@ export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
   const now = new Date().toISOString();
   const passwordHash = input.password ? await bcrypt.hash(input.password, 10) : null;
   await db.execute({
-    sql: `INSERT INTO quotes (token, couple_name, couple_email, packs_json, notes, password_hash, expires_at, created_at, created_by)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    sql: `INSERT INTO quotes (token, couple_name, couple_email, packs_json, notes, password_hash, expires_at, created_at, created_by, flagship_video_id)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       token,
       input.coupleName,
@@ -73,6 +78,7 @@ export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
       input.expiresAt ?? null,
       now,
       input.createdBy ?? null,
+      input.flagshipVideoId ?? null,
     ],
   });
   const res = await db.execute({ sql: 'SELECT * FROM quotes WHERE token = ?', args: [token] });

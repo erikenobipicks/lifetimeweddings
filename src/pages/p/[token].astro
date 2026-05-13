@@ -10,6 +10,7 @@ import { SHOWCASES } from '~/data/showcases';
 import { recommendShowcase } from '~/lib/matcher';
 import { SITE, waLink } from '~/data/site';
 import Icon from '~/components/Icon.astro';
+import { videos } from '~/data/videos';
 
 function iconForType(t: 'photo' | 'video' | 'combo') {
   return t === 'photo' ? 'camera' : t === 'video' ? 'video' : 'diamond';
@@ -97,13 +98,23 @@ function waForVideocall(): string {
   );
 }
 
-// Flagship trailer for the video embed. Same default as the
-// /reserva/<slug> page; admin override per quote is not built yet.
-const flagshipVideo = {
+// Flagship trailer for the video embed. Resolution order:
+//   1. quote.flagshipVideoId (admin override at creation time) → look up
+//      in catalog.
+//   2. Hard-coded default (Elena i Jordi) if no override OR the stored
+//      id doesn't match any current entry in src/data/videos.ts (defensive
+//      — covers the case where a video gets retired from the catalog while
+//      a quote still references its id).
+const DEFAULT_FLAGSHIP = {
   youtubeId: 'gXpPjD_APAE',
   coupleName: 'Elena i Jordi',
   venue: 'Montferri · Masia San Antonio',
 };
+const overrideId = quote?.flagshipVideoId;
+const overrideHit = overrideId ? videos.find((v) => v.youtubeId === overrideId) : null;
+const flagshipVideo = overrideHit
+  ? { youtubeId: overrideHit.youtubeId, coupleName: overrideHit.coupleName, venue: overrideHit.venue }
+  : DEFAULT_FLAGSHIP;
 ---
 
 <!doctype html>

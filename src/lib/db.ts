@@ -41,7 +41,8 @@ export async function initSchema() {
         expires_at TEXT,
         created_at TEXT NOT NULL,
         created_by TEXT,
-        archived INTEGER NOT NULL DEFAULT 0
+        archived INTEGER NOT NULL DEFAULT 0,
+        flagship_video_id TEXT
       )`,
       `CREATE INDEX IF NOT EXISTS idx_quotes_token ON quotes(token)`,
       `CREATE INDEX IF NOT EXISTS idx_quotes_created ON quotes(created_at)`,
@@ -198,6 +199,13 @@ export async function initSchema() {
     'write',
   );
 
+  // ── Lightweight migrations for evolving columns ───────────────────────
+  // SQLite's CREATE TABLE IF NOT EXISTS doesn't add new columns to existing
+  // tables. For each column added after the initial release we run an
+  // ALTER TABLE here, swallowing the "duplicate column" error so subsequent
+  // boots are idempotent.
+  await ensureColumn('quotes', 'flagship_video_id', 'TEXT');
+
   // Retention cleanup: drop quotes older than 6 months at boot.
   const cutoff = new Date();
   cutoff.setMonth(cutoff.getMonth() - 6);
@@ -205,4 +213,16 @@ export async function initSchema() {
     sql: `DELETE FROM quotes WHERE created_at < ?`,
     args: [cutoff.toISOString()],
   });
+}
+
+/** Add a column to a table if it doesn't already exist. SQLite has no
+ *  "ADD COLUMN IF NOT EXISTS" so we just attempt and swallow the dup error. */
+async function ensureColumn(table: string, column: string, definition: string): Promise<void> {
+  try {
+    await db.execute(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  } catch (err) {
+    const msg = String((err as Error)?.message ?? '');
+    if (msg.includes('duplicate column')) return;
+    throw err;
+  }
 }
