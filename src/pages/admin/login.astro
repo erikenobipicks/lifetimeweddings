@@ -1,22 +1,58 @@
 ---
+// Passwordless magic-link login.
+//
+// GET  → render email form.
+// POST → if email is in ADMIN_EMAILS allowlist, generate a token and send
+//        the link. Always render the same "check your inbox" page (anti-
+//        enumeration — never reveal which addresses are allowlisted).
+//
+// In dev (no RESEND_API_KEY), the link surfaces inline on the confirmation
+// page in addition to being logged to console — but ONLY when the address
+// was actually allowlisted. Otherwise we'd be leaking the allowlist via
+// the presence of the link.
 import AdminLayout from '~/layouts/AdminLayout.astro';
-import { verifyCredentials, createSession, isAuthConfigured, getUser } from '~/lib/auth';
-
-let error: string | null = null;
+import {
+  isAuthConfigured,
+  isEmailAllowed,
+  createMagicLinkToken,
+  getUser,
+} from '~/lib/auth';
+import { sendMagicLink } from '~/lib/auth-email';
 
 // Already logged in? Go to dashboard.
 const existing = await getUser(Astro.cookies);
 if (existing) return Astro.redirect('/admin');
 
+let sentTo: string | null = null;
+let error: string | null = null;
+let devLink: string | null = null;
+
+// Map common URL-parameter outcomes to user-facing messages. These
+// surface when the verify endpoint redirects back here after a bad
+// token (expired / used / unknown).
+const errParam = Astro.url.searchParams.get('err');
+if (errParam === 'expired') error = "L'enllaç ha caducat. Demaneu-ne un de nou.";
+else if (errParam === 'used') error = "Aquest enllaç ja s'ha utilitzat.";
+else if (errParam === 'unknown') error = "Enllaç invàlid.";
+
 if (Astro.request.method === 'POST') {
   const form = await Astro.request.formData();
-  const user = String(form.get('user') ?? '');
-  const password = String(form.get('password') ?? '');
-  if (await verifyCredentials(user, password)) {
-    await createSession(Astro.cookies, user);
-    return Astro.redirect('/admin');
+  const email = String(form.get('email') ?? '').trim().toLowerCase();
+
+  // Always swallow the response; never bubble allowlist info back to the
+  // caller. Same UX regardless of whether the email was accepted.
+  if (email && isEmailAllowed(email)) {
+    const token = await createMagicLinkToken(email);
+    // Use the live request origin so dev links work on localhost. In prod
+    // this resolves to the canonical host (lifetime.photo) thanks to the
+    // CANONICAL_HOST middleware redirect that runs before we get here.
+    const origin = new URL(Astro.request.url).origin;
+    const url = `${origin}/admin/login/verify?token=${token}`;
+    const result = await sendMagicLink(email, url);
+    if (import.meta.env.DEV && !result.delivered) devLink = url;
   }
-  error = 'Usuari o contrasenya incorrectes.';
+  // Render the "check inbox" page even if the email wasn't allowed.
+  sentTo = email;
 }
 ---
 
@@ -26,27 +62,45 @@ if (Astro.request.method === 'POST') {
 
     {!isAuthConfigured() && (
       <div class="mb-4 p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 text-xs">
-        ⚠️ <strong>ADMIN_PASSWORD_HASH</strong> no configurat. Mira el README per generar un hash i afegir-lo a <code>.env</code>.
+        ⚠️ <strong>ADMIN_EMAILS</strong> no configurat. Afegiu la variable a <code>.env</code> amb la llista d'emails permesos (separats per coma).
       </div>
     )}
 
     {error && <p class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm">{error}</p>}
 
-    <form method="POST" class="space-y-4">
-      <div>
-        <label for="user" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Usuari</label>
-        <input id="user" name="user" required autocomplete="username"
-               class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none" />
+    {sentTo ? (
+      <div class="space-y-4 text-sm">
+        <p class="text-ink/85 leading-relaxed">
+          Si <strong>{sentTo}</strong> està a la llista d'admins, us hem enviat un enllaç per entrar. Reviseu la safata d'entrada.
+        </p>
+        <p class="text-ink/60 text-xs leading-relaxed">
+          L'enllaç caduca en 15 minuts i només es pot fer servir un cop. Si no us arriba, reviseu el spam o torneu a demanar-ne un.
+        </p>
+        {devLink && (
+          <div class="mt-4 p-3 bg-blue-50 border border-blue-200 text-blue-900 text-xs">
+            <p class="font-bold mb-1">DEV mode (sense RESEND_API_KEY):</p>
+            <a href={devLink} class="break-all underline">{devLink}</a>
+          </div>
+        )}
+        <a href="/admin/login" class="block text-center text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold mt-6">
+          ← Tornar
+        </a>
       </div>
-      <div>
-        <label for="password" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Contrasenya</label>
-        <input id="password" name="password" type="password" required autocomplete="current-password"
-               class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none" />
-      </div>
-      <button type="submit"
-              class="w-full bg-ink text-white py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors">
-        Entrar
-      </button>
-    </form>
+    ) : (
+      <form method="POST" class="space-y-4">
+        <div>
+          <label for="email" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Email</label>
+          <input id="email" name="email" type="email" required autocomplete="email" autofocus
+                 class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none" />
+        </div>
+        <button type="submit"
+                class="w-full bg-ink text-white py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors">
+          Enviar enllaç
+        </button>
+        <p class="text-xs text-ink/50 text-center pt-2 leading-relaxed">
+          Us enviem un enllaç a l'email. Sense contrasenyes.
+        </p>
+      </form>
+    )}
   </div>
 </AdminLayout>
