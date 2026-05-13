@@ -68,19 +68,6 @@ export async function initSchema() {
         expires_at TEXT NOT NULL
       )`,
 
-      // Single-use magic-link tokens for passwordless admin auth.
-      // Tokens live 15 minutes; consumed tokens stay around for a short
-      // audit window then get pruned by the boot-time cleanup below.
-      `CREATE TABLE IF NOT EXISTS login_tokens (
-        id TEXT PRIMARY KEY,
-        token TEXT UNIQUE NOT NULL,
-        email TEXT NOT NULL,
-        created_at TEXT NOT NULL,
-        expires_at TEXT NOT NULL,
-        used_at TEXT
-      )`,
-      `CREATE INDEX IF NOT EXISTS idx_login_tokens_token ON login_tokens(token)`,
-
       `CREATE TABLE IF NOT EXISTS leads (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         quote_id INTEGER,
@@ -217,15 +204,5 @@ export async function initSchema() {
   await db.execute({
     sql: `DELETE FROM quotes WHERE created_at < ?`,
     args: [cutoff.toISOString()],
-  });
-
-  // Drop expired magic-link tokens. Keep the row for 7 days post-expiry so
-  // a user clicking an old link sees "expired/used" rather than a 404 with
-  // no context. After 7d we drop them entirely.
-  const tokenCutoff = new Date();
-  tokenCutoff.setDate(tokenCutoff.getDate() - 7);
-  await db.execute({
-    sql: `DELETE FROM login_tokens WHERE expires_at < ?`,
-    args: [tokenCutoff.toISOString()],
   });
 }

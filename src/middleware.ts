@@ -69,13 +69,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // ── Admin auth guard ────────────────────────────────────────────────────
-  // Paths under /admin that the unauthenticated must reach:
-  //   /admin/login            — the email form itself
-  //   /admin/login/verify     — consumes the magic-link token, sets the cookie
-  // Everything else under /admin/* requires a live session.
-  const isAdminPublic =
-    path === '/admin/login' || path === '/admin/login/verify';
-  if (path.startsWith('/admin') && !isAdminPublic) {
+  if (path.startsWith('/admin') && path !== '/admin/login') {
     const user = await getUser(context.cookies);
     if (!user) {
       return context.redirect('/admin/login');
