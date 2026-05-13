@@ -1,0 +1,99 @@
+---
+// Video embed block for the booking proposal page. Renders a single
+// representative wedding trailer with a click-to-load iframe (no YouTube
+// network calls until the couple actually plays it, so the page stays
+// fast and privacy-friendly).
+//
+// Default flagship video is hard-coded for now. Future iteration: let
+// the admin pick a specific video per booking from src/data/videos.ts.
+
+import { useTranslations, type Lang } from '~/i18n/ui';
+import { videoThumb, videoThumbFallback, videoEmbed } from '~/data/videos';
+
+interface Props {
+  lang: Lang;
+  youtubeId: string;
+  /** Couple name to caption the video card. */
+  coupleName: string;
+  /** Where it was shot — venue + (optional) town. */
+  venue: string;
+}
+
+const { lang, youtubeId, coupleName, venue } = Astro.props;
+const t = useTranslations(lang);
+
+const thumb = videoThumb(youtubeId);
+const fallback = videoThumbFallback(youtubeId);
+const embed = videoEmbed(youtubeId);
+const playLabel =
+  lang === 'es' ? 'Reproducir vídeo' : lang === 'en' ? 'Play video' : 'Reproduir vídeo';
+---
+
+<section class="px-6 md:px-12 py-20 md:py-28 bg-white text-ink">
+  <div class="max-w-4xl mx-auto">
+    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3 text-center">
+      {t('reserva.video.eyebrow')}
+    </p>
+    <h2 class="font-display text-3xl md:text-4xl font-bold text-center mb-10">
+      {t('reserva.video.heading')}
+    </h2>
+
+    <div class="relative aspect-video bg-black overflow-hidden" data-reserva-video>
+      <button
+        type="button"
+        class="absolute inset-0 w-full h-full group focus:outline-none focus:ring-2 focus:ring-gold"
+        aria-label={`${playLabel} — ${coupleName}`}
+        data-thumb-button
+      >
+        <img
+          src={thumb}
+          data-fallback={fallback}
+          alt={`${coupleName} · ${venue}`}
+          class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
+          decoding="async"
+        />
+        <span class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors"></span>
+        <span class="absolute inset-0 flex items-center justify-center">
+          <span
+            class="w-16 h-16 md:w-20 md:h-20 bg-white/90 rounded-full flex items-center justify-center group-hover:bg-white transition-colors shadow-lg"
+          >
+            <svg viewBox="0 0 24 24" class="w-7 h-7 md:w-8 md:h-8 fill-ink ml-1" aria-hidden="true">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </span>
+        </span>
+      </button>
+    </div>
+
+    <p class="text-center text-sm text-ink/60 mt-4">{coupleName} · {venue}</p>
+  </div>
+</section>
+
+<script is:inline define:vars={{ embed }}>
+  (() => {
+    document.querySelectorAll('[data-reserva-video]').forEach((wrap) => {
+      const btn = wrap.querySelector('[data-thumb-button]');
+      const img = wrap.querySelector('img[data-fallback]');
+      if (img) {
+        img.addEventListener('error', () => {
+          img.src = img.dataset.fallback;
+        }, { once: true });
+      }
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        const iframe = document.createElement('iframe');
+        iframe.src = embed;
+        iframe.title = 'Wedding trailer';
+        iframe.className = 'absolute inset-0 w-full h-full';
+        iframe.setAttribute('frameborder', '0');
+        iframe.setAttribute(
+          'allow',
+          'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
+        );
+        iframe.setAttribute('allowfullscreen', '');
+        wrap.replaceChildren(iframe);
+      });
+    });
+  })();
+</script>

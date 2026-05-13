@@ -58,6 +58,19 @@ export function whatsappLinkFor(slug: string, lang: Lang): string {
   return `https://api.whatsapp.com/send/?phone=34688946111&text=${encodeURIComponent(text)}`;
 }
 
+/** Variant of whatsappLinkFor pre-filled with a videocall request. Used by
+ *  the "let's meet before deciding" CTA block. Keeps the slug so Ferran
+ *  can match the request back to the proposal in admin. */
+export function whatsappVideocallLinkFor(slug: string, lang: Lang): string {
+  const text =
+    lang === 'es'
+      ? `Hola Lifetime, venimos de la propuesta ${slug} y querríamos hacer una videollamada de 15 minutos antes de decidir.`
+      : lang === 'en'
+        ? `Hi Lifetime, we're looking at proposal ${slug} and would like a 15-minute video call before deciding.`
+        : `Hola Lifetime, venim de la proposta ${slug} i ens agradaria fer una videocall de 15 minuts abans de decidir.`;
+  return `https://api.whatsapp.com/send/?phone=34688946111&text=${encodeURIComponent(text)}`;
+}
+
 /** Render a "Hola {n1} y {n2}," style template. Replaces {key} with values. */
 export function tpl(template: string, vars: Record<string, string>): string {
   return template.replace(/\{(\w+)\}/g, (_m, key) => vars[key] ?? '');
