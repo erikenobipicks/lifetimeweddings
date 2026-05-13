@@ -5,7 +5,9 @@ import Section from '~/components/Section.astro';
 import { WEDDINGS, weddingCover, weddingGallery } from '~/data/weddings';
 import { useTranslations } from '~/i18n/ui';
 import { SITE } from '~/data/site';
-import { breadcrumbJsonLd } from '~/lib/seo';
+import { breadcrumbJsonLd, weddingCaseJsonLd } from '~/lib/seo';
+import { getWeddingCase } from '~/lib/weddings-rich';
+import WeddingCaseRich from '~/components/weddings/WeddingCaseRich.astro';
 
 export function getStaticPaths() {
   return WEDDINGS.map((w) => ({ params: { slug: w.slug }, props: { wedding: w } }));
@@ -14,6 +16,9 @@ export function getStaticPaths() {
 const { wedding } = Astro.props;
 const lang = 'en' as const;
 const t = useTranslations(lang);
+
+const caseResult = (await getWeddingCase(wedding.slug, lang))!;
+
 const cover = weddingCover(wedding);
 const gallery = weddingGallery(wedding);
 const coverLarge = gallery[0]?.variants.lg ?? cover;
@@ -40,70 +45,97 @@ const jsonLd = [
     { name: t('schema.breadcrumb.bodas'), url: `${SITE.url}/en/#portfolio` },
     { name: wedding.couple, url: `${SITE.url}/en/bodas/${wedding.slug}` },
   ]),
+  ...(caseResult.mode === 'rich'
+    ? weddingCaseJsonLd({
+        legacy: caseResult.legacy,
+        rich: caseResult.entry.data,
+        lang,
+        canonicalPath: `/bodas/${wedding.slug}`,
+      })
+    : []),
 ];
+
+const richTitle = caseResult.mode === 'rich' ? caseResult.entry.data.seo?.title?.[lang] : undefined;
+const richDesc = caseResult.mode === 'rich' ? caseResult.entry.data.seo?.description?.[lang] : undefined;
+const pageTitle =
+  richTitle ??
+  (hasVenue
+    ? `${wedding.couple} · ${wedding.venue} · Lifetime Weddings`
+    : `${wedding.couple} · Lifetime Weddings`);
+const pageDesc =
+  richDesc ??
+  (hasVenue
+    ? `Gallery of ${wedding.couple}'s wedding at ${wedding.venue} (${wedding.location}).`
+    : `Gallery of ${wedding.couple}'s wedding.`);
 ---
 
 <BaseLayout
   lang={lang}
-  title={wedding.venue && wedding.venue !== '—'
-    ? `${wedding.couple} · ${wedding.venue} · Lifetime Weddings`
-    : `${wedding.couple} · Lifetime Weddings`}
-  description={wedding.venue && wedding.venue !== '—'
-    ? `Gallery of ${wedding.couple}'s wedding at ${wedding.venue} (${wedding.location}).`
-    : `Gallery of ${wedding.couple}'s wedding.`}
+  title={pageTitle}
+  description={pageDesc}
   canonicalPath={`/bodas/${wedding.slug}`}
   jsonLd={jsonLd}
   ogImage={cover ?? '/og-default.jpg'}
 >
-  {cover && (
-    <section class="relative h-[60vh] min-h-[420px] overflow-hidden">
-      <img src={cover} alt={wedding.venue && wedding.venue !== '—' ? `${wedding.couple} · ${wedding.venue}` : wedding.couple} class="absolute inset-0 w-full h-full object-cover" loading="eager" />
-      <div class="absolute inset-0 bg-black/40"></div>
-      <div class="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-6">
-        <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">Weddings</p>
-        <h1 class="font-display text-4xl md:text-5xl font-bold">{wedding.couple}</h1>
-        <p class="mt-3 opacity-90">{wedding.venue !== '—' ? wedding.venue : ''} {wedding.venue !== '—' && wedding.location !== '—' ? '·' : ''} {wedding.location !== '—' ? wedding.location : ''}</p>
-      </div>
-    </section>
-  )}
-
-  {gallery.length > 0 ? (
-    <Section>
-      <div class="max-w-6xl mx-auto">
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
-          {gallery.map((img, i) => {
-            const span = img.orientation === 'landscape' ? 'md:col-span-2' : '';
-            return (
-              <a
-                href={img.variants.lg}
-                target="_blank"
-                rel="noopener"
-                class:list={['block overflow-hidden group', span]}
-                aria-label={`Photo ${i + 1}`}
-              >
-                <img
-                  src={img.variants.md}
-                  srcset={`${img.variants.sm} 640w, ${img.variants.md} 1200w, ${img.variants.lg} 1920w`}
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  alt={galleryAlt(i + 1)}
-                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  loading={i < 2 ? 'eager' : 'lazy'}
-                  fetchpriority={i === 0 ? 'high' : 'auto'}
-                  decoding="async"
-                  width={img.width}
-                  height={img.height}
-                />
-              </a>
-            );
-          })}
-        </div>
-      </div>
-    </Section>
+  {caseResult.mode === 'rich' ? (
+    <WeddingCaseRich
+      lang={lang}
+      legacy={caseResult.legacy}
+      entry={caseResult.entry}
+    />
   ) : (
-    <Section>
-      <div class="max-w-2xl mx-auto text-center text-ink/75 leading-relaxed">
-        <p>Gallery in preparation.</p>
-      </div>
-    </Section>
+    <>
+      {cover && (
+        <section class="relative h-[60vh] min-h-[420px] overflow-hidden">
+          <img src={cover} alt={hasVenue ? `${wedding.couple} · ${wedding.venue}` : wedding.couple} class="absolute inset-0 w-full h-full object-cover" loading="eager" />
+          <div class="absolute inset-0 bg-black/40"></div>
+          <div class="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-6">
+            <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">Weddings</p>
+            <h1 class="font-display text-4xl md:text-5xl font-bold">{wedding.couple}</h1>
+            <p class="mt-3 opacity-90">{wedding.venue !== '—' ? wedding.venue : ''} {wedding.venue !== '—' && wedding.location !== '—' ? '·' : ''} {wedding.location !== '—' ? wedding.location : ''}</p>
+          </div>
+        </section>
+      )}
+
+      {gallery.length > 0 ? (
+        <Section>
+          <div class="max-w-6xl mx-auto">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+              {gallery.map((img, i) => {
+                const span = img.orientation === 'landscape' ? 'md:col-span-2' : '';
+                return (
+                  <a
+                    href={img.variants.lg}
+                    target="_blank"
+                    rel="noopener"
+                    class:list={['block overflow-hidden group', span]}
+                    aria-label={`Photo ${i + 1}`}
+                  >
+                    <img
+                      src={img.variants.md}
+                      srcset={`${img.variants.sm} 640w, ${img.variants.md} 1200w, ${img.variants.lg} 1920w`}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      alt={galleryAlt(i + 1)}
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading={i < 2 ? 'eager' : 'lazy'}
+                      fetchpriority={i === 0 ? 'high' : 'auto'}
+                      decoding="async"
+                      width={img.width}
+                      height={img.height}
+                    />
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        </Section>
+      ) : (
+        <Section>
+          <div class="max-w-2xl mx-auto text-center text-ink/75 leading-relaxed">
+            <p>Gallery in preparation.</p>
+          </div>
+        </Section>
+      )}
+    </>
   )}
 </BaseLayout>

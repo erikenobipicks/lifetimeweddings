@@ -1,0 +1,52 @@
+---
+// Optional card linking to an associated blog post. Only renders when:
+//   1. `slug` is provided in the case frontmatter, AND
+//   2. That slug exists in BLOG_POSTS (silently skipped if missing).
+import { BLOG_POSTS } from '~/data/blog';
+import { useTranslations, localePath, type Lang } from '~/i18n/ui';
+
+interface Props {
+  lang: Lang;
+  slug?: string;
+}
+
+const { lang, slug } = Astro.props;
+const t = useTranslations(lang);
+const post = slug ? BLOG_POSTS.find((p) => p.slug === slug) : undefined;
+---
+
+{post && (
+  <section class="px-6 md:px-12 py-16 md:py-20 bg-cream text-ink">
+    <div class="max-w-4xl mx-auto">
+      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3 text-center">
+        {t('case.blog.heading')}
+      </p>
+      <a
+        href={localePath(lang, `/blog/${post.slug}`)}
+        class="group block mt-4"
+      >
+        <div class="flex flex-col md:flex-row gap-4 md:gap-8 items-center bg-white p-4 md:p-6">
+          {post.cover && (
+            <div class="w-full md:w-48 aspect-[4/3] md:aspect-square overflow-hidden flex-shrink-0">
+              <img
+                src={post.cover}
+                alt={post.title}
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          )}
+          <div class="flex-1 text-center md:text-left">
+            <h3 class="font-display text-xl md:text-2xl font-bold leading-tight mb-2">
+              {post.title}
+            </h3>
+            <span class="inline-block mt-2 text-sm font-semibold text-gold group-hover:underline underline-offset-4">
+              {t('case.blog.cta')} →
+            </span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+)}

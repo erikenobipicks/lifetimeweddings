@@ -1,0 +1,51 @@
+---
+// Dev-only preview route for the rich wedding case template.
+//
+// Usage: visit /_preview-weddings/<lang>/<slug> in `astro dev`. Forces rich
+// mode via getWeddingCase(..., { preview: true }), which also bypasses the
+// stub guard so you can see the layout with TODO placeholders visible.
+//
+// In production builds this route returns 404 — `prerender = false` + the
+// explicit DEV guard below guarantees it's never served outside dev.
+export const prerender = false;
+
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { getWeddingCase } from '~/lib/weddings-rich';
+import WeddingCaseRich from '~/components/weddings/WeddingCaseRich.astro';
+import type { Lang } from '~/i18n/ui';
+
+if (!import.meta.env.DEV) {
+  return new Response('Not found', { status: 404 });
+}
+
+const rawLang = Astro.params.lang;
+const slug = Astro.params.slug!;
+if (rawLang !== 'ca' && rawLang !== 'es' && rawLang !== 'en') {
+  return new Response('Invalid lang (use ca/es/en)', { status: 400 });
+}
+const lang = rawLang as Lang;
+
+const caseResult = await getWeddingCase(slug, lang, { preview: true });
+if (!caseResult) {
+  return new Response(`No wedding with slug "${slug}" in WEDDINGS`, { status: 404 });
+}
+if (caseResult.mode !== 'rich') {
+  return new Response(
+    `Slug "${slug}" has no MD file in src/content/weddings/. Create one first.`,
+    { status: 404 },
+  );
+}
+
+const pageTitle = `[PREVIEW] ${caseResult.entry.data.couple} — ${lang}`;
+---
+
+<BaseLayout lang={lang} title={pageTitle} description="Dev preview" canonicalPath="/preview" noindex>
+  <div class="bg-red-600 text-white text-center text-xs font-bold py-2 px-4 uppercase tracking-wider">
+    DEV preview · rich template forced · stub guard bypassed
+  </div>
+  <WeddingCaseRich
+    lang={lang}
+    legacy={caseResult.legacy}
+    entry={caseResult.entry}
+  />
+</BaseLayout>
