@@ -2,6 +2,8 @@
 import '~/styles/global.css';
 import Section from '~/components/Section.astro';
 import QuoteTracker from '~/components/QuoteTracker.astro';
+import VideoEmbed from '~/components/reserva/VideoEmbed.astro';
+import VideoCallCTA from '~/components/reserva/VideoCallCTA.astro';
 import { getQuoteByToken, recordView, verifyQuotePassword, getLeadByQuoteId } from '~/lib/quotes';
 import { PACKS } from '~/data/packs';
 import { SHOWCASES } from '~/data/showcases';
@@ -84,6 +86,24 @@ function waForCouple(): string {
   if (!quote) return waLink('Hola!');
   return waLink(`Hola! Som ${quote.coupleName}. Hem vist el pressupost i ens agradaria concretar.`);
 }
+
+// Different WhatsApp pre-filled message for the videocall ask — friendlier
+// surface than waForCouple() so Ferran sees the intent (videocall) at a
+// glance and can prep for a short call rather than a long async chat.
+function waForVideocall(): string {
+  if (!quote) return waLink('Hola!');
+  return waLink(
+    `Hola! Som ${quote.coupleName}. Hem vist el pressupost i ens agradaria fer una videocall de 15 minuts abans de decidir.`,
+  );
+}
+
+// Flagship trailer for the video embed. Same default as the
+// /reserva/<slug> page; admin override per quote is not built yet.
+const flagshipVideo = {
+  youtubeId: 'gXpPjD_APAE',
+  coupleName: 'Elena i Jordi',
+  venue: 'Montferri · Masia San Antonio',
+};
 ---
 
 <!doctype html>
@@ -171,6 +191,16 @@ function waForCouple(): string {
           </div>
         </Section>
 
+        <!-- Flagship trailer — reused from /reserva/<slug>. Always shown,
+             unconditionally, so every quote gets a glimpse of what we
+             actually deliver in motion. -->
+        <VideoEmbed
+          lang="ca"
+          youtubeId={flagshipVideo.youtubeId}
+          coupleName={flagshipVideo.coupleName}
+          venue={flagshipVideo.venue}
+        />
+
         {/* Showcase link */}
         {showcase && (
           <Section>
@@ -187,6 +217,11 @@ function waForCouple(): string {
             </div>
           </Section>
         )}
+
+        <!-- Softer "let's meet before deciding" block, paired with the
+             generic CTA below. The two have different intents and pre-fill
+             different WhatsApp messages so Ferran can triage at a glance. -->
+        <VideoCallCTA lang="ca" whatsappLink={waForVideocall()} />
 
         <!-- CTA -->
         <Section bg="ink">
