@@ -422,6 +422,18 @@ export const ui = {
     'reserva.form.error.validation':
       'Hay campos con un formato incorrecto. Revisadlos abajo.',
 
+    // Video embed (flagship trailer)
+    'reserva.video.eyebrow': 'Bodas en movimiento',
+    'reserva.video.heading': 'Echad un vistazo a nuestro trabajo',
+
+    // Videocall CTA (softer "let's meet first" option, between FAQ and FinalCTA)
+    'reserva.videocall.eyebrow': '¿Queréis que nos conozcamos antes?',
+    'reserva.videocall.heading': 'Hagamos una videollamada de 15 minutos',
+    'reserva.videocall.body':
+      'Si todavía no lo tenéis del todo claro, lo más fácil es que hablemos en directo. Una videollamada corta — 15 minutos, cuando os vaya bien — nos sirve para conocernos, resolver las dudas concretas que tengáis y que veáis cómo trabajamos.\n\nNo cuesta nada y no os compromete a reservar.',
+    'reserva.videocall.cta': 'Hablar por WhatsApp',
+    'reserva.videocall.subnote': 'Os va bien cualquier tarde entre semana.',
+
     // Cookies
     'cookies.title': 'Privacidad y cookies',
     'cookies.desc': 'Usamos cookies esenciales para que la web funcione y, opcionalmente, cookies analíticas para mejorar vuestra experiencia. Podéis aceptarlas, rechazarlas o personalizar vuestra elección.',
@@ -813,6 +825,18 @@ export const ui = {
     'reserva.form.error.validation':
       'Hi ha camps amb un format incorrecte. Reviseu-los a baix.',
 
+    // Video embed
+    'reserva.video.eyebrow': 'Bodes en moviment',
+    'reserva.video.heading': 'Feu un cop d\'ull a la nostra feina',
+
+    // Videocall CTA
+    'reserva.videocall.eyebrow': 'Voleu que ens coneguem abans?',
+    'reserva.videocall.heading': 'Fem una videocall de 15 minuts',
+    'reserva.videocall.body':
+      "Si encara no ho teniu del tot clar, el més fàcil és que parlem en directe. Una videocall curta — 15 minuts, quan us vagi bé — ens serveix per conèixer-nos, resoldre els dubtes concrets que tingueu i que veieu com treballem.\n\nNo costa res i no us compromet a reservar.",
+    'reserva.videocall.cta': 'Parlar pel WhatsApp',
+    'reserva.videocall.subnote': 'Us va bé qualsevol tarda entre setmana.',
+
     'cookies.title': 'Privacitat i galetes',
     'cookies.desc': 'Fem servir galetes essencials perquè la web funcioni i, opcionalment, galetes analítiques per millorar la vostra experiència. Podeu acceptar-les, rebutjar-les o personalitzar la vostra tria.',
     'cookies.accept': 'Acceptar totes',
@@ -1166,6 +1190,15 @@ export const ui = {
     'reserva.form.error.alreadySubmitted': 'TODO: see spec',
     'reserva.form.error.rateLimited': 'TODO: see spec',
     'reserva.form.error.validation': 'TODO: see spec',
+
+    // Video embed + videocall CTA — EN strings TODO; helper falls back to CA.
+    'reserva.video.eyebrow': 'TODO: Weddings in motion',
+    'reserva.video.heading': 'TODO: Take a look at our work',
+    'reserva.videocall.eyebrow': 'TODO: Want to meet first?',
+    'reserva.videocall.heading': 'TODO: Let\'s do a 15-minute video call',
+    'reserva.videocall.body': 'TODO: see spec',
+    'reserva.videocall.cta': 'TODO: Message on WhatsApp',
+    'reserva.videocall.subnote': 'TODO: Any weekday afternoon works.',
 
     'cookies.title': 'Privacy and cookies',
     'cookies.desc': 'We use essential cookies so the site works and, optionally, analytics cookies to improve your experience. You can accept them, reject them or customise your choice.',

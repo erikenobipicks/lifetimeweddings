@@ -27,15 +27,18 @@ import {
   formatPrice,
   formatWeddingDateLong,
   whatsappLinkFor,
+  whatsappVideocallLinkFor,
   tpl,
 } from '~/lib/bookings/format';
 
 import Hero from '~/components/reserva/Hero.astro';
 import WhyUs from '~/components/reserva/WhyUs.astro';
 import VisualProof from '~/components/reserva/VisualProof.astro';
+import VideoEmbed from '~/components/reserva/VideoEmbed.astro';
 import PackDetail from '~/components/reserva/PackDetail.astro';
 import WhatHappensNext from '~/components/reserva/WhatHappensNext.astro';
 import FAQ from '~/components/reserva/FAQ.astro';
+import VideoCallCTA from '~/components/reserva/VideoCallCTA.astro';
 import FinalCTA from '~/components/reserva/FinalCTA.astro';
 import StatusBanner from '~/components/reserva/StatusBanner.astro';
 import ReservationForm from '~/components/reserva/ReservationForm.astro';
@@ -67,6 +70,16 @@ const weddingDateLong = booking ? formatWeddingDateLong(booking.weddingDate, lan
 const expiresShort =
   booking && booking.expiresAt ? formatExpiresShort(booking.expiresAt, lang) : null;
 const whatsapp = whatsappLinkFor(slug, lang);
+const whatsappVideocall = whatsappVideocallLinkFor(slug, lang);
+
+// Flagship trailer for the video embed. Hard-coded to Elena i Jordi for
+// now — most recent and most representative of the editing style. Future
+// iteration can let the admin pick per-booking from src/data/videos.ts.
+const flagshipVideo = {
+  youtubeId: 'gXpPjD_APAE',
+  coupleName: 'Elena i Jordi',
+  venue: 'Montferri · Masia San Antonio',
+};
 
 // Hero cover: sample fallback for the prototype. Once we have CMS-driven
 // reference photos per booking, the resolver moves out of here. For now,
@@ -197,6 +210,13 @@ const description = booking
           : null}
       />
 
+      <VideoEmbed
+        lang={lang}
+        youtubeId={flagshipVideo.youtubeId}
+        coupleName={flagshipVideo.coupleName}
+        venue={flagshipVideo.venue}
+      />
+
       <PackDetail
         lang={lang}
         packName={booking!.packName}
@@ -212,6 +232,8 @@ const description = booking
       <WhatHappensNext lang={lang} />
 
       <FAQ lang={lang} />
+
+      <VideoCallCTA lang={lang} whatsappLink={whatsappVideocall} />
 
       <FinalCTA lang={lang} expiresShort={expiresShort} whatsappLink={whatsapp} />
 
