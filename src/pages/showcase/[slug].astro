@@ -36,22 +36,79 @@ const testimonial = showcase.testimonialId ? TESTIMONIALS.find((t) => t.id === s
       <p class="max-w-xl mx-auto opacity-90">{showcase.description[lang]}</p>
     </section>
 
-    <!-- Video -->
+    <!-- Video — click-to-load. The YouTube iframe (heavy + sets third-party
+         cookies) is only loaded when the visitor actually clicks play. Match
+         the pattern used on /videos and the home YouTube section. -->
     <Section>
       <div class="max-w-4xl mx-auto">
         <h2 class="font-display text-2xl font-bold text-center mb-8">Vídeo</h2>
-        <div class="relative aspect-video bg-black">
-          <iframe
-            src={`https://www.youtube-nocookie.com/embed/${showcase.videoId}`}
-            title={showcase.title[lang]}
-            class="absolute inset-0 w-full h-full"
-            loading="lazy"
-            allowfullscreen
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          ></iframe>
+        <div
+          class="relative aspect-video bg-black overflow-hidden"
+          data-yt-embed
+          data-yt-id={showcase.videoId}
+        >
+          <button
+            type="button"
+            class="absolute inset-0 w-full h-full group focus:outline-none focus:ring-2 focus:ring-gold"
+            aria-label={`Reproduir vídeo: ${showcase.title[lang]}`}
+            data-yt-toggle
+          >
+            <img
+              src={`https://i.ytimg.com/vi/${showcase.videoId}/maxresdefault.jpg`}
+              data-fallback={`https://i.ytimg.com/vi/${showcase.videoId}/hqdefault.jpg`}
+              alt={showcase.title[lang]}
+              class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+              decoding="async"
+              width="1280"
+              height="720"
+            />
+            <span class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors"></span>
+            <span class="absolute inset-0 flex items-center justify-center">
+              <span class="w-16 h-16 md:w-20 md:h-20 bg-white/90 rounded-full flex items-center justify-center group-hover:bg-white transition-colors shadow-lg">
+                <svg viewBox="0 0 24 24" class="w-7 h-7 md:w-8 md:h-8 fill-ink ml-1" aria-hidden="true">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </span>
+            </span>
+          </button>
         </div>
       </div>
     </Section>
+
+    <script is:inline>
+      (() => {
+        document.querySelectorAll('[data-yt-embed]').forEach((wrap) => {
+          const btn = wrap.querySelector('[data-yt-toggle]');
+          const img = wrap.querySelector('img[data-fallback]');
+          const id = wrap.getAttribute('data-yt-id');
+          if (img) {
+            img.addEventListener(
+              'error',
+              () => {
+                img.src = img.dataset.fallback;
+              },
+              { once: true },
+            );
+          }
+          if (!btn || !id) return;
+          btn.addEventListener('click', () => {
+            const iframe = document.createElement('iframe');
+            iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+            iframe.title = btn.getAttribute('aria-label') || 'Video';
+            iframe.className = 'absolute inset-0 w-full h-full';
+            iframe.setAttribute('frameborder', '0');
+            iframe.setAttribute(
+              'allow',
+              'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
+            );
+            iframe.setAttribute('allowfullscreen', '');
+            iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+            wrap.replaceChildren(iframe);
+          });
+        });
+      })();
+    </script>
 
     <!-- Gallery -->
     <Section bg="cream">

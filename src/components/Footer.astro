@@ -38,8 +38,27 @@ const year = new Date().getFullYear();
       <a href={localePath(lang, '/privacidad')} class="hover:text-gold">{t('footer.privacy')}</a>
       <span class="mx-2 opacity-50">·</span>
       <a href={localePath(lang, '/cookies')} class="hover:text-gold">{t('footer.cookies')}</a>
+      <span class="mx-2 opacity-50">·</span>
+      <button
+        type="button"
+        data-cookie-reopen
+        class="hover:text-gold underline-offset-2 hover:underline cursor-pointer bg-transparent border-0 p-0 font-inherit text-inherit"
+      >
+        {t('cookies.preferences')}
+      </button>
     </nav>
 
     <p class="opacity-60 text-xs mt-2">© {SITE.copyrightSince}–{year} Lifetime Weddings. {t('footer.rights')}</p>
   </div>
 </footer>
+
+<script is:inline>
+  // Footer "Preferencias de cookies" button reopens the consent banner so
+  // visitors can change their mind after the first choice. The actual banner
+  // listens for this event in CookieBanner.astro.
+  document.querySelectorAll('[data-cookie-reopen]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.dispatchEvent(new CustomEvent('consent:reopen'));
+    });
+  });
+</script>
