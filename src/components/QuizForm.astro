@@ -126,6 +126,11 @@ const TOTAL_STEPS = 6;
         <input id="q-phone" type="tel"
                class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none" />
       </div>
+      <div>
+        <label for="q-venue" class="block text-xs font-bold tracking-[0.1em] uppercase mb-1.5">{t('quiz.venue.label')}</label>
+        <input id="q-venue" type="text" maxlength="200" placeholder={t('quiz.venue.placeholder')}
+               class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+      </div>
       {turnstileSitekey && (
         <div class="cf-turnstile flex justify-center pt-2" data-sitekey={turnstileSitekey} data-theme="light" data-size="flexible"></div>
       )}
@@ -238,6 +243,7 @@ const TOTAL_STEPS = 6;
       const name = document.getElementById('q-name').value.trim();
       const email = document.getElementById('q-email').value.trim();
       const phone = document.getElementById('q-phone').value.trim();
+      const venue = document.getElementById('q-venue').value.trim();
       if (!name || !email) {
         errorEl.classList.remove('hidden');
         return;
@@ -245,6 +251,7 @@ const TOTAL_STEPS = 6;
       answers.coupleName = name;
       answers.email = email;
       if (phone) answers.phone = phone;
+      if (venue) answers.venueName = venue;
       answers.lang = lang;
 
       // Pull Turnstile token if the widget rendered. Absent in dev/staging.

@@ -217,6 +217,11 @@ export async function initSchema() {
   // domain layer (see rowToQuote / rowToLead) so old proposals still render.
   await ensureColumn('quotes', 'preferred_language', 'TEXT');
   await ensureColumn('leads', 'preferred_language', 'TEXT');
+  // Free-text venue / finca the couple typed in the quiz. Distinct from
+  // `location` (which is the broad region: tarragona / barcelona / …) so
+  // we can keep both — region for pack recommendation, venue for the
+  // operator to see at a glance whether the place is one we already know.
+  await ensureColumn('leads', 'venue_name', 'TEXT');
 
   // ── Retention sweep (boot-time) ───────────────────────────────────────
   // Data-minimisation per RGPD: keep personal data only as long as needed.

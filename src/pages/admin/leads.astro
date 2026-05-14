@@ -62,7 +62,10 @@ const labels: Record<string, string> = {
               </td>
               <td class="px-4 py-3">{labels[l.serviceInterest ?? ''] ?? l.serviceInterest}</td>
               <td class="px-4 py-3">{labels[l.ceremonyType ?? ''] ?? l.ceremonyType}</td>
-              <td class="px-4 py-3">{labels[l.location ?? ''] ?? l.location}</td>
+              <td class="px-4 py-3">
+                {labels[l.location ?? ''] ?? l.location}
+                {l.venueName && <div class="text-xs text-ink/60">{l.venueName}</div>}
+              </td>
               <td class="px-4 py-3">{labels[l.budgetRange ?? ''] ?? l.budgetRange}</td>
               <td class="px-4 py-3 text-ink/70">{l.weddingDate ?? '—'}</td>
               <td class="px-4 py-3 text-ink/70">{fmt(l.createdAt)}</td>

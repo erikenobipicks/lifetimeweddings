@@ -18,6 +18,7 @@ const schema = z.object({
   coupleName: z.string().min(1).max(200),
   email: z.string().email(),
   phone: z.string().max(30).optional(),
+  venueName: z.string().trim().max(200).optional(),
   lang: z.enum(['es', 'ca', 'en']).optional(),
   captchaToken: z.string().optional(),
 });
@@ -89,6 +90,7 @@ export const POST: APIRoute = async ({ request }) => {
     phone: d.phone,
     weddingDate: d.weddingDate,
     location: d.location,
+    venueName: d.venueName,
     ceremonyType: d.ceremonyType,
     serviceInterest: d.serviceInterest,
     budgetRange: d.budgetRange,
@@ -128,6 +130,7 @@ export const POST: APIRoute = async ({ request }) => {
         ${d.phone ? `<li><strong>Telèfon:</strong> ${escapeHtml(d.phone)}</li>` : ''}
         ${d.weddingDate ? `<li><strong>Data boda:</strong> ${escapeHtml(d.weddingDate)}</li>` : ''}
         <li><strong>Lloc:</strong> ${escapeHtml(LABELS[d.location] ?? d.location)}</li>
+        ${d.venueName ? `<li><strong>Finca:</strong> ${escapeHtml(d.venueName)}</li>` : ''}
         <li><strong>Cerimònia:</strong> ${escapeHtml(LABELS[d.ceremonyType] ?? d.ceremonyType)}</li>
         <li><strong>Servei:</strong> ${escapeHtml(LABELS[d.serviceInterest] ?? d.serviceInterest)}</li>
         <li><strong>Pressupost:</strong> ${escapeHtml(LABELS[d.budgetRange] ?? d.budgetRange)}</li>
@@ -151,6 +154,7 @@ export const POST: APIRoute = async ({ request }) => {
       `📧 ${escapeHtml(d.email)}${d.phone ? ` · 📱 ${escapeHtml(d.phone)}` : ''}`,
       ``,
       `${d.weddingDate ? `📅 ${d.weddingDate}\n` : ''}📍 ${LABELS[d.location] ?? d.location} · ⛪ ${LABELS[d.ceremonyType] ?? d.ceremonyType}`,
+      ...(d.venueName ? [`🏛 ${escapeHtml(d.venueName)}`] : []),
       `📸 ${LABELS[d.serviceInterest] ?? d.serviceInterest} · 💰 ${LABELS[d.budgetRange] ?? d.budgetRange}`,
       ``,
       `🤖 Recomanació: <code>${recommendedPacks.join(', ')}</code>`,

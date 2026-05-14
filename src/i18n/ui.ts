@@ -183,7 +183,7 @@ export const ui = {
     'yt.more': 'Todos los tráilers y películas en nuestro canal →',
 
     // Quiz funnel
-    'quiz.title': 'Veamos si estamos libres vuestra fecha',
+    'quiz.title': 'Veamos si tenemos vuestra fecha libre',
     'quiz.subtitle': 'En 1 minuto os hacemos una propuesta personalizada.',
     'quiz.step': 'Paso',
     'quiz.of': 'de',
@@ -216,6 +216,8 @@ export const ui = {
     'quiz.name.placeholder': 'Ej. Anna & Marc',
     'quiz.email.label': 'Correo electrónico',
     'quiz.phone.label': 'Teléfono (opcional)',
+    'quiz.venue.label': 'Finca o lugar de celebración (opcional)',
+    'quiz.venue.placeholder': 'Ej. Mas la Boella, Tarragona',
     'quiz.error': 'Ha habido un error. Inténtalo de nuevo.',
     'quiz.success.title': '¡Gracias! Os hemos recibido.',
     'quiz.success.desc': 'Revisamos vuestras respuestas y os enviamos una propuesta personalizada en menos de 24h (l.–v.).',
@@ -621,7 +623,7 @@ export const ui = {
     'faq.q10': 'Feu àlbum?',
     'faq.a10': 'Sí, dissenyem àlbums de fusta personalitzats inclosos en alguns packs. També podem dissenyar àlbums extra per a pares i padrins.',
 
-    'quiz.title': 'Mirem si estem lliures la vostra data',
+    'quiz.title': 'Mirem si tenim la vostra data lliure',
     'quiz.subtitle': 'En 1 minut us fem una proposta personalitzada.',
     'quiz.step': 'Pas',
     'quiz.of': 'de',
@@ -654,6 +656,8 @@ export const ui = {
     'quiz.name.placeholder': 'Ex. Anna & Marc',
     'quiz.email.label': 'Correu electrònic',
     'quiz.phone.label': 'Telèfon (opcional)',
+    'quiz.venue.label': 'Finca o lloc de celebració (opcional)',
+    'quiz.venue.placeholder': 'P. ex. Mas la Boella, Tarragona',
     'quiz.error': 'Hi ha hagut un error. Torneu-ho a provar.',
     'quiz.success.title': 'Gràcies! Us hem rebut.',
     'quiz.success.desc': 'Revisem les vostres respostes i us enviem una proposta personalitzada en menys de 24h (dl.–dv.).',
@@ -1054,7 +1058,7 @@ export const ui = {
     'contact.microcopy': 'We reply within 24h (Monday to Friday).',
     'contact.placeholder.message': 'Optional: venue, style, ceremony time, anything you want to share…',
 
-    'quiz.title': 'Let’s see if we’re free on your date',
+    'quiz.title': 'Let’s see if your date is available',
     'quiz.subtitle': 'In 1 minute we’ll send you a personalised quote.',
     'quiz.step': 'Step',
     'quiz.of': 'of',
@@ -1087,6 +1091,8 @@ export const ui = {
     'quiz.name.placeholder': 'e.g. Anna & Marc',
     'quiz.email.label': 'Email',
     'quiz.phone.label': 'Phone (optional)',
+    'quiz.venue.label': 'Venue / wedding location (optional)',
+    'quiz.venue.placeholder': 'e.g. Mas la Boella, Tarragona',
     'quiz.error': 'Something went wrong. Please try again.',
     'quiz.success.title': 'Thanks! We’ve received your message.',
     'quiz.success.desc': 'We’ll review your answers and send you a personalised proposal within 24h (Mon–Fri).',
