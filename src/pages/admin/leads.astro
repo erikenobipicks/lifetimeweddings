@@ -19,10 +19,21 @@ const labels: Record<string, string> = {
 ---
 
 <AdminLayout title="Leads">
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6 sm:mb-8">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
     <h1 class="font-display text-2xl sm:text-3xl font-bold">Leads (quiz)</h1>
-    <span class="text-xs text-ink/60">{leads.length} leads</span>
+    <div class="flex items-center gap-3 text-xs">
+      <span class="text-ink/60">{leads.length} leads</span>
+      <button
+        type="button"
+        data-test-telegram
+        class="border border-black/15 px-3 py-1.5 font-bold tracking-widest uppercase text-ink/70 hover:border-gold hover:text-gold transition-colors whitespace-nowrap"
+        title="Envia un missatge de prova al chat de Telegram configurat"
+      >
+        🧪 Test Telegram
+      </button>
+    </div>
   </div>
+  <p id="tg-feedback" class="hidden mb-4 px-3 py-2 text-xs border"></p>
 
   {leads.length === 0 ? (
     <p class="text-ink/60 text-center py-16">Encara no hi ha leads del quiz.</p>
@@ -80,3 +91,56 @@ const labels: Record<string, string> = {
     </div>
   )}
 </AdminLayout>
+
+<script is:inline>
+  // Test Telegram delivery. Surfaces the exact error (not_configured /
+  // http_error / network_error) inline so the operator can fix Railway
+  // env vars without digging through logs.
+  (() => {
+    const btn = document.querySelector('[data-test-telegram]');
+    const feedback = document.getElementById('tg-feedback');
+    if (!btn || !feedback) return;
+
+    function show(kind, text) {
+      feedback.className =
+        'mb-4 px-3 py-2 text-xs border ' +
+        (kind === 'ok'
+          ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+          : 'bg-red-50 border-red-300 text-red-900');
+      feedback.textContent = text;
+      feedback.classList.remove('hidden');
+    }
+
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      const old = btn.textContent;
+      btn.textContent = 'Enviant…';
+      try {
+        const res = await fetch('/api/admin/test-telegram', { method: 'POST' });
+        const data = await res.json().catch(() => ({}));
+        if (data.ok) {
+          show('ok', '✓ Missatge enviat. Revisa el chat de Telegram.');
+        } else if (data.reason === 'not_configured') {
+          show(
+            'err',
+            "⚠ Falten env vars a Railway: TELEGRAM_BOT_TOKEN i/o TELEGRAM_CHAT_ID. Mira la consola del servidor per detalls.",
+          );
+        } else if (data.reason === 'http_error') {
+          show(
+            'err',
+            '⚠ Telegram ha rebutjat la petició. Resposta: ' + (data.detail || '(sense detall)'),
+          );
+        } else if (data.reason === 'network_error') {
+          show('err', '⚠ Error de xarxa al contactar amb Telegram: ' + (data.detail || ''));
+        } else {
+          show('err', '⚠ Error desconegut: ' + JSON.stringify(data));
+        }
+      } catch (err) {
+        show('err', '⚠ Error al cridar l\'endpoint: ' + err);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = old;
+      }
+    });
+  })();
+</script>
