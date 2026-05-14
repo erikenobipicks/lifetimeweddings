@@ -24,21 +24,45 @@ const lang = 'es' as const;
 
     <h2>2. Finalidades y base legal</h2>
     <ul>
-      <li><strong>Gestión de consultas y solicitudes</strong> enviadas a través del formulario de contacto (base legal: consentimiento del interesado).</li>
-      <li><strong>Envío de información comercial</strong> sobre nuestros servicios, siempre que hayas marcado la casilla correspondiente (consentimiento).</li>
-      <li><strong>Cumplimiento de obligaciones contractuales</strong> en caso de contratación (ejecución de contrato).</li>
+      <li><strong>Gestión de consultas</strong> recibidas vía formulario de contacto o quiz (base: consentimiento).</li>
+      <li><strong>Preparación y seguimiento de propuestas</strong> de fotografía/vídeo de boda, incluyendo el envío de enlaces personalizados a la pareja (base: medidas precontractuales a petición del interesado).</li>
+      <li><strong>Formalización y ejecución del contrato</strong> cuando reserváis el servicio, incluyendo la recogida de datos fiscales (DNI/NIE, dirección) necesarios para emitir factura (base: ejecución de contrato y obligación legal en materia fiscal).</li>
+      <li><strong>Auditoría y prevención de abuso</strong>: registro de dirección IP y agente de usuario en el envío del formulario de reserva, limitado a lo necesario para detectar fraudes o uso automatizado (base: interés legítimo).</li>
     </ul>
 
     <h2>3. Conservación de los datos</h2>
-    <p>Los datos se conservarán mientras exista una relación contractual o comercial, hasta que el interesado solicite su supresión, y durante los plazos legales de conservación cuando proceda.</p>
+    <p>Aplicamos los siguientes plazos a partir de la fecha de creación de cada registro, salvo que la legislación exija un plazo superior o que el interesado nos haya solicitado la supresión antes:</p>
+    <ul>
+      <li><strong>Leads (consultas no convertidas en contrato):</strong> 12 meses.</li>
+      <li><strong>Propuestas de presupuesto no aceptadas:</strong> 6 meses.</li>
+      <li><strong>Reservas archivadas sin formalización:</strong> 6 meses desde el archivado.</li>
+      <li><strong>Datos fiscales y de facturación de bodas contratadas:</strong> 6 años desde la fecha de la boda, conforme al art. 30 del Código de Comercio y a la normativa tributaria española.</li>
+      <li><strong>Logs de actividad (visitas, eventos):</strong> 12 meses.</li>
+    </ul>
+    <p>La depuración se ejecuta automáticamente en el sistema, de forma periódica.</p>
 
-    <h2>4. Destinatarios</h2>
-    <p>No cedemos tus datos a terceros, salvo obligación legal. Podremos utilizar encargados de tratamiento (hosting, email marketing, analítica) con garantías contractuales conformes al RGPD.</p>
+    <h2>4. Destinatarios y encargados de tratamiento</h2>
+    <p>No cedemos tus datos a terceros para fines comerciales propios de éstos. Sí utilizamos encargados de tratamiento estrictamente necesarios para el funcionamiento del servicio, todos con garantías contractuales conformes al RGPD:</p>
+    <ul>
+      <li><strong>Railway, Inc.</strong> (EE.UU.) — alojamiento web y de la base de datos. Sub-procesador.</li>
+      <li><strong>Resend, Inc.</strong> (EE.UU.) — envío de correos transaccionales (confirmaciones, avisos internos, auto-replies).</li>
+      <li><strong>Cloudflare, Inc.</strong> (EE.UU.) — captcha (Turnstile) para prevención de abuso en formularios públicos.</li>
+      <li><strong>Telegram FZ-LLC</strong> (Emiratos Árabes Unidos / Reino Unido) — notificaciones internas a nuestro equipo; sólo se transmite un resumen mínimo (pareja, fecha, venue), no datos fiscales ni de DNI.</li>
+      <li><strong>Behold Inc.</strong> (Reino Unido) — proxy de visualización del feed de Instagram en la página principal; sólo se procesa tu IP al cargar la página.</li>
+      <li><strong>Google LLC / YouTube LLC</strong> (EE.UU.) — fuentes web (Google Fonts) e incrustación de vídeos (YouTube). Se procesa tu IP al cargar estos recursos.</li>
+      <li><strong>Google Maps Platform</strong> (EE.UU.) — consulta puntual de la valoración del Google Business Profile para mostrarla en la página principal; llamada desde el servidor, no se transmite tu IP.</li>
+    </ul>
 
-    <h2>5. Derechos de los interesados</h2>
+    <h2>5. Transferencias internacionales</h2>
+    <p>Algunos de los encargados anteriores están establecidos fuera del Espacio Económico Europeo, principalmente en Estados Unidos. Estas transferencias se realizan bajo Cláusulas Contractuales Tipo (SCC) aprobadas por la Comisión Europea y/o bajo el marco <em>EU-U.S. Data Privacy Framework</em>, según cada proveedor.</p>
+
+    <h2>6. Cookies</h2>
+    <p>Usamos cookies propias estrictamente necesarias (sesión de administración, recordatorio de tu elección en el banner de cookies). Los recursos de terceros que se cargan en el sitio (vídeos de YouTube, feed de Instagram, fuentes de Google) pueden establecer cookies propias cuando los activas. Más información en <a href="/es/cookies">/cookies</a>.</p>
+
+    <h2>7. Derechos de los interesados</h2>
     <p>Puedes ejercer en cualquier momento tus derechos de acceso, rectificación, supresión, oposición, limitación del tratamiento y portabilidad escribiendo a <a href={`mailto:${SITE.email}`}>{SITE.email}</a> acreditando tu identidad. Si consideras que tus derechos no han sido debidamente atendidos, puedes presentar una reclamación ante la Agencia Española de Protección de Datos (<a href="https://www.aepd.es" target="_blank" rel="noopener">aepd.es</a>).</p>
 
-    <h2>6. Medidas de seguridad</h2>
-    <p>Aplicamos medidas técnicas y organizativas apropiadas para proteger los datos personales frente a accesos no autorizados, alteración, pérdida o destrucción.</p>
+    <h2>8. Medidas de seguridad</h2>
+    <p>Aplicamos medidas técnicas y organizativas apropiadas para proteger los datos personales frente a accesos no autorizados, alteración, pérdida o destrucción. Las contraseñas de administración se almacenan con hash bcrypt; las comunicaciones entre el navegador y el servidor están cifradas con HTTPS; las copias de seguridad se realizan en el volumen persistente alojado en Railway.</p>
   </LegalPage>
 </BaseLayout>
