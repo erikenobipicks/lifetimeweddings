@@ -55,10 +55,21 @@ const labels: Record<string, string> = {
               <td class="px-4 py-3">{labels[l.budgetRange ?? ''] ?? l.budgetRange}</td>
               <td class="px-4 py-3 text-ink/70">{l.weddingDate ?? '—'}</td>
               <td class="px-4 py-3 text-ink/70">{fmt(l.createdAt)}</td>
-              <td class="px-4 py-3 text-right">
-                {l.quoteId && (
-                  <a href={`/admin/${l.quoteId}`} class="text-gold text-xs font-bold tracking-widest uppercase hover:underline">
-                    Pressupost
+              <td class="px-4 py-3 text-right whitespace-nowrap">
+                {l.quoteId ? (
+                  <a
+                    href={`/admin/${l.quoteId}`}
+                    class="text-gold text-xs font-bold tracking-widest uppercase hover:underline"
+                  >
+                    Veure pressupost
+                  </a>
+                ) : (
+                  <a
+                    href={`/admin/new?lead=${l.id}`}
+                    class="inline-block bg-ink text-white text-xs font-bold tracking-widest uppercase px-3 py-1.5 hover:bg-gold transition-colors"
+                    title="Crea un pressupost pre-rellenat amb les dades d'aquest lead"
+                  >
+                    + Pressupost
                   </a>
                 )}
               </td>
