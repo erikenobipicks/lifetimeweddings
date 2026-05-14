@@ -11,6 +11,7 @@ import { recommendShowcase } from '~/lib/matcher';
 import { SITE, waLink } from '~/data/site';
 import Icon from '~/components/Icon.astro';
 import { videos } from '~/data/videos';
+import { useTranslations, type Lang } from '~/i18n/ui';
 
 function iconForType(t: 'photo' | 'video' | 'combo') {
   return t === 'photo' ? 'camera' : t === 'video' ? 'video' : 'diamond';
@@ -18,6 +19,12 @@ function iconForType(t: 'photo' | 'video' | 'combo') {
 
 const token = String(Astro.params.token ?? '');
 const quote = await getQuoteByToken(token);
+
+// Locale picked up from the quote row (admin-set at creation, defaulted from
+// the lead when present). Falls back to 'ca' for missing / archived quotes
+// so the 404 / expired messages still render with sensible copy.
+const lang: Lang = quote?.preferredLanguage ?? 'ca';
+const t = useTranslations(lang);
 
 // 404 behaviour
 if (!quote || quote.archived) {
@@ -39,7 +46,7 @@ if (quote && !quote.archived && !expired && quote.hasPassword) {
     if (await verifyQuotePassword(token, pw)) {
       Astro.cookies.set(cookieName, '1', { path: `/p/${token}`, httpOnly: true, sameSite: 'lax' });
     } else {
-      passwordError = 'Contrasenya incorrecta.';
+      passwordError = t('quote.password.error');
       needsPassword = true;
     }
   } else if (!unlocked) {
@@ -85,7 +92,7 @@ const showcase = showcaseSlug ? SHOWCASES.find((s) => s.slug === showcaseSlug) :
 
 function waForCouple(): string {
   if (!quote) return waLink('Hola!');
-  return waLink(`Hola! Som ${quote.coupleName}. Hem vist el pressupost i ens agradaria concretar.`);
+  return waLink(t('quote.wa.message').replace('{name}', quote.coupleName));
 }
 
 // Different WhatsApp pre-filled message for the videocall ask — friendlier
@@ -93,9 +100,7 @@ function waForCouple(): string {
 // glance and can prep for a short call rather than a long async chat.
 function waForVideocall(): string {
   if (!quote) return waLink('Hola!');
-  return waLink(
-    `Hola! Som ${quote.coupleName}. Hem vist el pressupost i ens agradaria fer una videocall de 15 minuts abans de decidir.`,
-  );
+  return waLink(t('quote.wa.videocallMessage').replace('{name}', quote.coupleName));
 }
 
 // Flagship trailer for the video embed. Resolution order:
@@ -118,12 +123,12 @@ const flagshipVideo = overrideHit
 ---
 
 <!doctype html>
-<html lang="ca">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>{quote ? `Pressupost · ${quote.coupleName}` : 'Pressupost no trobat'}</title>
+    <title>{quote ? `${t('quote.hero.eyebrow')} · ${quote.coupleName}` : t('quote.notFound.title')}</title>
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -136,28 +141,28 @@ const flagshipVideo = overrideHit
     {!quote || quote.archived ? (
       <Section class="min-h-screen flex items-center justify-center">
         <div class="text-center max-w-md mx-auto">
-          <h1 class="font-display text-4xl font-bold mb-4">Pressupost no trobat</h1>
-          <p class="text-ink/70">Aquest enllaç no existeix o ha estat arxivat. Si creieu que és un error, escriviu-nos a <a href={`mailto:${SITE.email}`} class="text-gold underline">{SITE.email}</a>.</p>
+          <h1 class="font-display text-4xl font-bold mb-4">{t('quote.notFound.title')}</h1>
+          <p class="text-ink/70">{t('quote.notFound.body')} <a href={`mailto:${SITE.email}`} class="text-gold underline">{SITE.email}</a>.</p>
         </div>
       </Section>
     ) : expired ? (
       <Section class="min-h-screen flex items-center justify-center">
         <div class="text-center max-w-md mx-auto">
-          <h1 class="font-display text-4xl font-bold mb-4">Enllaç caducat</h1>
-          <p class="text-ink/70">Aquest pressupost ja no està disponible. Demaneu-nos un enllaç actualitzat a <a href={`mailto:${SITE.email}`} class="text-gold underline">{SITE.email}</a>.</p>
+          <h1 class="font-display text-4xl font-bold mb-4">{t('quote.expired.title')}</h1>
+          <p class="text-ink/70">{t('quote.expired.body')} <a href={`mailto:${SITE.email}`} class="text-gold underline">{SITE.email}</a>.</p>
         </div>
       </Section>
     ) : needsPassword ? (
       <Section class="min-h-screen flex items-center justify-center">
         <form method="POST" class="max-w-sm w-full bg-white p-8 border border-black/10">
-          <h1 class="font-display text-2xl font-bold mb-2 text-center">Contingut protegit</h1>
-          <p class="text-ink/70 text-sm mb-6 text-center">Introduïu la contrasenya que us hem compartit.</p>
+          <h1 class="font-display text-2xl font-bold mb-2 text-center">{t('quote.password.title')}</h1>
+          <p class="text-ink/70 text-sm mb-6 text-center">{t('quote.password.body')}</p>
           {passwordError && <p class="mb-4 p-2 bg-red-50 border border-red-200 text-red-700 text-sm">{passwordError}</p>}
           <input type="password" name="password" required autofocus
                  class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none mb-4" />
           <button type="submit"
                   class="w-full bg-ink text-white py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors">
-            Entrar
+            {t('quote.password.submit')}
           </button>
         </form>
       </Section>
@@ -166,15 +171,15 @@ const flagshipVideo = overrideHit
         <!-- Hero -->
         <section class="relative py-20 px-6 text-center bg-ink text-white overflow-hidden">
           <img src="/logos/logo-triangular-white.png" alt="" aria-hidden="true" class="w-24 mx-auto mb-6 opacity-95" />
-          <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">Pressupost personalitzat</p>
+          <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('quote.hero.eyebrow')}</p>
           <h1 class="font-display text-4xl md:text-5xl font-bold mb-4">{quote.coupleName}</h1>
-          <p class="max-w-xl mx-auto opacity-90">Gràcies per confiar en Lifetime Weddings. Aquí teniu la proposta que hem preparat per a vosaltres.</p>
+          <p class="max-w-xl mx-auto opacity-90">{t('quote.hero.body')}</p>
         </section>
 
         {quote.notes && (
           <Section>
             <div class="max-w-2xl mx-auto bg-white border-l-4 border-gold p-6">
-              <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold mb-3">Una nota per a vosaltres</p>
+              <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold mb-3">{t('quote.notes.eyebrow')}</p>
               <p class="text-ink/85 leading-relaxed whitespace-pre-wrap">{quote.notes}</p>
             </div>
           </Section>
@@ -183,16 +188,16 @@ const flagshipVideo = overrideHit
         <!-- Packs -->
         <Section bg="cream">
           <div class="max-w-5xl mx-auto">
-            <h2 class="font-display text-3xl font-bold text-center mb-12">La proposta</h2>
+            <h2 class="font-display text-3xl font-bold text-center mb-12">{t('quote.packs.heading')}</h2>
             <div class="grid md:grid-cols-2 gap-6">
               {packs.map((p) => (
                 <article class="bg-white p-7 border border-black/10">
                   <div class="text-gold mb-3"><Icon name={iconForType(p.type) as any} size={28} /></div>
-                  <h3 class="font-display text-xl font-bold mb-3">{p.name.ca}</h3>
+                  <h3 class="font-display text-xl font-bold mb-3">{p.name[lang]}</h3>
                   <p class="text-3xl font-display font-bold text-gold mb-5">{p.price}</p>
-                  <p class="text-xs font-bold tracking-[0.12em] uppercase text-ink/60 mb-3">Inclou</p>
+                  <p class="text-xs font-bold tracking-[0.12em] uppercase text-ink/60 mb-3">{t('quote.packs.includes')}</p>
                   <ul class="space-y-2 text-sm text-ink/80">
-                    {p.includes.ca.map((it) => (
+                    {p.includes[lang].map((it) => (
                       <li class="flex gap-2"><span class="text-gold">✓</span><span>{it}</span></li>
                     ))}
                   </ul>
@@ -206,7 +211,7 @@ const flagshipVideo = overrideHit
              unconditionally, so every quote gets a glimpse of what we
              actually deliver in motion. -->
         <VideoEmbed
-          lang="ca"
+          lang={lang}
           youtubeId={flagshipVideo.youtubeId}
           coupleName={flagshipVideo.coupleName}
           venue={flagshipVideo.venue}
@@ -216,14 +221,14 @@ const flagshipVideo = overrideHit
         {showcase && (
           <Section>
             <div class="max-w-2xl mx-auto text-center">
-              <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">Treballs similars</p>
-              <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">{showcase.title.ca}</h2>
-              <p class="text-ink/75 mb-6">{showcase.description.ca}</p>
+              <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('quote.showcase.eyebrow')}</p>
+              <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">{showcase.title[lang]}</h2>
+              <p class="text-ink/75 mb-6">{showcase.description[lang]}</p>
               <a
                 href={`/showcase/${showcase.slug}`}
                 class="inline-block border-2 border-ink bg-ink text-white px-8 py-3 text-xs font-bold tracking-[0.15em] uppercase hover:bg-gold hover:border-gold transition-colors"
               >
-                Veure la galeria i el vídeo
+                {t('quote.showcase.cta')}
               </a>
             </div>
           </Section>
@@ -232,21 +237,21 @@ const flagshipVideo = overrideHit
         <!-- Softer "let's meet before deciding" block, paired with the
              generic CTA below. The two have different intents and pre-fill
              different WhatsApp messages so Ferran can triage at a glance. -->
-        <VideoCallCTA lang="ca" whatsappLink={waForVideocall()} />
+        <VideoCallCTA lang={lang} whatsappLink={waForVideocall()} />
 
         <!-- CTA -->
         <Section bg="ink">
           <div class="max-w-2xl mx-auto text-center text-white">
-            <h2 class="font-display text-3xl font-bold mb-4">Ens veiem aviat?</h2>
-            <p class="opacity-85 mb-8">Si teniu preguntes o voleu concretar alguna cosa, responeu aquest correu o escriviu-nos pel WhatsApp.</p>
+            <h2 class="font-display text-3xl font-bold mb-4">{t('quote.cta.heading')}</h2>
+            <p class="opacity-85 mb-8">{t('quote.cta.body')}</p>
             <div class="flex flex-wrap justify-center gap-3">
               <a href={`mailto:${SITE.email}`}
                  class="inline-block border-2 border-white px-8 py-3 text-xs font-bold tracking-[0.15em] uppercase hover:bg-white hover:text-ink transition-colors">
-                Escriure per email
+                {t('quote.cta.email')}
               </a>
               <a href={waForCouple()} target="_blank" rel="noopener"
                  class="inline-block bg-[#25D366] border-2 border-[#25D366] text-white px-8 py-3 text-xs font-bold tracking-[0.15em] uppercase hover:brightness-110 transition">
-                Escriure per WhatsApp
+                {t('quote.cta.whatsapp')}
               </a>
             </div>
           </div>

@@ -23,6 +23,9 @@ if (Astro.request.method === 'POST') {
   const password = String(form.get('password') ?? '').trim();
   const expiresAt = String(form.get('expires_at') ?? '').trim();
   const flagshipVideoId = String(form.get('flagship_video_id') ?? '').trim();
+  const langRaw = String(form.get('preferred_language') ?? '').trim();
+  const preferredLanguage: 'ca' | 'es' | 'en' =
+    langRaw === 'es' || langRaw === 'en' ? langRaw : 'ca';
   const linkLeadId = Number(form.get('lead_id') ?? '');
   postedLeadId = Number.isFinite(linkLeadId) && linkLeadId > 0 ? linkLeadId : null;
 
@@ -40,6 +43,7 @@ if (Astro.request.method === 'POST') {
       expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
       createdBy: Astro.locals.user,
       flagshipVideoId: flagshipVideoId || undefined,
+      preferredLanguage,
     });
     if (postedLeadId) {
       try { await linkLeadToQuote(postedLeadId, q.id); } catch { /* non-fatal */ }
@@ -54,6 +58,7 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
 // populates from DB; otherwise everything is blank.
 const initialName = lead?.coupleName ?? '';
 const initialEmail = lead?.email ?? '';
+const initialLanguage: 'ca' | 'es' | 'en' = lead?.preferredLanguage ?? 'ca';
 const recommendedPackIds: string[] = lead
   ? recommendPacks({
       weddingDate: lead.weddingDate ?? undefined,
@@ -178,6 +183,16 @@ const LABELS: Record<string, string> = {
                  class="w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none"
                  placeholder="Deixa-ho en blanc" />
           <p class="text-[0.7rem] text-ink/50 mt-1">Capa extra de seguretat si voleu que la parella introdueixi una paraula per obrir el pressupost.</p>
+        </div>
+        <div>
+          <label for="preferred_language" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Idioma</label>
+          <select id="preferred_language" name="preferred_language"
+                  class="w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+            <option value="ca" selected={initialLanguage === 'ca'}>Català</option>
+            <option value="es" selected={initialLanguage === 'es'}>Castellano</option>
+            <option value="en" selected={initialLanguage === 'en'}>English</option>
+          </select>
+          <p class="text-[0.7rem] text-ink/50 mt-1">L'idioma en què veurà la parella la pàgina del pressupost. Si ve d'un lead, ja ve pre-seleccionat.</p>
         </div>
         <div class="md:col-span-2">
           <label for="flagship_video_id" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Vídeo destacat</label>

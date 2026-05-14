@@ -98,6 +98,7 @@ export const POST: APIRoute = async ({ request }) => {
         email: d.email,
         weddingDate: d.wedding_date,
         location: d.venue,
+        preferredLanguage: lang,
       });
       deduplicated = result.deduplicated;
     } catch (err) {

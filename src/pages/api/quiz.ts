@@ -92,6 +92,7 @@ export const POST: APIRoute = async ({ request }) => {
     ceremonyType: d.ceremonyType,
     serviceInterest: d.serviceInterest,
     budgetRange: d.budgetRange,
+    preferredLanguage: d.lang ?? 'ca',
   });
 
   // Same email already submitted within the last 24h. Return 200 so the UI

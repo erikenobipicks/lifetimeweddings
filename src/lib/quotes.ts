@@ -1,7 +1,14 @@
 import { db, initSchema } from './db';
 import { generateToken, hashIp } from './tokens';
 import { sendNotification, sendTelegramNotification } from './email';
+import type { Lang } from '~/i18n/ui';
 import bcrypt from 'bcryptjs';
+
+/** Coerce an unknown db value into a known Lang, falling back to 'ca' for
+ *  rows that pre-date the preferred_language column. */
+function langOrDefault(v: unknown): Lang {
+  return v === 'es' || v === 'en' || v === 'ca' ? v : 'ca';
+}
 
 export interface Quote {
   id: number;
@@ -18,6 +25,9 @@ export interface Quote {
   /** Optional YouTube id (from src/data/videos.ts) to feature on the
    *  public /p/<token> page. null → hard-coded default fallback. */
   flagshipVideoId: string | null;
+  /** Couple's preferred language. Drives the /p/<token> page locale.
+   *  Pre-migration rows default to 'ca' via langOrDefault(). */
+  preferredLanguage: Lang;
 }
 
 export interface QuoteStats {
@@ -38,6 +48,8 @@ export interface CreateQuoteInput {
   expiresAt?: string; // ISO
   createdBy?: string;
   flagshipVideoId?: string;
+  /** Defaults to 'ca' when omitted. */
+  preferredLanguage?: Lang;
 }
 
 const IP_SALT = process.env.IP_HASH_SALT ?? 'lifetime-dev-salt';
@@ -57,6 +69,7 @@ function rowToQuote(r: any): Quote {
     createdBy: r.created_by ?? null,
     archived: !!r.archived,
     flagshipVideoId: r.flagship_video_id ?? null,
+    preferredLanguage: langOrDefault(r.preferred_language),
   };
 }
 
@@ -66,8 +79,8 @@ export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
   const now = new Date().toISOString();
   const passwordHash = input.password ? await bcrypt.hash(input.password, 10) : null;
   await db.execute({
-    sql: `INSERT INTO quotes (token, couple_name, couple_email, packs_json, notes, password_hash, expires_at, created_at, created_by, flagship_video_id)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    sql: `INSERT INTO quotes (token, couple_name, couple_email, packs_json, notes, password_hash, expires_at, created_at, created_by, flagship_video_id, preferred_language)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       token,
       input.coupleName,
@@ -79,6 +92,7 @@ export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
       now,
       input.createdBy ?? null,
       input.flagshipVideoId ?? null,
+      input.preferredLanguage ?? 'ca',
     ],
   });
   const res = await db.execute({ sql: 'SELECT * FROM quotes WHERE token = ?', args: [token] });
@@ -277,6 +291,9 @@ export interface Lead {
   serviceInterest: string | null;
   budgetRange: string | null;
   createdAt: string;
+  /** UI language the lead was using when they submitted the form. Drives
+   *  the default for /p/<token> language when admin creates the quote. */
+  preferredLanguage: Lang;
 }
 
 export interface CreateLeadInput {
@@ -289,6 +306,7 @@ export interface CreateLeadInput {
   ceremonyType?: string;
   serviceInterest?: string;
   budgetRange?: string;
+  preferredLanguage?: Lang;
 }
 
 function rowToLead(r: any): Lead {
@@ -304,6 +322,7 @@ function rowToLead(r: any): Lead {
     serviceInterest: r.service_interest ?? null,
     budgetRange: r.budget_range ?? null,
     createdAt: r.created_at,
+    preferredLanguage: langOrDefault(r.preferred_language),
   };
 }
 
@@ -336,8 +355,8 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
 
   const now = new Date().toISOString();
   await db.execute({
-    sql: `INSERT INTO leads (quote_id, couple_name, email, phone, wedding_date, location, ceremony_type, service_interest, budget_range, created_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    sql: `INSERT INTO leads (quote_id, couple_name, email, phone, wedding_date, location, ceremony_type, service_interest, budget_range, created_at, preferred_language)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       input.quoteId ?? null,
       input.coupleName,
@@ -349,6 +368,7 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
       input.serviceInterest ?? null,
       input.budgetRange ?? null,
       now,
+      input.preferredLanguage ?? 'ca',
     ],
   });
   const res = await db.execute({ sql: 'SELECT * FROM leads WHERE rowid = last_insert_rowid()', args: [] });
