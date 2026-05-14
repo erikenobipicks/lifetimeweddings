@@ -30,6 +30,12 @@ function describe(coupleName: string, venue: string, date: string): string {
   if (lang === 'en') return `Wedding trailer of ${coupleName} at ${venue} — ${d}.`;
   return `Tràiler de boda de ${coupleName} a ${venue} — ${d}.`;
 }
+
+// Consent-gate copy. If the visitor rejected cookies, clicking "play"
+// doesn't load the iframe — we replace the button with this message.
+const gatedTitle = t('consent.gated.title');
+const gatedBody = t('consent.gated.body');
+const gatedCta = t('consent.gated.cta');
 ---
 
 <Section bg="cream" class="pt-32">
@@ -86,12 +92,45 @@ function describe(coupleName: string, venue: string, date: string): string {
   </div>
 </Section>
 
-<script>
+<script is:inline define:vars={{ gatedTitle, gatedBody, gatedCta }}>
   // Lazy-load: the YouTube iframe (heavy, sets cookies) is swapped in only
-  // when the user clicks. Thumbnail + play button until then.
-  const cards = document.querySelectorAll<HTMLButtonElement>('[data-video-id]');
+  // when the user clicks. Thumbnail + play button until then. If the user
+  // explicitly rejected cookies, the click shows a "blocked" message
+  // pointing back to the cookie preferences instead of loading.
+  function consentRejected() {
+    try {
+      const raw = localStorage.getItem('lifetime.cookies.v1');
+      if (!raw) return false;
+      return JSON.parse(raw)?.choice === 'reject';
+    } catch {
+      return false;
+    }
+  }
+
+  function buildGated() {
+    const wrap = document.createElement('div');
+    wrap.className =
+      'relative block w-full aspect-video bg-ink/90 text-white flex flex-col items-center justify-center text-center p-6';
+    wrap.innerHTML =
+      '<p class="font-display text-lg font-bold mb-2">' +
+      gatedTitle +
+      '</p><p class="text-sm text-white/80 max-w-md mb-4">' +
+      gatedBody +
+      '</p><button type="button" data-cookie-reopen class="bg-gold text-ink text-xs font-bold tracking-[0.15em] uppercase px-5 py-2.5 hover:brightness-110 transition">' +
+      gatedCta +
+      '</button>';
+    const btn = wrap.querySelector('[data-cookie-reopen]');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        document.dispatchEvent(new CustomEvent('consent:reopen'));
+      });
+    }
+    return wrap;
+  }
+
+  const cards = document.querySelectorAll('[data-video-id]');
   cards.forEach((btn) => {
-    const img = btn.querySelector<HTMLImageElement>('img[data-fallback]');
+    const img = btn.querySelector('img[data-fallback]');
     if (img) {
       img.addEventListener(
         'error',
@@ -104,6 +143,10 @@ function describe(coupleName: string, venue: string, date: string): string {
     }
 
     btn.addEventListener('click', () => {
+      if (consentRejected()) {
+        btn.replaceWith(buildGated());
+        return;
+      }
       const id = btn.dataset.videoId;
       const title = btn.dataset.videoTitle ?? '';
       if (!id) return;
@@ -113,7 +156,6 @@ function describe(coupleName: string, venue: string, date: string): string {
       iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       iframe.setAttribute('allowfullscreen', '');
       iframe.className = 'absolute inset-0 w-full h-full';
-      // Wrap the iframe so we preserve the aspect-video container.
       const wrap = document.createElement('div');
       wrap.className = 'relative block w-full aspect-video bg-black overflow-hidden';
       wrap.appendChild(iframe);

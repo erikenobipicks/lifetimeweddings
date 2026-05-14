@@ -23,6 +23,12 @@ const featuredTitle = featured?.title ?? t('yt.title');
 // behalf of visitors who never play the video. Same pattern used on /videos.
 const playLabel =
   lang === 'es' ? 'Reproducir vídeo' : lang === 'en' ? 'Play video' : 'Reproduir vídeo';
+
+// Consent-gate copy. If the visitor explicitly rejected cookies, clicking
+// "play" doesn't load the YouTube iframe — we show this message instead.
+const gatedTitle = t('consent.gated.title');
+const gatedBody = t('consent.gated.body');
+const gatedCta = t('consent.gated.cta');
 ---
 
 <Section id="youtube" bg="ink">
@@ -74,8 +80,46 @@ const playLabel =
   </div>
 </Section>
 
-<script is:inline>
+<script is:inline define:vars={{ gatedTitle, gatedBody, gatedCta }}>
   (() => {
+    // Returns true when the visitor explicitly clicked "Reject" in the
+    // cookie banner. Undecided / accepted both fall through to "load it"
+    // because the click is itself granular consent for that specific embed.
+    function consentRejected() {
+      try {
+        const raw = localStorage.getItem('lifetime.cookies.v1');
+        if (!raw) return false;
+        return JSON.parse(raw)?.choice === 'reject';
+      } catch {
+        return false;
+      }
+    }
+
+    function showGatedMessage(wrap) {
+      // Replace the play-button overlay with a clear "this is blocked"
+      // message + a CTA that reopens the cookie banner. Inline styles +
+      // Tailwind classes so it looks consistent across all our dark hero
+      // backgrounds.
+      const div = document.createElement('div');
+      div.className =
+        'absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-ink/90 text-white';
+      div.innerHTML =
+        '<p class="font-display text-lg font-bold mb-2">' +
+        gatedTitle +
+        '</p><p class="text-sm text-white/80 max-w-md mb-4">' +
+        gatedBody +
+        '</p><button type="button" data-cookie-reopen class="bg-gold text-ink text-xs font-bold tracking-[0.15em] uppercase px-5 py-2.5 hover:brightness-110 transition">' +
+        gatedCta +
+        '</button>';
+      wrap.replaceChildren(div);
+      const btn = div.querySelector('[data-cookie-reopen]');
+      if (btn) {
+        btn.addEventListener('click', () => {
+          document.dispatchEvent(new CustomEvent('consent:reopen'));
+        });
+      }
+    }
+
     document.querySelectorAll('[data-yt-embed]').forEach((wrap) => {
       const btn = wrap.querySelector('[data-yt-toggle]');
       const img = wrap.querySelector('img[data-fallback]');
@@ -91,6 +135,10 @@ const playLabel =
       }
       if (!btn || !id) return;
       btn.addEventListener('click', () => {
+        if (consentRejected()) {
+          showGatedMessage(wrap);
+          return;
+        }
         const iframe = document.createElement('iframe');
         iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
         iframe.title = btn.getAttribute('aria-label') || 'Video';

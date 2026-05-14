@@ -40,6 +40,13 @@ const t = useTranslations(lang);
 </div>
 
 <script>
+  // Consent state lives in localStorage under this key. Shape:
+  //   { choice: 'accept' | 'reject', at: ISO timestamp }
+  // Click-to-load components (YouTube, VideoEmbed, showcase) read this on
+  // click and refuse to load third-party iframes when choice === 'reject'.
+  // The reopen-from-Footer link dispatches `consent:reopen` which re-shows
+  // the banner so visitors can change their mind. Every accept/reject also
+  // dispatches `consent:change` so other components can react in real time.
   const KEY = 'lifetime.cookies.v1';
   const banner = document.getElementById('cookie-banner');
   if (banner) {
@@ -54,8 +61,13 @@ const t = useTranslations(lang);
           JSON.stringify({ choice: action, at: new Date().toISOString() }),
         );
         banner.classList.add('hidden');
-        // Future: if action === 'accept', load analytics here.
+        document.dispatchEvent(new CustomEvent('consent:change', { detail: { choice: action } }));
       });
+    });
+
+    // Footer link reopens the banner so users can change their mind.
+    document.addEventListener('consent:reopen', () => {
+      banner.classList.remove('hidden');
     });
   }
 </script>

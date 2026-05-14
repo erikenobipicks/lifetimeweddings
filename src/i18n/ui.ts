@@ -445,6 +445,10 @@ export const ui = {
     'cookies.accept': 'Aceptar todas',
     'cookies.reject': 'Solo esenciales',
     'cookies.settings': 'Más información',
+    'cookies.preferences': 'Preferencias de cookies',
+    'consent.gated.title': 'Contenido bloqueado',
+    'consent.gated.body': 'Has rechazado las cookies de terceros. Para ver este vídeo de YouTube necesitamos cargar contenido externo que puede instalar cookies.',
+    'consent.gated.cta': 'Cambiar preferencias',
   },
 
   ca: {
@@ -852,6 +856,10 @@ export const ui = {
     'cookies.accept': 'Acceptar totes',
     'cookies.reject': 'Només essencials',
     'cookies.settings': 'Més informació',
+    'cookies.preferences': 'Preferències de galetes',
+    'consent.gated.title': 'Contingut bloquejat',
+    'consent.gated.body': 'Has rebutjat les galetes de tercers. Per veure aquest vídeo de YouTube necessitem carregar contingut extern que pot instal·lar galetes.',
+    'consent.gated.cta': 'Canviar preferències',
   },
 
   en: {
@@ -1259,6 +1267,10 @@ export const ui = {
     'cookies.accept': 'Accept all',
     'cookies.reject': 'Essential only',
     'cookies.settings': 'More information',
+    'cookies.preferences': 'Cookie preferences',
+    'consent.gated.title': 'Content blocked',
+    'consent.gated.body': 'You declined third-party cookies. To play this YouTube video we need to load external content that may set cookies.',
+    'consent.gated.cta': 'Change preferences',
   },
 } as const;
 

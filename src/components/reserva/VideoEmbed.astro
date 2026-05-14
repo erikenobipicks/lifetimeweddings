@@ -27,6 +27,14 @@ const fallback = videoThumbFallback(youtubeId);
 const embed = videoEmbed(youtubeId);
 const playLabel =
   lang === 'es' ? 'Reproducir vídeo' : lang === 'en' ? 'Play video' : 'Reproduir vídeo';
+
+// Consent-gate copy — shown if the couple explicitly rejected cookies in
+// the banner. The page on /reserva is the booking proposal so the rate of
+// this happening is essentially zero, but we keep the gate consistent
+// across every click-to-load surface for compliance.
+const gatedTitle = t('consent.gated.title');
+const gatedBody = t('consent.gated.body');
+const gatedCta = t('consent.gated.cta');
 ---
 
 <section class="px-6 md:px-12 py-20 md:py-28 bg-white text-ink">
@@ -70,8 +78,39 @@ const playLabel =
   </div>
 </section>
 
-<script is:inline define:vars={{ embed }}>
+<script is:inline define:vars={{ embed, gatedTitle, gatedBody, gatedCta }}>
   (() => {
+    function consentRejected() {
+      try {
+        const raw = localStorage.getItem('lifetime.cookies.v1');
+        if (!raw) return false;
+        return JSON.parse(raw)?.choice === 'reject';
+      } catch {
+        return false;
+      }
+    }
+
+    function showGatedMessage(wrap) {
+      const div = document.createElement('div');
+      div.className =
+        'absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-ink/90 text-white';
+      div.innerHTML =
+        '<p class="font-display text-lg font-bold mb-2">' +
+        gatedTitle +
+        '</p><p class="text-sm text-white/80 max-w-md mb-4">' +
+        gatedBody +
+        '</p><button type="button" data-cookie-reopen class="bg-gold text-ink text-xs font-bold tracking-[0.15em] uppercase px-5 py-2.5 hover:brightness-110 transition">' +
+        gatedCta +
+        '</button>';
+      wrap.replaceChildren(div);
+      const btn = div.querySelector('[data-cookie-reopen]');
+      if (btn) {
+        btn.addEventListener('click', () => {
+          document.dispatchEvent(new CustomEvent('consent:reopen'));
+        });
+      }
+    }
+
     document.querySelectorAll('[data-reserva-video]').forEach((wrap) => {
       const btn = wrap.querySelector('[data-thumb-button]');
       const img = wrap.querySelector('img[data-fallback]');
@@ -82,6 +121,10 @@ const playLabel =
       }
       if (!btn) return;
       btn.addEventListener('click', () => {
+        if (consentRejected()) {
+          showGatedMessage(wrap);
+          return;
+        }
         const iframe = document.createElement('iframe');
         iframe.src = embed;
         iframe.title = 'Wedding trailer';
