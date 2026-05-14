@@ -106,28 +106,61 @@ export async function sendAutoReplyToLead(input: AutoReplyInput): Promise<void> 
 }
 
 // ─── Telegram notification ──────────────────────────────────────────────────
-const TG_TOKEN = process.env.TELEGRAM_BOT_TOKEN ?? '';
-const TG_CHAT = process.env.TELEGRAM_CHAT_ID ?? '';
+// Read env vars at call time (not module-load) so .env updates are picked
+// up without redeploy in dev, and so missing vars are reported with the
+// actual current state.
+function tgEnv() {
+  return {
+    token: process.env.TELEGRAM_BOT_TOKEN ?? '',
+    chat: process.env.TELEGRAM_CHAT_ID ?? '',
+  };
+}
 
-export async function sendTelegramNotification(message: string): Promise<void> {
-  if (!TG_TOKEN || !TG_CHAT) {
+export interface TelegramResult {
+  ok: boolean;
+  /** Human-readable why-not in case ok=false. */
+  reason?: 'not_configured' | 'http_error' | 'network_error';
+  /** Telegram API response body if it returned a non-2xx. */
+  detail?: string;
+}
+
+export async function sendTelegramNotification(message: string): Promise<TelegramResult> {
+  const { token, chat } = tgEnv();
+  if (!token || !chat) {
     // eslint-disable-next-line no-console
-    console.log('[telegram] (dev) would send:', message.replace(/<[^>]+>/g, ''));
-    return;
+    console.warn(
+      '[telegram] not configured — TELEGRAM_BOT_TOKEN=' +
+        (token ? 'set' : 'MISSING') +
+        ' TELEGRAM_CHAT_ID=' +
+        (chat ? 'set' : 'MISSING') +
+        ' · would have sent: ' +
+        message.replace(/<[^>]+>/g, '').slice(0, 120),
+    );
+    return { ok: false, reason: 'not_configured' };
   }
   try {
-    await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        chat_id: TG_CHAT,
+        chat_id: chat,
         text: message,
         parse_mode: 'HTML',
         disable_web_page_preview: true,
       }),
     });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '(no body)');
+      // eslint-disable-next-line no-console
+      console.error(`[telegram] HTTP ${res.status}: ${body.slice(0, 400)}`);
+      return { ok: false, reason: 'http_error', detail: body };
+    }
+    // eslint-disable-next-line no-console
+    console.log('[telegram] sent ok');
+    return { ok: true };
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.error('[telegram] send failed', err);
+    console.error('[telegram] network error', err);
+    return { ok: false, reason: 'network_error', detail: String((err as Error)?.message ?? err) };
   }
 }
