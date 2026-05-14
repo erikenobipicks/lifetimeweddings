@@ -87,15 +87,29 @@ export const POST: APIRoute = async ({ request }) => {
     // Persist a lead for the admin dashboard. `quoteId` is null because no quote
     // has been generated yet — the couple just reached out. Non-fatal: even if
     // the DB is down, we still want the email to go through.
+    //
+    // `deduplicated`: same email within 24h. We still return 200 (so the form
+    // shows success) but skip the notification + auto-reply so the couple
+    // doesn't get a flood when they double-tap submit.
+    let deduplicated = false;
     try {
-      await createLead({
+      const result = await createLead({
         coupleName: d.name,
         email: d.email,
         weddingDate: d.wedding_date,
         location: d.venue,
       });
+      deduplicated = result.deduplicated;
     } catch (err) {
       console.error('[contact] createLead failed (non-fatal)', err);
+    }
+
+    if (deduplicated) {
+      console.log('[contact] deduplicated, skipping notification + auto-reply', { email: d.email });
+      return new Response(JSON.stringify({ ok: true, deduplicated: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     await sendNotification({

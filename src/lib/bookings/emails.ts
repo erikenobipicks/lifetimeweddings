@@ -15,14 +15,13 @@
 // upstream error), we log and return; the request is NOT failed because
 // the form data is already safely persisted.
 
-import { Resend } from 'resend';
-import { SITE } from '~/data/site';
-import { sendTelegramNotification } from '~/lib/email';
+import { SITE, WHATSAPP_BASE } from '~/data/site';
+// Shared Resend client + Telegram helper — single instance per process,
+// shared dev-mode fallback (logs instead of sending when RESEND_API_KEY
+// isn't set). See src/lib/email.ts.
+import { resend, sendTelegramNotification } from '~/lib/email';
 import type { Booking, BookingFormResponse, Lang } from './types';
 import { formatPrice, formatExpiresShort, formatWeddingDateLong } from './format';
-
-const apiKey = process.env.RESEND_API_KEY;
-const resend = apiKey ? new Resend(apiKey) : null;
 
 const FROM_HELLO = process.env.EMAIL_FROM_HELLO ?? 'Lifetime Weddings <hola@lifetime.photo>';
 const FROM_NOTIFY = process.env.EMAIL_FROM ?? 'Lifetime Weddings <notifications@lifetime.photo>';
@@ -100,7 +99,7 @@ function escapeHtml(s: string): string {
 
 function renderCoupleEmail(booking: Booking): { subject: string; html: string; text: string } {
   const c = coupleCopy(booking);
-  const wa = `https://api.whatsapp.com/send/?phone=34688946111`;
+  const wa = WHATSAPP_BASE;
 
   const html = `
     <div style="font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:#1a1a1a;line-height:1.6;max-width:560px;margin:0 auto;padding:24px">

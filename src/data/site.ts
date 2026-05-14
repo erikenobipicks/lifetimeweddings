@@ -24,11 +24,23 @@ export const SITE = {
     pinterest: 'https://www.pinterest.es/lifetimeweddings/',
     // No public Facebook / Twitter pages surfaced on the existing site
   },
-  whatsappBase: 'https://api.whatsapp.com/send/?phone=34688946111',
   copyrightSince: 2020,
 } as const;
 
+// E.164 (+34…) → wa.me-friendly digits only. Single source of truth: change
+// SITE.phone above and every WhatsApp link in the codebase follows.
+const WA_PHONE_DIGITS = SITE.phone.replace(/^\+/, '');
+
+/** Base wa link with no pre-filled message — used in plain-text email signoffs
+ *  where we just want a clickable URL (no encoded text noise). */
+export const WHATSAPP_BASE = `https://api.whatsapp.com/send/?phone=${WA_PHONE_DIGITS}`;
+
 export function waLink(message: string): string {
-  const params = new URLSearchParams({ phone: '34688946111', text: message, type: 'phone_number', app_absent: '0' });
+  const params = new URLSearchParams({
+    phone: WA_PHONE_DIGITS,
+    text: message,
+    type: 'phone_number',
+    app_absent: '0',
+  });
   return `https://api.whatsapp.com/send/?${params.toString()}`;
 }

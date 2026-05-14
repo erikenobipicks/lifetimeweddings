@@ -83,7 +83,7 @@ export const POST: APIRoute = async ({ request }) => {
   // but DO NOT create a quote. Eric/Ferran decide when and what to send.
   const recommendedPacks = recommendPacks(answers);
 
-  const lead = await createLead({
+  const { lead, deduplicated } = await createLead({
     coupleName: d.coupleName,
     email: d.email,
     phone: d.phone,
@@ -93,6 +93,17 @@ export const POST: APIRoute = async ({ request }) => {
     serviceInterest: d.serviceInterest,
     budgetRange: d.budgetRange,
   });
+
+  // Same email already submitted within the last 24h. Return 200 so the UI
+  // shows success, but skip every notification + auto-reply — otherwise a
+  // double-submit floods both us and the couple.
+  if (deduplicated) {
+    console.log('[quiz] deduplicated, skipping notifications', { email: d.email, leadId: lead.id });
+    return new Response(
+      JSON.stringify({ ok: true, leadId: lead.id, deduplicated: true }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } },
+    );
+  }
 
   // Deep-link to /admin/new pre-filled with this lead's id. The admin page
   // reads ?lead=<id> and prepares the form with name/email/recommended packs.

@@ -32,6 +32,7 @@ import {
   sendInternalAlert,
   sendBookingTelegram,
 } from '~/lib/bookings/emails';
+import { verifyTurnstile } from '~/lib/captcha';
 
 // ─── Rate limit ──────────────────────────────────────────────────────────
 // In-memory, per-process. For Railway's single-instance Node deployment
@@ -132,6 +133,12 @@ const submitSchema = z.object({
 
   howDidYouFindUs: z.string().trim().max(500).optional(),
   importantNotes: z.string().trim().max(2000).optional(),
+
+  // Cloudflare Turnstile token from the widget. Optional so submissions
+  // still succeed when TURNSTILE_SECRET_KEY isn't configured (verifyTurnstile
+  // short-circuits to true in that case). When enabled, the verify call
+  // rejects empty / invalid tokens.
+  captchaToken: z.string().optional(),
 });
 
 function jsonResponse(data: unknown, status: number): Response {
@@ -180,6 +187,15 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
   const d = parsed.data;
+
+  // Captcha (Turnstile). Verifying AFTER validation but BEFORE DB writes:
+  // we still want to reject garbage shapes early with a clear 400, but we
+  // must not persist DNI/address (high-PII fields) for a request we can't
+  // confirm came from a real browser. No-op when the secret key isn't set.
+  const captchaOk = await verifyTurnstile(d.captchaToken, ip === 'unknown' ? undefined : ip);
+  if (!captchaOk) {
+    return jsonResponse({ error: 'captcha_failed' }, 403);
+  }
 
   // Look up booking and gate by status.
   const booking = await getBookingBySlug(d.slug);
