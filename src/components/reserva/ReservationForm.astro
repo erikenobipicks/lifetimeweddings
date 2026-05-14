@@ -25,6 +25,11 @@ interface Props {
 const { lang, slug, weddingDate, venueName } = Astro.props;
 const t = useTranslations(lang);
 
+// Cloudflare Turnstile sitekey (public). Absent in dev → widget skipped and
+// the server-side verify short-circuits to true. Keep this gate consistent
+// with QuizForm / ContactForm so all forms behave the same way.
+const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
+
 // Render sentinel: server passes initial defaults, client takes over for
 // dynamic UI (toggling alt-date / alt-venue / billing-not-same fields).
 ---
@@ -156,6 +161,10 @@ const t = useTranslations(lang);
         <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.notes')}</span><textarea name="importantNotes" rows="4" maxlength="2000" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea></label>
       </fieldset>
 
+      {turnstileSitekey && (
+        <div class="cf-turnstile pt-2" data-sitekey={turnstileSitekey} data-theme="light" data-size="flexible"></div>
+      )}
+
       <!-- ─── Submit ──────────────────────────────────────────────── -->
       <div class="pt-2">
         <button
@@ -170,6 +179,10 @@ const t = useTranslations(lang);
     </form>
   </div>
 </section>
+
+{turnstileSitekey && (
+  <script is:inline async defer src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
+)}
 
 <script
   is:inline
@@ -243,6 +256,14 @@ const t = useTranslations(lang);
       for (const k of ['c1BirthDate','c2BirthDate','weddingDateAlt','ceremonyTime','serviceEndTime']) {
         if (obj[k] === '') delete obj[k];
       }
+
+      // Cloudflare Turnstile drops its token into a hidden input named
+      // `cf-turnstile-response`. Move it onto the field the API expects.
+      // Absent when the widget isn't configured (dev / missing key) —
+      // verifyTurnstile short-circuits to true on the server in that case.
+      const tkInput = form.querySelector('input[name="cf-turnstile-response"]');
+      if (tkInput && tkInput.value) obj.captchaToken = tkInput.value;
+      delete obj['cf-turnstile-response'];
 
       try {
         const res = await fetch('/api/reserva/submit', {

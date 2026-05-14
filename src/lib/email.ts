@@ -17,7 +17,11 @@ const FROM_HELLO = process.env.EMAIL_FROM_HELLO ?? 'Lifetime Weddings <hola@life
 const TO = process.env.EMAIL_TO ?? 'hola@lifetime.photo';
 const PUBLIC_SITE_URL = process.env.PUBLIC_SITE_URL ?? SITE.url;
 
-const resend = apiKey ? new Resend(apiKey) : null;
+/** Shared Resend client. Other modules (e.g. bookings/emails.ts) import
+ *  this directly instead of re-instantiating their own — one client per
+ *  process, one well-known fail-soft fallback (null = "log instead of
+ *  send"). */
+export const resend = apiKey ? new Resend(apiKey) : null;
 
 export interface EmailPayload {
   subject: string;

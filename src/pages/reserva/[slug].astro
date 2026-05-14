@@ -20,7 +20,7 @@ export const prerender = false;
 
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { useTranslations, type Lang } from '~/i18n/ui';
-import { SITE } from '~/data/site';
+import { SITE, WHATSAPP_BASE } from '~/data/site';
 import { videos } from '~/data/videos';
 import { getBookingBySlug, markBookingViewed } from '~/lib/bookings/repository';
 import {
@@ -167,7 +167,7 @@ const description = booking
         </h1>
         <p class="text-ink/75 leading-relaxed mb-8">{t('reserva.notfound.body')}</p>
         <a
-          href={SITE.whatsappBase}
+          href={WHATSAPP_BASE}
           target="_blank"
           rel="noopener"
           class="inline-block bg-gold text-ink font-bold px-8 py-4 hover:bg-ink hover:text-white transition-colors"

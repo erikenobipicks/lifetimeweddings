@@ -3,6 +3,7 @@
 // Always renders in Europe/Madrid timezone so a wedding date set as
 // 2026-07-12 doesn't drift by one day depending on the server's TZ.
 
+import { waLink } from '~/data/site';
 import type { Lang } from './types';
 
 const localeFor: Record<Lang, string> = {
@@ -55,7 +56,7 @@ export function whatsappLinkFor(slug: string, lang: Lang): string {
       : lang === 'en'
         ? `Hi Lifetime, regarding proposal ${slug}…`
         : `Hola Lifetime, sobre la proposta ${slug}…`;
-  return `https://api.whatsapp.com/send/?phone=34688946111&text=${encodeURIComponent(text)}`;
+  return waLink(text);
 }
 
 /** Variant of whatsappLinkFor pre-filled with a videocall request. Used by
@@ -68,7 +69,7 @@ export function whatsappVideocallLinkFor(slug: string, lang: Lang): string {
       : lang === 'en'
         ? `Hi Lifetime, we're looking at proposal ${slug} and would like a 15-minute video call before deciding.`
         : `Hola Lifetime, venim de la proposta ${slug} i ens agradaria fer una videocall de 15 minuts abans de decidir.`;
-  return `https://api.whatsapp.com/send/?phone=34688946111&text=${encodeURIComponent(text)}`;
+  return waLink(text);
 }
 
 /** Render a "Hola {n1} y {n2}," style template. Replaces {key} with values. */

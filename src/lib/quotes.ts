@@ -307,8 +307,33 @@ function rowToLead(r: any): Lead {
   };
 }
 
-export async function createLead(input: CreateLeadInput): Promise<Lead> {
+/** Lead creation result. `deduplicated=true` means we returned a row that
+ *  was already in the table (same email within the last 24h) instead of
+ *  inserting a new one. Callers should suppress side-effects (auto-reply,
+ *  Telegram, internal alert) in that case so the couple doesn't get
+ *  flooded when they double-tap submit or come back the same day. */
+export interface CreateLeadResult {
+  lead: Lead;
+  deduplicated: boolean;
+}
+
+const LEAD_DEDUP_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+export async function createLead(input: CreateLeadInput): Promise<CreateLeadResult> {
   await initSchema();
+
+  // Dedup window: any lead with the same email submitted in the last 24h
+  // collapses into the existing row. Case-insensitive match — addresses
+  // are stored as typed but uniqueness is a lower-case property.
+  const since = new Date(Date.now() - LEAD_DEDUP_WINDOW_MS).toISOString();
+  const existing = await db.execute({
+    sql: `SELECT * FROM leads WHERE LOWER(email) = LOWER(?) AND created_at > ? ORDER BY created_at DESC LIMIT 1`,
+    args: [input.email, since],
+  });
+  if (existing.rows[0]) {
+    return { lead: rowToLead(existing.rows[0]), deduplicated: true };
+  }
+
   const now = new Date().toISOString();
   await db.execute({
     sql: `INSERT INTO leads (quote_id, couple_name, email, phone, wedding_date, location, ceremony_type, service_interest, budget_range, created_at)
@@ -327,7 +352,7 @@ export async function createLead(input: CreateLeadInput): Promise<Lead> {
     ],
   });
   const res = await db.execute({ sql: 'SELECT * FROM leads WHERE rowid = last_insert_rowid()', args: [] });
-  return rowToLead(res.rows[0]);
+  return { lead: rowToLead(res.rows[0]), deduplicated: false };
 }
 
 export async function listLeads(limit = 100): Promise<Lead[]> {
