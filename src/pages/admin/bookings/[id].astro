@@ -56,12 +56,12 @@ const t = booking.referenceTestimonial;
 ---
 
 <AdminLayout title={`Reserva · ${couple}`}>
-  <div class="flex items-center justify-between mb-6">
-    <div>
+  <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6">
+    <div class="min-w-0">
       <a href="/admin/bookings" class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold">← Llistat</a>
-      <h1 class="font-display text-3xl font-bold mt-1">{couple}</h1>
+      <h1 class="font-display text-2xl sm:text-3xl font-bold mt-1 break-words">{couple}</h1>
     </div>
-    <span class:list={['inline-block text-xs font-bold tracking-widest uppercase px-3 py-1.5', STATUS_BADGE[booking.status]]}>
+    <span class:list={['inline-block self-start sm:self-auto text-xs font-bold tracking-widest uppercase px-3 py-1.5 whitespace-nowrap', STATUS_BADGE[booking.status]]}>
       {STATUS_LABEL[booking.status]}
     </span>
   </div>

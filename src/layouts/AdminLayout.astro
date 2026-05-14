@@ -17,26 +17,97 @@ const user = Astro.locals.user;
   </head>
   <body class="bg-cream text-ink font-sans antialiased min-h-screen">
     <header class="bg-ink text-white">
-      <div class="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
-        <a href="/admin" class="font-display text-xl font-bold">
-          Lifetime <span class="text-gold">Admin</span>
-        </a>
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+        <!-- Top row: logo + (on mobile) hamburger; (on desktop) inline nav. -->
+        <div class="flex items-center justify-between gap-4">
+          <a href="/admin" class="font-display text-lg sm:text-xl font-bold flex-shrink-0 min-w-0 truncate">
+            Lifetime <span class="text-gold">Admin</span>
+          </a>
+
+          {user && (
+            <>
+              <!-- Desktop nav: visible from md+, inline. -->
+              <nav class="hidden md:flex items-center gap-4 text-xs font-bold tracking-widest uppercase">
+                <a href="/admin" class="hover:text-gold">Pressupostos</a>
+                <a href="/admin/bookings" class="hover:text-gold">Reserves</a>
+                <a href="/admin/leads" class="hover:text-gold">Leads</a>
+                <a href="/admin/new" class="hover:text-gold">+ Nou</a>
+                <form method="POST" action="/admin/logout" class="inline">
+                  <button type="submit" class="text-white/70 hover:text-gold">Sortir ({user})</button>
+                </form>
+              </nav>
+
+              <!-- Mobile hamburger: only visible below md. Toggles #admin-mobile-nav. -->
+              <button
+                type="button"
+                id="admin-nav-toggle"
+                class="md:hidden p-2 -m-2 text-white hover:text-gold focus:outline-none focus:ring-2 focus:ring-gold rounded"
+                aria-label="Obrir menú"
+                aria-controls="admin-mobile-nav"
+                aria-expanded="false"
+              >
+                <svg viewBox="0 0 24 24" class="w-6 h-6 fill-current" aria-hidden="true">
+                  <path id="admin-nav-icon-open" d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
+                  <path id="admin-nav-icon-close" class="hidden" d="M18.3 5.71L12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.3 19.71 2.89 18.3 9.18 12 2.89 5.71 4.3 4.3l6.29 6.3 6.29-6.3z" />
+                </svg>
+              </button>
+            </>
+          )}
+        </div>
+
+        <!-- Mobile nav: hidden by default, toggled by hamburger. Stacks
+             vertically with bigger tap targets. Below md only. -->
         {user && (
-          <nav class="flex items-center gap-4 text-xs font-bold tracking-widest uppercase">
-            <a href="/admin" class="hover:text-gold">Pressupostos</a>
-            <a href="/admin/bookings" class="hover:text-gold">Reserves</a>
-            <a href="/admin/leads" class="hover:text-gold">Leads</a>
-            <a href="/admin/new" class="hover:text-gold">+ Nou</a>
-            <form method="POST" action="/admin/logout" class="inline">
-              <button type="submit" class="text-white/70 hover:text-gold">Sortir ({user})</button>
+          <nav
+            id="admin-mobile-nav"
+            class="hidden md:hidden flex-col gap-1 mt-3 pt-3 border-t border-white/10 text-sm font-bold tracking-widest uppercase"
+          >
+            <a href="/admin" class="block px-2 py-3 hover:text-gold hover:bg-white/5">Pressupostos</a>
+            <a href="/admin/bookings" class="block px-2 py-3 hover:text-gold hover:bg-white/5">Reserves</a>
+            <a href="/admin/leads" class="block px-2 py-3 hover:text-gold hover:bg-white/5">Leads</a>
+            <a href="/admin/new" class="block px-2 py-3 hover:text-gold hover:bg-white/5">+ Nou pressupost</a>
+            <form method="POST" action="/admin/logout" class="block">
+              <button
+                type="submit"
+                class="block w-full text-left px-2 py-3 text-white/70 hover:text-gold hover:bg-white/5"
+              >
+                Sortir ({user})
+              </button>
             </form>
           </nav>
         )}
       </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-6 py-10">
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
       <slot />
     </main>
+
+    <script is:inline>
+      // Toggle the mobile nav. Tiny inline JS so we don't need a framework.
+      (() => {
+        const btn = document.getElementById('admin-nav-toggle');
+        const nav = document.getElementById('admin-mobile-nav');
+        const iconOpen = document.getElementById('admin-nav-icon-open');
+        const iconClose = document.getElementById('admin-nav-icon-close');
+        if (!btn || !nav) return;
+        btn.addEventListener('click', () => {
+          const isOpen = !nav.classList.contains('hidden');
+          if (isOpen) {
+            nav.classList.add('hidden');
+            nav.classList.remove('flex');
+            btn.setAttribute('aria-expanded', 'false');
+            iconOpen && iconOpen.classList.remove('hidden');
+            iconClose && iconClose.classList.add('hidden');
+          } else {
+            nav.classList.remove('hidden');
+            nav.classList.add('flex');
+            btn.setAttribute('aria-expanded', 'true');
+            iconOpen && iconOpen.classList.add('hidden');
+            iconClose && iconClose.classList.remove('hidden');
+          }
+        });
+      })();
+    </script>
   </body>
 </html>

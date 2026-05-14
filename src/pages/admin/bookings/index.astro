@@ -50,11 +50,11 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
 ---
 
 <AdminLayout title="Reserves">
-  <div class="flex items-center justify-between mb-4">
-    <h1 class="font-display text-3xl font-bold">Reserves</h1>
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+    <h1 class="font-display text-2xl sm:text-3xl font-bold">Reserves</h1>
     <a
       href="/admin/bookings/new"
-      class="bg-ink text-white px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors"
+      class="self-start sm:self-auto bg-ink text-white px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors whitespace-nowrap"
     >
       + Nova reserva
     </a>
@@ -82,16 +82,16 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
         </a>
       );
     })}
-    <span class="flex-1"></span>
+    <span class="hidden md:block flex-1"></span>
     <input
       type="text"
       id="search-input"
       placeholder="Cercar per nom o venue..."
-      class="px-3 py-2 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none w-64"
+      class="w-full md:w-64 px-3 py-2 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none"
     />
     <a
       href={includeArchived ? '/admin/bookings' : '/admin/bookings?archived=1'}
-      class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold transition-colors"
+      class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold transition-colors whitespace-nowrap"
     >
       {includeArchived ? '✕ Ocultar arxivats' : '📦 Mostrar arxivats'}
     </a>
