@@ -24,21 +24,45 @@ const lang = 'en' as const;
 
     <h2>2. Purposes and legal basis</h2>
     <ul>
-      <li><strong>Handling enquiries and requests</strong> sent through the contact form (legal basis: user consent).</li>
-      <li><strong>Sending commercial information</strong> about our services when you have ticked the relevant box (consent).</li>
-      <li><strong>Fulfilment of contractual obligations</strong> in case of engagement (contract performance).</li>
+      <li><strong>Handling enquiries</strong> received via the contact form or quiz (basis: consent).</li>
+      <li><strong>Preparing and tracking wedding photography/video proposals</strong>, including sending personalised links to the couple (basis: pre-contractual measures at the request of the data subject).</li>
+      <li><strong>Formalising and executing the contract</strong> when you book the service, including collecting tax data (DNI/NIE, address) required to issue invoices (basis: contract performance and legal obligation under Spanish tax law).</li>
+      <li><strong>Audit and abuse prevention</strong>: recording IP address and user agent on booking-form submission, limited to what is necessary to detect fraud or automated use (basis: legitimate interest).</li>
     </ul>
 
     <h2>3. Data retention</h2>
-    <p>Data will be kept for as long as a contractual or commercial relationship exists, until the user requests deletion, and for the legal retention periods when applicable.</p>
+    <p>The following periods apply from the date each record is created, unless legislation requires a longer period or the data subject has requested earlier erasure:</p>
+    <ul>
+      <li><strong>Leads (enquiries not converted into a contract):</strong> 12 months.</li>
+      <li><strong>Quote proposals not accepted:</strong> 6 months.</li>
+      <li><strong>Bookings archived without contract:</strong> 6 months from archival.</li>
+      <li><strong>Tax and billing data of contracted weddings:</strong> 6 years from the wedding date, per art. 30 of the Spanish Code of Commerce and Spanish tax regulations.</li>
+      <li><strong>Activity logs (visits, events):</strong> 12 months.</li>
+    </ul>
+    <p>Purging is performed automatically on the system on a periodic basis.</p>
 
-    <h2>4. Recipients</h2>
-    <p>We do not share your data with third parties, except as required by law. We may use processors (hosting, email marketing, analytics) under contractual safeguards compliant with GDPR.</p>
+    <h2>4. Recipients and processors</h2>
+    <p>We do not share your data with third parties for their own commercial purposes. We do use processors strictly necessary to operate the service, all under contractual safeguards compliant with the GDPR:</p>
+    <ul>
+      <li><strong>Railway, Inc.</strong> (USA) — web and database hosting. Sub-processor.</li>
+      <li><strong>Resend, Inc.</strong> (USA) — transactional email delivery (confirmations, internal alerts, auto-replies).</li>
+      <li><strong>Cloudflare, Inc.</strong> (USA) — captcha (Turnstile) for abuse prevention on public forms.</li>
+      <li><strong>Telegram FZ-LLC</strong> (United Arab Emirates / United Kingdom) — internal notifications to our team; only a minimal summary is transmitted (couple, date, venue), no tax data or DNI.</li>
+      <li><strong>Behold Inc.</strong> (United Kingdom) — proxy that renders the Instagram feed on the home page; only your IP is processed when loading the page.</li>
+      <li><strong>Google LLC / YouTube LLC</strong> (USA) — web fonts (Google Fonts) and video embeds (YouTube). Your IP is processed when loading these resources.</li>
+      <li><strong>Google Maps Platform</strong> (USA) — one-off lookup of the Google Business Profile rating shown on the home page; called from the server, your IP is not transmitted.</li>
+    </ul>
 
-    <h2>5. Data-subject rights</h2>
+    <h2>5. International transfers</h2>
+    <p>Some of the above processors are established outside the European Economic Area, mainly in the United States. These transfers are made under Standard Contractual Clauses (SCC) approved by the European Commission and/or under the <em>EU-U.S. Data Privacy Framework</em>, depending on the provider.</p>
+
+    <h2>6. Cookies</h2>
+    <p>We use first-party cookies that are strictly necessary (admin session, your preference choice on the cookie banner). Third-party resources loaded on the site (YouTube videos, Instagram feed, Google Fonts) may set their own cookies when activated. More information at <a href="/en/cookies">/cookies</a>.</p>
+
+    <h2>7. Data-subject rights</h2>
     <p>You can exercise your rights of access, rectification, erasure, objection, restriction of processing and portability at any time by writing to <a href={`mailto:${SITE.email}`}>{SITE.email}</a> proving your identity. If you believe your rights have not been properly addressed you can file a complaint with the Spanish Data Protection Agency (<a href="https://www.aepd.es" target="_blank" rel="noopener">aepd.es</a>).</p>
 
-    <h2>6. Security measures</h2>
-    <p>We apply appropriate technical and organisational measures to protect personal data against unauthorised access, alteration, loss or destruction.</p>
+    <h2>8. Security measures</h2>
+    <p>We apply appropriate technical and organisational measures to protect personal data against unauthorised access, alteration, loss or destruction. Admin passwords are stored as bcrypt hashes; communications between the browser and the server are encrypted with HTTPS; backups are made on the persistent volume hosted at Railway.</p>
   </LegalPage>
 </BaseLayout>

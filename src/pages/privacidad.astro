@@ -24,21 +24,45 @@ const lang = 'ca' as const;
 
     <h2>2. Finalitats i base legal</h2>
     <ul>
-      <li><strong>Gestió de consultes i sol·licituds</strong> enviades a través del formulari de contacte (consentiment de l’interessat).</li>
-      <li><strong>Enviament d’informació comercial</strong> sobre els nostres serveis, quan hagis marcat la casella corresponent (consentiment).</li>
-      <li><strong>Compliment d’obligacions contractuals</strong> en cas de contractació (execució de contracte).</li>
+      <li><strong>Gestió de consultes</strong> rebudes via formulari de contacte o quiz (base: consentiment).</li>
+      <li><strong>Preparació i seguiment de propostes</strong> de fotografia/vídeo de boda, incloent l'enviament d'enllaços personalitzats a la parella (base: mesures precontractuals a petició de l'interessat).</li>
+      <li><strong>Formalització i execució del contracte</strong> quan reserveu el servei, incloent la recollida de dades fiscals (DNI/NIE, adreça) necessàries per emetre factura (base: execució de contracte i obligació legal en matèria fiscal).</li>
+      <li><strong>Auditoria i prevenció d'abús</strong>: registre d'adreça IP i agent d'usuari en l'enviament del formulari de reserva, limitat al necessari per detectar fraus o ús automatitzat (base: interès legítim).</li>
     </ul>
 
     <h2>3. Conservació de les dades</h2>
-    <p>Les dades es conservaran mentre existeixi una relació contractual o comercial, fins que l’interessat en sol·liciti la supressió, i durant els terminis legals de conservació quan escaigui.</p>
+    <p>Apliquem els terminis següents a partir de la data de creació de cada registre, llevat que la legislació exigeixi un termini superior o que l'interessat ens hagi sol·licitat la supressió abans:</p>
+    <ul>
+      <li><strong>Leads (consultes no convertides en contracte):</strong> 12 mesos.</li>
+      <li><strong>Propostes de pressupost no acceptades:</strong> 6 mesos.</li>
+      <li><strong>Reserves arxivades sense formalització:</strong> 6 mesos des de l'arxivament.</li>
+      <li><strong>Dades fiscals i de facturació de bodes contractades:</strong> 6 anys des de la data de la boda, conforme a l'art. 30 del Codi de Comerç i a la normativa tributària espanyola.</li>
+      <li><strong>Logs d'activitat (visites, esdeveniments):</strong> 12 mesos.</li>
+    </ul>
+    <p>La depuració s'executa automàticament al sistema, de forma periòdica.</p>
 
-    <h2>4. Destinataris</h2>
-    <p>No cedim les teves dades a tercers, excepte per obligació legal. Podrem utilitzar encarregats de tractament (hosting, email marketing, analítica) amb garanties contractuals conformes al RGPD.</p>
+    <h2>4. Destinataris i encarregats de tractament</h2>
+    <p>No cedim les teves dades a tercers per a fins comercials propis d'aquests. Sí utilitzem encarregats de tractament estrictament necessaris per al funcionament del servei, tots amb garanties contractuals conformes al RGPD:</p>
+    <ul>
+      <li><strong>Railway, Inc.</strong> (EUA) — allotjament del web i de la base de dades. Sub-processador.</li>
+      <li><strong>Resend, Inc.</strong> (EUA) — enviament de correus transaccionals (confirmacions, avisos interns, auto-replies).</li>
+      <li><strong>Cloudflare, Inc.</strong> (EUA) — captcha (Turnstile) per a prevenció d'abús en formularis públics.</li>
+      <li><strong>Telegram FZ-LLC</strong> (Emirats Àrabs Units / Regne Unit) — notificacions internes al nostre equip; només es transmet un resum mínim (parella, data, venue), no dades fiscals ni de DNI.</li>
+      <li><strong>Behold Inc.</strong> (Regne Unit) — proxy de visualització del feed d'Instagram a la pàgina principal; només es processa la teva IP en carregar la pàgina.</li>
+      <li><strong>Google LLC / YouTube LLC</strong> (EUA) — fonts web (Google Fonts) i incrustació de vídeos (YouTube). Es processa la teva IP al carregar aquests recursos.</li>
+      <li><strong>Google Maps Platform</strong> (EUA) — consulta puntual de la valoració del Google Business Profile per mostrar-la a la pàgina principal; servei cridat des del servidor, no es transmet la teva IP.</li>
+    </ul>
 
-    <h2>5. Drets dels interessats</h2>
-    <p>Pots exercir en qualsevol moment els teus drets d’accés, rectificació, supressió, oposició, limitació del tractament i portabilitat escrivint a <a href={`mailto:${SITE.email}`}>{SITE.email}</a> acreditant la teva identitat. Si consideres que els teus drets no han estat degudament atesos, pots presentar una reclamació davant l’<a href="https://apdcat.gencat.cat" target="_blank" rel="noopener">Autoritat Catalana de Protecció de Dades</a> o la <a href="https://www.aepd.es" target="_blank" rel="noopener">Agència Espanyola de Protecció de Dades</a>.</p>
+    <h2>5. Transferències internacionals</h2>
+    <p>Alguns dels encarregats anteriors estan establerts fora de l'Espai Econòmic Europeu, principalment als Estats Units. Aquestes transferències es realitzen sota Clàusules Contractuals Tipus (SCC) aprovades per la Comissió Europea i/o sota el marc <em>EU-U.S. Data Privacy Framework</em>, segons cada proveïdor.</p>
 
-    <h2>6. Mesures de seguretat</h2>
-    <p>Apliquem mesures tècniques i organitzatives apropiades per protegir les dades personals davant d’accessos no autoritzats, alteració, pèrdua o destrucció.</p>
+    <h2>6. Galetes</h2>
+    <p>Utilitzem galetes pròpies estrictament necessàries (sessió d'administració, recordatori de la teva tria al banner de galetes). Els recursos de tercers que es carreguen al lloc (vídeos de YouTube, feed d'Instagram, fonts de Google) poden establir galetes pròpies quan els actives. Més informació a <a href="/cookies">/cookies</a>.</p>
+
+    <h2>7. Drets dels interessats</h2>
+    <p>Pots exercir en qualsevol moment els teus drets d'accés, rectificació, supressió, oposició, limitació del tractament i portabilitat escrivint a <a href={`mailto:${SITE.email}`}>{SITE.email}</a> acreditant la teva identitat. Si consideres que els teus drets no han estat degudament atesos, pots presentar una reclamació davant l'<a href="https://apdcat.gencat.cat" target="_blank" rel="noopener">Autoritat Catalana de Protecció de Dades</a> o la <a href="https://www.aepd.es" target="_blank" rel="noopener">Agència Espanyola de Protecció de Dades</a>.</p>
+
+    <h2>8. Mesures de seguretat</h2>
+    <p>Apliquem mesures tècniques i organitzatives apropiades per protegir les dades personals davant d'accessos no autoritzats, alteració, pèrdua o destrucció. Les contrasenyes d'administració s'emmagatzemen amb hash bcrypt; les comunicacions entre el navegador i el servidor són xifrades amb HTTPS; les còpies de seguretat es realitzen al volum persistent allotjat a Railway.</p>
   </LegalPage>
 </BaseLayout>

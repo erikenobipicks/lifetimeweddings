@@ -212,12 +212,61 @@ export async function initSchema() {
   await ensureColumn('quotes', 'flagship_video_id', 'TEXT');
   await ensureColumn('bookings', 'flagship_video_id', 'TEXT');
 
-  // Retention cleanup: drop quotes older than 6 months at boot.
-  const cutoff = new Date();
-  cutoff.setMonth(cutoff.getMonth() - 6);
+  // ── Retention sweep (boot-time) ───────────────────────────────────────
+  // Data-minimisation per RGPD: keep personal data only as long as needed.
+  // Runs on each boot; safe to no-op when the DB is empty.
+  //
+  // Bounds chosen for a small wedding-photography studio:
+  //   - quotes:                 6 months  (sales lifecycle; if not converted
+  //                                       by then it's stale)
+  //   - leads:                 12 months  (un-converted lead from the quiz
+  //                                       / contact form — by then the
+  //                                       couple either booked or moved on)
+  //   - events (analytics):    12 months  (per-quote view + heartbeat)
+  //   - bookings (archived):    6 months  (operator already archived
+  //                                       them; only kept around for short
+  //                                       audit / undo window)
+  //   - booking_form_responses: wedding_date + 6 years  (Spanish tax law
+  //                                       requires keeping invoicing-
+  //                                       relevant data this long; we
+  //                                       purge the row entirely once we
+  //                                       cross the threshold, since the
+  //                                       parent `bookings` row already
+  //                                       carries the commercial info
+  //                                       without the sensitive PII)
+  //
+  // We DELETE rather than pseudonymise because the NOT NULL constraints
+  // on DNI / address / email make NULL-out non-trivial, and the parent
+  // bookings row keeps the commercial trace.
+  const now = Date.now();
+  const months = (n: number) => new Date(now - n * 30 * 24 * 60 * 60 * 1000).toISOString();
+  const years = (n: number) =>
+    new Date(now - n * 365 * 24 * 60 * 60 * 1000).toISOString();
+
   await db.execute({
-    sql: `DELETE FROM quotes WHERE created_at < ?`,
-    args: [cutoff.toISOString()],
+    sql: 'DELETE FROM quotes WHERE created_at < ?',
+    args: [months(6)],
+  });
+  await db.execute({
+    sql: 'DELETE FROM leads WHERE created_at < ?',
+    args: [months(12)],
+  });
+  await db.execute({
+    sql: 'DELETE FROM events WHERE created_at < ?',
+    args: [months(12)],
+  });
+  await db.execute({
+    sql: "DELETE FROM bookings WHERE status = 'archived' AND updated_at < ?",
+    args: [months(6)],
+  });
+  // Wedding date stored as 'YYYY-MM-DD' (no time component) so a string
+  // comparison against the date prefix of `years(6)` works correctly.
+  await db.execute({
+    sql: `DELETE FROM booking_form_responses
+          WHERE booking_id IN (
+            SELECT id FROM bookings WHERE wedding_date < ?
+          )`,
+    args: [years(6).slice(0, 10)],
   });
 }
 
