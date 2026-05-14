@@ -90,6 +90,7 @@ const LABELS: Record<string, string> = {
         {lead.phone && <div><dt class="inline text-ink/60">Tel:</dt> <dd class="inline">{lead.phone}</dd></div>}
         {lead.weddingDate && <div><dt class="inline text-ink/60">Data:</dt> <dd class="inline">{lead.weddingDate}</dd></div>}
         {lead.location && <div><dt class="inline text-ink/60">Lloc:</dt> <dd class="inline">{LABELS[lead.location] ?? lead.location}</dd></div>}
+        {lead.venueName && <div><dt class="inline text-ink/60">Finca:</dt> <dd class="inline font-bold">{lead.venueName}</dd></div>}
         {lead.ceremonyType && <div><dt class="inline text-ink/60">Cerimònia:</dt> <dd class="inline">{LABELS[lead.ceremonyType] ?? lead.ceremonyType}</dd></div>}
         {lead.serviceInterest && <div><dt class="inline text-ink/60">Servei:</dt> <dd class="inline">{LABELS[lead.serviceInterest] ?? lead.serviceInterest}</dd></div>}
         {lead.budgetRange && <div><dt class="inline text-ink/60">Pressupost:</dt> <dd class="inline">{LABELS[lead.budgetRange] ?? lead.budgetRange}</dd></div>}

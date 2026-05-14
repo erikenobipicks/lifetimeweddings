@@ -287,6 +287,10 @@ export interface Lead {
   phone: string | null;
   weddingDate: string | null;
   location: string | null;
+  /** Free-text venue / finca name the couple typed in the quiz (e.g.
+   *  "Mas la Boella"). Distinct from `location` which is the broad
+   *  region used by the pack recommender. Optional. */
+  venueName: string | null;
   ceremonyType: string | null;
   serviceInterest: string | null;
   budgetRange: string | null;
@@ -303,6 +307,7 @@ export interface CreateLeadInput {
   phone?: string;
   weddingDate?: string;
   location?: string;
+  venueName?: string;
   ceremonyType?: string;
   serviceInterest?: string;
   budgetRange?: string;
@@ -318,6 +323,7 @@ function rowToLead(r: any): Lead {
     phone: r.phone ?? null,
     weddingDate: r.wedding_date ?? null,
     location: r.location ?? null,
+    venueName: r.venue_name ?? null,
     ceremonyType: r.ceremony_type ?? null,
     serviceInterest: r.service_interest ?? null,
     budgetRange: r.budget_range ?? null,
@@ -355,8 +361,8 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
 
   const now = new Date().toISOString();
   await db.execute({
-    sql: `INSERT INTO leads (quote_id, couple_name, email, phone, wedding_date, location, ceremony_type, service_interest, budget_range, created_at, preferred_language)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    sql: `INSERT INTO leads (quote_id, couple_name, email, phone, wedding_date, location, ceremony_type, service_interest, budget_range, created_at, preferred_language, venue_name)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       input.quoteId ?? null,
       input.coupleName,
@@ -369,6 +375,7 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
       input.budgetRange ?? null,
       now,
       input.preferredLanguage ?? 'ca',
+      input.venueName ?? null,
     ],
   });
   const res = await db.execute({ sql: 'SELECT * FROM leads WHERE rowid = last_insert_rowid()', args: [] });
