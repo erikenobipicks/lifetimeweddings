@@ -28,6 +28,12 @@ const PLACEHOLDER_IDS = [
 ];
 
 const showingLive = posts.length > 0;
+// Only fall back to Unsplash placeholders during local dev. In prod, if
+// Behold isn't configured (or returns 0), we'd rather show no grid than
+// load random third-party Unsplash CDN images — Unsplash sets cookies,
+// transmits the visitor IP, and the GDPR processor list deliberately
+// omits Unsplash. The "Follow on Instagram" CTA below still renders.
+const showPlaceholders = !showingLive && import.meta.env.DEV;
 ---
 
 <Section id="instagram">
@@ -36,50 +42,50 @@ const showingLive = posts.length > 0;
       {t('insta.title')} <span class="text-gold">{t('insta.handle')}</span>
     </h2>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-1.5 mt-10">
-      {showingLive
-        ? posts.slice(0, count).map((p) => {
-            const isVideo = p.mediaType === 'VIDEO';
-            const alt = p.caption
-              ? p.caption.slice(0, 100) + (p.caption.length > 100 ? '…' : '')
-              : 'Lifetime Weddings · Instagram';
-            return (
-              <a
-                href={p.permalink}
-                target="_blank"
-                rel="noopener"
-                class="relative block aspect-square overflow-hidden group"
-                aria-label={alt}
-              >
-                <img
-                  src={p.thumbnailUrl}
-                  alt={alt}
-                  class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  loading="lazy"
-                  decoding="async"
-                />
-                {isVideo && (
-                  <span class="absolute top-2 right-2 bg-black/50 rounded-full p-1.5" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
-                  </span>
-                )}
-                <span class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-              </a>
-            );
-          })
-        // Fallback only: rendered when BEHOLD_FEED_ID isn't configured yet
-        // (dev / pre-launch). In production with Behold connected, the real
-        // Instagram feed always displays and these URLs are never fetched.
-        : PLACEHOLDER_IDS.slice(0, count).map((id, i) => (
-            <img
-              src={`https://images.unsplash.com/photo-${id}?w=400&auto=format&fit=crop`}
-              alt={`Lifetime Weddings Instagram ${i + 1}`}
-              class="w-full aspect-square object-cover hover:opacity-90 transition-opacity"
-              loading="lazy"
-              decoding="async"
-            />
-          ))}
-    </div>
+    {(showingLive || showPlaceholders) && (
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-1.5 mt-10">
+        {showingLive
+          ? posts.slice(0, count).map((p) => {
+              const isVideo = p.mediaType === 'VIDEO';
+              const alt = p.caption
+                ? p.caption.slice(0, 100) + (p.caption.length > 100 ? '…' : '')
+                : 'Lifetime Weddings · Instagram';
+              return (
+                <a
+                  href={p.permalink}
+                  target="_blank"
+                  rel="noopener"
+                  class="relative block aspect-square overflow-hidden group"
+                  aria-label={alt}
+                >
+                  <img
+                    src={p.thumbnailUrl}
+                    alt={alt}
+                    class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  {isVideo && (
+                    <span class="absolute top-2 right-2 bg-black/50 rounded-full p-1.5" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+                    </span>
+                  )}
+                  <span class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+                </a>
+              );
+            })
+          : // Dev-only fallback (see showPlaceholders above).
+            PLACEHOLDER_IDS.slice(0, count).map((id, i) => (
+              <img
+                src={`https://images.unsplash.com/photo-${id}?w=400&auto=format&fit=crop`}
+                alt={`Lifetime Weddings Instagram ${i + 1}`}
+                class="w-full aspect-square object-cover hover:opacity-90 transition-opacity"
+                loading="lazy"
+                decoding="async"
+              />
+            ))}
+      </div>
+    )}
 
     <a
       href={SITE.social.instagram}

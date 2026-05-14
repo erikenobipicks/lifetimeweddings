@@ -106,6 +106,10 @@ export function organizationJsonLd(lang: Lang, rating: GbpRating) {
       reviewCount: rating.reviewCount,
       bestRating: 5,
       worstRating: 1,
+      // Explicit itemReviewed silences a warning in Google's Rich Results
+      // validator. Implicit (inferred from parent) is technically allowed
+      // but the explicit form is the recommended shape.
+      itemReviewed: { '@id': ID.business },
     },
     review: TESTIMONIALS.map((testi) => ({
       '@type': 'Review',
@@ -211,6 +215,9 @@ export function servicesJsonLd(lang: Lang) {
     name: t(s.nameKey as any),
     description: t(s.descKey as any),
     serviceType: s.serviceType,
+    // Google's service rich-result validator recommends an image per
+    // Service. We reuse the site's OG image — generic, on-brand.
+    image: abs('/og-default.jpg'),
     provider: { '@id': ID.business },
     areaServed: ['Tarragona', 'Reus', 'Lleida', 'Barcelona', 'Catalunya'],
     offers: {

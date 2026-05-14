@@ -5,6 +5,14 @@ import { useTranslations, localePath, type Lang } from '~/i18n/ui';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const t = useTranslations(lang);
+
+// Per-locale alt for the engagement-session photo. Used for a11y + SEO.
+const imageAlt =
+  lang === 'es'
+    ? 'Sesión pre-boda en Brooklyn, Nueva York'
+    : lang === 'en'
+      ? 'Engagement session in Brooklyn, New York'
+      : 'Sessió pre-boda a Brooklyn, Nova York';
 ---
 
 <Section id="video-story">
@@ -12,20 +20,23 @@ const t = useTranslations(lang);
     <div class="relative overflow-hidden group">
       <img
         src="/photos/generic/006-lg.jpg"
-        alt="Sessió pre-boda a Brooklyn, Nova York"
+        alt={imageAlt}
         class="w-full h-80 md:h-[460px] object-cover transition-transform duration-500 group-hover:scale-105"
         loading="lazy"
         decoding="async"
+        width="1200"
+        height="800"
       />
-      <button
-        type="button"
-        aria-label={t('video.title')}
-        class="absolute inset-0 flex items-center justify-center"
-      >
+      {/* The play badge is purely decorative — we don't host a video here.
+          Rendering it as a non-interactive overlay (no <button>, aria-hidden)
+          keeps it out of the keyboard tab order and prevents screen readers
+          from announcing a button that does nothing. The whole photo links
+          to /quiz through the CTA on the right side of the layout. */}
+      <span aria-hidden="true" class="absolute inset-0 flex items-center justify-center pointer-events-none">
         <span class="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center group-hover:bg-white transition-colors">
           <svg viewBox="0 0 24 24" class="w-8 h-8 fill-ink ml-1" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
         </span>
-      </button>
+      </span>
     </div>
 
     <div>
