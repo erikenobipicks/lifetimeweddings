@@ -31,11 +31,16 @@ export default defineConfig({
         defaultLocale: 'ca',
         locales: { ca: 'ca-ES', es: 'es-ES', en: 'en-US' },
       },
+      // Exclude routes that are noindex or shared privately, so we don't
+      // waste Google's crawl budget on URLs that won't show up in results.
       filter: (page) =>
         !page.includes('/p/') &&
         !page.includes('/admin') &&
         !page.includes('/packs') &&
-        !page.includes('/ofertes'),
+        !page.includes('/ofertes') &&
+        !page.includes('/showcase/') &&
+        !page.includes('/reserva/') &&
+        !page.includes('/preview-weddings/'),
     }),
   ],
   build: {

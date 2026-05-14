@@ -92,13 +92,37 @@ const alternates: { hreflang: string; href: string }[] = [
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- Fonts -->
+    <!-- Fonts — non-blocking: preload the stylesheet as a low-priority
+         resource, then swap media=all once it lands. <noscript> fallback
+         keeps text rendered with the right font even when JS is off. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      rel="stylesheet"
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..700,50;1,9..144,300..700,50&family=Inter:wght@400;500;600;700&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..700,50;1,9..144,300..700,50&family=Inter:wght@400;500;600;700&display=swap"
+      />
+    </noscript>
+
+    {/* Preload the home hero image for an LCP win. Only injected on the
+        three locale homes — other routes carry their own LCP candidates
+        (or none at all). */}
+    {(canonicalPath === '/' || canonicalPath === '') && (
+      <link
+        rel="preload"
+        as="image"
+        href="/photos/elena-jordi/006-md.jpg"
+        imagesrcset="/photos/elena-jordi/006-sm.jpg 640w, /photos/elena-jordi/006-md.jpg 1200w, /photos/elena-jordi/006-lg.jpg 1920w"
+        imagesizes="100vw"
+        fetchpriority="high"
+      />
+    )}
 
     {jsonLd?.map((obj) => (
       <script type="application/ld+json" set:html={JSON.stringify(obj)} />
