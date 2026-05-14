@@ -4,7 +4,7 @@ import Header from '~/components/Header.astro';
 import Footer from '~/components/Footer.astro';
 import WhatsAppFloat from '~/components/WhatsAppFloat.astro';
 import CookieBanner from '~/components/CookieBanner.astro';
-import { ogLocale, type Lang } from '~/i18n/ui';
+import { ogLocale, useTranslations, type Lang } from '~/i18n/ui';
 
 interface Props {
   title: string;
@@ -33,6 +33,7 @@ const {
   noindex = false,
 } = Astro.props;
 
+const t = useTranslations(lang);
 const site = Astro.site ?? new URL('https://www.lifetime.photo');
 
 function localeHref(l: Lang, p: string): string {
@@ -108,7 +109,7 @@ const alternates: { hreflang: string; href: string }[] = [
       href="#main"
       class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-ink focus:text-white focus:px-4 focus:py-2"
     >
-      Saltar al contenido
+      {t('a11y.skipToContent')}
     </a>
 
     {!chromeless && <Header lang={lang} path={canonicalPath} />}

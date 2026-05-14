@@ -120,12 +120,17 @@ const proofImagesWithAlt = booking
     }))
   : [];
 
-// Page title & description (kept private — noindex).
+// Page title & description (kept private — noindex). Localised per the
+// couple's preferred_language; OG metadata pulls from these.
 const title = booking
   ? `${booking.coupleName1} & ${booking.coupleName2} · Lifetime`
   : 'Lifetime · Reserva';
 const description = booking
-  ? `Propuesta de reserva para ${booking.coupleName1} y ${booking.coupleName2}`
+  ? lang === 'en'
+    ? `Booking proposal for ${booking.coupleName1} and ${booking.coupleName2}`
+    : lang === 'es'
+      ? `Propuesta de reserva para ${booking.coupleName1} y ${booking.coupleName2}`
+      : `Proposta de reserva per a ${booking.coupleName1} i ${booking.coupleName2}`
   : 'Lifetime — propuesta de reserva';
 ---
 

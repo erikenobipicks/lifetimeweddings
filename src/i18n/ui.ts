@@ -327,7 +327,7 @@ export const ui = {
     'reserva.faq.q1.q': '¿Qué pasa si llueve?',
     'reserva.faq.q1.a':
       'Trabajamos con dos cámaras y material preparado para cualquier condición. La lluvia muchas veces da las mejores fotos del día — y ya lo hemos vivido muchas veces.',
-    'reserva.faq.q2.q': '¿Y si tenéis otra boda nuestro día?',
+    'reserva.faq.q2.q': '¿Y si tenéis otra boda el mismo día que la nuestra?',
     'reserva.faq.q2.a':
       'Cuando reserváis, bloqueamos el calendario solo para vosotros. No hacemos dos bodas el mismo día, nunca.',
     'reserva.faq.q3.q': '¿Podemos ajustar el pack a nuestras necesidades?',
@@ -433,6 +433,11 @@ export const ui = {
       'Si todavía no lo tenéis del todo claro, lo más fácil es que hablemos en directo. Una videollamada corta — 15 minutos, cuando os vaya bien — nos sirve para conocernos, resolver las dudas concretas que tengáis y que veáis cómo trabajamos.\n\nNo cuesta nada y no os compromete a reservar.',
     'reserva.videocall.cta': 'Hablar por WhatsApp',
     'reserva.videocall.subnote': 'Os va bien cualquier tarde entre semana.',
+
+    // Accessibility / global UI labels
+    'a11y.skipToContent': 'Saltar al contenido',
+    'a11y.openMenu': 'Abrir menú',
+    'a11y.closeMenu': 'Cerrar menú',
 
     // Cookies
     'cookies.title': 'Privacidad y cookies',
@@ -730,7 +735,7 @@ export const ui = {
     'reserva.faq.q1.q': 'Què passa si plou?',
     'reserva.faq.q1.a':
       'Treballem amb dues càmeres i material preparat per qualsevol condició. La pluja sovint dona les fotos més bones del dia — i ja ho hem viscut moltes vegades.',
-    'reserva.faq.q2.q': 'I si teniu una altra boda el nostre dia?',
+    'reserva.faq.q2.q': "I si teniu una altra boda el mateix dia que la nostra?",
     'reserva.faq.q2.a':
       'Quan reserveu, bloquegem el calendari només per vosaltres. No fem dues bodes el mateix dia, mai.',
     'reserva.faq.q3.q': 'Podem ajustar el pack a les nostres necessitats?',
@@ -836,6 +841,11 @@ export const ui = {
       "Si encara no ho teniu del tot clar, el més fàcil és que parlem en directe. Una videocall curta — 15 minuts, quan us vagi bé — ens serveix per conèixer-nos, resoldre els dubtes concrets que tingueu i que veieu com treballem.\n\nNo costa res i no us compromet a reservar.",
     'reserva.videocall.cta': 'Parlar pel WhatsApp',
     'reserva.videocall.subnote': 'Us va bé qualsevol tarda entre setmana.',
+
+    // Accessibility / global UI labels
+    'a11y.skipToContent': 'Saltar al contingut',
+    'a11y.openMenu': 'Obrir menú',
+    'a11y.closeMenu': 'Tancar menú',
 
     'cookies.title': 'Privacitat i galetes',
     'cookies.desc': 'Fem servir galetes essencials perquè la web funcioni i, opcionalment, galetes analítiques per millorar la vostra experiència. Podeu acceptar-les, rebutjar-les o personalitzar la vostra tria.',
@@ -1083,122 +1093,166 @@ export const ui = {
     'schema.breadcrumb.cookies': 'Cookie policy',
 
     // ─── Reserva (booking proposal page) ─────────────────────────────────
-    // EN strings are TODO — keys exist so the type system is complete and so
-    // `useTranslations('en')` can be called without throwing. Until properly
-    // translated, the helper falls back to the CA defaults via the
-    // `(ui[defaultLang] as ...)[key]` branch. Mark each string with TODO so
-    // it's grep-able when we sit down to translate.
-    'reserva.cta.primary': 'TODO: Book our date',
-    'reserva.cta.expires': 'TODO: This proposal is valid until {expires}',
-    'reserva.hero.greeting': 'TODO: Hi {n1} and {n2},',
-    'reserva.hero.body': 'TODO: EN copy for hero body — see docs/booking-spec.md',
-    'reserva.why.heading': 'TODO: Two brothers. Second generation.',
-    'reserva.why.body': 'TODO: EN copy for why-us — see docs/booking-spec.md',
-    'reserva.proof.eyebrow': 'TODO: Real weddings',
-    'reserva.proof.heading': 'TODO: A few weddings we have shot',
-    'reserva.proof.testimonial.author': 'TODO: — {author}, married at {venue}',
-    'reserva.pack.eyebrow': 'TODO: Your proposal',
-    'reserva.pack.heading': 'TODO: {name} pack',
-    'reserva.pack.includes': 'TODO: What is included:',
-    'reserva.pack.excludes': 'TODO: What is not included:',
-    'reserva.pack.addons': 'TODO: Optional add-ons:',
-    'reserva.pack.invest': 'TODO: Total investment',
-    'reserva.pack.deposit': 'TODO: Deposit to book',
-    'reserva.pack.terms': 'TODO: Remaining payment',
-    'reserva.steps.heading': 'TODO: If everything fits, here is how it works:',
-    'reserva.steps.s1.title': 'TODO: Fill in the booking form',
-    'reserva.steps.s1.body': 'TODO: 5 minutes — see spec',
-    'reserva.steps.s2.title': 'TODO: We send the contract to sign online',
-    'reserva.steps.s2.body': 'TODO: see spec',
-    'reserva.steps.s3.title': 'TODO: You pay the deposit',
-    'reserva.steps.s3.body': 'TODO: card or transfer',
-    'reserva.steps.s4.title': 'TODO: Your date is locked in',
-    'reserva.steps.s4.body': 'TODO: only for you',
-    'reserva.steps.outro': 'TODO: see spec',
-    'reserva.faq.heading': 'TODO: Frequently asked',
-    'reserva.faq.q1.q': 'TODO: What if it rains?',
-    'reserva.faq.q1.a': 'TODO: see spec',
-    'reserva.faq.q2.q': 'TODO: What if you have another wedding our day?',
-    'reserva.faq.q2.a': 'TODO: see spec',
-    'reserva.faq.q3.q': 'TODO: Can we adjust the pack?',
-    'reserva.faq.q3.a': 'TODO: see spec',
-    'reserva.faq.q4.q': 'TODO: When do we get the photos and video?',
-    'reserva.faq.q4.a': 'TODO: see spec',
-    'reserva.faq.q5.q': 'TODO: How do we pay the rest?',
-    'reserva.faq.q5.a': 'TODO: see spec',
-    'reserva.faq.q6.q': 'TODO: What if we had to cancel?',
-    'reserva.faq.q6.a': 'TODO: see spec',
-    'reserva.faq.q7.q': 'TODO: Are you registered? Do you have insurance?',
-    'reserva.faq.q7.a': 'TODO: see spec',
-    'reserva.final.heading': 'TODO: If it fits, let us do it.',
-    'reserva.final.whatsapp':
-      'TODO: If you have any questions before booking, message us on WhatsApp.',
-    'reserva.banner.submitted.title': 'TODO: We have received your details',
-    'reserva.banner.submitted.body':
-      'TODO: We will send the contract within 24h.',
-    'reserva.expired.title': 'TODO: This proposal expired on {date}',
-    'reserva.expired.body': 'TODO: Drop us a line and we will refresh it.',
-    'reserva.expired.cta': 'TODO: Contact via WhatsApp',
-    'reserva.notfound.title': 'TODO: We could not find this proposal',
-    'reserva.notfound.body':
-      'TODO: The link may be wrong or withdrawn. If you think this is a mistake, contact us.',
+    // ─── Reserva (booking proposal page) ─────────────────────────────────
+    'reserva.cta.primary': 'Book our date',
+    'reserva.cta.expires': 'This proposal is valid until {expires}',
 
-    // Reservation form — EN strings TODO; helper falls back to CA.
-    'reserva.form.heading': 'TODO: Booking details',
-    'reserva.form.intro': 'TODO: see spec',
-    'reserva.form.section.c1': 'TODO: First spouse details',
-    'reserva.form.section.c2': 'TODO: Second spouse details',
-    'reserva.form.section.billing': 'TODO: Billing details',
-    'reserva.form.section.day': 'TODO: Day confirmation',
-    'reserva.form.section.preferences': 'TODO: Preferences',
-    'reserva.form.section.optional': 'TODO: Optional but useful',
-    'reserva.form.field.fullName': 'TODO: Full name',
-    'reserva.form.field.dni': 'TODO: National ID',
-    'reserva.form.field.birthDate': 'TODO: Date of birth',
-    'reserva.form.field.address': 'TODO: Postal address',
-    'reserva.form.field.email': 'TODO: Email',
-    'reserva.form.field.phone': 'TODO: Phone',
-    'reserva.form.field.billingSame': 'TODO: Same address as first spouse',
-    'reserva.form.field.billingName': 'TODO: Billing name',
-    'reserva.form.field.billingDni': 'TODO: Billing tax ID',
-    'reserva.form.field.billingAddress': 'TODO: Billing address',
-    'reserva.form.field.dateConfirmed': 'TODO: Date confirmed?',
-    'reserva.form.field.dateAlt': 'TODO: Alternative date',
-    'reserva.form.field.venueConfirmed': 'TODO: Venue confirmed?',
-    'reserva.form.field.venueAlt': 'TODO: Alternative venue',
-    'reserva.form.field.ceremonyTime': 'TODO: Approx. ceremony time',
-    'reserva.form.field.serviceEndTime': 'TODO: Approx. end time',
-    'reserva.form.field.guestCount': 'TODO: Estimated guests',
-    'reserva.form.field.communication': 'TODO: Preferred communication',
-    'reserva.form.field.language': 'TODO: Preferred language',
-    'reserva.form.field.payment': 'TODO: Preferred payment method',
-    'reserva.form.field.howFound': 'TODO: How did you find us?',
-    'reserva.form.field.notes': 'TODO: Anything important we should know now?',
+    // Hero
+    'reserva.hero.greeting': 'Hi {n1} and {n2},',
+    'reserva.hero.body':
+      "We've put this page together with your wedding at {venue} on {date} in mind.\n\nHere you'll find our proposal, the process we follow if you decide to book with us, and answers to the questions most couples ask before saying yes.\n\nIf it all fits, we can have everything booked in under 10 minutes.",
+
+    // Why us
+    'reserva.why.heading': "Two brothers. Second generation.",
+    'reserva.why.body':
+      "Our father was shooting weddings in Reus more than thirty years ago. We do it now, with the same care and a contemporary eye.\n\nWhen you book Lifetime, you book both of us. The work on your day is done by us in person — not a rotating crew that changes from one weekend to the next.\n\nYou'll notice the difference on the day, and you'll see it later in the material.",
+
+    // Visual proof
+    'reserva.proof.eyebrow': 'Real weddings',
+    'reserva.proof.heading': "A few weddings we've shot",
+    'reserva.proof.testimonial.author': '— {author}, married at {venue}',
+
+    // Pack
+    'reserva.pack.eyebrow': 'Your proposal',
+    'reserva.pack.heading': 'Pack {name}',
+    'reserva.pack.includes': "What's included:",
+    'reserva.pack.excludes': "What's not included:",
+    'reserva.pack.addons': 'Optional add-ons:',
+    'reserva.pack.invest': 'Total investment',
+    'reserva.pack.deposit': 'Deposit to book',
+    'reserva.pack.terms': 'Remaining payment',
+
+    // Steps
+    'reserva.steps.heading': "If it all fits, here's how it works:",
+    'reserva.steps.s1.title': 'You fill in the booking form',
+    'reserva.steps.s1.body':
+      '5 minutes. We collect what we need to prepare the contract.',
+    'reserva.steps.s2.title': 'We send the contract to sign online',
+    'reserva.steps.s2.body':
+      "No printing, no scanning. You'll do it from your phone in 2 minutes.",
+    'reserva.steps.s3.title': 'You pay the deposit',
+    'reserva.steps.s3.body': 'Card or bank transfer, whichever suits you better.',
+    'reserva.steps.s4.title': 'Your date is locked in',
+    'reserva.steps.s4.body': 'We block off the calendar just for you.',
+    'reserva.steps.outro':
+      "From there, we walk with you up to the day. A few months out we'll send a questionnaire to plan the timeline, and the weeks before the wedding we review the logistics together.",
+
+    // FAQ
+    'reserva.faq.heading': 'Frequently asked',
+    'reserva.faq.q1.q': 'What if it rains?',
+    'reserva.faq.q1.a':
+      "We work with two cameras and gear ready for any conditions. Rain often gives the best photos of the day — we've been through it many times.",
+    'reserva.faq.q2.q': "What if you have another wedding on our day?",
+    'reserva.faq.q2.a':
+      "When you book, we block the calendar just for you. We never shoot two weddings on the same day.",
+    'reserva.faq.q3.q': 'Can we tailor the pack to our needs?',
+    'reserva.faq.q3.a':
+      "Yes. The pack is a starting point. If you need more hours, fewer hours, photo only, video only, or something different, we'll talk and adjust it.",
+    'reserva.faq.q4.q': 'When do we get the photos and video?',
+    'reserva.faq.q4.a':
+      "Fully edited material 8 to 12 weeks after the wedding. A short selection (10–15 photos) goes out the following week so you can share with family.",
+    'reserva.faq.q5.q': 'How do we pay the rest?',
+    'reserva.faq.q5.a':
+      '50% on signing, 50% one month before the day. We can adjust the split if another arrangement suits you better.',
+    'reserva.faq.q6.q': 'What if we have to cancel?',
+    'reserva.faq.q6.a':
+      "Spelled out clearly in the contract. In short: the deposit is non-refundable, but the date can be moved once at no extra cost if you let us know with enough notice.",
+    'reserva.faq.q7.q': "Are you registered? Do you have insurance?",
+    'reserva.faq.q7.a':
+      "Yes. We work as registered self-employed photographers, with public-liability insurance and proper invoicing.",
+
+    // Final CTA
+    'reserva.final.heading': "If it fits, let's do it.",
+    'reserva.final.whatsapp':
+      "If you have any questions before booking, message us on WhatsApp.",
+
+    // Status banner
+    'reserva.banner.submitted.title': "We've received your details",
+    'reserva.banner.submitted.body':
+      "We'll send the contract within 24h. If you need to change anything, message us on WhatsApp.",
+
+    // Expired view
+    'reserva.expired.title': 'This proposal expired on {date}',
+    'reserva.expired.body':
+      "Drop us a line and we'll refresh it in a moment.",
+    'reserva.expired.cta': 'Contact via WhatsApp',
+
+    // Not found view
+    'reserva.notfound.title': "We couldn't find this proposal",
+    'reserva.notfound.body':
+      "The link may be wrong or withdrawn. If you think this is a mistake, write to us.",
+
+    // Reservation form
+    'reserva.form.heading': 'Booking details',
+    'reserva.form.intro':
+      "We collect what we need to prepare the contract. We'll send it to sign online within 24h.",
+    'reserva.form.section.c1': "Spouse 1",
+    'reserva.form.section.c2': "Spouse 2",
+    'reserva.form.section.billing': 'Billing details',
+    'reserva.form.section.day': 'Day confirmation',
+    'reserva.form.section.preferences': 'Preferences',
+    'reserva.form.section.optional': 'Optional but useful',
+    'reserva.form.field.fullName': 'Full name',
+    'reserva.form.field.dni': 'National ID (DNI / NIE / passport)',
+    'reserva.form.field.birthDate': 'Date of birth',
+    'reserva.form.field.address': 'Full postal address',
+    'reserva.form.field.email': 'Email',
+    'reserva.form.field.phone': 'Phone',
+    'reserva.form.field.billingSame': "Same address as spouse 1",
+    'reserva.form.field.billingName': 'Billing name',
+    'reserva.form.field.billingDni': 'Billing tax ID',
+    'reserva.form.field.billingAddress': 'Billing address',
+    'reserva.form.field.dateConfirmed': 'Date confirmed?',
+    'reserva.form.field.dateAlt': 'Alternative date',
+    'reserva.form.field.venueConfirmed': 'Venue confirmed?',
+    'reserva.form.field.venueAlt': 'Alternative venue',
+    'reserva.form.field.ceremonyTime': 'Approx. ceremony time',
+    'reserva.form.field.serviceEndTime': 'Approx. service end time',
+    'reserva.form.field.guestCount': 'Estimated number of guests',
+    'reserva.form.field.communication': 'Preferred way to keep in touch',
+    'reserva.form.field.language': 'Preferred language',
+    'reserva.form.field.payment': 'Preferred payment method',
+    'reserva.form.field.howFound': 'How did you find us?',
+    'reserva.form.field.notes': "Anything important we should know now?",
     'reserva.form.opt.yes': 'Yes',
     'reserva.form.opt.no': 'No',
     'reserva.form.opt.email': 'Email',
     'reserva.form.opt.whatsapp': 'WhatsApp',
     'reserva.form.opt.phone': 'Phone',
     'reserva.form.opt.card': 'Card',
-    'reserva.form.opt.transfer': 'Transfer',
-    'reserva.form.submit': 'TODO: Send and continue to contract',
-    'reserva.form.submit.microcopy': 'TODO: see spec',
+    'reserva.form.opt.transfer': 'Bank transfer',
+    'reserva.form.submit': 'Send and continue to the contract',
+    'reserva.form.submit.microcopy':
+      "When you submit, you'll receive an immediate confirmation email. We'll send the contract to sign within 24h.",
     'reserva.form.submitting': 'Sending…',
-    'reserva.form.success.title': 'TODO: Done!',
-    'reserva.form.success.body': 'TODO: see spec',
-    'reserva.form.error.generic': 'TODO: see spec',
-    'reserva.form.error.alreadySubmitted': 'TODO: see spec',
-    'reserva.form.error.rateLimited': 'TODO: see spec',
-    'reserva.form.error.validation': 'TODO: see spec',
+    'reserva.form.success.title': 'Done!',
+    'reserva.form.success.body':
+      "We've received your details. The confirmation email will arrive in the next few minutes. If you don't see it, check your spam folder.",
+    'reserva.form.error.generic':
+      "We couldn't send the form. Try again in a moment, or message us on WhatsApp.",
+    'reserva.form.error.alreadySubmitted':
+      "This booking has already been processed. If you need to change anything, message us on WhatsApp.",
+    'reserva.form.error.rateLimited':
+      'Too many attempts in a short time. Wait a few minutes before trying again.',
+    'reserva.form.error.validation':
+      "Some fields have an incorrect format. Please check them below.",
 
-    // Video embed + videocall CTA — EN strings TODO; helper falls back to CA.
-    'reserva.video.eyebrow': 'TODO: Weddings in motion',
-    'reserva.video.heading': 'TODO: Take a look at our work',
-    'reserva.videocall.eyebrow': 'TODO: Want to meet first?',
-    'reserva.videocall.heading': 'TODO: Let\'s do a 15-minute video call',
-    'reserva.videocall.body': 'TODO: see spec',
-    'reserva.videocall.cta': 'TODO: Message on WhatsApp',
-    'reserva.videocall.subnote': 'TODO: Any weekday afternoon works.',
+    // Video embed
+    'reserva.video.eyebrow': 'Weddings in motion',
+    'reserva.video.heading': "Have a look at our work",
+
+    // Videocall CTA
+    'reserva.videocall.eyebrow': 'Want to meet first?',
+    'reserva.videocall.heading': "Let's do a 15-minute video call",
+    'reserva.videocall.body':
+      "If you're not fully sure yet, the easiest thing is to talk face-to-face. A short video call — 15 minutes, whenever it suits you — lets us get to know each other, answer the specific questions you have, and show you how we work.\n\nCosts nothing and doesn't commit you to booking.",
+    'reserva.videocall.cta': 'Message on WhatsApp',
+    'reserva.videocall.subnote': 'Any weekday afternoon works for us.',
+
+    // Accessibility / global UI labels
+    'a11y.skipToContent': 'Skip to content',
+    'a11y.openMenu': 'Open menu',
+    'a11y.closeMenu': 'Close menu',
 
     'cookies.title': 'Privacy and cookies',
     'cookies.desc': 'We use essential cookies so the site works and, optionally, analytics cookies to improve your experience. You can accept them, reject them or customise your choice.',

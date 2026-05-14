@@ -9,8 +9,15 @@ const t = useTranslations(lang);
 
 const featured = WEDDINGS.filter((w) => weddingCover(w)).slice(0, 6);
 
+// Locale-aware alt text for the portfolio gallery thumbnails.
 function altFor(w: typeof featured[number]): string {
   const venueOk = w.venue && w.venue !== '—';
+  if (lang === 'en') {
+    return venueOk ? `${w.couple}'s wedding at ${w.venue}` : `${w.couple}'s wedding`;
+  }
+  if (lang === 'es') {
+    return venueOk ? `Boda de ${w.couple} en ${w.venue}` : `Boda de ${w.couple}`;
+  }
   return venueOk ? `Boda de ${w.couple} a ${w.venue}` : `Boda de ${w.couple}`;
 }
 ---

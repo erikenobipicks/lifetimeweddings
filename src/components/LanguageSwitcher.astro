@@ -9,14 +9,26 @@ interface Props {
 
 const { current, path } = Astro.props;
 const langs = Object.keys(languages) as Lang[];
+
+// Localised label for the "switch language" button — read by screen
+// readers and visible on focus. Keep it short.
+const ariaLabel =
+  current === 'es'
+    ? 'Cambiar idioma'
+    : current === 'en'
+      ? 'Change language'
+      : 'Canviar idioma';
 ---
 
-<div class="relative group" data-language-switcher>
+<div class="relative" data-language-switcher>
   <button
     type="button"
     class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold transition-colors flex items-center gap-1"
     aria-haspopup="true"
     aria-expanded="false"
+    aria-controls="lang-menu"
+    aria-label={ariaLabel}
+    data-lang-toggle
   >
     {current.toUpperCase()}
     <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
@@ -24,8 +36,10 @@ const langs = Object.keys(languages) as Lang[];
     </svg>
   </button>
   <ul
-    class="absolute right-0 mt-2 min-w-[120px] bg-white shadow-lg border border-black/5 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all z-50"
+    id="lang-menu"
+    class="absolute right-0 mt-2 min-w-[120px] bg-white shadow-lg border border-black/5 opacity-0 invisible transition-all z-50"
     role="menu"
+    data-lang-menu
   >
     {langs.map((l) => (
       <li role="none">
@@ -44,3 +58,46 @@ const langs = Object.keys(languages) as Lang[];
     ))}
   </ul>
 </div>
+
+<script is:inline>
+  // Open/close the language menu. Works on touch (tap) AND keyboard
+  // (Enter/Space on the toggle, Escape to close, click outside to close).
+  // The old version relied solely on `group-hover`, which on touch
+  // devices was unreliable — a tap toggled focus-within momentarily and
+  // tapping a menu item often closed the menu before navigation.
+  (() => {
+    const switchers = document.querySelectorAll('[data-language-switcher]');
+    switchers.forEach((wrap) => {
+      const btn = wrap.querySelector('[data-lang-toggle]');
+      const menu = wrap.querySelector('[data-lang-menu]');
+      if (!btn || !menu) return;
+
+      const open = () => {
+        menu.classList.remove('opacity-0', 'invisible');
+        menu.classList.add('opacity-100', 'visible');
+        btn.setAttribute('aria-expanded', 'true');
+      };
+      const close = () => {
+        menu.classList.add('opacity-0', 'invisible');
+        menu.classList.remove('opacity-100', 'visible');
+        btn.setAttribute('aria-expanded', 'false');
+      };
+
+      btn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const isOpen = btn.getAttribute('aria-expanded') === 'true';
+        isOpen ? close() : open();
+      });
+
+      // Click outside → close.
+      document.addEventListener('click', (ev) => {
+        if (!wrap.contains(ev.target)) close();
+      });
+
+      // Escape → close.
+      document.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Escape') close();
+      });
+    });
+  })();
+</script>
