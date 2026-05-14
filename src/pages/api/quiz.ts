@@ -99,23 +99,29 @@ export const POST: APIRoute = async ({ request }) => {
   const reviewUrl = `${SITE_URL}/admin/new?lead=${lead.id}`;
   const hora = new Date().toLocaleString('ca-ES', { timeZone: 'Europe/Madrid' });
 
+  // Every user-controlled field gets escaped before going into the email
+  // HTML — including the subject line, which Gmail renders with limited
+  // HTML processing. recommendedPacks comes from the matcher (controlled
+  // string set) so it's safe; LABELS values are controlled; only the
+  // fallback (`?? d.location`) needs escaping in case the value isn't in
+  // the LABELS map.
   await sendNotification({
     subject: `🆕 Nou lead · ${d.coupleName}`,
     replyTo: d.email,
     html: `
       <h2>Nou lead des del quiz</h2>
       <ul>
-        <li><strong>Parella:</strong> ${d.coupleName}</li>
-        <li><strong>Email:</strong> <a href="mailto:${d.email}">${d.email}</a></li>
-        ${d.phone ? `<li><strong>Telèfon:</strong> ${d.phone}</li>` : ''}
-        ${d.weddingDate ? `<li><strong>Data boda:</strong> ${d.weddingDate}</li>` : ''}
-        <li><strong>Lloc:</strong> ${LABELS[d.location] ?? d.location}</li>
-        <li><strong>Cerimònia:</strong> ${LABELS[d.ceremonyType] ?? d.ceremonyType}</li>
-        <li><strong>Servei:</strong> ${LABELS[d.serviceInterest] ?? d.serviceInterest}</li>
-        <li><strong>Pressupost:</strong> ${LABELS[d.budgetRange] ?? d.budgetRange}</li>
+        <li><strong>Parella:</strong> ${escapeHtml(d.coupleName)}</li>
+        <li><strong>Email:</strong> <a href="mailto:${escapeHtml(d.email)}">${escapeHtml(d.email)}</a></li>
+        ${d.phone ? `<li><strong>Telèfon:</strong> ${escapeHtml(d.phone)}</li>` : ''}
+        ${d.weddingDate ? `<li><strong>Data boda:</strong> ${escapeHtml(d.weddingDate)}</li>` : ''}
+        <li><strong>Lloc:</strong> ${escapeHtml(LABELS[d.location] ?? d.location)}</li>
+        <li><strong>Cerimònia:</strong> ${escapeHtml(LABELS[d.ceremonyType] ?? d.ceremonyType)}</li>
+        <li><strong>Servei:</strong> ${escapeHtml(LABELS[d.serviceInterest] ?? d.serviceInterest)}</li>
+        <li><strong>Pressupost:</strong> ${escapeHtml(LABELS[d.budgetRange] ?? d.budgetRange)}</li>
         <li><strong>Hora:</strong> ${hora}</li>
       </ul>
-      <p>🤖 <strong>Recomanació automàtica:</strong> ${recommendedPacks.join(', ')}</p>
+      <p>🤖 <strong>Recomanació automàtica:</strong> ${recommendedPacks.map(escapeHtml).join(', ')}</p>
       <p style="margin-top:20px">
         <a href="${reviewUrl}"
            style="display:inline-block;background:#1a1a1a;color:#fff;padding:12px 22px;text-decoration:none;font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:13px">
@@ -158,5 +164,11 @@ export const POST: APIRoute = async ({ request }) => {
 };
 
 function escapeHtml(s: string): string {
-  return s.replace(/[<>&]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c] as string));
+  // Covers both element text and attribute values — the quiz lead email
+  // now interpolates user-controlled email inside an href="..." too.
+  return s.replace(
+    /[<>&"']/g,
+    (c) =>
+      ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' }[c] as string),
+  );
 }

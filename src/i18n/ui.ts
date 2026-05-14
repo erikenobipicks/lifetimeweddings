@@ -1210,7 +1210,16 @@ export const ui = {
 
 export function useTranslations(lang: Lang) {
   return function t(key: keyof (typeof ui)['es']): string {
-    return (ui[lang] as Record<string, string>)[key] ?? (ui[defaultLang] as Record<string, string>)[key];
+    const value = (ui[lang] as Record<string, string>)[key];
+    // Fall back to CA when (a) the key is missing in `lang`, or (b) the
+    // value is still a placeholder. We tag untranslated strings with
+    // "TODO:" so the build doesn't break (the type system needs every
+    // locale to have every key) but we don't want to ship the placeholder
+    // text to real users. CA is the editorial source of truth.
+    if (value === undefined || value.startsWith('TODO:')) {
+      return (ui[defaultLang] as Record<string, string>)[key];
+    }
+    return value;
   };
 }
 

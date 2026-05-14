@@ -1,6 +1,56 @@
 ---
 import AdminLayout from '~/layouts/AdminLayout.astro';
 import { verifyCredentials, createSession, isAuthConfigured, getUser } from '~/lib/auth';
+import { clientIp } from '~/lib/captcha';
+
+// ─── Brute-force throttle ──────────────────────────────────────────────
+// In-memory per-IP attempt counter. Resets on every deploy (acceptable —
+// an attacker mid-session loses progress; the legitimate operator after
+// a deploy gets 5 fresh attempts). For a single-Railway-instance studio
+// this is the right shape; if we ever scale out, move into the DB.
+//
+// Failed attempts increment; a successful login clears the IP's record.
+const LOGIN_MAX_ATTEMPTS = 5;
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+type Attempts = { count: number; resetAt: number };
+const loginAttempts: Map<string, Attempts> =
+  (globalThis as any).__loginAttempts ?? new Map();
+// Persist across HMR reloads in dev so we can verify limit behaviour.
+(globalThis as any).__loginAttempts = loginAttempts;
+
+let lastPrune = 0;
+function maybePrune() {
+  const now = Date.now();
+  if (now - lastPrune < 5 * 60 * 1000) return;
+  lastPrune = now;
+  for (const [ip, rec] of loginAttempts) {
+    if (rec.resetAt <= now) loginAttempts.delete(ip);
+  }
+}
+
+function tooManyAttempts(ip: string): { blocked: boolean; retryInMin?: number } {
+  const now = Date.now();
+  const rec = loginAttempts.get(ip);
+  if (!rec || rec.resetAt <= now) return { blocked: false };
+  if (rec.count >= LOGIN_MAX_ATTEMPTS) {
+    return { blocked: true, retryInMin: Math.ceil((rec.resetAt - now) / 60000) };
+  }
+  return { blocked: false };
+}
+
+function recordFailedAttempt(ip: string) {
+  const now = Date.now();
+  const rec = loginAttempts.get(ip);
+  if (!rec || rec.resetAt <= now) {
+    loginAttempts.set(ip, { count: 1, resetAt: now + LOGIN_WINDOW_MS });
+  } else {
+    rec.count += 1;
+  }
+}
+
+function clearAttempts(ip: string) {
+  loginAttempts.delete(ip);
+}
 
 let error: string | null = null;
 
@@ -9,14 +59,26 @@ const existing = await getUser(Astro.cookies);
 if (existing) return Astro.redirect('/admin');
 
 if (Astro.request.method === 'POST') {
-  const form = await Astro.request.formData();
-  const user = String(form.get('user') ?? '');
-  const password = String(form.get('password') ?? '');
-  if (await verifyCredentials(user, password)) {
-    await createSession(Astro.cookies, user);
-    return Astro.redirect('/admin');
+  maybePrune();
+  const ip = clientIp(Astro.request) ?? 'unknown';
+  const limit = tooManyAttempts(ip);
+  if (limit.blocked) {
+    // Soft 429: render the form again with a clear "espera N min" message.
+    // Don't reveal whether credentials would be valid even if not blocked.
+    Astro.response.status = 429;
+    error = `Massa intents. Torna a provar d'aquí a ~${limit.retryInMin} min.`;
+  } else {
+    const form = await Astro.request.formData();
+    const user = String(form.get('user') ?? '');
+    const password = String(form.get('password') ?? '');
+    if (await verifyCredentials(user, password)) {
+      clearAttempts(ip);
+      await createSession(Astro.cookies, user);
+      return Astro.redirect('/admin');
+    }
+    recordFailedAttempt(ip);
+    error = 'Usuari o contrasenya incorrectes.';
   }
-  error = 'Usuari o contrasenya incorrectes.';
 }
 ---
 
