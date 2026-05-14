@@ -211,6 +211,12 @@ export async function initSchema() {
   // boots are idempotent.
   await ensureColumn('quotes', 'flagship_video_id', 'TEXT');
   await ensureColumn('bookings', 'flagship_video_id', 'TEXT');
+  // Preferred language for the couple. Drives /p/<token> localisation and
+  // is pre-filled on the lead row when contact/quiz tell us via `lang`.
+  // Nullable — pre-existing rows default to 'ca' at read time in the
+  // domain layer (see rowToQuote / rowToLead) so old proposals still render.
+  await ensureColumn('quotes', 'preferred_language', 'TEXT');
+  await ensureColumn('leads', 'preferred_language', 'TEXT');
 
   // ── Retention sweep (boot-time) ───────────────────────────────────────
   // Data-minimisation per RGPD: keep personal data only as long as needed.
