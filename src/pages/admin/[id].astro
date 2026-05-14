@@ -39,20 +39,20 @@ function humanSecs(n: number): string {
 ---
 
 <AdminLayout title={quote.coupleName}>
-  <div class="flex items-center justify-between mb-8">
-    <div>
+  <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6 sm:mb-8">
+    <div class="min-w-0">
       <p class="text-xs font-bold tracking-widest uppercase text-gold mb-1">Pressupost</p>
-      <h1 class="font-display text-3xl font-bold">{quote.coupleName}</h1>
-      {quote.coupleEmail && <p class="text-ink/60">{quote.coupleEmail}</p>}
+      <h1 class="font-display text-2xl sm:text-3xl font-bold break-words">{quote.coupleName}</h1>
+      {quote.coupleEmail && <p class="text-ink/60 break-all">{quote.coupleEmail}</p>}
     </div>
-    <a href="/admin" class="text-xs text-ink/60 hover:text-gold">← Tornar</a>
+    <a href="/admin" class="text-xs text-ink/60 hover:text-gold whitespace-nowrap">← Tornar</a>
   </div>
 
   <div class="bg-white border border-black/10 p-5 mb-8">
     <p class="text-xs font-bold tracking-widest uppercase mb-2">Enllaç</p>
-    <div class="flex gap-2">
-      <input readonly value={url} class="flex-1 px-3 py-2 border border-black/15 bg-cream font-mono text-sm" />
-      <button type="button" data-copy={url} class="bg-ink text-white px-4 py-2 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors">Copiar</button>
+    <div class="flex flex-wrap gap-2">
+      <input readonly value={url} class="flex-1 min-w-[180px] px-3 py-2 border border-black/15 bg-cream font-mono text-sm" />
+      <button type="button" data-copy={url} class="bg-ink text-white px-4 py-2 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors whitespace-nowrap">Copiar</button>
       {quote.coupleEmail && (
         <button
           type="button"

@@ -29,9 +29,9 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
 ---
 
 <AdminLayout title="Pressupostos">
-  <div class="flex items-center justify-between mb-4">
-    <h1 class="font-display text-3xl font-bold">Pressupostos</h1>
-    <a href="/admin/new" class="bg-ink text-white px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors">+ Nou pressupost</a>
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+    <h1 class="font-display text-2xl sm:text-3xl font-bold">Pressupostos</h1>
+    <a href="/admin/new" class="self-start sm:self-auto bg-ink text-white px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors whitespace-nowrap">+ Nou pressupost</a>
   </div>
 
   <div class="flex flex-wrap items-center gap-3 mb-6">
@@ -39,11 +39,11 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
       type="text"
       id="search-input"
       placeholder="Cercar per nom o email..."
-      class="flex-1 min-w-[200px] px-3 py-2 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none"
+      class="flex-1 min-w-0 sm:min-w-[200px] px-3 py-2 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none"
     />
     <a
       href={showArchived ? '/admin' : '/admin?arxivats=1'}
-      class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold transition-colors"
+      class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold transition-colors whitespace-nowrap"
     >
       {showArchived ? '✕ Ocultar arxivats' : '📦 Mostrar arxivats'}
     </a>
