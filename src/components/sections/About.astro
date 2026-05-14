@@ -5,6 +5,23 @@ import { useTranslations, localePath, type Lang } from '~/i18n/ui';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const t = useTranslations(lang);
+
+// Locale-aware alt text for the three couple photos. Keeps the "names i
+// venue" wording stable in CA, swaps the connector "i" → "y" / "and" for
+// the other locales, and rewrites the sentence frame in EN. Used for a11y
+// (screen readers) and SEO image context.
+function altFor(names: string, venue: string): string {
+  if (lang === 'es') return `Boda de ${names.replace(/ i /g, ' y ')} en ${venue}`;
+  if (lang === 'en') return `${names.replace(/ i /g, ' and ')}'s wedding at ${venue}`;
+  return `Boda de ${names} a ${venue}`;
+}
+
+const logoAlt =
+  lang === 'es'
+    ? 'Lifetime Weddings — sello circular'
+    : lang === 'en'
+      ? 'Lifetime Weddings — circular seal'
+      : 'Lifetime Weddings — segell circular';
 ---
 
 <Section id="about" bg="cream">
@@ -14,7 +31,7 @@ const t = useTranslations(lang);
         src="/photos/josep-eli/005-md.jpg"
         srcset="/photos/josep-eli/005-sm.jpg 640w, /photos/josep-eli/005-md.jpg 1200w"
         sizes="(max-width: 768px) 100vw, 50vw"
-        alt="Boda d'Elisabet i Josep a L’Orangerie Clos Barenys"
+        alt={altFor('Elisabet i Josep', "L'Orangerie Clos Barenys")}
         class="col-span-2 h-64 md:h-80 w-full object-cover object-top"
         loading="lazy"
         decoding="async"
@@ -25,7 +42,7 @@ const t = useTranslations(lang);
         src="/photos/cristina-daniel/001-md.jpg"
         srcset="/photos/cristina-daniel/001-sm.jpg 640w, /photos/cristina-daniel/001-md.jpg 1200w"
         sizes="(max-width: 768px) 50vw, 25vw"
-        alt="Boda de Cristina i Daniel a Mas La Boella"
+        alt={altFor('Cristina i Daniel', 'Mas La Boella')}
         class="h-48 md:h-56 w-full object-cover"
         loading="lazy"
         decoding="async"
@@ -36,7 +53,7 @@ const t = useTranslations(lang);
         src="/photos/elena-jordi/001-md.jpg"
         srcset="/photos/elena-jordi/001-sm.jpg 640w, /photos/elena-jordi/001-md.jpg 1200w"
         sizes="(max-width: 768px) 50vw, 25vw"
-        alt="Boda d'Elena i Jordi a Masia San Antonio"
+        alt={altFor('Elena i Jordi', 'Masia San Antonio')}
         class="h-48 md:h-56 w-full object-cover"
         loading="lazy"
         decoding="async"
@@ -48,7 +65,7 @@ const t = useTranslations(lang);
     <div>
       <img
         src="/logos/logo-circle-color.png"
-        alt="Lifetime Weddings — sello circular"
+        alt={logoAlt}
         width="96"
         height="96"
         class="w-20 h-20 md:w-24 md:h-24 object-contain mb-5"

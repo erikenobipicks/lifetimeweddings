@@ -11,6 +11,15 @@ const t = useTranslations(lang);
 // Option B: no photos. Typography-led layout with large decorative quote mark.
 // When real photos arrive, add an `avatar` URL to TESTIMONIALS entries and
 // conditionally render them in the markup below.
+
+const tablistLabel =
+  lang === 'es' ? 'Testimonios' : lang === 'en' ? 'Testimonials' : 'Testimonis';
+const seeTestimonialOf = (author: string) =>
+  lang === 'es'
+    ? `Ver testimonio de ${author}`
+    : lang === 'en'
+      ? `See testimonial from ${author}`
+      : `Veure testimoni de ${author}`;
 ---
 
 <Section id="testimonials" bg="cream">
@@ -41,13 +50,13 @@ const t = useTranslations(lang);
         </article>
       ))}
 
-      <div class="flex justify-center gap-2 mt-10 md:mt-12" role="tablist" aria-label="Testimonis">
+      <div class="flex justify-center gap-2 mt-10 md:mt-12" role="tablist" aria-label={tablistLabel}>
         {TESTIMONIALS.map((tes, i) => (
           <button
             type="button"
             data-testi-dot
             data-index={i}
-            aria-label={`Veure testimoni de ${tes.author}`}
+            aria-label={seeTestimonialOf(tes.author)}
             class={`w-1.5 h-1.5 rounded-full transition-colors ${i === 0 ? 'bg-gold' : 'bg-black/20 hover:bg-black/40'}`}
           />
         ))}
