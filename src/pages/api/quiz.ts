@@ -18,7 +18,7 @@ const schema = z.object({
   coupleName: z.string().min(1).max(200),
   email: z.string().email(),
   phone: z.string().max(30).optional(),
-  venueName: z.string().trim().max(200).optional(),
+  venueName: z.string().trim().min(1).max(200),
   lang: z.enum(['es', 'ca', 'en']).optional(),
   captchaToken: z.string().optional(),
 });
