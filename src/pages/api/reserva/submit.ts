@@ -33,6 +33,7 @@ import {
   sendBookingTelegram,
 } from '~/lib/bookings/emails';
 import { verifyTurnstile } from '~/lib/captcha';
+import { pushBookingToFotostudio } from '~/lib/fotostudio';
 
 // ─── Rate limit ──────────────────────────────────────────────────────────
 // In-memory, per-process. For Railway's single-instance Node deployment
@@ -299,6 +300,18 @@ export const POST: APIRoute = async ({ request }) => {
       sendCoupleConfirmation(updated, formView),
       sendInternalAlert(updated, formView),
       sendBookingTelegram(updated, formView),
+      pushBookingToFotostudio({
+        coupleDisplayName: `${updated.coupleName1} & ${updated.coupleName2}`,
+        primaryFullName: d.c1FullName,
+        primaryEmail: d.c1Email,
+        primaryPhone: d.c1Phone,
+        primaryAddress: d.c1Address,
+        weddingDate: d.weddingDateConfirmed
+          ? updated.weddingDate
+          : (dateOnly(d.weddingDateAlt) ?? updated.weddingDate),
+        venueName: d.venueConfirmed ? updated.venueName : (d.venueAltName ?? updated.venueName),
+        venueCity: updated.venueCity,
+      }),
     ]);
   }
 

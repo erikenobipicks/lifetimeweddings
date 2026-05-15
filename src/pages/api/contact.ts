@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { sendNotification, sendTelegramNotification, sendAutoReplyToLead } from '~/lib/email';
 import { createLead } from '~/lib/quotes';
 import { verifyTurnstile, clientIp } from '~/lib/captcha';
+import { pushLeadToFotostudio } from '~/lib/fotostudio';
 
 // Coerce "" → undefined for optional fields so we don't persist empty strings
 // and so zod's `.optional()` short-circuits length checks on blank inputs.
@@ -142,6 +143,16 @@ export const POST: APIRoute = async ({ request }) => {
       email: d.email,
       name: d.name,
       lang,
+    });
+
+    // Push to fotostudio CRM as a prospect tagged "web-lead". No-op when
+    // FOTOSTUDIO_API_TOKEN is unset; otherwise fail-soft inside the helper.
+    await pushLeadToFotostudio({
+      coupleName: d.name,
+      email: d.email,
+      weddingDate: d.wedding_date,
+      venue: d.venue,
+      language: lang,
     });
 
     return new Response(JSON.stringify({ ok: true }), {
