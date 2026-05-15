@@ -74,6 +74,7 @@ const t = booking.referenceTestimonial;
       {ok?.startsWith('status:') && `Estat actualitzat a ${ok.split(':')[1]}.`}
       {ok === 'deposit:paid' && 'Dipòsit marcat com a rebut. La parella ja pot omplir /contrato.'}
       {ok === 'deposit:unpaid' && 'Marca de dipòsit retirada.'}
+      {ok === 'offline_confirmed' && 'Booking confirmat offline. Ja podeu enviar la URL /contrato a la parella (la veieu al bloc verd més avall).'}
     </div>
   )}
   {err && (
@@ -103,13 +104,22 @@ const t = booking.referenceTestimonial;
         >Obrir →</a>
 
         {booking.status === 'draft' && (
-          <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline">
-            <input type="hidden" name="_action" value="status" />
-            <input type="hidden" name="status" value="sent" />
-            <button type="submit" class="bg-blue-600 text-white text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-blue-700 transition-colors">
-              Marcar com a enviat
-            </button>
-          </form>
+          <>
+            <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline">
+              <input type="hidden" name="_action" value="status" />
+              <input type="hidden" name="status" value="sent" />
+              <button type="submit" class="bg-blue-600 text-white text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-blue-700 transition-colors">
+                Marcar com a enviat
+              </button>
+            </form>
+            <a
+              href={`/admin/bookings/${booking.id}/confirm-offline`}
+              class="border border-emerald-300 text-emerald-700 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-emerald-50 transition-colors"
+              title="Per a bodes ja contractades fora del flux web: salta /reserva i obre /contrato directament"
+            >
+              Confirmar offline →
+            </a>
+          </>
         )}
 
         {booking.status !== 'archived' && (
