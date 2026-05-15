@@ -1,0 +1,120 @@
+---
+// Admin: fast-track confirmation for bookings that didn't go through the
+// public /reserva flow (offline-booked weddings — referral, walk-in,
+// historical). Captures the contract-required couple data (DNI, address,
+// email, phone for each partner) in a single form, then creates the
+// form_response row AND marks the deposit as paid in one go, so the
+// /contrato/[slug] page becomes immediately accessible for the couple to
+// fill the GDPR + publication-consent step.
+//
+// Only meaningful when booking.status === 'draft' — for any other status
+// either /reserva is in flight or already done, and this shortcut would
+// clobber real data. The API enforces the same guard.
+
+import AdminLayout from '~/layouts/AdminLayout.astro';
+import { getBookingById, getFormResponseForBooking } from '~/lib/bookings/repository';
+
+const id = Astro.params.id!;
+const booking = await getBookingById(id);
+if (!booking) return new Response('Not found', { status: 404 });
+
+// Refuse to render the form for any status other than 'draft' — the API
+// rejects it too, but bouncing here keeps the UI honest.
+if (booking.status !== 'draft') {
+  return Astro.redirect(`/admin/bookings/${id}?error=Nom%C3%A9s+es+pot+confirmar+offline+un+booking+en+draft`, 303);
+}
+
+// If somehow a form_response exists already (race / re-entry), block too.
+const existingResponse = await getFormResponseForBooking(booking.id);
+if (existingResponse) {
+  return Astro.redirect(`/admin/bookings/${id}?error=Aquest+booking+ja+t%C3%A9+dades+enviades`, 303);
+}
+
+const params = Astro.url.searchParams;
+const error = params.get('error');
+const v = (name: string): string => params.get(`v_${name}`) ?? '';
+
+const couple = `${booking.coupleName1} & ${booking.coupleName2}`;
+---
+
+<AdminLayout title={`Confirmar offline · ${couple}`}>
+  <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6">
+    <div>
+      <a href={`/admin/bookings/${id}`} class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold">← Tornar a la reserva</a>
+      <h1 class="font-display text-2xl sm:text-3xl font-bold mt-1 break-words">Confirmar offline</h1>
+      <p class="text-sm text-ink/65 mt-1">{couple}</p>
+    </div>
+  </div>
+
+  <div class="mb-6 px-4 py-3 bg-amber-50 border border-amber-200 text-amber-900 text-sm">
+    <p><strong>Per a bodes ja contractades fora del flux web.</strong></p>
+    <p class="mt-1 text-amber-800">Aquesta acció salta /reserva: crea la fila de dades de la parella manualment i marca el dipòsit com a rebut. La parella només haurà d'omplir /contrato (consentiment + RGPD).</p>
+  </div>
+
+  {error && (
+    <div class="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-800 text-sm">
+      <strong class="font-bold">Error:</strong> {error}
+    </div>
+  )}
+
+  <form method="POST" action={`/api/admin/bookings/${id}/confirm-offline`} class="space-y-10 bg-white border border-black/10 p-6 md:p-8">
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-3">Contraent 1</legend>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block md:col-span-2">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Nom complet *</span>
+          <input name="c1FullName" required maxlength="120" value={v('c1FullName') || booking.coupleName1} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">DNI / NIE *</span>
+          <input name="c1Dni" required maxlength="12" value={v('c1Dni')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Email *</span>
+          <input type="email" name="c1Email" required maxlength="120" value={v('c1Email') || booking.coupleEmailPrimary} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Telèfon *</span>
+          <input name="c1Phone" required maxlength="40" value={v('c1Phone') || (booking.couplePhonePrimary ?? '')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block md:col-span-2">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Adreça postal *</span>
+          <input name="c1Address" required maxlength="200" value={v('c1Address')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-3">Contraent 2</legend>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block md:col-span-2">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Nom complet *</span>
+          <input name="c2FullName" required maxlength="120" value={v('c2FullName') || booking.coupleName2} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">DNI / NIE *</span>
+          <input name="c2Dni" required maxlength="12" value={v('c2Dni')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Email *</span>
+          <input type="email" name="c2Email" required maxlength="120" value={v('c2Email')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Telèfon *</span>
+          <input name="c2Phone" required maxlength="40" value={v('c2Phone')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block md:col-span-2">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Adreça postal *</span>
+          <input name="c2Address" required maxlength="200" value={v('c2Address')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+      </div>
+    </fieldset>
+
+    <div class="flex items-center gap-4 pt-4 border-t border-black/10">
+      <button type="submit" class="bg-emerald-600 text-white px-6 py-3 text-xs font-bold tracking-widest uppercase hover:bg-emerald-700 transition-colors">
+        Confirmar i obrir /contrato
+      </button>
+      <a href={`/admin/bookings/${id}`} class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold">Cancel·lar</a>
+    </div>
+  </form>
+</AdminLayout>
