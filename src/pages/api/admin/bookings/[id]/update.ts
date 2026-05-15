@@ -17,7 +17,9 @@ import { z } from 'zod';
 import { getUser } from '~/lib/auth';
 import {
   getBookingById,
+  markDepositPaid,
   setBookingStatus,
+  unmarkDepositPaid,
   updateBooking,
   type BookingUpdate,
 } from '~/lib/bookings/repository';
@@ -100,6 +102,21 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
     }
     await setBookingStatus(id, target);
     return back(`?ok=status:${target}`);
+  }
+
+  // Mark / unmark the deposit as received. Gates the public /contrato/[slug]
+  // form — only callable on bookings that already have a form_response row
+  // (i.e. couple has submitted /reserva).
+  if (action === 'deposit_paid') {
+    if (booking.status !== 'form_submitted') {
+      return back('?error=Cal+haver+enviat+/reserva+primer');
+    }
+    await markDepositPaid(id);
+    return back('?ok=deposit:paid');
+  }
+  if (action === 'deposit_unpaid') {
+    await unmarkDepositPaid(id);
+    return back('?ok=deposit:unpaid');
   }
 
   // Default: content update.

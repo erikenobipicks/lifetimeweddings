@@ -1,0 +1,113 @@
+---
+// Public /contrato/[slug] page. SSR. Second-step form rendered AFTER the
+// couple has filled /reserva AND the operator has marked the deposit as
+// paid in /admin/bookings/[id].
+//
+// Gating logic (in order):
+//   - slug not found / status === 'archived'                → 404
+//   - depositPaidAt is NULL                                 → "esperando depósito"
+//   - contractReadyAt is NOT NULL                           → "ya enviado"
+//   - otherwise                                             → render form
+//
+// Always emits noindex,nofollow — same privacy posture as /reserva.
+
+export const prerender = false;
+
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { useTranslations, type Lang } from '~/i18n/ui';
+import { SITE, WHATSAPP_BASE } from '~/data/site';
+import { getBookingBySlug } from '~/lib/bookings/repository';
+import ContratoForm from '~/components/contrato/ContratoForm.astro';
+
+const slug = Astro.params.slug!;
+const booking = await getBookingBySlug(slug);
+
+const isMissingOrArchived = !booking || booking.status === 'archived';
+const isDepositPending = booking && !booking.depositPaidAt;
+const isAlreadySubmitted = booking && !!booking.contractReadyAt;
+
+if (isMissingOrArchived) {
+  Astro.response.status = 404;
+}
+
+const lang: Lang = booking ? booking.preferredLanguage : 'ca';
+const t = useTranslations(lang);
+
+const title = booking
+  ? `${booking.coupleName1} & ${booking.coupleName2} · Contrato · Lifetime`
+  : 'Lifetime · Contrato';
+const description = t('contrato.title');
+---
+
+<BaseLayout
+  lang={lang}
+  title={title}
+  description={description}
+  canonicalPath={`/contrato/${slug}`}
+  noindex={true}
+  chromeless={true}
+>
+  <header class="px-6 md:px-12 py-5 border-b border-ink/10 bg-white">
+    <a href="/" class="inline-flex items-center gap-2">
+      <img
+        src="/logos/logo-circle-color.png"
+        alt="Lifetime Weddings"
+        width="36"
+        height="36"
+        class="h-9 w-9"
+      />
+      <span class="font-display text-base font-bold tracking-wide">Lifetime</span>
+    </a>
+  </header>
+
+  {isMissingOrArchived ? (
+    <section class="px-6 md:px-12 py-32 md:py-40 bg-cream text-ink text-center">
+      <div class="max-w-xl mx-auto">
+        <h1 class="font-display text-3xl md:text-4xl font-bold mb-6">
+          {t('reserva.notfound.title')}
+        </h1>
+        <p class="text-ink/75 leading-relaxed mb-8">{t('reserva.notfound.body')}</p>
+        <a
+          href={WHATSAPP_BASE}
+          target="_blank"
+          rel="noopener"
+          class="inline-block bg-gold text-ink font-bold px-8 py-4 hover:bg-ink hover:text-white transition-colors"
+        >
+          WhatsApp →
+        </a>
+      </div>
+    </section>
+  ) : isDepositPending ? (
+    <section class="px-6 md:px-12 py-32 md:py-40 bg-cream text-ink text-center">
+      <div class="max-w-xl mx-auto">
+        <h1 class="font-display text-3xl md:text-4xl font-bold mb-6">
+          {t('contrato.gating.deposit_pending.title')}
+        </h1>
+        <p class="text-ink/75 leading-relaxed mb-8">{t('contrato.gating.deposit_pending.body')}</p>
+        <a
+          href={WHATSAPP_BASE}
+          target="_blank"
+          rel="noopener"
+          class="inline-block bg-gold text-ink font-bold px-8 py-4 hover:bg-ink hover:text-white transition-colors"
+        >
+          WhatsApp →
+        </a>
+      </div>
+    </section>
+  ) : isAlreadySubmitted ? (
+    <section class="px-6 md:px-12 py-32 md:py-40 bg-cream text-ink text-center">
+      <div class="max-w-xl mx-auto">
+        <h1 class="font-display text-3xl md:text-4xl font-bold mb-6">
+          {t('contrato.gating.already_submitted.title')}
+        </h1>
+        <p class="text-ink/75 leading-relaxed">{t('contrato.gating.already_submitted.body')}</p>
+      </div>
+    </section>
+  ) : (
+    <ContratoForm lang={lang} slug={slug} />
+  )}
+
+  <footer class="px-6 md:px-12 py-8 bg-ink text-white/70 text-center text-xs">
+    <p>© {new Date().getFullYear()} Lifetime Weddings · {SITE.address.city}</p>
+  </footer>
+</BaseLayout>

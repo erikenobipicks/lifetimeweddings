@@ -70,6 +70,15 @@ export interface Booking {
   updatedAt: Date;
   firstViewedAt: Date | null;
   formSubmittedAt: Date | null;
+  /** Set when the operator marks the deposit as received in /admin. Gates
+   *  access to the public /contrato/[slug] form — couples without a paid
+   *  deposit see the "esperando confirmación" placeholder. */
+  depositPaidAt: Date | null;
+  /** Set when the couple submits /contrato/[slug] with the GDPR-accepted
+   *  contract data. Booking-level status stays at 'form_submitted' through
+   *  the entire contrato cycle; this timestamp differentiates the sub-state
+   *  without needing to extend the CHECK-constrained status enum. */
+  contractReadyAt: Date | null;
 }
 
 /** Input for creating a new booking from admin UI. Slug + id + timestamps
@@ -143,4 +152,39 @@ export interface BookingFormResponse {
   submittedAt: Date;
   ipAddress: string | null;
   userAgent: string | null;
+
+  // ─── /contrato post-deposit fields (nullable) ──────────────────────────
+  // Filled when the couple submits the second-step form at /contrato/[slug].
+  // All NULL on rows that only completed /reserva.
+  /** Free text: language the couple uses between themselves (e.g.
+   *  "Catalán", "Català/Castellano", "English"). Operational info for the
+   *  team's day-of communication, distinct from preferredLanguage which
+   *  drives our outbound emails. */
+  languageBetween: string | null;
+  /** Exact ceremony venue text. The /reserva form's venueName captures
+   *  the day's "main" venue; this field disambiguates when ceremony and
+   *  reception happen at different places. */
+  ceremonyLocationText: string | null;
+  /** Exact reception (banquet) venue text. */
+  receptionLocationText: string | null;
+  /** Ceremony type — drives contract clauses. */
+  ceremonyType: 'civil' | 'religious' | 'other' | null;
+  /** Free text when ceremonyType = 'other'. */
+  ceremonyTypeOther: string | null;
+  /** Whether the couple wants a First Look session before the ceremony. */
+  firstLook: 'yes' | 'no' | 'not_sure' | null;
+  /** Image-rights consent: which publication channels the couple authorises.
+   *  Stored as a JSON array of channel keys. Empty array = consented to
+   *  nothing (still valid). NULL = consent step not yet completed. */
+  publicationConsent: PublicationChannel[] | null;
+  /** Timestamp of GDPR consent. Required to submit /contrato — the form
+   *  cannot proceed without the checkbox ticked. */
+  gdprAcceptedAt: Date | null;
 }
+
+export type PublicationChannel =
+  | 'display'        // Aparador físic a l'estudi (C/ Mare Molas 26, Reus)
+  | 'facebook'       // Facebook professional
+  | 'website'        // lifetime.photo
+  | 'instagram'      // @lifetime.weddings
+  | 'private_video'; // Vídeo privat compartit només amb altres parelles

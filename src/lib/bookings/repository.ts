@@ -20,6 +20,7 @@ import type {
   BookingStatus,
   Lang,
   PackAddon,
+  PublicationChannel,
   ReferenceTestimonial,
 } from './types';
 
@@ -84,6 +85,8 @@ function rowToBooking(row: Record<string, unknown>): Booking {
     updatedAt: fromIso(row.updated_at) ?? new Date(),
     firstViewedAt: fromIso(row.first_viewed_at),
     formSubmittedAt: fromIso(row.form_submitted_at),
+    depositPaidAt: fromIso(row.deposit_paid_at),
+    contractReadyAt: fromIso(row.contract_ready_at),
   };
 }
 
@@ -130,6 +133,15 @@ function rowToFormResponse(row: Record<string, unknown>): BookingFormResponse {
     submittedAt: fromIso(row.submitted_at) ?? new Date(),
     ipAddress: row.ip_address ? String(row.ip_address) : null,
     userAgent: row.user_agent ? String(row.user_agent) : null,
+
+    languageBetween: row.language_between ? String(row.language_between) : null,
+    ceremonyLocationText: row.ceremony_location_text ? String(row.ceremony_location_text) : null,
+    receptionLocationText: row.reception_location_text ? String(row.reception_location_text) : null,
+    ceremonyType: (row.ceremony_type as BookingFormResponse['ceremonyType']) ?? null,
+    ceremonyTypeOther: row.ceremony_type_other ? String(row.ceremony_type_other) : null,
+    firstLook: (row.first_look as BookingFormResponse['firstLook']) ?? null,
+    publicationConsent: safeParseJson<PublicationChannel[] | null>(row.publication_consent, null),
+    gdprAcceptedAt: fromIso(row.gdpr_accepted_at),
   };
 }
 
@@ -447,4 +459,86 @@ export async function createFormResponse(input: FormResponseCreateInput): Promis
   );
 
   return id;
+}
+
+// ─── /contrato post-deposit flow ─────────────────────────────────────────
+
+/** Mark the deposit as received. Idempotent (sets the timestamp only the
+ *  first time). Called from /admin when the operator confirms the bank
+ *  transfer / contract platform reports the deposit cleared. */
+export async function markDepositPaid(bookingId: string): Promise<void> {
+  await initSchema();
+  const now = nowIso();
+  await db.execute({
+    sql: `UPDATE bookings
+          SET deposit_paid_at = COALESCE(deposit_paid_at, ?)
+          WHERE id = ?`,
+    args: [now, bookingId],
+  });
+}
+
+/** Clear the deposit flag (admin un-marks). Also clears contract_ready_at
+ *  because letting a contrato submission survive a deposit reversal would
+ *  be inconsistent. */
+export async function unmarkDepositPaid(bookingId: string): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: `UPDATE bookings
+          SET deposit_paid_at = NULL, contract_ready_at = NULL
+          WHERE id = ?`,
+    args: [bookingId],
+  });
+}
+
+export interface ContractDataInput {
+  bookingId: string;
+  languageBetween?: string | null;
+  ceremonyLocationText: string;
+  receptionLocationText: string;
+  ceremonyType: 'civil' | 'religious' | 'other';
+  ceremonyTypeOther?: string | null;
+  firstLook: 'yes' | 'no' | 'not_sure';
+  publicationConsent: PublicationChannel[];
+  gdprAcceptedAt: Date;
+}
+
+/** Update the booking_form_responses row with /contrato data and stamp
+ *  bookings.contract_ready_at in a single batch. Requires a pre-existing
+ *  form response row (the couple must have submitted /reserva first). */
+export async function submitContractData(input: ContractDataInput): Promise<void> {
+  await initSchema();
+  const now = nowIso();
+
+  await db.batch(
+    [
+      {
+        sql: `UPDATE booking_form_responses
+              SET language_between = ?,
+                  ceremony_location_text = ?,
+                  reception_location_text = ?,
+                  ceremony_type = ?,
+                  ceremony_type_other = ?,
+                  first_look = ?,
+                  publication_consent = ?,
+                  gdpr_accepted_at = ?
+              WHERE booking_id = ?`,
+        args: [
+          input.languageBetween ?? null,
+          input.ceremonyLocationText,
+          input.receptionLocationText,
+          input.ceremonyType,
+          input.ceremonyType === 'other' ? (input.ceremonyTypeOther ?? null) : null,
+          input.firstLook,
+          JSON.stringify(input.publicationConsent),
+          toIso(input.gdprAcceptedAt),
+          input.bookingId,
+        ],
+      },
+      {
+        sql: `UPDATE bookings SET contract_ready_at = ? WHERE id = ?`,
+        args: [now, input.bookingId],
+      },
+    ],
+    'write',
+  );
 }

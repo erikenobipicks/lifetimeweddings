@@ -223,6 +223,25 @@ export async function initSchema() {
   // operator to see at a glance whether the place is one we already know.
   await ensureColumn('leads', 'venue_name', 'TEXT');
 
+  // ─── /contrato post-deposit flow ───────────────────────────────────────
+  // After the couple has filled /reserva and we've received the deposit,
+  // they fill a second form at /contrato/[slug] with the data we need to
+  // draft the contract: image-rights consent, exact ceremony vs reception
+  // locations, ceremony type, First Look, GDPR. These columns are nullable
+  // because they're only filled in the second step — a booking in
+  // form_submitted state without /contrato data is a valid intermediate
+  // state ("paid deposit, awaiting contract data").
+  await ensureColumn('bookings', 'deposit_paid_at', 'TEXT');
+  await ensureColumn('bookings', 'contract_ready_at', 'TEXT');
+  await ensureColumn('booking_form_responses', 'language_between', 'TEXT');
+  await ensureColumn('booking_form_responses', 'ceremony_location_text', 'TEXT');
+  await ensureColumn('booking_form_responses', 'reception_location_text', 'TEXT');
+  await ensureColumn('booking_form_responses', 'ceremony_type', 'TEXT');
+  await ensureColumn('booking_form_responses', 'ceremony_type_other', 'TEXT');
+  await ensureColumn('booking_form_responses', 'first_look', 'TEXT');
+  await ensureColumn('booking_form_responses', 'publication_consent', 'TEXT');
+  await ensureColumn('booking_form_responses', 'gdpr_accepted_at', 'TEXT');
+
   // ── Retention sweep (boot-time) ───────────────────────────────────────
   // Data-minimisation per RGPD: keep personal data only as long as needed.
   // Runs on each boot; safe to no-op when the DB is empty.

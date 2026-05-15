@@ -424,6 +424,66 @@ export const ui = {
     'reserva.form.error.validation':
       'Hay campos con un formato incorrecto. Revisadlos abajo.',
 
+    // /contrato post-deposit form — second step after /reserva, filled
+    // once the operator has confirmed the deposit transfer. Captures the
+    // image-rights consent and the operational details that go in the
+    // physical contract (ceremony vs reception, type, First Look, GDPR).
+    'contrato.title': 'Datos para el contrato',
+    'contrato.intro':
+      'Esta información es esencial para la elaboración del contrato, ya que nos tomamos muy en serio vuestros derechos de imagen. Queremos que tengáis plena confianza en el uso que haremos del material que capturemos durante vuestra boda.',
+    'contrato.gating.deposit_pending.title': 'Esperando confirmación del depósito',
+    'contrato.gating.deposit_pending.body':
+      'En cuanto recibamos el depósito os habilitaremos este formulario para terminar de preparar el contrato. Si creéis que ya lo habéis transferido, avisadnos por WhatsApp.',
+    'contrato.gating.already_submitted.title': 'Ya tenemos vuestros datos',
+    'contrato.gating.already_submitted.body':
+      'Hemos recibido toda la información del contrato. Lo estamos preparando y os llegará firmado en unos días.',
+    'contrato.section.day.heading': 'Detalles operativos del día',
+    'contrato.section.day.intro': 'Para terminar de planificar la jornada.',
+    'contrato.section.consent.heading': 'Consentimiento de publicación',
+    'contrato.section.consent.intro':
+      'La publicación de nuestros trabajos en medios digitales o físicos se realiza siempre sin ánimo de lucro y con el único propósito de mostrar nuestra forma de contar historias. Nunca publicaremos la película completa de vuestra boda (20–25 min) en ningún medio público. Marcad los canales en los que nos autorizáis a mostrar las imágenes:',
+    'contrato.section.gdpr.heading': 'Protección de datos',
+    'contrato.field.languageBetween': 'Idioma en el que os comunicáis entre vosotros',
+    'contrato.field.languageBetween.help': 'Útil para saber en qué idioma dirigirnos a vosotros durante la jornada.',
+    'contrato.field.ceremonyLocation': 'Lugar de la ceremonia',
+    'contrato.field.receptionLocation': 'Lugar del banquete',
+    'contrato.field.ceremonyType': 'Tipo de ceremonia',
+    'contrato.opt.ceremony.civil': 'Civil',
+    'contrato.opt.ceremony.religious': 'Religiosa',
+    'contrato.opt.ceremony.other': 'Otro',
+    'contrato.field.ceremonyTypeOther': 'Especificad',
+    'contrato.field.firstLook': '¿Queréis hacer un "First Look"?',
+    'contrato.field.firstLook.help':
+      'El First Look es un momento especial antes de la ceremonia en el que os veis por primera vez en un espacio íntimo. Nosotros os acompañamos para capturar toda la emoción.',
+    'contrato.opt.firstLook.yes': 'Sí',
+    'contrato.opt.firstLook.no': 'No',
+    'contrato.opt.firstLook.not_sure': 'Aún no lo tenemos claro',
+    'contrato.field.publicationConsent': 'Canales autorizados',
+    'contrato.opt.consent.display': 'Escaparate físico en el estudio (C/ Mare Molas 26, Reus)',
+    'contrato.opt.consent.facebook': 'Facebook profesional (facebook.com/lifetimeweddingstories)',
+    'contrato.opt.consent.website': 'Página web (lifetime.photo)',
+    'contrato.opt.consent.instagram': 'Instagram (@lifetime.weddings)',
+    'contrato.opt.consent.private_video':
+      'Vídeo privado (solo compartido con otras parejas, nunca enlace público)',
+    'contrato.field.gdpr.label': 'Acepto el tratamiento de datos',
+    'contrato.field.gdpr.body':
+      'De conformidad con el Reglamento (UE) 2016/679 (RGPD) y la Ley Orgánica 3/2018, le informamos que los datos personales recogidos serán tratados por OBJECTIU S.C.P. (C/ Mare Molas 26, Reus) con la finalidad de gestionar el contrato y la prestación de los servicios fotográficos. Sus datos no se cederán a terceros salvo obligación legal. Podrá ejercer sus derechos de acceso, rectificación, supresión, oposición, limitación y portabilidad escribiéndonos al correo indicado en nuestra política de privacidad.',
+    'contrato.submit': 'Enviar datos del contrato',
+    'contrato.submit.microcopy':
+      'Una vez enviado, prepararemos el contrato y os llegará por email en los próximos días.',
+    'contrato.submitting': 'Enviando…',
+    'contrato.success.title': '¡Hecho!',
+    'contrato.success.body':
+      'Hemos recibido los datos. Prepararemos el contrato y os llegará para firmar en los próximos días.',
+    'contrato.error.generic':
+      'No hemos podido enviar el formulario. Probad de nuevo en un momento o escribidnos por WhatsApp.',
+    'contrato.error.alreadySubmitted':
+      'Estos datos ya están registrados. Si necesitáis modificar algo, escribidnos por WhatsApp.',
+    'contrato.error.depositPending':
+      'Esperamos vuestro depósito antes de poder procesar este formulario.',
+    'contrato.error.rateLimited': 'Demasiados intentos en poco tiempo. Esperad unos minutos.',
+    'contrato.error.validation': 'Hay campos con un formato incorrecto. Revisadlos.',
+
     // Video embed (flagship trailer)
     'reserva.video.eyebrow': 'Bodas en movimiento',
     'reserva.video.heading': 'Echad un vistazo a nuestro trabajo',
@@ -861,6 +921,63 @@ export const ui = {
     'reserva.form.error.validation':
       'Hi ha camps amb un format incorrecte. Reviseu-los a baix.',
 
+    // /contrato post-deposit form
+    'contrato.title': 'Dades per al contracte',
+    'contrato.intro':
+      "Aquesta informació és essencial per a l'elaboració del contracte, ja que ens prenem molt seriosament els vostres drets d'imatge. Volem que tingueu plena confiança en l'ús que es farà del material que captem durant el vostre casament.",
+    'contrato.gating.deposit_pending.title': 'Esperant confirmació del dipòsit',
+    'contrato.gating.deposit_pending.body':
+      "Tan bon punt rebem el dipòsit us habilitarem aquest formulari per acabar de preparar el contracte. Si penseu que ja l'heu transferit, aviseu-nos pel WhatsApp.",
+    'contrato.gating.already_submitted.title': 'Ja tenim les vostres dades',
+    'contrato.gating.already_submitted.body':
+      "Hem rebut tota la informació del contracte. L'estem preparant i us arribarà signat en uns dies.",
+    'contrato.section.day.heading': 'Detalls operatius del dia',
+    'contrato.section.day.intro': 'Per acabar de planificar la jornada.',
+    'contrato.section.consent.heading': 'Consentiment de publicació',
+    'contrato.section.consent.intro':
+      "La publicació dels nostres treballs en mitjans digitals o físics es fa sempre sense ànim de lucre i amb l'únic objectiu de mostrar la nostra manera d'explicar històries. Mai publicarem la pel·lícula completa del vostre casament (20–25 min) en cap mitjà públic. Marqueu els canals en què ens autoritzeu a mostrar les imatges:",
+    'contrato.section.gdpr.heading': 'Protecció de dades',
+    'contrato.field.languageBetween': 'Idioma en què us comuniqueu entre vosaltres',
+    'contrato.field.languageBetween.help': 'Útil perquè sapiguem en quin idioma dirigir-nos a vosaltres durant la jornada.',
+    'contrato.field.ceremonyLocation': 'Lloc de la cerimònia',
+    'contrato.field.receptionLocation': 'Lloc del banquet',
+    'contrato.field.ceremonyType': 'Tipus de cerimònia',
+    'contrato.opt.ceremony.civil': 'Civil',
+    'contrato.opt.ceremony.religious': 'Religiosa',
+    'contrato.opt.ceremony.other': 'Altres',
+    'contrato.field.ceremonyTypeOther': 'Especifiqueu',
+    'contrato.field.firstLook': 'Voleu fer un "First Look"?',
+    'contrato.field.firstLook.help':
+      "El First Look és un moment especial abans de la cerimònia en què us veieu per primera vegada en un espai íntim. Nosaltres us acompanyem per capturar tota l'emoció.",
+    'contrato.opt.firstLook.yes': 'Sí',
+    'contrato.opt.firstLook.no': 'No',
+    'contrato.opt.firstLook.not_sure': 'Encara no ho tenim clar',
+    'contrato.field.publicationConsent': 'Canals autoritzats',
+    'contrato.opt.consent.display': "Aparador físic a l'estudi (C/ Mare Molas 26, Reus)",
+    'contrato.opt.consent.facebook': 'Facebook professional (facebook.com/lifetimeweddingstories)',
+    'contrato.opt.consent.website': 'Pàgina web (lifetime.photo)',
+    'contrato.opt.consent.instagram': 'Instagram (@lifetime.weddings)',
+    'contrato.opt.consent.private_video':
+      'Vídeo privat (només compartit amb altres parelles, mai enllaç públic)',
+    'contrato.field.gdpr.label': 'Accepto el tractament de dades',
+    'contrato.field.gdpr.body':
+      "D'acord amb el Reglament (UE) 2016/679 (RGPD) i la Llei Orgànica 3/2018, l'informem que les dades personals recollides seran tractades per OBJECTIU S.C.P. (C/ Mare Molas 26, Reus) amb la finalitat de gestionar el contracte i la prestació dels serveis fotogràfics. Les seves dades no se cediran a tercers excepte en cas d'obligació legal. Podrà exercir els seus drets d'accés, rectificació, supressió, oposició, limitació i portabilitat escrivint-nos al correu indicat a la nostra política de privacitat.",
+    'contrato.submit': 'Enviar dades del contracte',
+    'contrato.submit.microcopy':
+      'Un cop enviat, prepararem el contracte i us arribarà per email en els pròxims dies.',
+    'contrato.submitting': 'Enviant…',
+    'contrato.success.title': 'Fet!',
+    'contrato.success.body':
+      'Hem rebut les dades. Prepararem el contracte i us arribarà per signar en els pròxims dies.',
+    'contrato.error.generic':
+      "No hem pogut enviar el formulari. Proveu-ho un altre cop d'aquí a un moment o escriviu-nos pel WhatsApp.",
+    'contrato.error.alreadySubmitted':
+      'Aquestes dades ja estan registrades. Si heu de modificar alguna cosa, escriviu-nos pel WhatsApp.',
+    'contrato.error.depositPending':
+      'Esperem el vostre dipòsit abans de poder processar aquest formulari.',
+    'contrato.error.rateLimited': 'Massa intents en poc temps. Espereu uns minuts.',
+    'contrato.error.validation': 'Hi ha camps amb un format incorrecte. Reviseu-los.',
+
     // Video embed
     'reserva.video.eyebrow': 'Bodes en moviment',
     'reserva.video.heading': 'Feu un cop d\'ull a la nostra feina',
@@ -1296,6 +1413,63 @@ export const ui = {
       'Too many attempts in a short time. Wait a few minutes before trying again.',
     'reserva.form.error.validation':
       "Some fields have an incorrect format. Please check them below.",
+
+    // /contrato post-deposit form
+    'contrato.title': 'Contract details',
+    'contrato.intro':
+      'This information is essential for preparing the contract, as we take your image rights very seriously. We want you to feel completely confident about how any material captured during your wedding may be used.',
+    'contrato.gating.deposit_pending.title': 'Waiting for deposit confirmation',
+    'contrato.gating.deposit_pending.body':
+      "As soon as we receive the deposit we'll unlock this form so you can finish preparing the contract. If you think you've already transferred it, please message us on WhatsApp.",
+    'contrato.gating.already_submitted.title': 'We already have your details',
+    'contrato.gating.already_submitted.body':
+      "We've received all the contract information. We're preparing it and you'll receive it signed within a few days.",
+    'contrato.section.day.heading': 'Day-of operational details',
+    'contrato.section.day.intro': 'To finish planning the day.',
+    'contrato.section.consent.heading': 'Publication consent',
+    'contrato.section.consent.intro':
+      'The publication of our work on digital or physical media is always done without commercial intent and solely to showcase our storytelling style. We will never publish the full wedding film (20–25 min) on any public platform. Tick the channels where you authorise us to show images:',
+    'contrato.section.gdpr.heading': 'Data protection',
+    'contrato.field.languageBetween': 'Which language do you usually speak between you?',
+    'contrato.field.languageBetween.help': 'Helps us know which language to use with you during the day.',
+    'contrato.field.ceremonyLocation': 'Ceremony location',
+    'contrato.field.receptionLocation': 'Reception location',
+    'contrato.field.ceremonyType': 'Type of ceremony',
+    'contrato.opt.ceremony.civil': 'Civil',
+    'contrato.opt.ceremony.religious': 'Religious',
+    'contrato.opt.ceremony.other': 'Other',
+    'contrato.field.ceremonyTypeOther': 'Please specify',
+    'contrato.field.firstLook': 'Would you like to have a "First Look"?',
+    'contrato.field.firstLook.help':
+      'The First Look is a special moment before the ceremony where you see each other for the first time in a private setting. We accompany you to capture all the emotion.',
+    'contrato.opt.firstLook.yes': 'Yes',
+    'contrato.opt.firstLook.no': 'No',
+    'contrato.opt.firstLook.not_sure': 'Not sure yet',
+    'contrato.field.publicationConsent': 'Authorised channels',
+    'contrato.opt.consent.display': 'Physical studio display (C/ Mare Molas 26, Reus)',
+    'contrato.opt.consent.facebook': 'Facebook professional (facebook.com/lifetimeweddingstories)',
+    'contrato.opt.consent.website': 'Website (lifetime.photo)',
+    'contrato.opt.consent.instagram': 'Instagram (@lifetime.weddings)',
+    'contrato.opt.consent.private_video':
+      'Private video (shown only to other couples privately, never a public link)',
+    'contrato.field.gdpr.label': 'I accept the data processing policy',
+    'contrato.field.gdpr.body':
+      'In accordance with Regulation (EU) 2016/679 (GDPR) and Spanish Organic Law 3/2018, we inform you that the personal data collected will be processed by OBJECTIU S.C.P. (C/ Mare Molas 26, Reus) for the purpose of managing the contract and providing the photography services. Your data will not be shared with third parties unless required by law. You may exercise your rights of access, rectification, erasure, objection, restriction and portability by contacting us at the email indicated in our privacy policy.',
+    'contrato.submit': 'Submit contract details',
+    'contrato.submit.microcopy':
+      "Once submitted, we'll prepare the contract and email it to you within a few days.",
+    'contrato.submitting': 'Submitting…',
+    'contrato.success.title': 'Done!',
+    'contrato.success.body':
+      "We've received the details. We'll prepare the contract and send it to you to sign within a few days.",
+    'contrato.error.generic':
+      "We couldn't send the form. Try again in a moment, or message us on WhatsApp.",
+    'contrato.error.alreadySubmitted':
+      'These details have already been recorded. If you need to change anything, message us on WhatsApp.',
+    'contrato.error.depositPending':
+      'We need to receive your deposit before we can process this form.',
+    'contrato.error.rateLimited': 'Too many attempts in a short time. Wait a few minutes.',
+    'contrato.error.validation': 'Some fields have an incorrect format. Please check them.',
 
     // Video embed
     'reserva.video.eyebrow': 'Weddings in motion',
