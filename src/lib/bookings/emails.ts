@@ -319,3 +319,180 @@ export async function sendBookingTelegram(
   ].join('\n');
   await sendTelegramNotification(message);
 }
+
+// ─── /contrato post-deposit notifications ────────────────────────────────
+// Fired when the couple submits the second-step contract data form. Two
+// recipients, like the /reserva pair, but simpler bodies — the data is
+// already in admin; the email is just an "ack, we'll prepare the contract".
+
+interface ContratoCoupleCopy {
+  subject: string;
+  greeting: string;
+  body: string;
+  signoff: string;
+}
+
+function contratoCoupleCopy(booking: Booking): ContratoCoupleCopy {
+  const lang: Lang = booking.preferredLanguage;
+  const n1 = booking.coupleName1;
+  const n2 = booking.coupleName2;
+  if (lang === 'es') {
+    return {
+      subject: `Datos recibidos — preparamos vuestro contrato, ${n1}`,
+      greeting: `Hola ${n1} y ${n2},`,
+      body: 'Hemos recibido vuestros datos para el contrato. Lo prepararemos en los próximos días y os llegará por email para firmar online. Si necesitáis modificar algo, escribidnos por WhatsApp.',
+      signoff: 'Hablamos pronto.\n\nFerran y Eric\nLifetime',
+    };
+  }
+  if (lang === 'en') {
+    return {
+      subject: `Details received — we'll prepare your contract, ${n1}`,
+      greeting: `Hi ${n1} and ${n2},`,
+      body: "We've received your details for the contract. We'll prepare it over the next few days and email it to you to sign online. If you need to change anything, message us on WhatsApp.",
+      signoff: 'Talk soon.\n\nFerran and Eric\nLifetime',
+    };
+  }
+  return {
+    subject: `Dades rebudes — preparem el vostre contracte, ${n1}`,
+    greeting: `Hola ${n1} i ${n2},`,
+    body: "Hem rebut les vostres dades per al contracte. El prepararem en els pròxims dies i us arribarà per email per signar-lo online. Si heu de modificar alguna cosa, escriviu-nos pel WhatsApp.",
+    signoff: 'Parlem aviat.\n\nFerran i Eric\nLifetime',
+  };
+}
+
+export async function sendContratoCoupleConfirmation(booking: Booking): Promise<void> {
+  const c = contratoCoupleCopy(booking);
+  const wa = WHATSAPP_BASE;
+  const html = `
+    <div style="font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:#1a1a1a;line-height:1.6;max-width:560px;margin:0 auto;padding:24px">
+      <p style="margin:0 0 16px">${escapeHtml(c.greeting)}</p>
+      <p style="margin:0 0 24px">${escapeHtml(c.body)}</p>
+      <p style="margin:0 0 24px">
+        <a href="${wa}" style="color:#c9a96e;text-decoration:underline">${wa}</a>
+      </p>
+      <p style="margin:0;white-space:pre-line">${escapeHtml(c.signoff)}</p>
+      <hr style="border:none;border-top:1px solid #eee;margin:32px 0 16px"/>
+      <p style="color:#999;font-size:12px;margin:0">
+        Lifetime Weddings · ${SITE.phoneDisplay} · ${SITE.email}<br/>
+        ${SITE.address.street}, ${SITE.address.city} (${SITE.address.region})
+      </p>
+    </div>
+  `;
+  const text = [c.greeting, '', c.body, '', wa, '', c.signoff].join('\n');
+
+  if (!resend) {
+    // eslint-disable-next-line no-console
+    console.log('[booking-email] (dev) contrato couple confirmation:', {
+      to: booking.coupleEmailPrimary,
+      subject: c.subject,
+    });
+    return;
+  }
+  try {
+    await resend.emails.send({
+      from: FROM_HELLO,
+      to: [booking.coupleEmailPrimary],
+      subject: c.subject,
+      html,
+      text,
+    });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[booking-email] contrato couple confirmation failed', err);
+  }
+}
+
+export async function sendContratoInternalAlert(
+  booking: Booking,
+  formResponse: BookingFormResponse,
+): Promise<void> {
+  const couple = `${formResponse.c1FullName} y ${formResponse.c2FullName}`;
+  const adminUrl = `${SITE_URL}/admin/bookings/${booking.id}`;
+  const subject = `[Contrato] ${couple} · ${formatExpiresShort(booking.weddingDate, 'ca')}`;
+
+  const consentLabels: Record<string, string> = {
+    display: 'Escaparate físico',
+    facebook: 'Facebook',
+    website: 'Web',
+    instagram: 'Instagram',
+    private_video: 'Vídeo privado',
+  };
+  const consentList = (formResponse.publicationConsent ?? [])
+    .map((c) => consentLabels[c] ?? c)
+    .join(', ') || '— ninguno —';
+
+  const ceremonyTypeLabel = (() => {
+    const v = formResponse.ceremonyType;
+    if (v === 'civil') return 'Civil';
+    if (v === 'religious') return 'Religiosa';
+    if (v === 'other') return `Otro: ${formResponse.ceremonyTypeOther ?? '?'}`;
+    return '—';
+  })();
+  const firstLookLabel = (() => {
+    const v = formResponse.firstLook;
+    if (v === 'yes') return 'Sí';
+    if (v === 'no') return 'No';
+    if (v === 'not_sure') return 'No lo tiene claro';
+    return '—';
+  })();
+
+  const rows: Array<[string, string]> = [
+    ['Pareja', couple],
+    ['Boda', `${formatExpiresShort(booking.weddingDate, 'ca')} · ${booking.venueName}`],
+    ['Ceremonia (lugar)', formResponse.ceremonyLocationText ?? '—'],
+    ['Banquete (lugar)', formResponse.receptionLocationText ?? '—'],
+    ['Tipo ceremonia', ceremonyTypeLabel],
+    ['First Look', firstLookLabel],
+    ['Idioma entre la pareja', formResponse.languageBetween ?? '—'],
+    ['Consentimiento publicación', consentList],
+    ['RGPD', formResponse.gdprAcceptedAt ? formResponse.gdprAcceptedAt.toISOString() : '—'],
+  ];
+
+  const html = `
+    <div style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;color:#1a1a1a;line-height:1.5;max-width:560px;margin:0 auto;padding:20px">
+      <h1 style="font-size:18px;margin:0 0 16px">Datos para el contrato recibidos</h1>
+      <table style="width:100%;border-collapse:collapse;font-size:14px">
+        ${rows
+          .map(
+            ([label, value]) => `
+          <tr>
+            <td style="padding:6px 0;color:#666;width:40%;vertical-align:top">${escapeHtml(label)}</td>
+            <td style="padding:6px 0">${escapeHtml(value)}</td>
+          </tr>`,
+          )
+          .join('')}
+      </table>
+      <div style="margin-top:24px">
+        <a href="${adminUrl}" style="display:inline-block;background:#1a1a1a;color:#fff;padding:10px 20px;text-decoration:none;font-weight:600;letter-spacing:0.05em;font-size:13px">Ver en admin →</a>
+      </div>
+    </div>
+  `;
+  const text = [
+    'Datos para el contrato recibidos',
+    '',
+    ...rows.map(([l, v]) => `${l}: ${v}`),
+    '',
+    `→ ${adminUrl}`,
+  ].join('\n');
+
+  if (!resend) {
+    // eslint-disable-next-line no-console
+    console.log('[booking-email] (dev) contrato internal alert:', { to: INTERNAL_TO, subject });
+    return;
+  }
+  try {
+    await resend.emails.send({ from: FROM_NOTIFY, to: [INTERNAL_TO], subject, html, text });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[booking-email] contrato internal alert failed', err);
+  }
+
+  // Telegram ping — minimal, just enough to triage from phone.
+  const tgMessage = [
+    '📝 <b>Datos contrato</b>',
+    escapeHtml(couple),
+    `${escapeHtml(formatExpiresShort(booking.weddingDate, 'ca'))} · ${escapeHtml(booking.venueName)}`,
+    `→ <a href="${adminUrl}">${adminUrl}</a>`,
+  ].join('\n');
+  await sendTelegramNotification(tgMessage);
+}

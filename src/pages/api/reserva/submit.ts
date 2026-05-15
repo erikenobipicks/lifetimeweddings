@@ -291,6 +291,16 @@ export const POST: APIRoute = async ({ request }) => {
       submittedAt: new Date(),
       ipAddress: ip,
       userAgent: request.headers.get('user-agent'),
+      // /contrato fields aren't filled at /reserva-submit time — they get
+      // captured later via /api/contrato/submit. Default to null here.
+      languageBetween: null,
+      ceremonyLocationText: null,
+      receptionLocationText: null,
+      ceremonyType: null,
+      ceremonyTypeOther: null,
+      firstLook: null,
+      publicationConsent: null,
+      gdprAcceptedAt: null,
     };
 
     // Fire-and-await but each helper is fail-soft internally, so a delivery
