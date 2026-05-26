@@ -35,6 +35,7 @@ const {
 
 const t = useTranslations(lang);
 const site = Astro.site ?? new URL('https://www.lifetime.photo');
+const gaId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID ?? '';
 
 function localeHref(l: Lang, p: string): string {
   const base = l === 'ca' ? p : `/${l}${p === '/' ? '' : p}`;
@@ -127,6 +128,38 @@ const alternates: { hreflang: string; href: string }[] = [
     {jsonLd?.map((obj) => (
       <script type="application/ld+json" set:html={JSON.stringify(obj)} />
     ))}
+
+    {/* GA4 — consent-aware. Only loads when the visitor has accepted
+        cookies via the CookieBanner. Reads the same localStorage key the
+        banner writes to and also listens for the consent:change event so
+        a fresh "accept" click activates GA without a page reload. */}
+    {gaId && (
+      <script is:inline define:vars={{ gaId }}>
+        (function() {
+          var KEY = 'lifetime.cookies.v1';
+          var loaded = false;
+          function loadGA() {
+            if (loaded) return;
+            loaded = true;
+            var s = document.createElement('script');
+            s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
+            s.async = true;
+            document.head.appendChild(s);
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+            gtag('config', gaId, { anonymize_ip: true });
+          }
+          try {
+            var stored = JSON.parse(localStorage.getItem(KEY) || '{}');
+            if (stored.choice === 'accept') loadGA();
+          } catch(e) {}
+          document.addEventListener('consent:change', function(e) {
+            if (e.detail && e.detail.choice === 'accept') loadGA();
+          });
+        })();
+      </script>
+    )}
   </head>
   <body class="bg-white text-ink font-sans antialiased">
     <a
