@@ -365,3 +365,26 @@ export function faqPageJsonLd(faqs: Array<{ question: string; answer: string }>)
     })),
   };
 }
+
+// ─── Zone-specific Service node ─────────────────────────────────────────────
+// One block per geographic zone landing (/zones/[slug]). Sister of
+// venueServiceJsonLd but `areaServed` is a list of towns/districts rather
+// than a single Place. Same provider reference + no fixed price.
+export function zoneServiceJsonLd(args: {
+  zoneName: string;
+  /** Full area served list (towns, districts). */
+  areaServed: string[];
+  canonicalUrl: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: `Fotografia i vídeo de boda a ${args.zoneName}`,
+    serviceType: 'Wedding photography and videography',
+    provider: { '@id': ID.business },
+    areaServed: args.areaServed.map((a) => ({ '@type': 'Place', name: a })),
+    audience: { '@type': 'Audience', audienceType: 'Engaged couples' },
+    url: args.canonicalUrl,
+    image: abs('/og-default.jpg'),
+  };
+}
