@@ -324,3 +324,56 @@ export async function homeJsonLd(lang: Lang) {
     ...servicesJsonLd(lang),
   ];
 }
+
+// ─── Venue-specific Service node ────────────────────────────────────────────
+// One block per venue landing page. Inherits the provider from `#business`
+// (already declared on home) so we don't duplicate the LocalBusiness data —
+// Google's structured data validator follows the reference correctly.
+export function venueServiceJsonLd(args: {
+  venueName: string;
+  venueRegion: string;
+  canonicalUrl: string;
+  /** Minimum price in EUR (pack base). */
+  minPrice: number;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: `Fotografia i vídeo de boda a ${args.venueName}`,
+    serviceType: 'Wedding photography and videography',
+    provider: { '@id': ID.business },
+    areaServed: { '@type': 'Place', name: `${args.venueName}, ${args.venueRegion}` },
+    audience: { '@type': 'Audience', audienceType: 'Engaged couples' },
+    url: args.canonicalUrl,
+    image: abs('/og-default.jpg'),
+    offers: {
+      '@type': 'Offer',
+      price: String(args.minPrice),
+      priceCurrency: 'EUR',
+      priceSpecification: {
+        '@type': 'PriceSpecification',
+        minPrice: args.minPrice,
+        priceCurrency: 'EUR',
+        valueAddedTaxIncluded: true,
+      },
+      availability: 'https://schema.org/InStock',
+      url: args.canonicalUrl,
+    },
+  };
+}
+
+// ─── FAQPage builder ────────────────────────────────────────────────────────
+// Generic FAQPage block — pass an array of question/answer pairs.
+// Lifts a chunk of SERP real estate via FAQ rich results when the underlying
+// HTML mirrors the same Q&A. Caller is responsible for that mirror.
+export function faqPageJsonLd(faqs: Array<{ question: string; answer: string }>) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((q) => ({
+      '@type': 'Question',
+      name: q.question,
+      acceptedAnswer: { '@type': 'Answer', text: q.answer },
+    })),
+  };
+}

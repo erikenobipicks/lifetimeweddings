@@ -1,0 +1,312 @@
+---
+// Venue-specific landing page. SEO target: "fotògraf de boda + [venue]"
+// — highest-intent search a couple can do after they've chosen the
+// venue but not the photographer. Each landing wraps a real wedding
+// gallery we already have, frames the venue from a working
+// photographer's POV, includes venue-specific FAQs (with FAQPage
+// schema), and applies the honest neuromarketing levers: scarcity
+// (20 weddings/year cap), social proof (live GBP rating + count),
+// loss-aversion CTAs, peak-end closing.
+//
+// Catalan only for now. /es/venues and /en/venues to follow once the
+// pattern is validated in production.
+
+export const prerender = true;
+
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Section from '~/components/Section.astro';
+import { VENUES } from '~/data/venues';
+import { WEDDINGS, weddingCover, weddingGallery } from '~/data/weddings';
+import { SITE, WHATSAPP_BASE } from '~/data/site';
+import { useTranslations } from '~/i18n/ui';
+import { breadcrumbJsonLd, venueServiceJsonLd, faqPageJsonLd } from '~/lib/seo';
+import { getGbpRating } from '~/lib/gbp-rating';
+
+export function getStaticPaths() {
+  return VENUES.map((v) => ({ params: { slug: v.slug }, props: { venue: v } }));
+}
+
+const { venue } = Astro.props;
+const lang = 'ca' as const;
+const t = useTranslations(lang);
+
+// Find the real wedding this landing leans on for the gallery.
+const realWedding = WEDDINGS.find((w) => w.slug === venue.realWeddingSlug);
+const gallery = realWedding ? weddingGallery(realWedding) : [];
+const cover = realWedding ? weddingCover(realWedding) : null;
+const coverLarge = gallery[0]?.variants.lg ?? cover ?? '/og-default.jpg';
+const totalPhotos = gallery.length;
+
+// Live Google rating — used in the social-proof bar. Falls back to
+// hard-coded values when the Places API is unreachable; never throws.
+const rating = await getGbpRating();
+
+// Page-level JSON-LD bundle: Service + FAQPage + BreadcrumbList.
+// LocalBusiness lives on the home (referenced here via #business @id).
+const canonicalUrl = `${SITE.url}/venues/${venue.slug}`;
+const jsonLd = [
+  venueServiceJsonLd({
+    venueName: venue.name,
+    venueRegion: venue.region,
+    canonicalUrl,
+    minPrice: 1290,
+  }),
+  faqPageJsonLd(venue.faqs),
+  breadcrumbJsonLd([
+    { name: t('schema.breadcrumb.home'), url: `${SITE.url}/` },
+    { name: 'Venues', url: `${SITE.url}/venues/${venue.slug}` },
+    { name: venue.name, url: canonicalUrl },
+  ]),
+];
+
+// Alt text for gallery image i (1-indexed). Mirrors /bodas/[slug] pattern.
+function galleryAlt(i: number): string {
+  const nn = String(i).padStart(2, '0');
+  const count = String(totalPhotos).padStart(2, '0');
+  return `Boda a ${venue.name} · ${venue.realWeddingCouple} · Foto ${nn} de ${count}`;
+}
+
+// Pre-filled WhatsApp message — keeps the lead-into-conversation
+// transition warm. Mentions the venue so we know where they're coming
+// from without asking.
+const waMessage = encodeURIComponent(
+  `Hola! Ens casem i estem mirant si tenim disponibilitat per ${venue.name}.`,
+);
+const waLink = `${WHATSAPP_BASE}&text=${waMessage}`;
+---
+
+<BaseLayout
+  lang={lang}
+  title={venue.metaTitle}
+  description={venue.metaDescription}
+  canonicalPath={`/venues/${venue.slug}`}
+  jsonLd={jsonLd}
+  ogImage={cover ?? '/og-default.jpg'}
+>
+  <!-- Hero with venue cover -->
+  <section class="relative h-[70vh] min-h-[480px] overflow-hidden">
+    <img
+      src={coverLarge}
+      alt={`${venue.name} · ${venue.realWeddingCouple}`}
+      class="absolute inset-0 w-full h-full object-cover"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+      width="1920"
+      height="1280"
+    />
+    <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
+    <div class="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-6">
+      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">
+        {venue.eyebrow}
+      </p>
+      <h1 class="font-display text-3xl md:text-5xl font-bold max-w-4xl leading-tight">
+        {venue.h1}
+      </h1>
+      <p class="mt-5 max-w-2xl text-base md:text-lg leading-relaxed opacity-95">
+        {venue.subtitle}
+      </p>
+      <div class="mt-8 flex flex-col sm:flex-row gap-3">
+        <a
+          href={waLink}
+          target="_blank"
+          rel="noopener"
+          class="inline-block bg-gold text-ink border-2 border-gold px-8 py-3.5 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white hover:border-ink transition-colors"
+        >
+          Mira si la data segueix lliure
+        </a>
+        <a
+          href="/quiz"
+          class="inline-block border-2 border-white/80 text-white px-8 py-3.5 text-sm font-bold tracking-[0.14em] uppercase hover:bg-white/10 transition-colors"
+        >
+          Quiz d'1 minut
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Social proof bar — honest, real numbers only -->
+  <section class="bg-ink text-white py-6 px-6 border-y border-gold/20">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row gap-4 sm:gap-10 items-center justify-center text-center text-sm">
+      <div class="flex items-center gap-2">
+        <span class="text-gold font-bold">+150</span>
+        <span class="opacity-85">bodes documentades</span>
+      </div>
+      <div class="hidden sm:block w-px h-5 bg-white/20"></div>
+      <div class="flex items-center gap-2">
+        <span class="text-gold font-bold">{rating.ratingValue.toFixed(1)}★</span>
+        <span class="opacity-85">a Google · {rating.reviewCount} ressenyes</span>
+      </div>
+      <div class="hidden sm:block w-px h-5 bg-white/20"></div>
+      <div class="flex items-center gap-2">
+        <span class="text-gold font-bold">2</span>
+        <span class="opacity-85">germans · foto + vídeo en un sol equip</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Real wedding block + gallery -->
+  <Section>
+    <div class="max-w-4xl mx-auto px-2 mb-8 md:mb-12">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">
+        Una boda real a {venue.name}
+      </h2>
+      <p class="text-ink/75 leading-relaxed text-base md:text-lg">
+        {venue.realWeddingIntro}
+      </p>
+      {venue.extraResource && (
+        <p class="mt-4">
+          <a
+            href={venue.extraResource.href}
+            class="inline-block border-b border-gold text-ink font-semibold hover:text-gold transition-colors"
+          >
+            {venue.extraResource.label} →
+          </a>
+        </p>
+      )}
+    </div>
+
+    {gallery.length > 0 && (
+      <div class="max-w-6xl mx-auto">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+          {gallery.map((img, i) => {
+            const span = img.orientation === 'landscape' ? 'md:col-span-2' : '';
+            return (
+              <a
+                href={img.variants.lg}
+                target="_blank"
+                rel="noopener"
+                class:list={['block overflow-hidden group', span]}
+                aria-label={`Foto ${i + 1}`}
+              >
+                <img
+                  src={img.variants.md}
+                  srcset={`${img.variants.sm} 640w, ${img.variants.md} 1200w, ${img.variants.lg} 1920w`}
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  alt={galleryAlt(i + 1)}
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading={i < 2 ? 'eager' : 'lazy'}
+                  fetchpriority={i === 0 ? 'high' : 'auto'}
+                  decoding="async"
+                  width={img.width}
+                  height={img.height}
+                />
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    )}
+  </Section>
+
+  <!-- What the venue offers (photographer POV) -->
+  <Section bg="cream">
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-5">
+        Què aporta filmar i fotografiar a {venue.name}
+      </h2>
+      <p class="text-ink/75 leading-relaxed mb-6 text-base md:text-lg">
+        {venue.whatItOffersIntro}
+      </p>
+      <ul class="space-y-4">
+        {venue.whatItOffersBullets.map((b) => (
+          <li class="flex gap-3">
+            <span class="text-gold font-bold flex-shrink-0 mt-1">·</span>
+            <span class="text-ink/85 leading-relaxed">{b}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </Section>
+
+  <!-- Why couples choose us for this venue -->
+  <Section>
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-5">
+        Per què ens trien parelles que es casen a {venue.name}
+      </h2>
+      <p class="text-ink/75 leading-relaxed mb-6 text-base md:text-lg">
+        {venue.whyChooseIntro}
+      </p>
+      <ol class="space-y-5 mb-10">
+        {venue.whyChoosePoints.map((p, i) => (
+          <li class="flex gap-4">
+            <span class="font-display text-2xl text-gold font-bold flex-shrink-0">
+              {i + 1}.
+            </span>
+            <span class="text-ink/85 leading-relaxed pt-1">{p}</span>
+          </li>
+        ))}
+      </ol>
+
+      <div class="text-center pt-4">
+        <a
+          href={waLink}
+          target="_blank"
+          rel="noopener"
+          class="inline-block bg-ink text-white border-2 border-ink px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-gold hover:border-gold transition-colors"
+        >
+          Parlem pel WhatsApp
+        </a>
+      </div>
+    </div>
+  </Section>
+
+  <!-- Honest scarcity bar — neuromarketing #1, only states the real cap -->
+  <section class="bg-cream py-8 md:py-10 px-6 border-y border-ink/10">
+    <div class="max-w-3xl mx-auto text-center">
+      <p class="text-ink/85 leading-relaxed text-base md:text-lg">
+        <span class="font-bold">Acceptem un màxim de 20 bodes l'any</span>
+        per poder dedicar-nos a cadascuna sense pressa. Si teniu la data,
+        comproveu-la amb nosaltres com més aviat millor.
+      </p>
+    </div>
+  </section>
+
+  <!-- FAQ with FAQPage schema mirror -->
+  <Section bg="cream">
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-8">
+        Preguntes habituals sobre la nostra cobertura a {venue.name}
+      </h2>
+      <dl class="space-y-6">
+        {venue.faqs.map((f) => (
+          <div class="border-b border-ink/10 pb-6">
+            <dt class="font-display text-lg font-bold text-ink mb-2">
+              {f.question}
+            </dt>
+            <dd class="text-ink/80 leading-relaxed">{f.answer}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </Section>
+
+  <!-- Peak-end final CTA — neuromarketing #4 (loss-aversion CTA copy) + #6 -->
+  <Section>
+    <div class="max-w-2xl mx-auto px-2 text-center">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-5">
+        {venue.finalCtaH2}
+      </h2>
+      <p class="text-ink/75 leading-relaxed mb-8 text-base md:text-lg">
+        {venue.finalCtaBody}
+      </p>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <a
+          href={waLink}
+          target="_blank"
+          rel="noopener"
+          class="inline-block bg-gold text-ink border-2 border-gold px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white hover:border-ink transition-colors"
+        >
+          WhatsApp directe
+        </a>
+        <a
+          href="/quiz"
+          class="inline-block border-2 border-ink text-ink px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white transition-colors"
+        >
+          Quiz d'1 minut amb pressupost
+        </a>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>
