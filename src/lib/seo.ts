@@ -388,3 +388,70 @@ export function zoneServiceJsonLd(args: {
     image: abs('/og-default.jpg'),
   };
 }
+
+// ─── ImageGallery (wedding gallery pages) ───────────────────────────────────
+// One block per /bodas/[slug] (and locale variants). Each photo emits an
+// `ImageObject` child with caption, dimensions and contentLocation so Google
+// Images can index them with venue + city context — not just as opaque blobs.
+//
+// Rationale: filenames are `001-lg.jpg` etc. (immutable to avoid breaking
+// links shared with past clients). Image SEO therefore relies on schema +
+// alt + sitemap context, not on the file path itself.
+export interface GalleryPhoto {
+  /** Absolute or relative path to the full-size image. */
+  contentUrl: string;
+  /** Absolute or relative path to a thumbnail. Optional. */
+  thumbnailUrl?: string;
+  width: number;
+  height: number;
+  /** Descriptive caption mirroring the rendered alt text. */
+  caption: string;
+}
+export function imageGalleryJsonLd(args: {
+  pageUrl: string;
+  /** Gallery name, e.g. "Boda de Vanesa & David al Fortí del Rourell". */
+  name: string;
+  description: string;
+  /** Venue / town pair if known — emitted as `contentLocation` on each photo. */
+  contentLocation?: { name: string; addressLocality?: string };
+  photos: GalleryPhoto[];
+}) {
+  const location = args.contentLocation
+    ? {
+        '@type': 'Place',
+        name: args.contentLocation.name,
+        ...(args.contentLocation.addressLocality
+          ? {
+              address: {
+                '@type': 'PostalAddress',
+                addressLocality: args.contentLocation.addressLocality,
+              },
+            }
+          : {}),
+      }
+    : undefined;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ImageGallery',
+    '@id': `${args.pageUrl}#gallery`,
+    name: args.name,
+    description: args.description,
+    url: args.pageUrl,
+    isPartOf: { '@id': args.pageUrl },
+    numberOfItems: args.photos.length,
+    image: args.photos.map((p, i) => ({
+      '@type': 'ImageObject',
+      contentUrl: abs(p.contentUrl),
+      ...(p.thumbnailUrl ? { thumbnailUrl: abs(p.thumbnailUrl) } : {}),
+      width: p.width,
+      height: p.height,
+      caption: p.caption,
+      description: p.caption,
+      creator: { '@id': ID.business },
+      copyrightHolder: { '@id': ID.business },
+      acquireLicensePage: `${SITE.url}/legal`,
+      ...(location ? { contentLocation: location } : {}),
+      ...(i === 0 ? { representativeOfPage: true } : {}),
+    })),
+  };
+}

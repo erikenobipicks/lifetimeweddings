@@ -33,6 +33,8 @@ export default defineConfig({
       },
       // Exclude routes that are noindex or shared privately, so we don't
       // waste Google's crawl budget on URLs that won't show up in results.
+      // `sitemap-images.xml` is a sibling sitemap (referenced from robots.txt),
+      // not a regular page — it must never appear inside the URL sitemap.
       filter: (page) =>
         !page.includes('/p/') &&
         !page.includes('/admin') &&
@@ -40,7 +42,8 @@ export default defineConfig({
         !page.includes('/ofertes') &&
         !page.includes('/showcase/') &&
         !page.includes('/reserva/') &&
-        !page.includes('/preview-weddings/'),
+        !page.includes('/preview-weddings/') &&
+        !page.includes('/sitemap-images'),
     }),
   ],
   build: {
