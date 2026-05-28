@@ -235,6 +235,68 @@ export const VENUES: Venue[] = [
       "Mireu si tenim la vostra data lliure. Resposta en menys d'un dia. Sense compromís, sense formularis llargs — només una conversa per WhatsApp.",
   },
 
+  // ─── Dosterras Wine Garden ─────────────────────────────────────────
+  {
+    slug: 'dosterras-wine-garden',
+    name: 'Dosterras Wine Garden',
+    region: 'Tarragona',
+    realWeddingSlug: 'idoya-pau-dosterras',
+    realWeddingCouple: 'Idoya & Pau',
+    metaTitle: 'Fotògrafs de boda a Dosterras Wine Garden | Lifetime',
+    metaDescription:
+      'Fotografia i vídeo documental de boda a Dosterras Wine Garden, Tarragona. Veieu el reportatge real d\'una boda allà i parleu-nos pel WhatsApp.',
+    eyebrow: 'Reus · Tarragona · des de 2020',
+    h1: 'Fotografia i vídeo de boda a Dosterras Wine Garden',
+    subtitle:
+      "Som l'Eric i en Ferran, dos germans amb càmera i càmera de vídeo. Hem documentat la boda de la Idoya i en Pau a Dosterras i sabem com es viu una boda en un wine garden: la barreja de vinya, sostre obert i atmosfera mediterrània.",
+    realWeddingIntro:
+      "La Idoya i en Pau ens van confiar el seu dia. Vam ser-hi des dels preparatius fins al ball. El que vam captar és el que veureu si decidiu treballar amb nosaltres: la naturalitat, l'energia que dóna casar-se entre vinyes, els moments de calma del cocktail al jardí.",
+    whatItOffersIntro:
+      "Dosterras té una identitat molt clara: és un wine garden, no un saló convencional. Això vol dir que la boda flueix d'una manera diferent — més oberta, més lluminosa, més vinculada al paisatge. Per a un fotògraf, això són les claus:",
+    whatItOffersBullets: [
+      'Els espais exteriors entre la vinya — exteriors únics per als retrats sense haver de moure els convidats',
+      'La cerimònia a l\'aire lliure amb el camp de fons — un dels racons amb millor llum del Camp de Tarragona al capvespre',
+      'El cocktail i el banquet enllacen sense desplaçament — l\'energia del dia no es trenca',
+      'L\'ambient nocturn amb il·luminació càlida i el cel obert dóna una atmosfera cinematogràfica per al vídeo',
+      'La temàtica vinícola permet detalls fotogràfics naturals — copes, ampolles, textures de fusta i pedra',
+    ],
+    whyChooseIntro: 'Dos motius:',
+    whyChoosePoints: [
+      "Som dos germans amb dos formats. Un de nosaltres filma, l'altre fotografia. La parella surt amb el dia complet en foto i vídeo, sense haver de coordinar dos equips externs.",
+      "Coneixem Dosterras i la seva atmosfera. Sabem on i quan està la millor llum, on fer els retrats sense interrompre el flux del dia, com aprofitar les transicions cap a la nit.",
+    ],
+    faqs: [
+      {
+        question: 'Coneixeu Dosterras Wine Garden?',
+        answer:
+          "Sí. Hi vam fotografiar i filmar la boda de la Idoya i en Pau. Coneixem els espais, els racons amb millor llum i el ritme natural d'una boda en aquest wine garden.",
+      },
+      {
+        question: 'Quina és la millor hora per a la cerimònia a Dosterras?',
+        answer:
+          'Entre les 18h i les 19h en mesos càlids. La llum del capvespre sobre la vinya és el moment estrella, especialment al juny-setembre.',
+      },
+      {
+        question: 'Quantes hores recomaneu per a una boda a Dosterras?',
+        answer:
+          'Per cobrir des dels preparatius fins al ball, 10-12 hores. Per a només cerimònia i cocktail, 6-7 hores.',
+      },
+      {
+        question: 'Es pot fer la cerimònia a la mateixa finca?',
+        answer:
+          "Sí, i és el que recomanem. Dosterras té espais exteriors preciosos per a una cerimònia civil al capvespre, sense haver de desplaçar els convidats per al banquet. És la fluïdesa que defineix bé el dia.",
+      },
+      {
+        question: 'Quant costa la cobertura de boda a Dosterras Wine Garden?',
+        answer:
+          'Cada boda té un pressupost personalitzat segons la data, el pack i les necessitats. Us en passem un de concret en menys de 24h després d\'una conversa per WhatsApp.',
+      },
+    ],
+    finalCtaH2: 'La vostra boda mereix algú que ja conegui Dosterras',
+    finalCtaBody:
+      "Mireu si tenim la vostra data lliure. Resposta en menys d'un dia. Sense compromís, sense formularis llargs — només una conversa per WhatsApp.",
+  },
+
   // ─── Masia San Antonio ─────────────────────────────────────────────
   {
     slug: 'masia-san-antonio',

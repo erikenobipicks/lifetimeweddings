@@ -101,6 +101,7 @@ export const ZONES: Zone[] = [
       'orangerie-clos-barenys',
       'masia-can-marti',
       'masia-san-antonio',
+      'dosterras-wine-garden',
     ],
     weddingLocationMatch: 'Tarragona',
 
