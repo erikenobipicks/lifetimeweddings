@@ -157,22 +157,31 @@ export function personJsonLd(memberId: 'eric' | 'ferran', lang: Lang) {
 }
 
 // ─── Service (4× — foto, vídeo, pre-boda, combo foto+vídeo) ─────────────────
-// The 4th Service (photo+video combo) reflects the headline `2.480 € +IVA`
-// combo pack offered on the home. It lives as its own Service rather than a
-// nested Offer so it surfaces cleanly in Google service carousels and is
+// The 4th Service (photo+video combo) lives as its own Service rather than
+// a nested Offer so it surfaces cleanly in Google service carousels and is
 // referenceable on its own (`#service-combo`).
 //
 // We intentionally do NOT add a `performer` property: it's not defined on
 // `Service` in schema.org. Which brother handles which service is conveyed
 // through the localised `description` and through `Person.knowsAbout` on the
 // two Person nodes.
+//
+// We also intentionally do NOT emit a fixed `price` or `priceSpecification`:
+// the real quote depends on date, location, package, distance and festive
+// surcharge. A fixed public price would (a) misrepresent the actual quote,
+// (b) create LGDCU exposure in B2C, and (c) clash with the FAQ copy that
+// explicitly says "pressupost personalitzat". The price-range hint below
+// is generic ("€€" / "€€€") and stays under Google's wedding-photography
+// rich result thresholds.
 
 interface ServiceSpec {
   id: string;
   serviceType: string;
   nameKey: `schema.service.${string}.name`;
   descKey: `schema.service.${string}.description`;
-  priceMin: number; // EUR, sin IVA
+  /** Generic indicator ("€", "€€", "€€€") for schema.org priceRange.
+   *  Communicates rough positioning without committing to a number. */
+  priceRange: string;
 }
 
 const SERVICES: ServiceSpec[] = [
@@ -181,28 +190,28 @@ const SERVICES: ServiceSpec[] = [
     serviceType: 'Wedding photography',
     nameKey: 'schema.service.foto.name',
     descKey: 'schema.service.foto.description',
-    priceMin: 1290,
+    priceRange: '€€',
   },
   {
     id: ID.serviceVideo,
     serviceType: 'Wedding videography',
     nameKey: 'schema.service.video.name',
     descKey: 'schema.service.video.description',
-    priceMin: 1290,
+    priceRange: '€€',
   },
   {
     id: ID.servicePreboda,
     serviceType: 'Engagement photography session',
     nameKey: 'schema.service.preboda.name',
     descKey: 'schema.service.preboda.description',
-    priceMin: 290,
+    priceRange: '€',
   },
   {
     id: ID.serviceCombo,
     serviceType: 'Wedding photography and videography package',
     nameKey: 'schema.service.combo.name',
     descKey: 'schema.service.combo.description',
-    priceMin: 2480,
+    priceRange: '€€€',
   },
 ];
 
@@ -220,19 +229,7 @@ export function servicesJsonLd(lang: Lang) {
     image: abs('/og-default.jpg'),
     provider: { '@id': ID.business },
     areaServed: ['Tarragona', 'Reus', 'Lleida', 'Barcelona', 'Catalunya'],
-    offers: {
-      '@type': 'Offer',
-      price: String(s.priceMin),
-      priceCurrency: 'EUR',
-      priceSpecification: {
-        '@type': 'PriceSpecification',
-        minPrice: s.priceMin,
-        priceCurrency: 'EUR',
-        valueAddedTaxIncluded: false,
-      },
-      availability: 'https://schema.org/InStock',
-      url: `${SITE.url}/#services`,
-    },
+    priceRange: s.priceRange,
     inLanguage: lang,
   }));
 }
@@ -329,12 +326,16 @@ export async function homeJsonLd(lang: Lang) {
 // One block per venue landing page. Inherits the provider from `#business`
 // (already declared on home) so we don't duplicate the LocalBusiness data —
 // Google's structured data validator follows the reference correctly.
+//
+// Intentionally NO `offers` block: prices vary per wedding (date, location,
+// pack, festive day, distance) and a public fixed price in the schema would
+// (a) misrepresent the actual quote, (b) create LGDCU exposure in B2C, and
+// (c) clash with the FAQ copy that explicitly says "presupuesto
+// personalizado". Couples get the real price via the quiz/WhatsApp flow.
 export function venueServiceJsonLd(args: {
   venueName: string;
   venueRegion: string;
   canonicalUrl: string;
-  /** Minimum price in EUR (pack base). */
-  minPrice: number;
 }) {
   return {
     '@context': 'https://schema.org',
@@ -346,19 +347,6 @@ export function venueServiceJsonLd(args: {
     audience: { '@type': 'Audience', audienceType: 'Engaged couples' },
     url: args.canonicalUrl,
     image: abs('/og-default.jpg'),
-    offers: {
-      '@type': 'Offer',
-      price: String(args.minPrice),
-      priceCurrency: 'EUR',
-      priceSpecification: {
-        '@type': 'PriceSpecification',
-        minPrice: args.minPrice,
-        priceCurrency: 'EUR',
-        valueAddedTaxIncluded: true,
-      },
-      availability: 'https://schema.org/InStock',
-      url: args.canonicalUrl,
-    },
   };
 }
 
