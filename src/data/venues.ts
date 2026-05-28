@@ -105,7 +105,7 @@ export const VENUES: Venue[] = [
       {
         question: 'Quant costa la cobertura de boda a Mas La Boella?',
         answer:
-          'Els nostres packs comencen des de 1.290€ per a cobertura de foto o vídeo. Per a la cobertura completa de foto+vídeo amb els dos germans passem el pressupost personalitzat en menys de 24h després d\'una breu conversa per WhatsApp.',
+          'Cada boda té un pressupost personalitzat segons la data, el pack i les necessitats. Us en passem un de concret en menys de 24h després d\'una breu conversa per WhatsApp.',
       },
     ],
     finalCtaH2: 'La vostra boda mereix algú que ja conegui Mas La Boella',
@@ -166,7 +166,7 @@ export const VENUES: Venue[] = [
       {
         question: "Quant costa la cobertura de boda a l'Orangerie Clos Barenys?",
         answer:
-          'Els packs comencen des de 1.290€ per a foto o vídeo. La cobertura completa de foto+vídeo amb els dos germans la pressupostem en menys de 24h després d\'una conversa per WhatsApp.',
+          'Cada boda té un pressupost personalitzat segons la data, el pack i les necessitats. Us en passem un de concret en menys de 24h després d\'una conversa per WhatsApp.',
       },
     ],
     finalCtaH2: "La vostra boda mereix algú que ja conegui l'Orangerie",
@@ -227,7 +227,7 @@ export const VENUES: Venue[] = [
       {
         question: 'Quant costa la cobertura de boda a Masia Can Martí?',
         answer:
-          "Els packs comencen des de 1.290€ per a foto o vídeo. Per a la cobertura completa de foto+vídeo amb els dos germans, pressupost personalitzat en menys de 24h.",
+          'Cada boda té un pressupost personalitzat segons la data, el pack i les necessitats. Us en passem un de concret en menys de 24h després d\'una conversa per WhatsApp.',
       },
     ],
     finalCtaH2: 'La vostra boda mereix algú que ja conegui Can Martí',
@@ -299,7 +299,7 @@ export const VENUES: Venue[] = [
       {
         question: 'Quant costa la cobertura de boda a Masia San Antonio?',
         answer:
-          'Els packs comencen des de 1.290€ per a foto o vídeo. Per a la cobertura completa de foto+vídeo amb tràiler, pressupost personalitzat en menys de 24h.',
+          'Cada boda té un pressupost personalitzat segons la data, el pack i les necessitats. Us en passem un de concret en menys de 24h després d\'una conversa per WhatsApp.',
       },
     ],
     finalCtaH2: 'La vostra boda mereix algú que ja conegui Masia San Antonio',
