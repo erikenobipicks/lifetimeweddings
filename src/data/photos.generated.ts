@@ -1128,5 +1128,526 @@ export const PHOTOS: Record<string, PhotoSet> = {
         "orientation": "landscape"
       }
     ]
+  },
+  "vanesa-david": {
+    "couple": "Vanesa & David",
+    "images": [
+      {
+        "id": "vanesa-david/001",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/001-sm.jpg",
+          "md": "/photos/vanesa-david/001-md.jpg",
+          "lg": "/photos/vanesa-david/001-lg.jpg"
+        },
+        "width": 640,
+        "height": 960,
+        "orientation": "portrait"
+      },
+      {
+        "id": "vanesa-david/002",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/002-sm.jpg",
+          "md": "/photos/vanesa-david/002-md.jpg",
+          "lg": "/photos/vanesa-david/002-lg.jpg"
+        },
+        "width": 960,
+        "height": 686,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/003",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/003-sm.jpg",
+          "md": "/photos/vanesa-david/003-md.jpg",
+          "lg": "/photos/vanesa-david/003-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/004",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/004-sm.jpg",
+          "md": "/photos/vanesa-david/004-md.jpg",
+          "lg": "/photos/vanesa-david/004-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/005",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/005-sm.jpg",
+          "md": "/photos/vanesa-david/005-md.jpg",
+          "lg": "/photos/vanesa-david/005-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/006",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/006-sm.jpg",
+          "md": "/photos/vanesa-david/006-md.jpg",
+          "lg": "/photos/vanesa-david/006-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/007",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/007-sm.jpg",
+          "md": "/photos/vanesa-david/007-md.jpg",
+          "lg": "/photos/vanesa-david/007-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/008",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/008-sm.jpg",
+          "md": "/photos/vanesa-david/008-md.jpg",
+          "lg": "/photos/vanesa-david/008-lg.jpg"
+        },
+        "width": 640,
+        "height": 960,
+        "orientation": "portrait"
+      },
+      {
+        "id": "vanesa-david/009",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/009-sm.jpg",
+          "md": "/photos/vanesa-david/009-md.jpg",
+          "lg": "/photos/vanesa-david/009-lg.jpg"
+        },
+        "width": 960,
+        "height": 686,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/010",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/010-sm.jpg",
+          "md": "/photos/vanesa-david/010-md.jpg",
+          "lg": "/photos/vanesa-david/010-lg.jpg"
+        },
+        "width": 960,
+        "height": 686,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/011",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/011-sm.jpg",
+          "md": "/photos/vanesa-david/011-md.jpg",
+          "lg": "/photos/vanesa-david/011-lg.jpg"
+        },
+        "width": 960,
+        "height": 686,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/012",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/012-sm.jpg",
+          "md": "/photos/vanesa-david/012-md.jpg",
+          "lg": "/photos/vanesa-david/012-lg.jpg"
+        },
+        "width": 686,
+        "height": 960,
+        "orientation": "portrait"
+      },
+      {
+        "id": "vanesa-david/013",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/013-sm.jpg",
+          "md": "/photos/vanesa-david/013-md.jpg",
+          "lg": "/photos/vanesa-david/013-lg.jpg"
+        },
+        "width": 686,
+        "height": 960,
+        "orientation": "portrait"
+      },
+      {
+        "id": "vanesa-david/014",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/014-sm.jpg",
+          "md": "/photos/vanesa-david/014-md.jpg",
+          "lg": "/photos/vanesa-david/014-lg.jpg"
+        },
+        "width": 686,
+        "height": 960,
+        "orientation": "portrait"
+      },
+      {
+        "id": "vanesa-david/015",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/015-sm.jpg",
+          "md": "/photos/vanesa-david/015-md.jpg",
+          "lg": "/photos/vanesa-david/015-lg.jpg"
+        },
+        "width": 686,
+        "height": 960,
+        "orientation": "portrait"
+      },
+      {
+        "id": "vanesa-david/016",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/016-sm.jpg",
+          "md": "/photos/vanesa-david/016-md.jpg",
+          "lg": "/photos/vanesa-david/016-lg.jpg"
+        },
+        "width": 960,
+        "height": 686,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/017",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/017-sm.jpg",
+          "md": "/photos/vanesa-david/017-md.jpg",
+          "lg": "/photos/vanesa-david/017-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/018",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/018-sm.jpg",
+          "md": "/photos/vanesa-david/018-md.jpg",
+          "lg": "/photos/vanesa-david/018-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/019",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/019-sm.jpg",
+          "md": "/photos/vanesa-david/019-md.jpg",
+          "lg": "/photos/vanesa-david/019-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/020",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/020-sm.jpg",
+          "md": "/photos/vanesa-david/020-md.jpg",
+          "lg": "/photos/vanesa-david/020-lg.jpg"
+        },
+        "width": 686,
+        "height": 960,
+        "orientation": "portrait"
+      },
+      {
+        "id": "vanesa-david/021",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/021-sm.jpg",
+          "md": "/photos/vanesa-david/021-md.jpg",
+          "lg": "/photos/vanesa-david/021-lg.jpg"
+        },
+        "width": 686,
+        "height": 960,
+        "orientation": "portrait"
+      },
+      {
+        "id": "vanesa-david/022",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/022-sm.jpg",
+          "md": "/photos/vanesa-david/022-md.jpg",
+          "lg": "/photos/vanesa-david/022-lg.jpg"
+        },
+        "width": 686,
+        "height": 960,
+        "orientation": "portrait"
+      },
+      {
+        "id": "vanesa-david/023",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/023-sm.jpg",
+          "md": "/photos/vanesa-david/023-md.jpg",
+          "lg": "/photos/vanesa-david/023-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/024",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/024-sm.jpg",
+          "md": "/photos/vanesa-david/024-md.jpg",
+          "lg": "/photos/vanesa-david/024-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/025",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/025-sm.jpg",
+          "md": "/photos/vanesa-david/025-md.jpg",
+          "lg": "/photos/vanesa-david/025-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/026",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/026-sm.jpg",
+          "md": "/photos/vanesa-david/026-md.jpg",
+          "lg": "/photos/vanesa-david/026-lg.jpg"
+        },
+        "width": 640,
+        "height": 960,
+        "orientation": "portrait"
+      },
+      {
+        "id": "vanesa-david/027",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/027-sm.jpg",
+          "md": "/photos/vanesa-david/027-md.jpg",
+          "lg": "/photos/vanesa-david/027-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/028",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/028-sm.jpg",
+          "md": "/photos/vanesa-david/028-md.jpg",
+          "lg": "/photos/vanesa-david/028-lg.jpg"
+        },
+        "width": 640,
+        "height": 960,
+        "orientation": "portrait"
+      },
+      {
+        "id": "vanesa-david/029",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/029-sm.jpg",
+          "md": "/photos/vanesa-david/029-md.jpg",
+          "lg": "/photos/vanesa-david/029-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/030",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/030-sm.jpg",
+          "md": "/photos/vanesa-david/030-md.jpg",
+          "lg": "/photos/vanesa-david/030-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/031",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/031-sm.jpg",
+          "md": "/photos/vanesa-david/031-md.jpg",
+          "lg": "/photos/vanesa-david/031-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/032",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/032-sm.jpg",
+          "md": "/photos/vanesa-david/032-md.jpg",
+          "lg": "/photos/vanesa-david/032-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/033",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/033-sm.jpg",
+          "md": "/photos/vanesa-david/033-md.jpg",
+          "lg": "/photos/vanesa-david/033-lg.jpg"
+        },
+        "width": 640,
+        "height": 960,
+        "orientation": "portrait"
+      },
+      {
+        "id": "vanesa-david/034",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/034-sm.jpg",
+          "md": "/photos/vanesa-david/034-md.jpg",
+          "lg": "/photos/vanesa-david/034-lg.jpg"
+        },
+        "width": 540,
+        "height": 960,
+        "orientation": "portrait"
+      },
+      {
+        "id": "vanesa-david/035",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/035-sm.jpg",
+          "md": "/photos/vanesa-david/035-md.jpg",
+          "lg": "/photos/vanesa-david/035-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/036",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/036-sm.jpg",
+          "md": "/photos/vanesa-david/036-md.jpg",
+          "lg": "/photos/vanesa-david/036-lg.jpg"
+        },
+        "width": 960,
+        "height": 686,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/037",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/037-sm.jpg",
+          "md": "/photos/vanesa-david/037-md.jpg",
+          "lg": "/photos/vanesa-david/037-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/038",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/038-sm.jpg",
+          "md": "/photos/vanesa-david/038-md.jpg",
+          "lg": "/photos/vanesa-david/038-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/039",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/039-sm.jpg",
+          "md": "/photos/vanesa-david/039-md.jpg",
+          "lg": "/photos/vanesa-david/039-lg.jpg"
+        },
+        "width": 686,
+        "height": 960,
+        "orientation": "portrait"
+      },
+      {
+        "id": "vanesa-david/040",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/040-sm.jpg",
+          "md": "/photos/vanesa-david/040-md.jpg",
+          "lg": "/photos/vanesa-david/040-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "vanesa-david/041",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/041-sm.jpg",
+          "md": "/photos/vanesa-david/041-md.jpg",
+          "lg": "/photos/vanesa-david/041-lg.jpg"
+        },
+        "width": 640,
+        "height": 960,
+        "orientation": "portrait"
+      },
+      {
+        "id": "vanesa-david/042",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/042-sm.jpg",
+          "md": "/photos/vanesa-david/042-md.jpg",
+          "lg": "/photos/vanesa-david/042-lg.jpg"
+        },
+        "width": 640,
+        "height": 960,
+        "orientation": "portrait"
+      },
+      {
+        "id": "vanesa-david/043",
+        "couple": "vanesa-david",
+        "variants": {
+          "sm": "/photos/vanesa-david/043-sm.jpg",
+          "md": "/photos/vanesa-david/043-md.jpg",
+          "lg": "/photos/vanesa-david/043-lg.jpg"
+        },
+        "width": 640,
+        "height": 960,
+        "orientation": "portrait"
+      }
+    ]
   }
 };
