@@ -81,6 +81,14 @@ export const WEDDINGS: Wedding[] = [
     photoSlug: 'jennifer-albert',
     legacyUrl: '/boda-masia-can-marti-jennifer-albert',
   },
+  {
+    slug: 'vanesa-david-forti-del-rourell',
+    couple: 'Vanesa & David',
+    venue: 'Fortí del Rourell',
+    location: 'Tarragona',
+    photoSlug: 'vanesa-david',
+    legacyUrl: '/boda-vanesa-david-forti-del-rourell',
+  },
   // Legacy entries without photos (placeholders — kept for redirect purposes)
   {
     slug: 'anika-alvaro-h10',

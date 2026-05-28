@@ -235,6 +235,68 @@ export const VENUES: Venue[] = [
       "Mireu si tenim la vostra data lliure. Resposta en menys d'un dia. Sense compromís, sense formularis llargs — només una conversa per WhatsApp.",
   },
 
+  // ─── Fortí del Rourell ─────────────────────────────────────────────
+  {
+    slug: 'forti-del-rourell',
+    name: 'Fortí del Rourell',
+    region: 'Tarragona',
+    realWeddingSlug: 'vanesa-david-forti-del-rourell',
+    realWeddingCouple: 'Vanesa & David',
+    metaTitle: 'Fotògrafs de boda al Fortí del Rourell | Lifetime',
+    metaDescription:
+      "Fotografia i vídeo documental de boda al Fortí del Rourell. Veieu el reportatge real d'una boda allà i parleu-nos pel WhatsApp.",
+    eyebrow: 'El Rourell · Camp de Tarragona · des de 2020',
+    h1: 'Fotografia i vídeo de boda al Fortí del Rourell',
+    subtitle:
+      "Som l'Eric i en Ferran, dos germans amb càmera i càmera de vídeo. Hem documentat la boda de la Vanesa i en David al Fortí del Rourell — un dels venues amb més caràcter del Camp de Tarragona, on la història de la fortificació es barreja amb l'energia mediterrània d'una boda d'estiu.",
+    realWeddingIntro:
+      "La Vanesa i en David ens van confiar el seu dia. Vam ser-hi des dels preparatius fins al ball, en una de les bodes amb més personalitat que hem documentat al Fortí. El que vam captar és el que veureu si decidiu treballar amb nosaltres: la naturalitat, la força de l'espai i els moments que importen.",
+    whatItOffersIntro:
+      "El Fortí del Rourell té una personalitat molt definida: és una fortificació amb història convertida en un dels espais de boda més autèntics de la zona. Per a un fotògraf, això són les claus:",
+    whatItOffersBullets: [
+      'Els murs de pedra i la geometria del Fortí — escenari únic per als retrats sense necessitat de moure els convidats',
+      'Els pati interior i els espais oberts permeten cerimònies a l\'aire lliure amb llum natural impecable',
+      'El contrast entre la solidesa de la pedra i el verd de l\'entorn — paleta visual rica per al reportatge',
+      'L\'ambient nocturn amb il·luminació càlida dóna una atmosfera cinematogràfica per al vídeo del ball',
+      'L\'espai és prou gran per a bodes mitjanes-grans però manté la intimitat dels racons',
+    ],
+    whyChooseIntro: 'Dos motius:',
+    whyChoosePoints: [
+      "Som dos germans amb dos formats. Un de nosaltres filma, l'altre fotografia. La parella surt amb el dia complet en foto i vídeo, sense haver de coordinar dos equips externs.",
+      "Coneixem el Fortí del Rourell. Sabem on i quan està la millor llum, els racons amb més caràcter per als retrats, i com aprofitar la transició del dia a la nit que aquest espai fa especialment bé.",
+    ],
+    faqs: [
+      {
+        question: 'Coneixeu el Fortí del Rourell?',
+        answer:
+          "Sí. Hi vam fotografiar i filmar la boda de la Vanesa i en David. Coneixem els espais, els racons amb millor llum i el ritme natural d'una boda en aquesta fortificació.",
+      },
+      {
+        question: 'Quina és la millor hora per a la cerimònia al Fortí?',
+        answer:
+          'Entre les 18h i les 19h en mesos càlids. La llum del capvespre sobre la pedra del Fortí és el moment estrella, especialment al juny-setembre.',
+      },
+      {
+        question: 'Quantes hores recomaneu per a una boda al Fortí del Rourell?',
+        answer:
+          'Per cobrir des dels preparatius fins al ball, 10-12 hores. Per a només cerimònia i cocktail, 6-7 hores.',
+      },
+      {
+        question: 'Es pot fer la cerimònia a la mateixa finca?',
+        answer:
+          "Sí, i és el que recomanem. El Fortí té espais exteriors preciosos per a una cerimònia civil, sense haver de desplaçar els convidats per al banquet. La fluïdesa que defineix bé el dia.",
+      },
+      {
+        question: 'Quant costa la cobertura de boda al Fortí del Rourell?',
+        answer:
+          'Cada boda té un pressupost personalitzat segons la data, el pack i les necessitats. Us en passem un de concret en menys de 24h després d\'una conversa per WhatsApp.',
+      },
+    ],
+    finalCtaH2: 'La vostra boda mereix algú que ja conegui el Fortí',
+    finalCtaBody:
+      "Mireu si tenim la vostra data lliure. Resposta en menys d'un dia. Sense compromís, sense formularis llargs — només una conversa per WhatsApp.",
+  },
+
   // ─── Dosterras Wine Garden ─────────────────────────────────────────
   {
     slug: 'dosterras-wine-garden',
