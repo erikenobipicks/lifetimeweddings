@@ -1,0 +1,107 @@
+---
+// Index page for /venues. Acts as a discoverability hub:
+//   - Internal link target from the footer
+//   - Indexable hub that distributes link equity to each venue landing
+//   - Lets visitors browse all venues we've worked at
+//
+// Catalan only for now; mirror to /es/venues and /en/venues once we
+// validate the pattern in production.
+
+export const prerender = true;
+
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Section from '~/components/Section.astro';
+import { VENUES } from '~/data/venues';
+import { WEDDINGS, weddingCover } from '~/data/weddings';
+import { SITE } from '~/data/site';
+import { useTranslations } from '~/i18n/ui';
+import { breadcrumbJsonLd } from '~/lib/seo';
+
+const lang = 'ca' as const;
+const t = useTranslations(lang);
+
+// Pair each venue with the cover of its real wedding (for the card image).
+const items = VENUES.map((v) => {
+  const w = WEDDINGS.find((w) => w.slug === v.realWeddingSlug);
+  return { venue: v, cover: w ? weddingCover(w) : null };
+});
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: t('schema.breadcrumb.home'), url: `${SITE.url}/` },
+    { name: 'Venues', url: `${SITE.url}/venues` },
+  ]),
+];
+---
+
+<BaseLayout
+  lang={lang}
+  title="Venues on fem bodes a Tarragona | Lifetime Weddings"
+  description="Veieu les nostres landings dedicades als venues on hem fotografiat i filmat bodes a Tarragona: Mas La Boella, Orangerie Clos Barenys, Masia Can Martí, Masia San Antonio."
+  canonicalPath="/venues"
+  jsonLd={jsonLd}
+>
+  <Section>
+    <div class="max-w-5xl mx-auto px-2">
+      <div class="text-center mb-12 md:mb-16">
+        <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">
+          Coneixem el vostre venue
+        </p>
+        <h1 class="font-display text-3xl md:text-5xl font-bold mb-5">
+          Venues on hem fet bodes
+        </h1>
+        <p class="text-ink/75 max-w-2xl mx-auto leading-relaxed text-base md:text-lg">
+          Si ja teniu venue triat, segurament coneguem el lloc. Hem
+          treballat a algunes de les finques i masies més emblemàtiques
+          del camp de Tarragona. Aquí teniu les nostres landings per
+          venue — amb reportatges reals, consells fotogràfics i FAQs
+          específiques.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+        {items.map(({ venue, cover }) => (
+          <a
+            href={`/venues/${venue.slug}`}
+            class="group block bg-white border border-ink/10 hover:border-gold transition-colors overflow-hidden"
+          >
+            {cover && (
+              <div class="aspect-[4/3] overflow-hidden bg-cream">
+                <img
+                  src={cover}
+                  alt={`${venue.name} — ${venue.realWeddingCouple}`}
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            )}
+            <div class="p-5 md:p-6">
+              <p class="text-xs font-bold tracking-[0.18em] uppercase text-ink/50 mb-2">
+                {venue.region}
+              </p>
+              <h2 class="font-display text-xl md:text-2xl font-bold mb-2 group-hover:text-gold transition-colors">
+                {venue.name}
+              </h2>
+              <p class="text-sm text-ink/70 leading-relaxed">
+                Reportatge real de {venue.realWeddingCouple} + consells
+                fotogràfics específics + FAQs.
+              </p>
+              <p class="mt-4 text-xs font-bold tracking-[0.14em] uppercase text-gold">
+                Veure landing →
+              </p>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      <div class="text-center mt-12 md:mt-16 pt-10 border-t border-ink/10">
+        <p class="text-sm text-ink/70 max-w-xl mx-auto leading-relaxed">
+          El vostre venue no és aquí? No vol dir que no hi haguem
+          treballat — encara no totes les nostres bodes tenen landing
+          dedicada. Escriviu-nos i us diem si el coneixem.
+        </p>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>

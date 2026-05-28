@@ -146,6 +146,7 @@ export const ui = {
     'footer.legal': 'Aviso legal',
     'footer.privacy': 'Política de privacidad',
     'footer.cookies': 'Política de cookies',
+    'footer.venues': 'Venues',
 
     // WhatsApp float
     'wa.label': 'Escríbenos por WhatsApp',
@@ -651,6 +652,7 @@ export const ui = {
     'footer.legal': 'Avís legal',
     'footer.privacy': 'Política de privacitat',
     'footer.cookies': 'Política de galetes',
+    'footer.venues': 'Venues',
 
     'wa.label': 'Escriu-nos per WhatsApp',
     'wa.chat': 'Parla amb nosaltres',
@@ -1138,6 +1140,7 @@ export const ui = {
     'landings.packs.title': 'Recommended packs',
 
     'footer.rights': 'All rights reserved.',
+    'footer.venues': 'Venues',
     'footer.legal': 'Legal notice',
     'footer.privacy': 'Privacy policy',
     'footer.cookies': 'Cookie policy',
