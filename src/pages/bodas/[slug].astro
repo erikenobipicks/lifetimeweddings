@@ -3,6 +3,7 @@ export const prerender = true;
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Section from '~/components/Section.astro';
 import { WEDDINGS, weddingCover, weddingGallery } from '~/data/weddings';
+import { VENUES } from '~/data/venues';
 import { useTranslations } from '~/i18n/ui';
 import { SITE } from '~/data/site';
 import { breadcrumbJsonLd } from '~/lib/seo';
@@ -21,6 +22,11 @@ const coverLarge = gallery[0]?.variants.lg ?? cover;
 const totalPhotos = gallery.length;
 const hasVenue = wedding.venue && wedding.venue !== '—';
 const hasLocation = wedding.location && wedding.location !== '—';
+
+// If we have a dedicated venue landing for this wedding's venue, use
+// the venue name as a contextual internal link. Boosts the landing's
+// inbound equity and gives the visitor a path to deeper content.
+const venueLanding = VENUES.find((v) => v.realWeddingSlug === wedding.slug) ?? null;
 
 /** Alt text for gallery image i (1-indexed position). Never empty. */
 function galleryAlt(i: number): string {
@@ -72,7 +78,15 @@ const jsonLd = [
       <div class="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-6">
         <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">Bodes</p>
         <h1 class="font-display text-4xl md:text-5xl font-bold">{wedding.couple}</h1>
-        <p class="mt-3 opacity-90">{wedding.venue !== '—' ? wedding.venue : ''} {wedding.venue !== '—' && wedding.location !== '—' ? '·' : ''} {wedding.location !== '—' ? wedding.location : ''}</p>
+        <p class="mt-3 opacity-90">
+          {venueLanding ? (
+            <a href={`/venues/${venueLanding.slug}`} class="border-b border-gold/60 hover:text-gold transition-colors">{wedding.venue}</a>
+          ) : (
+            wedding.venue !== '—' ? wedding.venue : ''
+          )}
+          {wedding.venue !== '—' && wedding.location !== '—' ? ' · ' : ''}
+          {wedding.location !== '—' ? wedding.location : ''}
+        </p>
       </div>
     </section>
   )}
@@ -113,6 +127,19 @@ const jsonLd = [
     <Section>
       <div class="max-w-2xl mx-auto text-center text-ink/75 leading-relaxed">
         <p>Galeria en preparació.</p>
+      </div>
+    </Section>
+  )}
+
+  {venueLanding && (
+    <Section bg="cream">
+      <div class="max-w-2xl mx-auto text-center">
+        <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">
+          Sobre el venue
+        </p>
+        <p class="text-ink/85 leading-relaxed text-base md:text-lg">
+          Us caseu a {wedding.venue}? Tenim una <a href={`/venues/${venueLanding.slug}`} class="border-b border-gold text-ink font-semibold hover:text-gold transition-colors">pàgina dedicada a la nostra cobertura de boda a {wedding.venue}</a> amb consells fotogràfics específics, FAQs i una visió més detallada del que aporta aquest espai.
+        </p>
       </div>
     </Section>
   )}
