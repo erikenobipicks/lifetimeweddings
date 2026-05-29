@@ -21,20 +21,20 @@ export const TEAM: TeamMember[] = [
     bio: {
       ca: [
         'Sóc l’Eric. Vídeo, sempre vídeo.',
-        'Em vaig enamorar del vídeo quan vaig entendre que una boda no és un dia — és hores de coses petites que mai tornen a passar igual. La mirada del pare de la núvia, el primer petó entre amigues que no es veien des de fa anys, el plor contingut durant els vots.',
-        'El meu estil és documental. No dirigeixo escenes, no demano «mireu-vos i rieu». Em poso on no molesto i deixo que el dia passi. Després, a l’edició, és quan construeixo la vostra pel·lícula.',
+        'Em vaig enamorar del vídeo quan vaig entendre que una boda no és un dia — són hores de coses petites que no tornen. La mirada del pare de la núvia abans d’entregar-la. L’abraçada entre amigues que feia anys que no es veien. El plor contingut durant els vots.',
+        'El meu estil és documental. No dirigeixo escenes ni demano «mireu-vos i rieu». Em poso on no molesto i deixo que el dia passi. La pel·lícula la construeixo després, a l’edició.',
         'He gravat bodes a Tarragona, Barcelona, Lleida, Osca, Màlaga i Nova York. No em fa por anar on faci falta.',
       ],
       es: [
         'Soy Eric. Vídeo, siempre vídeo.',
-        'Me enamoré del vídeo cuando entendí que una boda no es un día — son horas de pequeñas cosas que nunca vuelven a pasar igual. La mirada del padre de la novia, el primer abrazo entre amigas que no se veían desde hace años, el llanto contenido durante los votos.',
-        'Mi estilo es documental. No dirijo escenas, no pido «miraos y reíd». Me pongo donde no molesto y dejo que el día pase. Después, en la edición, es cuando construyo vuestra película.',
+        'Me enamoré del vídeo cuando entendí que una boda no es un día — son horas de pequeñas cosas que no vuelven. La mirada del padre de la novia antes de entregarla. El abrazo entre amigas que llevaban años sin verse. El llanto contenido durante los votos.',
+        'Mi estilo es documental. No dirijo escenas ni pido «miraos y reíd». Me pongo donde no molesto y dejo que el día pase. La película la construyo después, en la edición.',
         'He grabado bodas en Tarragona, Barcelona, Lleida, Huesca, Málaga y Nueva York. No me da miedo ir donde haga falta.',
       ],
       en: [
         'I’m Eric. Video, always video.',
-        'I fell for video when I realised a wedding isn’t one day — it’s hours of small things that never happen the same way twice. The bride’s father’s look. The first hug between friends who hadn’t seen each other in years. The held-back tears during the vows.',
-        'My style is documentary. I don’t direct scenes, I don’t ask for «look at each other and smile». I stay out of the way and let the day happen. Then, in the edit, I build your film.',
+        'I fell for video when I realised a wedding isn’t one day — it’s hours of small things that don’t come back. The bride’s father’s look before walking her down the aisle. The hug between friends who hadn’t seen each other in years. The held-back tears during the vows.',
+        'My style is documentary. I don’t direct scenes or ask for «look at each other and smile». I stay out of the way and let the day happen. I build your film later, in the edit.',
         'I’ve shot weddings in Tarragona, Barcelona, Lleida, Huesca, Málaga and New York. I’m not afraid to travel.',
       ],
     },
