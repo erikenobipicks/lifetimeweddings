@@ -48,10 +48,6 @@ Hermano de la novia emocionado durante su discurso en la cena de boda.
 
 Lo que vino después fue pura alegría. La fiesta fue una explosión de energía, con invitados entregados, bailes espontáneos y momentos que se convertían en recuerdos a cada clic. Había algo en el ambiente —quizás la fusión de culturas, quizás la autenticidad de Jennifer & Albert, o quizás la magia del lugar— que hacía que todo fluyera con una naturalidad perfecta.
 
-[](https://video.wixstatic.com/video/2d4f94_20d486a8b31f46bca65584f8b62263be/1080p/mp4/file.mp4)
-
-Fiesta de Jennifer & Albert en en Masia Can Martí.
-
 ## Un privilegio contar esta historia de amor
 
 Tener la oportunidad de documentar tanto en foto como en video una historia así es un privilegio. Porque no solo se trata de capturar imágenes bonitas, sino de contar algo real. Y esta boda en Masia Can Martí, sin duda, fue una historia que merecía ser contada.
