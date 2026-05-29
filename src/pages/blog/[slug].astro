@@ -2,6 +2,7 @@
 export const prerender = true;
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Section from '~/components/Section.astro';
+import BlogRelated from '~/components/BlogRelated.astro';
 import { BLOG_POSTS, BLOG_CATEGORIES } from '~/data/blog';
 import { TEAM } from '~/data/team';
 import { getEntry, render } from 'astro:content';
@@ -88,4 +89,6 @@ const jsonLd = [
       <p class="mt-8"><a href="/blog" class="text-gold underline text-sm">← Tornar al blog</a></p>
     </article>
   </Section>
+
+  <BlogRelated lang={lang} currentSlug={post.slug} category={post.category} />
 </BaseLayout>

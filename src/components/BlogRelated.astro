@@ -1,0 +1,72 @@
+---
+import { BLOG_POSTS, BLOG_CATEGORIES, type BlogCategory } from '~/data/blog';
+import type { Lang } from '~/i18n/ui';
+
+interface Props {
+  lang: Lang;
+  currentSlug: string;
+  category: BlogCategory;
+}
+const { lang, currentSlug, category } = Astro.props;
+
+// Pick up to 3 most-recently-updated siblings in the same category.
+// `updatedAt` is non-null on every entry; sort newest first.
+const siblings = BLOG_POSTS
+  .filter((p) => p.category === category && p.slug !== currentSlug)
+  .sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1))
+  .slice(0, 3);
+
+if (siblings.length === 0) return null;
+
+const labels = {
+  ca: { title: 'Et podria interessar també', read: 'min' },
+  es: { title: 'También te puede interesar', read: 'min' },
+  en: { title: 'You might also like', read: 'min' },
+}[lang];
+
+const blogPrefix = lang === 'ca' ? '/blog' : `/${lang}/blog`;
+
+const localeStr = lang === 'es' ? 'es-ES' : lang === 'en' ? 'en-GB' : 'ca-ES';
+const fmtDate = (iso: string | null): string =>
+  iso ? new Date(iso).toLocaleDateString(localeStr, { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+---
+
+<aside class="bg-cream border-t border-black/5 py-16 md:py-20">
+  <div class="max-w-6xl mx-auto px-6">
+    <h2 class="font-display text-2xl md:text-3xl font-bold text-center mb-10">{labels.title}</h2>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {siblings.map((p) => (
+        <article class="bg-white border border-black/5 group">
+          <a href={`${blogPrefix}/${p.slug}`} class="block">
+            {p.cover ? (
+              <img
+                src={p.cover}
+                alt={p.title}
+                class="w-full aspect-[4/3] object-cover group-hover:opacity-90 transition-opacity"
+                loading="lazy"
+                decoding="async"
+                width="1200"
+                height="900"
+              />
+            ) : (
+              <div class="w-full aspect-[4/3] bg-cream/60"></div>
+            )}
+            <div class="p-6">
+              <p class="text-[0.7rem] font-bold tracking-[0.18em] uppercase text-gold mb-2">
+                {BLOG_CATEGORIES[p.category][lang]}
+                {p.readingTime ? <span class="text-ink/50"> · {p.readingTime} {labels.read}</span> : null}
+              </p>
+              <h3 class="font-display text-lg font-bold leading-tight mb-3 group-hover:text-gold transition-colors">
+                {p.title}
+              </h3>
+              {p.publishedAt && (
+                <p class="text-xs text-ink/60">{fmtDate(p.publishedAt)}</p>
+              )}
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+</aside>
