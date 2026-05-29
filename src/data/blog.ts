@@ -24,6 +24,16 @@ export const BLOG_CATEGORIES: Record<BlogCategory, { es: string; ca: string; en:
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    slug: 'bodas-en-otono-en-tarragona',
+    legacySlug: 'bodas-en-otono-en-tarragona',
+    title: 'Bodas en otoño en Tarragona: la estación más fotogénica del año',
+    author: 'eric',
+    publishedAt: '2026-05-29',
+    updatedAt: '2026-05-29',
+    readingTime: 5,
+    category: 'bodas',
+  },
+  {
     slug: '7-errores-al-contratar-fotografo-de-boda',
     legacySlug: 'errores-al-contratar-fotógrafo-de-boda',
     title: '7 errores al contratar fotógrafo y videógrafo de boda (y cómo evitarlos)',
