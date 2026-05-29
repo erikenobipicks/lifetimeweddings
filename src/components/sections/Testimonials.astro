@@ -3,14 +3,26 @@ import Section from '../Section.astro';
 import { useTranslations, type Lang } from '~/i18n/ui';
 import { TESTIMONIALS } from '~/data/testimonials';
 import { SITE } from '~/data/site';
+import { getGbpReviews } from '~/lib/gbp-reviews';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 
-// Option B: no photos. Typography-led layout with large decorative quote mark.
-// When real photos arrive, add an `avatar` URL to TESTIMONIALS entries and
-// conditionally render them in the markup below.
+// Slide list = curated testimonials first (hand-tuned translations),
+// then Google reviews fetched from the Places API (Google-translated to
+// the current locale). Dedupe by author surface form so a couple that
+// appears in both sources only shows once.
+const gbpReviews = await getGbpReviews(lang);
+const curatedAuthorKeys = new Set(
+  TESTIMONIALS.map((tes) => tes.author.toLowerCase().replace(/\s+/g, ' ').trim()),
+);
+const slides: Array<{ author: string; quote: string }> = [
+  ...TESTIMONIALS.map((tes) => ({ author: tes.author, quote: tes.quote[lang] })),
+  ...gbpReviews
+    .filter((r) => !curatedAuthorKeys.has(r.author.toLowerCase().replace(/\s+/g, ' ').trim()))
+    .map((r) => ({ author: r.author, quote: r.text })),
+];
 
 const tablistLabel =
   lang === 'es' ? 'Testimonios' : lang === 'en' ? 'Testimonials' : 'Testimonis';
@@ -35,14 +47,14 @@ const seeTestimonialOf = (author: string) =>
         &ldquo;
       </span>
 
-      {TESTIMONIALS.map((tes, i) => (
+      {slides.map((tes, i) => (
         <article
           data-testi-slide
           data-index={i}
           class={`relative px-4 md:px-12 ${i === 0 ? '' : 'hidden'}`}
         >
           <blockquote class="font-display italic text-lg md:text-2xl lg:text-[1.7rem] leading-[1.5] md:leading-[1.6] text-ink mb-8 md:mb-10">
-            {tes.quote[lang]}
+            {tes.quote}
           </blockquote>
           <p class="text-[0.7rem] md:text-xs font-bold tracking-[0.28em] uppercase text-ink">
             {tes.author}
@@ -51,7 +63,7 @@ const seeTestimonialOf = (author: string) =>
       ))}
 
       <div class="flex justify-center gap-2 mt-10 md:mt-12" role="tablist" aria-label={tablistLabel}>
-        {TESTIMONIALS.map((tes, i) => (
+        {slides.map((tes, i) => (
           <button
             type="button"
             data-testi-dot
