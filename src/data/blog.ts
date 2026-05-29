@@ -1,7 +1,7 @@
 // Blog posts catalogued from the legacy Wix blog-posts-sitemap.xml.
 // `legacySlug` is what the old URL used; `slug` is our cleaner new URL.
-// Once real content is imported, flesh out excerpt/body/coverAlt and move the
-// source of truth into Astro content collections (content/blog/*.md).
+// Body content lives in src/content/blog/*.md (Astro content collection)
+// and covers are rehosted under public/blog/<slug>/cover.jpg.
 
 export type BlogCategory = 'bodas' | 'fotografia';
 
@@ -14,7 +14,7 @@ export interface BlogPost {
   updatedAt: string; // ISO date
   readingTime?: number; // minutes
   category: BlogCategory;
-  cover?: string; // wixstatic URL to be rehosted later
+  cover?: string; // absolute path under /public, e.g. /blog/<slug>/cover.jpg
 }
 
 export const BLOG_CATEGORIES: Record<BlogCategory, { es: string; ca: string; en: string; slug: string }> = {
