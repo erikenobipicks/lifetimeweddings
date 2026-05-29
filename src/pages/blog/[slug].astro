@@ -46,6 +46,10 @@ const jsonLd = [
   description={description}
   canonicalPath={`/blog/${post.slug}`}
   ogImage={post.cover}
+  ogType="article"
+  articlePublishedTime={post.publishedAt ?? undefined}
+  articleModifiedTime={post.updatedAt}
+  articleAuthor={author?.name}
   jsonLd={jsonLd}
 >
   {post.cover && (
