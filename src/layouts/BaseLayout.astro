@@ -6,6 +6,13 @@ import WhatsAppFloat from '~/components/WhatsAppFloat.astro';
 import CookieBanner from '~/components/CookieBanner.astro';
 import { ogLocale, useTranslations, type Lang } from '~/i18n/ui';
 
+// Vite resolves these to hashed URLs in /_astro/ at build time. We
+// preload only the latin subset and only the upright weights — italic
+// Fraunces is used solely below the fold (testimonial blockquote), so
+// it can wait for its own fetch turn without hurting LCP.
+import fraunceRomanUrl from '@fontsource-variable/fraunces/files/fraunces-latin-full-normal.woff2?url';
+import interRomanUrl from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+
 interface Props {
   title: string;
   description: string;
@@ -94,7 +101,12 @@ const alternates: { hreflang: string; href: string }[] = [
     <link rel="manifest" href="/site.webmanifest" />
 
     {/* Fonts are self-hosted via @fontsource-variable; @font-face rules
-        live in src/styles/global.css. No external Google Fonts request. */}
+        live in src/styles/global.css. Preload only the two latin upright
+        files — the browser would otherwise wait for the CSS to parse
+        before fetching them. `crossorigin` is required even on
+        same-origin font preloads per the Fetch spec. */}
+    <link rel="preload" as="font" type="font/woff2" href={fraunceRomanUrl} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={interRomanUrl} crossorigin />
 
     {/* Preload the home hero image for an LCP win. Only injected on the
         three locale homes — other routes carry their own LCP candidates

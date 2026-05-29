@@ -12,6 +12,8 @@ import { SITE, waLink } from '~/data/site';
 import Icon from '~/components/Icon.astro';
 import { videos } from '~/data/videos';
 import { useTranslations, type Lang } from '~/i18n/ui';
+import fraunceRomanUrl from '@fontsource-variable/fraunces/files/fraunces-latin-full-normal.woff2?url';
+import interRomanUrl from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 
 function iconForType(t: 'photo' | 'video' | 'combo') {
   return t === 'photo' ? 'camera' : t === 'video' ? 'video' : 'diamond';
@@ -130,12 +132,10 @@ const flagshipVideo = overrideHit
     <meta name="robots" content="noindex, nofollow" />
     <title>{quote ? `${t('quote.hero.eyebrow')} · ${quote.coupleName}` : t('quote.notFound.title')}</title>
     <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..700,50;1,9..144,300..700,50&family=Inter:wght@400;500;600;700&display=swap"
-    />
+    {/* Fonts self-hosted via @fontsource-variable; @font-face rules ship
+        in global.css (imported above in the frontmatter). */}
+    <link rel="preload" as="font" type="font/woff2" href={fraunceRomanUrl} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={interRomanUrl} crossorigin />
   </head>
   <body class="bg-cream text-ink font-sans antialiased">
     {!quote || quote.archived ? (
