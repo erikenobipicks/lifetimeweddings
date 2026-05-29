@@ -48,7 +48,16 @@ const jsonLd = [
 >
   {post.cover && (
     <section class="relative h-[50vh] min-h-[360px] overflow-hidden">
-      <img src={post.cover} alt="" class="absolute inset-0 w-full h-full object-cover" loading="eager" />
+      <img
+        src={post.cover}
+        alt={post.title}
+        class="absolute inset-0 w-full h-full object-cover"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+        width="1920"
+        height="1280"
+      />
       <div class="absolute inset-0 bg-black/45"></div>
       <div class="relative h-full flex flex-col items-center justify-center text-center text-white px-6 pt-20">
         <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{category.es}</p>

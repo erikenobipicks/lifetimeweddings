@@ -18,3 +18,4 @@ User-agent: CCBot
 Allow: /
 
 Sitemap: https://www.lifetime.photo/sitemap-index.xml
+Sitemap: https://www.lifetime.photo/sitemap-images.xml

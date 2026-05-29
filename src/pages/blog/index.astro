@@ -55,10 +55,12 @@ const jsonLd = [
               {p.cover ? (
                 <img
                   src={p.cover}
-                  alt=""
+                  alt={p.title}
                   class="w-full aspect-[4/3] object-cover group-hover:opacity-90 transition-opacity"
                   loading="lazy"
                   decoding="async"
+                  width="1200"
+                  height="900"
                 />
               ) : (
                 <div class="w-full aspect-[4/3] bg-cream flex items-center justify-center text-ink/30 text-sm">Pròximament</div>

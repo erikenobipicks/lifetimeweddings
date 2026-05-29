@@ -5,7 +5,7 @@ import Section from '~/components/Section.astro';
 import { WEDDINGS, weddingCover, weddingGallery } from '~/data/weddings';
 import { useTranslations } from '~/i18n/ui';
 import { SITE } from '~/data/site';
-import { breadcrumbJsonLd } from '~/lib/seo';
+import { breadcrumbJsonLd, imageGalleryJsonLd } from '~/lib/seo';
 
 export function getStaticPaths() {
   return WEDDINGS.map((w) => ({ params: { slug: w.slug }, props: { wedding: w } }));
@@ -34,12 +34,36 @@ function galleryAlt(i: number): string {
   return `${wedding.couple}'s wedding · Lifetime Weddings · Photo ${nn} of ${count}`;
 }
 
+const pageUrl = `${SITE.url}/en/bodas/${wedding.slug}`;
 const jsonLd = [
   breadcrumbJsonLd([
     { name: t('schema.breadcrumb.home'), url: `${SITE.url}/en` },
     { name: t('schema.breadcrumb.bodas'), url: `${SITE.url}/en/#portfolio` },
-    { name: wedding.couple, url: `${SITE.url}/en/bodas/${wedding.slug}` },
+    { name: wedding.couple, url: pageUrl },
   ]),
+  ...(gallery.length > 0
+    ? [
+        imageGalleryJsonLd({
+          pageUrl,
+          name: hasVenue
+            ? `${wedding.couple}'s wedding at ${wedding.venue}`
+            : `${wedding.couple}'s wedding`,
+          description: hasVenue && hasLocation
+            ? `Gallery of ${wedding.couple}'s wedding at ${wedding.venue} (${wedding.location}).`
+            : `Gallery of ${wedding.couple}'s wedding.`,
+          contentLocation: hasVenue
+            ? { name: wedding.venue, addressLocality: hasLocation ? wedding.location : undefined }
+            : undefined,
+          photos: gallery.map((img, i) => ({
+            contentUrl: img.variants.lg,
+            thumbnailUrl: img.variants.sm,
+            width: img.width,
+            height: img.height,
+            caption: galleryAlt(i + 1),
+          })),
+        }),
+      ]
+    : []),
 ];
 ---
 
