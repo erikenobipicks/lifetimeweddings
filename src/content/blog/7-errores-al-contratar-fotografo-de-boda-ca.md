@@ -10,7 +10,7 @@ Aquesta guia no és per trobar "el més barat". És per a parelles que volen **d
 
 Som el Ferran (fotògraf) i l'Eric (videògraf). Treballem a [Lifetime Weddings](/) creant records de bodes a Tarragona i Catalunya i, amb els anys, hem vist els mateixos errors repetir-se una i altra vegada. Aquí us els expliquem clars i sense adornaments.
 
-![Ferran (fotògraf) i Eric (videògraf) de Lifetime Weddings a Tarragona](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_3f68b501268d40ffa09af56d3e52a0f5~mv2.jpg)
+![Ferran (fotògraf) i Eric (videògraf) de Lifetime Weddings a Tarragona](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_3f68b501268d40ffa09af56d3e52a0f5~mv2.webp)
 
 ## ❌ Error 1: Triar només pel preu
 
@@ -28,7 +28,7 @@ El resultat acostuma a ser el mateix: 👉 es paga menys al principi i es perd q
 
 **Com evitar-ho:** compareu sempre **què inclou realment el servei**, no només el preu. Demaneu veure una o dues bodes completes.
 
-![Boda a Tarragona](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_b6c23c609d864537b25cd4d80a7da052~mv2.jpg)
+![Boda a Tarragona](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_b6c23c609d864537b25cd4d80a7da052~mv2.webp)
 
 ## ❌ Error 2: No preguntar quantes bodes fa el proveïdor el mateix dia
 
@@ -82,7 +82,7 @@ En bodes on no és realment necessari, **menys persones pot ser més**:
 
 **Com evitar-ho:** no doneu per fet que "més és millor". Pregunteu com treballa el fotògraf, si ha cobert bodes completes ell sol i si pot ensenyar-vos exemples reals. A vegades, una bona planificació i experiència valen més que sumar persones sense sentit.
 
-![Fotògraf de bodes a Tarragona captant un moment emotiu durant la cerimònia](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_8edc5a47142344368a56670c8674791c~mv2.jpg)
+![Fotògraf de bodes a Tarragona captant un moment emotiu durant la cerimònia](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_8edc5a47142344368a56670c8674791c~mv2.webp)
 
 ## ❌ Error 4: No veure una boda completa abans de contractar
 
@@ -124,7 +124,7 @@ Cada parella és diferent:
 - què valoreu
 - què no us agrada
 
-![Fotògraf de bodes a Tarragona captant un moment emotiu durant la cerimònia](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_6359ca6104724739a67bbe3e64691161~mv2.jpg)
+![Fotògraf de bodes a Tarragona captant un moment emotiu durant la cerimònia](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_6359ca6104724739a67bbe3e64691161~mv2.webp)
 
 ## ❌ Error 7: Pensar que "tots els fotògrafs de boda són iguals"
 
@@ -146,7 +146,7 @@ I això no es nota fins que alguna cosa falla… o fins que tot surt perfecte se
 
 **Com evitar-ho:** decidiu amb informació, no amb presses ni pressió.
 
-![Fotògraf de bodes a Tarragona captant un moment emotiu](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_cdcad7b84fac484e87974e6533b8c7d6~mv2.jpg)
+![Fotògraf de bodes a Tarragona captant un moment emotiu](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_cdcad7b84fac484e87974e6533b8c7d6~mv2.webp)
 
 ## ✅ Conclusió
 

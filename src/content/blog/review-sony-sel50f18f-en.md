@@ -6,7 +6,7 @@ legacySlug: "50-mm-de-sony-una-ganga-de-objetivo-que-hay-que-tener-en-tu-equipo-
 
 ## The Sony 50mm that's an absolute bargain — **Sony SEL50F18F review**
 
-![Sony SEL50F18F 50mm f/1.8 prime lens](/blog/review-sony-sel50f18f/2d4f94_d0d19698c42f4ac4ab79d56f655a2b77~mv2.jpg)
+![Sony SEL50F18F 50mm f/1.8 prime lens](/blog/review-sony-sel50f18f/2d4f94_d0d19698c42f4ac4ab79d56f655a2b77~mv2.webp)
 
 ### The humblest lens in the Sony family
 
@@ -42,7 +42,7 @@ If you have to pick a downside, autofocus is probably it. Speed and precision in
 
 ## Great quality at an affordable price — its real strength
 
-![Sony SEL50F18F](/blog/review-sony-sel50f18f/2d4f94_d0d19698c42f4ac4ab79d56f655a2b77~mv2.jpg)
+![Sony SEL50F18F](/blog/review-sony-sel50f18f/2d4f94_d0d19698c42f4ac4ab79d56f655a2b77~mv2.webp)
 
 It doesn't reach the quality of top-tier optics, but its quality/price ratio makes it easy to buy and easy to justify.
 
@@ -52,17 +52,17 @@ It sits around the €300 mark, though you can often find deals like this one.
 
 ### A few photos taken with the Sony 50mm 1.8
 
-![Sample with the 50mm](/blog/review-sony-sel50f18f/2d4f94_ce59175537664870b4454061eb5e63dd~mv2.jpg)
+![Sample with the 50mm](/blog/review-sony-sel50f18f/2d4f94_ce59175537664870b4454061eb5e63dd~mv2.webp)
 
-![Sample with the 50mm](/blog/review-sony-sel50f18f/2d4f94_45271a58d63940ebb2903edc1247b1d9~mv2.jpg)
+![Sample with the 50mm](/blog/review-sony-sel50f18f/2d4f94_45271a58d63940ebb2903edc1247b1d9~mv2.webp)
 
-![Sample with the 50mm](/blog/review-sony-sel50f18f/2d4f94_255d3ca01c1b4238935aeff2f98827a6~mv2.jpg)
+![Sample with the 50mm](/blog/review-sony-sel50f18f/2d4f94_255d3ca01c1b4238935aeff2f98827a6~mv2.webp)
 
-![Sample with the 50mm](/blog/review-sony-sel50f18f/2d4f94_5f6e5954fafa4aa1bda693768ddffd55~mv2.jpg)
+![Sample with the 50mm](/blog/review-sony-sel50f18f/2d4f94_5f6e5954fafa4aa1bda693768ddffd55~mv2.webp)
 
-![Sample with the 50mm](/blog/review-sony-sel50f18f/2d4f94_6d48ab7d98f24ad5b313f5e51065ee3a~mv2.jpg)
+![Sample with the 50mm](/blog/review-sony-sel50f18f/2d4f94_6d48ab7d98f24ad5b313f5e51065ee3a~mv2.webp)
 
-![Sample with the 50mm](/blog/review-sony-sel50f18f/2d4f94_8043b395bb874bb59eeebe25aff5a7a6~mv2.jpg)
+![Sample with the 50mm](/blog/review-sony-sel50f18f/2d4f94_8043b395bb874bb59eeebe25aff5a7a6~mv2.webp)
 
 ## More about the Sony 50mm
 

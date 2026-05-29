@@ -6,7 +6,7 @@ legacySlug: "boda-en-masia-can-martí-de-dani-marta-una-celebración-única-en-u
 
 Celebra l'amor en un entorn encantador amb l'emotiva boda de Dani i Marta a Masia Can Martí. Descobriu com aquesta parella tan propera va crear records inoblidables envoltats dels seus éssers estimats en aquest paradís del Penedès, a tan sols 8 km de Tarragona.
 
-![Festa de boda de Dani i Marta a Masia Can Martí](/blog/boda-masia-can-marti-dani-marta/2d4f94_63d62de9feae45db901f1dc797ee475d~mv2.jpg)
+![Festa de boda de Dani i Marta a Masia Can Martí](/blog/boda-masia-can-marti-dani-marta/2d4f94_63d62de9feae45db901f1dc797ee475d~mv2.webp)
 
 ## Connexió autèntica i emocions a flor de pell
 
@@ -16,15 +16,15 @@ A Masia Can Martí, Dani i Marta van compartir moments de pura connexió amb els
 
 La cerimònia, celebrada en un entorn versàtil i encantador de Masia Can Martí, va ser un somni fet realitat per a Dani i Marta. Envoltats d'espais exteriors i interiors que s'adapten a totes les necessitats, van intercanviar els seus vots en un ambient ple de màgia i romanticisme, al costat de família i amics.
 
-![Cerimònia de Dani i Marta a Masia Can Martí](/blog/boda-masia-can-marti-dani-marta/2d4f94_ef5f5363609349cab6bc79f7694f7505~mv2.jpg)
+![Cerimònia de Dani i Marta a Masia Can Martí](/blog/boda-masia-can-marti-dani-marta/2d4f94_ef5f5363609349cab6bc79f7694f7505~mv2.webp)
 
 ## Banquet exclusiu i cuina mediterrània
 
 Després de l'emotiva cerimònia, els nuvis i els seus convidats van gaudir d'un banquet exclusiu a Masia Can Martí. Amb plats inspirats en la cuina mediterrània i de mercat elaborats pel director culinari Jaume Drudis, l'experiència gastronòmica va ser inoblidable.
 
-![Moments del banquet](/blog/boda-masia-can-marti-dani-marta/2d4f94_d87905a3a6fe433ba357dbd25bf894db~mv2.jpg)
+![Moments del banquet](/blog/boda-masia-can-marti-dani-marta/2d4f94_d87905a3a6fe433ba357dbd25bf894db~mv2.webp)
 
-![Detalls del dia](/blog/boda-masia-can-marti-dani-marta/2d4f94_57c1e6c0e0664433a8be5de468dc70d9~mv2.jpg)
+![Detalls del dia](/blog/boda-masia-can-marti-dani-marta/2d4f94_57c1e6c0e0664433a8be5de468dc70d9~mv2.webp)
 
 ## Proveïdors destacats que van fer possible aquest dia
 
@@ -42,17 +42,17 @@ Gràcies a la col·laboració d'aquests professionals:
 - 🎧 **Dani Gallardo DJ**: el DJ que va fer vibrar tots els convidats.
 - 🌪️ [**Lifetime 360 Events**](https://www.lifetime.photo/lifetime360events): la nostra plataforma de Videobooth360 que va fer que la nit fos molt divertida i els convidats s'emportessin un vídeo seu ballant.
 
-![Moments de la festa](/blog/boda-masia-can-marti-dani-marta/2d4f94_8355872d81984f228f65cda620c3034e~mv2.jpg)
+![Moments de la festa](/blog/boda-masia-can-marti-dani-marta/2d4f94_8355872d81984f228f65cda620c3034e~mv2.webp)
 
-![Moments amb els amics](/blog/boda-masia-can-marti-dani-marta/2d4f94_1a43438390b547afb3035450fed43a0f~mv2.jpg)
+![Moments amb els amics](/blog/boda-masia-can-marti-dani-marta/2d4f94_1a43438390b547afb3035450fed43a0f~mv2.webp)
 
-![Retrat dels nuvis](/blog/boda-masia-can-marti-dani-marta/2d4f94_50687b68cd0b4d4296b5d0da540886a9~mv2.jpg)
+![Retrat dels nuvis](/blog/boda-masia-can-marti-dani-marta/2d4f94_50687b68cd0b4d4296b5d0da540886a9~mv2.webp)
 
 Esperem que us hagi agradat. Us deixem amb unes quantes imatges més.
 
-![Moment emotiu al banquet](/blog/boda-masia-can-marti-dani-marta/2d4f94_3bd562ba2633463da8a4285a50cd2558~mv2.jpg)
+![Moment emotiu al banquet](/blog/boda-masia-can-marti-dani-marta/2d4f94_3bd562ba2633463da8a4285a50cd2558~mv2.webp)
 
-![Ball nocturn](/blog/boda-masia-can-marti-dani-marta/2d4f94_e361a823f0744e1a8ff67d90ed964578~mv2.jpg)
+![Ball nocturn](/blog/boda-masia-can-marti-dani-marta/2d4f94_e361a823f0744e1a8ff67d90ed964578~mv2.webp)
 
 Una abraçada ben gran,
 

@@ -11,19 +11,26 @@ const t = useTranslations(lang);
   class="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-24 md:pt-0 text-white isolate"
 >
   <div class="absolute inset-0 -z-10 bg-ink">
-    <img
-      src="/photos/elena-jordi/006-lg.jpg"
-      srcset="/photos/elena-jordi/006-sm.jpg 640w, /photos/elena-jordi/006-md.jpg 1200w, /photos/elena-jordi/006-lg.jpg 1920w"
-      sizes="100vw"
-      alt=""
-      role="presentation"
-      class="w-full h-full object-cover opacity-70"
-      loading="eager"
-      fetchpriority="high"
-      decoding="async"
-      width="1920"
-      height="1280"
-    />
+    <picture>
+      <source
+        type="image/webp"
+        srcset="/photos/elena-jordi/006-sm.webp 640w, /photos/elena-jordi/006-md.webp 1200w, /photos/elena-jordi/006-lg.webp 1920w"
+        sizes="100vw"
+      />
+      <img
+        src="/photos/elena-jordi/006-lg.jpg"
+        srcset="/photos/elena-jordi/006-sm.jpg 640w, /photos/elena-jordi/006-md.jpg 1200w, /photos/elena-jordi/006-lg.jpg 1920w"
+        sizes="100vw"
+        alt=""
+        role="presentation"
+        class="w-full h-full object-cover opacity-70"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+        width="1920"
+        height="1280"
+      />
+    </picture>
     <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/70"></div>
   </div>
 

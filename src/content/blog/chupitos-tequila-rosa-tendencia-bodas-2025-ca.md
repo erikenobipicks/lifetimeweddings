@@ -12,7 +12,7 @@ Sí, sí, cada vegada més parelles aposten per col·locar **mini ampolles de Te
 
 Des del brindis espontani fins a aquell convidat que s'anima a beure a morro mentre tothom aplaudeix, **aquesta tendència ho està petant** a les bodes 2025.
 
-![Xupitos de Tequila Rosa: la tendència més boja](/blog/chupitos-tequila-rosa-tendencia-bodas-2025/2d4f94_015ac072bcd14dd6bacb10b0f4f8bfb4~mv2.jpg)
+![Xupitos de Tequila Rosa: la tendència més boja](/blog/chupitos-tequila-rosa-tendencia-bodas-2025/2d4f94_015ac072bcd14dd6bacb10b0f4f8bfb4~mv2.webp)
 
 ### 🧑‍✈️ BONUS: trieu un "capità de taula" per liar-la
 
@@ -47,8 +47,8 @@ Aquí us deixem un dels nostres reels on es veu com arrenca la bogeria amb els x
 
 Expliqueu-nos si el posaríeu a la vostra boda o si ja esteu pensant qui seria el vostre capità de taula ideal 😂 I si us mola aquest rotllo de bodes autèntiques i amb molta ànima… **[escriviu-nos i ho fem realitat](/contacto).**
 
-![Xupitos de Tequila Rosa a la boda](/blog/chupitos-tequila-rosa-tendencia-bodas-2025/2d4f94_168444f7ca784ddca28e077a1df9d825~mv2.jpg)
+![Xupitos de Tequila Rosa a la boda](/blog/chupitos-tequila-rosa-tendencia-bodas-2025/2d4f94_168444f7ca784ddca28e077a1df9d825~mv2.webp)
 
-![Més xupitos de Tequila Rosa en acció](/blog/chupitos-tequila-rosa-tendencia-bodas-2025/2d4f94_13193747f0bc46c9bc3c4ee6fde56bfb~mv2.jpg)
+![Més xupitos de Tequila Rosa en acció](/blog/chupitos-tequila-rosa-tendencia-bodas-2025/2d4f94_13193747f0bc46c9bc3c4ee6fde56bfb~mv2.webp)
 
 📍 Lifetime Weddings – Fotografia i vídeo de bodes a Tarragona

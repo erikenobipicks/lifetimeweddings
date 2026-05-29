@@ -10,7 +10,7 @@ This guide is not about finding "the cheapest". It is for couples who want to **
 
 We are Ferran (photographer) and Eric (videographer). We work at [Lifetime Weddings](/en) creating wedding memories in Tarragona and Catalonia and, over the years, we have seen the same mistakes repeat themselves again and again. Here we lay them out clearly, no fluff.
 
-![Ferran (photographer) and Eric (videographer) of Lifetime Weddings in Tarragona](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_3f68b501268d40ffa09af56d3e52a0f5~mv2.jpg)
+![Ferran (photographer) and Eric (videographer) of Lifetime Weddings in Tarragona](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_3f68b501268d40ffa09af56d3e52a0f5~mv2.webp)
 
 ## ❌ Mistake 1: Choosing by price alone
 
@@ -28,7 +28,7 @@ The result is usually the same: 👉 you pay less at the start and lose quality 
 
 **How to avoid it:** always compare **what the service actually includes**, not just the price. Ask to see one or two full weddings.
 
-![Wedding in Tarragona](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_b6c23c609d864537b25cd4d80a7da052~mv2.jpg)
+![Wedding in Tarragona](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_b6c23c609d864537b25cd4d80a7da052~mv2.webp)
 
 ## ❌ Mistake 2: Not asking how many weddings the vendor shoots the same day
 
@@ -82,7 +82,7 @@ At weddings where it isn't really needed, **fewer people can be more**:
 
 **How to avoid it:** don't assume "more is better". Ask how the photographer works, whether they have covered full weddings on their own, and if they can show you real examples. Sometimes good planning and experience are worth more than adding people for no reason.
 
-![Wedding photographer in Tarragona capturing an emotional moment during the ceremony](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_8edc5a47142344368a56670c8674791c~mv2.jpg)
+![Wedding photographer in Tarragona capturing an emotional moment during the ceremony](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_8edc5a47142344368a56670c8674791c~mv2.webp)
 
 ## ❌ Mistake 4: Not seeing a full wedding before hiring
 
@@ -124,7 +124,7 @@ Every couple is different:
 - what you value
 - what you don't like
 
-![Wedding photographer in Tarragona capturing an emotional moment during the ceremony](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_6359ca6104724739a67bbe3e64691161~mv2.jpg)
+![Wedding photographer in Tarragona capturing an emotional moment during the ceremony](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_6359ca6104724739a67bbe3e64691161~mv2.webp)
 
 ## ❌ Mistake 7: Thinking "all wedding photographers are the same"
 
@@ -146,7 +146,7 @@ And you don't notice that until something goes wrong… or until everything goes
 
 **How to avoid it:** decide with information, not in a rush or under pressure.
 
-![Wedding photographer in Tarragona capturing an emotional moment](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_cdcad7b84fac484e87974e6533b8c7d6~mv2.jpg)
+![Wedding photographer in Tarragona capturing an emotional moment](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_cdcad7b84fac484e87974e6533b8c7d6~mv2.webp)
 
 ## ✅ Conclusion
 

@@ -4,7 +4,7 @@ description: "Boda de Aitor y Mariona en Masia Heretat Sabartés y el Santuario 
 legacySlug: "boda-en-masia-heretats-sabartés-aitor-mariona-boda-en-santuario-de-montferri-tarragona"
 ---
 
-![Masia Heretat Sabartés y Santuario de Montferri — Aitor y Mariona](/blog/boda-masia-heretat-sabartes-aitor-mariona/2d4f94_716129e7a351452fbf8d8e820225adb1~mv2.jpg)
+![Masia Heretat Sabartés y Santuario de Montferri — Aitor y Mariona](/blog/boda-masia-heretat-sabartes-aitor-mariona/2d4f94_716129e7a351452fbf8d8e820225adb1~mv2.webp)
 
 Las bodas son momentos llenos de emoción, belleza y recuerdos imborrables. Cuando Aitor y Mariona eligieron cómo celebrar su unión, apostaron por dos lugares espectaculares de Tarragona que capturaban a la perfección la esencia de su historia de amor: **Masia Heretat Sabartés** y el **Santuario de Montferri**. En este post repasamos el encanto de cada uno y cómo contribuyeron a un día mágico.
 
@@ -14,7 +14,7 @@ Masia Heretat Sabartés es una masía catalana tradicional con un ambiente cáli
 
 La arquitectura de la masía es uno de sus puntos fuertes: paredes de piedra, vigas de madera y amplias terrazas crean un ambiente acogedor que se siente a la vez elegante e íntimo. Para Aitor y Mariona, esta elección permitió que los invitados se relajaran y disfrutaran de la celebración en un espacio sofisticado pero cercano.
 
-![Masia Heretat Sabartés](/blog/boda-masia-heretat-sabartes-aitor-mariona/2d4f94_568ce8b8094c4e8cb27717cf73ed5dad~mv2.jpg)
+![Masia Heretat Sabartés](/blog/boda-masia-heretat-sabartes-aitor-mariona/2d4f94_568ce8b8094c4e8cb27717cf73ed5dad~mv2.webp)
 
 ### Lo que hace especial a Masia Heretat Sabartés
 
@@ -63,7 +63,7 @@ Para parejas que buscan una boda que combine belleza natural, riqueza cultural y
 
 Juntos crean una experiencia de boda que equilibra tradición y modernidad, intimidad y grandeza, naturaleza y arquitectura.
 
-![Detalle de la celebración](/blog/boda-masia-heretat-sabartes-aitor-mariona/2d4f94_eda698821f2147f5bcfa336f203f93a8~mv2.jpg)
+![Detalle de la celebración](/blog/boda-masia-heretat-sabartes-aitor-mariona/2d4f94_eda698821f2147f5bcfa336f203f93a8~mv2.webp)
 
 ## Para cerrar: celebrar el amor en Tarragona
 

@@ -14,7 +14,7 @@ In this guide we share **the keys to choosing the right wedding photo and video 
 
 📷 🎥 **At** [**Lifetime Weddings, Ferran and Eric**](/en) **are a tight-knit team that makes sure every moment is captured naturally and with emotion.**
 
-![A unique moment captured at a real wedding in Tarragona. Emotion isn't posed, it's lived.](/blog/como-elegir-fotografo-videografo-bodas-tarragona/2d4f94_732d97914da947be961943290ed15008~mv2.jpg)
+![A unique moment captured at a real wedding in Tarragona. Emotion isn't posed, it's lived.](/blog/como-elegir-fotografo-videografo-bodas-tarragona/2d4f94_732d97914da947be961943290ed15008~mv2.webp)
 
 *A unique moment captured at a real wedding in Tarragona. Emotion isn't posed, it's lived.*
 
@@ -56,7 +56,7 @@ At **Lifetime Weddings**, our style is built on:
 
 🎥 [**See our work here**](https://studio.youtube.com/channel/UCuJ0g4nYwjGB1PIeWlTrOlg)
 
-![The best photos aren't forced, they simply happen.](/blog/como-elegir-fotografo-videografo-bodas-tarragona/2d4f94_ec9a5d16bbf349968d45295fb5ab8f1d~mv2.jpg)
+![The best photos aren't forced, they simply happen.](/blog/como-elegir-fotografo-videografo-bodas-tarragona/2d4f94_ec9a5d16bbf349968d45295fb5ab8f1d~mv2.webp)
 
 *The best photos aren't forced, they simply happen.*
 
@@ -68,7 +68,7 @@ Not every photographer knows how to tell the story of a wedding. **Experience is
 
 **An experienced photographer and videographer know how to:** ✔ Anticipate key moments. ✔ Handle the unexpected. ✔ Keep things natural without making the couple uncomfortable.
 
-![Experience is knowing how to be in the right place at the perfect moment.](/blog/como-elegir-fotografo-videografo-bodas-tarragona/2d4f94_c2ec265d6b2a44569f8421be3dd1b750~mv2.jpg)
+![Experience is knowing how to be in the right place at the perfect moment.](/blog/como-elegir-fotografo-videografo-bodas-tarragona/2d4f94_c2ec265d6b2a44569f8421be3dd1b750~mv2.webp)
 
 *Experience is knowing how to be in the right place at the perfect moment.*
 

@@ -14,7 +14,7 @@ Desde el brindis espontáneo hasta ese invitado que se anima a beber a morro mie
 
 Chupitos de Tequila Rosa: La Tendencia Más Loca 🔥
 
-![Chupitos de Tequila Rosa: La Tendencia Más Loca ](/blog/chupitos-tequila-rosa-tendencia-bodas-2025/2d4f94_015ac072bcd14dd6bacb10b0f4f8bfb4~mv2.jpg)
+![Chupitos de Tequila Rosa: La Tendencia Más Loca ](/blog/chupitos-tequila-rosa-tendencia-bodas-2025/2d4f94_015ac072bcd14dd6bacb10b0f4f8bfb4~mv2.webp)
 
 ### 🧑‍✈️ BONUS: Elige un “capitán de mesa” para liarla
 
@@ -49,6 +49,6 @@ Aquí te dejamos uno de nuestros reels donde se ve cómo arranca la locura con l
 
 Cuéntanos si lo pondrías en tu boda o si ya estás pensando quién sería tu capitán de mesa ideal 😂Y si te mola este rollo de bodas auténticas y con mucha alma… **escríbenos y lo hacemos realidad.**
 
-![Chupitos de Tequila Rosa: La Tendencia Más Loca (y Divertida) en Bodas 2025](/blog/chupitos-tequila-rosa-tendencia-bodas-2025/2d4f94_168444f7ca784ddca28e077a1df9d825~mv2.jpg)![Chupitos de Tequila Rosa: La Tendencia Más Loca (y Divertida) en Bodas 2025](/blog/chupitos-tequila-rosa-tendencia-bodas-2025/2d4f94_13193747f0bc46c9bc3c4ee6fde56bfb~mv2.jpg)
+![Chupitos de Tequila Rosa: La Tendencia Más Loca (y Divertida) en Bodas 2025](/blog/chupitos-tequila-rosa-tendencia-bodas-2025/2d4f94_168444f7ca784ddca28e077a1df9d825~mv2.webp)![Chupitos de Tequila Rosa: La Tendencia Más Loca (y Divertida) en Bodas 2025](/blog/chupitos-tequila-rosa-tendencia-bodas-2025/2d4f94_13193747f0bc46c9bc3c4ee6fde56bfb~mv2.webp)
 
 📍 Lifetime Weddings – Fotografía y vídeo de bodas en Tarragona

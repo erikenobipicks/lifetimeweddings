@@ -6,7 +6,7 @@ legacySlug: "50-mm-de-sony-una-ganga-de-objetivo-que-hay-que-tener-en-tu-equipo-
 
 ## El 50 mm de Sony que és tota una ganga — **Review Sony SEL50F18F**
 
-![Sony SEL50F18F 50mm f/1.8 objectiu fix](/blog/review-sony-sel50f18f/2d4f94_d0d19698c42f4ac4ab79d56f655a2b77~mv2.jpg)
+![Sony SEL50F18F 50mm f/1.8 objectiu fix](/blog/review-sony-sel50f18f/2d4f94_d0d19698c42f4ac4ab79d56f655a2b77~mv2.webp)
 
 ### L'objectiu més humil de la família Sony
 
@@ -42,7 +42,7 @@ Si cal buscar algun punt negatiu, potser és l'enfocament: la velocitat i la pre
 
 ## Qualitat superior a un preu assequible: el seu punt fort
 
-![Sony SEL50F18F](/blog/review-sony-sel50f18f/2d4f94_d0d19698c42f4ac4ab79d56f655a2b77~mv2.jpg)
+![Sony SEL50F18F](/blog/review-sony-sel50f18f/2d4f94_d0d19698c42f4ac4ab79d56f655a2b77~mv2.webp)
 
 No arriba als nivells de qualitat de les òptiques de gamma més alta, però la seva relació qualitat/preu fa que sigui un objectiu molt assequible d'aconseguir i d'amortitzar.
 
@@ -52,17 +52,17 @@ El preu ronda els 300 €, encara que pots trobar ofertes com aquesta.
 
 ### Algunes fotografies fetes amb el 50mm 1.8 de Sony
 
-![Exemple amb 50mm](/blog/review-sony-sel50f18f/2d4f94_ce59175537664870b4454061eb5e63dd~mv2.jpg)
+![Exemple amb 50mm](/blog/review-sony-sel50f18f/2d4f94_ce59175537664870b4454061eb5e63dd~mv2.webp)
 
-![Exemple amb 50mm](/blog/review-sony-sel50f18f/2d4f94_45271a58d63940ebb2903edc1247b1d9~mv2.jpg)
+![Exemple amb 50mm](/blog/review-sony-sel50f18f/2d4f94_45271a58d63940ebb2903edc1247b1d9~mv2.webp)
 
-![Exemple amb 50mm](/blog/review-sony-sel50f18f/2d4f94_255d3ca01c1b4238935aeff2f98827a6~mv2.jpg)
+![Exemple amb 50mm](/blog/review-sony-sel50f18f/2d4f94_255d3ca01c1b4238935aeff2f98827a6~mv2.webp)
 
-![Exemple amb 50mm](/blog/review-sony-sel50f18f/2d4f94_5f6e5954fafa4aa1bda693768ddffd55~mv2.jpg)
+![Exemple amb 50mm](/blog/review-sony-sel50f18f/2d4f94_5f6e5954fafa4aa1bda693768ddffd55~mv2.webp)
 
-![Exemple amb 50mm](/blog/review-sony-sel50f18f/2d4f94_6d48ab7d98f24ad5b313f5e51065ee3a~mv2.jpg)
+![Exemple amb 50mm](/blog/review-sony-sel50f18f/2d4f94_6d48ab7d98f24ad5b313f5e51065ee3a~mv2.webp)
 
-![Exemple amb 50mm](/blog/review-sony-sel50f18f/2d4f94_8043b395bb874bb59eeebe25aff5a7a6~mv2.jpg)
+![Exemple amb 50mm](/blog/review-sony-sel50f18f/2d4f94_8043b395bb874bb59eeebe25aff5a7a6~mv2.webp)
 
 ## Més sobre el 50mm de Sony
 

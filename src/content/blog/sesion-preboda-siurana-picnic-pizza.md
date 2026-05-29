@@ -8,7 +8,7 @@ legacySlug: "sesión-de-preboda-en-tarragona-ideas-originales-en-siurana-con-pic
 
 Cuando una pareja busca algo más que un simple reportaje de preboda, el resultado puede ser tan auténtico y especial como esta sesión en Siurana. En **Lifetime Weddings**, nos encanta que cada historia sea única, y esta vez el plan no podía ser mejor: un picnic al aire libre, su pizza favorita y el increíble paisaje de Siurana como telón de fondo.
 
-![Sesión de preboda original en Siurana con picnic - Lifetime Wedding](/blog/sesion-preboda-siurana-picnic-pizza/2d4f94_9193908ac3384bb7bfb47a3ce0d213df~mv2.jpg)
+![Sesión de preboda original en Siurana con picnic - Lifetime Wedding](/blog/sesion-preboda-siurana-picnic-pizza/2d4f94_9193908ac3384bb7bfb47a3ce0d213df~mv2.webp)
 
 Sesión de preboda original en Siurana con picnic - Lifetime Wedding
 
@@ -27,7 +27,7 @@ Cada pareja es un mundo y nos encanta que nuestras sesiones reflejen vuestra ese
 ✅ Un lugar que os haga sentir libres y cómodos
 ✅ Actividades que os representen: música, juegos, bicicletas, ¡lo que sea!
 
-![Sesión de preboda original en Siurana con picnic - Lifetime Wedding](/blog/sesion-preboda-siurana-picnic-pizza/2d4f94_3a2fba1d9e0a480cb6c5316700a7ef11~mv2.jpg)
+![Sesión de preboda original en Siurana con picnic - Lifetime Wedding](/blog/sesion-preboda-siurana-picnic-pizza/2d4f94_3a2fba1d9e0a480cb6c5316700a7ef11~mv2.webp)
 
 En **Lifetime Weddings** nos encargamos de que cada preboda original en Siurana sea distinta, sin poses forzadas, solo vuestra complicidad y naturalidad.
 
@@ -35,7 +35,7 @@ En **Lifetime Weddings** nos encargamos de que cada preboda original en Siurana
 
 Las fotos hablan por sí solas: risas auténticas, miradas cómplices, momentos robados entre trozo y trozo de pizza… El entorno de Siurana y la luz del atardecer hicieron el resto.
 
-![Sesión de preboda original en Siurana con picnic - Lifetime Wedding](/blog/sesion-preboda-siurana-picnic-pizza/2d4f94_692031755d7a4c5f92fc711df6fd3e14~mv2.jpg)
+![Sesión de preboda original en Siurana con picnic - Lifetime Wedding](/blog/sesion-preboda-siurana-picnic-pizza/2d4f94_692031755d7a4c5f92fc711df6fd3e14~mv2.webp)
 
 Sesión de preboda original en Siurana con picnic - Lifetime Weddings Preboda original en Siurana
 
