@@ -32,6 +32,7 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedAt: '2026-05-29',
     readingTime: 5,
     category: 'bodas',
+    cover: '/blog/bodas-en-otono-en-tarragona/cover.jpg',
   },
   {
     slug: '7-errores-al-contratar-fotografo-de-boda',
