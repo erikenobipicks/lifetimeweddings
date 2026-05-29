@@ -20,6 +20,15 @@ interface Props {
   /** Path without locale prefix, starting with '/'. e.g. '/contacto' */
   canonicalPath?: string;
   ogImage?: string;
+  /** OpenGraph type. Default 'website'. Use 'article' on blog posts and
+   *  wedding galleries to unlock Pinterest Rich Pins + Article Twitter Card. */
+  ogType?: 'website' | 'article';
+  /** ISO date — emitted as `article:published_time` when `ogType='article'`. */
+  articlePublishedTime?: string;
+  /** ISO date — emitted as `article:modified_time` when `ogType='article'`. */
+  articleModifiedTime?: string;
+  /** Display name — emitted as `article:author` when `ogType='article'`. */
+  articleAuthor?: string;
   /** JSON-LD objects to inject into <head> */
   jsonLd?: unknown[];
   /** Hide header/footer (e.g. for landing pages) */
@@ -35,6 +44,10 @@ const {
   lang,
   canonicalPath = '/',
   ogImage = '/og-default.jpg',
+  ogType = 'website',
+  articlePublishedTime,
+  articleModifiedTime,
+  articleAuthor,
   jsonLd,
   chromeless = false,
   noindex = false,
@@ -75,7 +88,16 @@ const alternates: { hreflang: string; href: string }[] = [
     ))}
 
     <!-- Open Graph -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
+    {ogType === 'article' && articlePublishedTime && (
+      <meta property="article:published_time" content={articlePublishedTime} />
+    )}
+    {ogType === 'article' && articleModifiedTime && (
+      <meta property="article:modified_time" content={articleModifiedTime} />
+    )}
+    {ogType === 'article' && articleAuthor && (
+      <meta property="article:author" content={articleAuthor} />
+    )}
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
