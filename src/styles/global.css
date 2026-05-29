@@ -1,3 +1,16 @@
+/* Self-hosted fonts (April 2026). `full.css` ships the full variable
+   Fraunces with all four axes (wght, opsz, SOFT, WONK) — required
+   because the body uses `font-variation-settings: 'SOFT' 50` on display
+   headings. fontsource splits by unicode subset; the browser only
+   downloads the latin range for ES/CA/EN visitors thanks to
+   unicode-range filtering.
+
+   @import MUST sit above the @tailwind directives — CSS spec says
+   @import rules must precede everything except @charset / @layer. */
+@import '@fontsource-variable/fraunces/full.css';
+@import '@fontsource-variable/fraunces/full-italic.css';
+@import '@fontsource-variable/inter/index.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,8 +21,8 @@
    ──────────────────────────────────────────────────────────────── */
 
 :root {
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Fraunces Variable', Georgia, serif;
+  --font-body: 'Inter Variable', system-ui, -apple-system, sans-serif;
 
   /* Fraunces SOFT axis: 0 (default) → 100 (max softness).
      50 = warmer than default without feeling gimmicky. */
