@@ -51,8 +51,8 @@ export const BLOG_POSTS: BlogPost[] = [
     title: 'Bodas con dron en Tarragona: la forma más espectacular de recordar tu día',
     author: 'eric',
     publishedAt: '2025-09-03',
-    updatedAt: '2025-09-03',
-    readingTime: 1,
+    updatedAt: '2026-05-29',
+    readingTime: 4,
     category: 'bodas',
   },
   {
