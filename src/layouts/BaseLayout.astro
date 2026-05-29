@@ -108,6 +108,11 @@ const alternates: { hreflang: string; href: string }[] = [
     <meta property="og:locale" content={ogLocale[lang]} />
     <meta property="og:site_name" content="Lifetime Weddings" />
 
+    {/* Pinterest Rich Pins — explicit opt-in. Pinterest already infers
+        Rich Pin status from the article:* + og:* tags above; this tag
+        makes the intent unambiguous to the validator. */}
+    <meta name="pinterest-rich-pin" content="true" />
+
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
