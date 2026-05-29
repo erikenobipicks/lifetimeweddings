@@ -10,11 +10,11 @@ If you dream of a wedding where everyone has an amazing time, where **fun** is n
 
 It isn't just for show — it's **pure photo mayhem**. These shades have been popping off at the most fun weddings in Tarragona, Reus, Cambrils, Salou and around for a while now. Natural photos, videos packed with moments, and **Instagram reels** that are straight-up magic. Plus they look top in the **wedding album** for the nostalgic ones.
 
-![Personalised sunglasses: guests enjoying original glasses during the party](/blog/gafas-personalizadas-fotos-epicas-boda/2d4f94_022527a90af445cf89ddb0ce5348914c~mv2.jpg)
+![Personalised sunglasses: guests enjoying original glasses during the party](/blog/gafas-personalizadas-fotos-epicas-boda/2d4f94_022527a90af445cf89ddb0ce5348914c~mv2.webp)
 
 *The groom! Personalised sunglasses on the dance floor — guests having a blast with original glasses during the party.*
 
-![Guests with personalised sunglasses at the party](/blog/gafas-personalizadas-fotos-epicas-boda/2d4f94_48f67b2d2c45477781ad0ab099e67431~mv2.jpg)
+![Guests with personalised sunglasses at the party](/blog/gafas-personalizadas-fotos-epicas-boda/2d4f94_48f67b2d2c45477781ad0ab099e67431~mv2.webp)
 
 ### 🎉 Easy ideas to nail the personalised-sunglasses moment
 
@@ -23,7 +23,7 @@ It isn't just for show — it's **pure photo mayhem**. These shades have been po
 - **Shot + sunglasses moment at the open bar:** that's where the best reels are born 😜.
 - **Crazy minute during the dance:** at [Lifetime Weddings](/en) we always grab a few minutes of madness with groups and sunglasses… pure magic!
 
-![Ferryphotographer. Personalised sunglasses in action at the party](/blog/gafas-personalizadas-fotos-epicas-boda/2d4f94_aadd0d4f57fc4abd929c4480eb25c6c4~mv2.jpg)
+![Ferryphotographer. Personalised sunglasses in action at the party](/blog/gafas-personalizadas-fotos-epicas-boda/2d4f94_aadd0d4f57fc4abd929c4480eb25c6c4~mv2.webp)
 
 *@Ferryphotographer. Guests enjoying original glasses during the party.*
 

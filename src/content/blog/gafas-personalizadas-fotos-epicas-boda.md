@@ -8,11 +8,11 @@ legacySlug: "gafas-personalizadas-la-manera-más-divertida-de-tener-fotos-épica
 
 No es postureo, es **puro desmadre fotográfico**. Estas gafas llevan tiempo petándolo en las bodas más divertidas de Tarragona, Reus, Cambrils, Salou y alrededores. Fotos naturales, vídeos llenos de momentazos, y unos **reels de Instagram** que son pura fantasía. También para los nostálgicos: quedan top en el **álbum de boda**.
 
-![Gafas personalizadas: La manera más divertida de tener fotos épicas en tu boda. Invitados disfrutando con gafas originales durante la fiesta](/blog/gafas-personalizadas-fotos-epicas-boda/2d4f94_022527a90af445cf89ddb0ce5348914c~mv2.jpg)
+![Gafas personalizadas: La manera más divertida de tener fotos épicas en tu boda. Invitados disfrutando con gafas originales durante la fiesta](/blog/gafas-personalizadas-fotos-epicas-boda/2d4f94_022527a90af445cf89ddb0ce5348914c~mv2.webp)
 
 El novio! Gafas personalizadas: La manera más divertida de tener fotos épicas en tu boda. Invitados disfrutando con gafas originales durante la fiesta
 
-![Gafas personalizadas: La manera más divertida de tener fotos épicas en tu boda. Invitados disfrutando con gafas originales durante la fiesta](/blog/gafas-personalizadas-fotos-epicas-boda/2d4f94_48f67b2d2c45477781ad0ab099e67431~mv2.jpg)
+![Gafas personalizadas: La manera más divertida de tener fotos épicas en tu boda. Invitados disfrutando con gafas originales durante la fiesta](/blog/gafas-personalizadas-fotos-epicas-boda/2d4f94_48f67b2d2c45477781ad0ab099e67431~mv2.webp)
 
 ### 🎉 Ideas fáciles para petarlo con gafas personalizadas
 
@@ -21,7 +21,7 @@ El novio! Gafas personalizadas: La manera más divertida de tener fotos épicas 
 - **Momento chupito + gafas en barra libre:** ahí nacen los mejores reels 😜.
 - **Minuto loco durante el baile:** nosotros en [Lifetime Weddings](https://www.lifetime.photo/home) siempre pillamos unos minutos de locura con grupos y gafas… ¡pura magia!
 
-  ![Gafas personalizadas: La manera más divertida de tener fotos épicas en tu boda. Invitados disfrutando con gafas originales durante la fiesta](/blog/gafas-personalizadas-fotos-epicas-boda/2d4f94_aadd0d4f57fc4abd929c4480eb25c6c4~mv2.jpg)
+  ![Gafas personalizadas: La manera más divertida de tener fotos épicas en tu boda. Invitados disfrutando con gafas originales durante la fiesta](/blog/gafas-personalizadas-fotos-epicas-boda/2d4f94_aadd0d4f57fc4abd929c4480eb25c6c4~mv2.webp)
 
   @Ferryphotographer. Gafas personalizadas: La manera más divertida de tener fotos épicas en tu boda. Invitados disfrutando con gafas originales durante la fiesta
 

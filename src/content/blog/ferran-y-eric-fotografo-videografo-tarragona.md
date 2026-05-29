@@ -8,7 +8,7 @@ Cuando una pareja busca fotógrafo y videógrafo para su boda, se encuentra con 
 
 Y ahí es donde empiezan las dudas. Porque tu boda no se repite, y confiar en alguien que no conoces hasta el mismo día… **no debería ser una opción.**
 
-![fotógrafo y videógrafo de bodas en Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_3f68b501268d40ffa09af56d3e52a0f5~mv2.jpg)
+![fotógrafo y videógrafo de bodas en Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_3f68b501268d40ffa09af56d3e52a0f5~mv2.webp)
 
 ## En Lifetime Weddings solo hacemos una boda por día.
 
@@ -37,7 +37,7 @@ El riesgo es evidente:
 - No hay feeling previo.
 - No sabes si esa persona entenderá tu historia.
 - Y lo más importante: **no sabrás si te sentirás cómodo delante de su cámara.**
-![fotógrafo y videógrafo de bodas en Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_49774296935c47d680745274cae0d300~mv2.jpg)
+![fotógrafo y videógrafo de bodas en Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_49774296935c47d680745274cae0d300~mv2.webp)
 
 Ferran y Eric, Fotógrafo y Videografo de Tarragona por Lifetime Weddings
 
@@ -63,7 +63,7 @@ Queremos que el día de vuestra boda no solo tengáis un recuerdo bonito, sino q
 Porque para nosotros no sois un número en el calendario: sois una historia única que merece ser contada con tiempo, dedicación y emoción.
 Es así como podemos estar entre los [mejores fotógrafos de Tarragona.](https://www.lifetime.photo/post/los-7-mejores-fotógrafos-de-boda-en-tarragona-actualizado-2025)
 
-![Fotógrafo de bodas Tarraogna](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_92c0b0f648874fc1851e2a164ac4ec93~mv2.jpg)
+![Fotógrafo de bodas Tarraogna](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_92c0b0f648874fc1851e2a164ac4ec93~mv2.webp)
 
 ## Dónde trabajamos
 
@@ -71,7 +71,7 @@ Es así como podemos estar entre los [mejores fotógrafos de Tarragona.](https:/
 
 Estamos en **Reus (Tarragona)** y realizamos reportajes en toda la provincia de **Tarragona, Lleida y Cataluña**. También nos desplazamos si vuestra historia nos lleva más lejos —nos encanta descubrir nuevos lugares y adaptarnos a cada entorno.
 
-![Videografo de Bodas Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_32002313c1f24beb823a9b24c652c8d3~mv2.jpg)
+![Videografo de Bodas Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_32002313c1f24beb823a9b24c652c8d3~mv2.webp)
 
 ## ¿Quieres conocernos?
 

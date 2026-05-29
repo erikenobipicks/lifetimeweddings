@@ -8,7 +8,7 @@ Quan una parella busca fotògraf i videògraf per a la seva boda, es troba amb u
 
 I aquí és on comencen els dubtes. Perquè la vostra boda no es repeteix, i confiar en algú que no coneixeu fins al mateix dia… **no hauria de ser una opció.**
 
-![Fotògraf i videògraf de bodes a Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_3f68b501268d40ffa09af56d3e52a0f5~mv2.jpg)
+![Fotògraf i videògraf de bodes a Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_3f68b501268d40ffa09af56d3e52a0f5~mv2.webp)
 
 ## A Lifetime Weddings només fem una boda per dia
 
@@ -36,7 +36,7 @@ El risc és evident:
 - No sabeu si aquesta persona entendrà la vostra història.
 - I el més important: **no sabreu si us sentireu còmodes davant de la seva càmera.**
 
-![Fotògraf i videògraf de bodes a Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_49774296935c47d680745274cae0d300~mv2.jpg)
+![Fotògraf i videògraf de bodes a Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_49774296935c47d680745274cae0d300~mv2.webp)
 
 ## Feeling, confiança i naturalitat: la nostra fórmula
 
@@ -60,7 +60,7 @@ Volem que el dia de la vostra boda no només tingueu un record bonic, sinó que 
 
 Perquè per a nosaltres no sou un número al calendari: sou una història única que mereix ser explicada amb temps, dedicació i emoció. És així com podem estar entre els [millors fotògrafs de Tarragona](/blog/los-7-mejores-fotografos-de-boda-en-tarragona-2025).
 
-![Fotògraf de bodes Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_92c0b0f648874fc1851e2a164ac4ec93~mv2.jpg)
+![Fotògraf de bodes Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_92c0b0f648874fc1851e2a164ac4ec93~mv2.webp)
 
 ## On treballem
 
@@ -68,7 +68,7 @@ Perquè per a nosaltres no sou un número al calendari: sou una història única
 
 Estem a **Reus (Tarragona)** i fem reportatges a tota la província de **Tarragona, Lleida i Catalunya**. També ens desplacem si la vostra història ens porta més lluny — ens encanta descobrir nous llocs i adaptar-nos a cada entorn.
 
-![Videògraf de bodes Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_32002313c1f24beb823a9b24c652c8d3~mv2.jpg)
+![Videògraf de bodes Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_32002313c1f24beb823a9b24c652c8d3~mv2.webp)
 
 ## Voleu conèixer-nos?
 

@@ -14,7 +14,7 @@ En esta guía te explicamos **las claves para elegir el equipo ideal de foto y v
 
 📷 🎥 **En** [**Lifetime Weddings, Ferran y Eric**](https://www.lifetime.photo/home) **formamos un equipo compacto que garantiza que cada instante quede inmortalizado con naturalidad y emoción.**
 
-![Un instante único capturado en una boda real en Tarragona. La emoción no se posa, se vive.](/blog/como-elegir-fotografo-videografo-bodas-tarragona/2d4f94_732d97914da947be961943290ed15008~mv2.jpg)
+![Un instante único capturado en una boda real en Tarragona. La emoción no se posa, se vive.](/blog/como-elegir-fotografo-videografo-bodas-tarragona/2d4f94_732d97914da947be961943290ed15008~mv2.webp)
 
 Un instante único capturado en una boda real en Tarragona. La emoción no se posa, se vive.
 
@@ -56,7 +56,7 @@ En **Lifetime Weddings**, nuestro estilo se basa en:
 
 🎥 [**Mira nuestro trabajo aquí**](https://studio.youtube.com/channel/UCuJ0g4nYwjGB1PIeWlTrOlg)
 
-![Las mejores fotos no se fuerzan, simplemente suceden.](/blog/como-elegir-fotografo-videografo-bodas-tarragona/2d4f94_ec9a5d16bbf349968d45295fb5ab8f1d~mv2.jpg)
+![Las mejores fotos no se fuerzan, simplemente suceden.](/blog/como-elegir-fotografo-videografo-bodas-tarragona/2d4f94_ec9a5d16bbf349968d45295fb5ab8f1d~mv2.webp)
 
 *Las mejores fotos no se fuerzan, simplemente suceden.*
 
@@ -68,7 +68,7 @@ No todos los fotógrafos saben narrar una boda. **La experiencia es clave para c
 
 **Un fotógrafo y videógrafo experimentados saben:**✔ Anticiparse a momentos clave.✔ Lidiar con imprevistos.✔ Mantener la naturalidad sin incomodar a los novios.
 
-![La experiencia es saber estar en el lugar correcto, en el momento perfecto.](/blog/como-elegir-fotografo-videografo-bodas-tarragona/2d4f94_c2ec265d6b2a44569f8421be3dd1b750~mv2.jpg)
+![La experiencia es saber estar en el lugar correcto, en el momento perfecto.](/blog/como-elegir-fotografo-videografo-bodas-tarragona/2d4f94_c2ec265d6b2a44569f8421be3dd1b750~mv2.webp)
 
 *La experiencia es saber estar en el lugar correcto, en el momento perfecto.*
 

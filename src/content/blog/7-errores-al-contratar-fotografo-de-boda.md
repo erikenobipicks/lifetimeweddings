@@ -10,7 +10,7 @@ Esta guía no es para encontrar "lo más barato". Es para parejas que quieren **
 
 Somos Ferran (fotógrafo) y Eric (videógrafo). Trabajamos en [Lifetime Weddings](/) creando recuerdos de bodas en Tarragona y Catalunya y, con los años, hemos visto los mismos errores repetirse una y otra vez. Aquí te los contamos claros y sin adornos.
 
-![Ferran (fotógrafo) y Eric (videógrafo) de Lifetime Weddings en Tarragona](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_3f68b501268d40ffa09af56d3e52a0f5~mv2.jpg)
+![Ferran (fotógrafo) y Eric (videógrafo) de Lifetime Weddings en Tarragona](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_3f68b501268d40ffa09af56d3e52a0f5~mv2.webp)
 
 ## ❌ Error 1: Elegir solo por el precio
 
@@ -28,7 +28,7 @@ El resultado suele ser el mismo: 👉 se paga menos al principio y se pierde cal
 
 **Cómo evitarlo:** compara siempre **qué incluye realmente el servicio**, no solo el precio. Pide ver una o dos bodas completas.
 
-![Boda en Tarragona](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_b6c23c609d864537b25cd4d80a7da052~mv2.jpg)
+![Boda en Tarragona](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_b6c23c609d864537b25cd4d80a7da052~mv2.webp)
 
 ## ❌ Error 2: No preguntar cuántas bodas hace el proveedor el mismo día
 
@@ -82,7 +82,7 @@ En bodas donde no es realmente necesario, **menos personas puede ser más**:
 
 **Cómo evitarlo:** no des por hecho que "más es mejor". Pregunta cómo trabaja el fotógrafo, si ha cubierto bodas completas él solo y si puede enseñarte ejemplos reales. A veces, una buena planificación y experiencia valen más que sumar personas sin sentido.
 
-![Fotógrafo de bodas en Tarragona captando un momento emotivo durante la ceremonia](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_8edc5a47142344368a56670c8674791c~mv2.jpg)
+![Fotógrafo de bodas en Tarragona captando un momento emotivo durante la ceremonia](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_8edc5a47142344368a56670c8674791c~mv2.webp)
 
 ## ❌ Error 4: No ver una boda completa antes de contratar
 
@@ -124,7 +124,7 @@ Cada pareja es diferente:
 - qué valoráis
 - qué no os gusta
 
-![Fotógrafo de bodas en Tarragona captando un momento emotivo durante la ceremonia](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_6359ca6104724739a67bbe3e64691161~mv2.jpg)
+![Fotógrafo de bodas en Tarragona captando un momento emotivo durante la ceremonia](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_6359ca6104724739a67bbe3e64691161~mv2.webp)
 
 ## ❌ Error 7: Pensar que "todos los fotógrafos de boda son iguales"
 
@@ -146,7 +146,7 @@ Y eso no se nota hasta que algo falla… o hasta que todo sale perfecto sin que 
 
 **Cómo evitarlo:** decide con información, no con prisas ni presión.
 
-![Fotógrafo de bodas en Tarragona captando un momento emotivo](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_cdcad7b84fac484e87974e6533b8c7d6~mv2.jpg)
+![Fotógrafo de bodas en Tarragona captando un momento emotivo](/blog/7-errores-al-contratar-fotografo-de-boda/2d4f94_cdcad7b84fac484e87974e6533b8c7d6~mv2.webp)
 
 ## ✅ Conclusión
 

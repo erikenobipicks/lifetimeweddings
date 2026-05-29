@@ -12,7 +12,7 @@ Yes, more and more couples are dropping **mini Tequila Rose bottles** on the tab
 
 From the spontaneous toast to that guest who goes full brave and drinks straight from the bottle while everyone cheers, **this trend is blowing up** at 2025 weddings.
 
-![Pink Tequila shots: the craziest trend](/blog/chupitos-tequila-rosa-tendencia-bodas-2025/2d4f94_015ac072bcd14dd6bacb10b0f4f8bfb4~mv2.jpg)
+![Pink Tequila shots: the craziest trend](/blog/chupitos-tequila-rosa-tendencia-bodas-2025/2d4f94_015ac072bcd14dd6bacb10b0f4f8bfb4~mv2.webp)
 
 ### 🧑‍✈️ BONUS: pick a "table captain" to kick things off
 
@@ -47,8 +47,8 @@ Check one of our reels where you can see the madness kicking off with the pink s
 
 Tell us if you'd bring it to your wedding or if you're already thinking who your ideal table captain would be 😂 And if you love this kind of authentic, soulful wedding energy… **[write to us and we make it happen](/en/contacto).**
 
-![Pink Tequila shots at the wedding](/blog/chupitos-tequila-rosa-tendencia-bodas-2025/2d4f94_168444f7ca784ddca28e077a1df9d825~mv2.jpg)
+![Pink Tequila shots at the wedding](/blog/chupitos-tequila-rosa-tendencia-bodas-2025/2d4f94_168444f7ca784ddca28e077a1df9d825~mv2.webp)
 
-![More Pink Tequila shots in action](/blog/chupitos-tequila-rosa-tendencia-bodas-2025/2d4f94_13193747f0bc46c9bc3c4ee6fde56bfb~mv2.jpg)
+![More Pink Tequila shots in action](/blog/chupitos-tequila-rosa-tendencia-bodas-2025/2d4f94_13193747f0bc46c9bc3c4ee6fde56bfb~mv2.webp)
 
 📍 Lifetime Weddings – Wedding photography and video in Tarragona

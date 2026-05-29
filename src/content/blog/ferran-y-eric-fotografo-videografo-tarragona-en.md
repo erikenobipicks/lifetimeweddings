@@ -8,7 +8,7 @@ When a couple looks for a wedding photographer and videographer, they find endle
 
 That's where the doubts begin. Because your wedding doesn't happen twice, and trusting someone you haven't met until the day itself… **shouldn't be an option.**
 
-![Wedding photographer and videographer in Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_3f68b501268d40ffa09af56d3e52a0f5~mv2.jpg)
+![Wedding photographer and videographer in Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_3f68b501268d40ffa09af56d3e52a0f5~mv2.webp)
 
 ## At Lifetime Weddings we only shoot one wedding a day
 
@@ -36,7 +36,7 @@ The risk is obvious:
 - You don't know if that person will understand your story.
 - Most importantly: **you won't know if you'll feel comfortable in front of their camera.**
 
-![Wedding photographer and videographer in Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_49774296935c47d680745274cae0d300~mv2.jpg)
+![Wedding photographer and videographer in Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_49774296935c47d680745274cae0d300~mv2.webp)
 
 ## Feeling, trust and naturalness: our formula
 
@@ -60,7 +60,7 @@ We want your wedding day to give you not just a beautiful memory but a calm, clo
 
 Because to us you're not a number on the calendar: you're a unique story that deserves to be told with time, dedication and emotion. That's how we can be among the [best wedding photographers in Tarragona](/en/blog/los-7-mejores-fotografos-de-boda-en-tarragona-2025).
 
-![Wedding photographer Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_92c0b0f648874fc1851e2a164ac4ec93~mv2.jpg)
+![Wedding photographer Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_92c0b0f648874fc1851e2a164ac4ec93~mv2.webp)
 
 ## Where we work
 
@@ -68,7 +68,7 @@ Because to us you're not a number on the calendar: you're a unique story that de
 
 We're based in **Reus (Tarragona)** and shoot weddings across the province of **Tarragona, Lleida and Catalonia**. We also travel wherever your story takes us — we love discovering new places and adapting to each setting.
 
-![Wedding videographer Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_32002313c1f24beb823a9b24c652c8d3~mv2.jpg)
+![Wedding videographer Tarragona](/blog/ferran-y-eric-fotografo-videografo-tarragona/2d4f94_32002313c1f24beb823a9b24c652c8d3~mv2.webp)
 
 ## Want to meet us?
 

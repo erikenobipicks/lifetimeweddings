@@ -4,7 +4,7 @@ description: "Boda de l'Aitor i la Mariona a Masia Heretat Sabartés i al Santua
 legacySlug: "boda-en-masia-heretats-sabartés-aitor-mariona-boda-en-santuario-de-montferri-tarragona"
 ---
 
-![Masia Heretat Sabartés i Santuari de Montferri — Aitor i Mariona](/blog/boda-masia-heretat-sabartes-aitor-mariona/2d4f94_716129e7a351452fbf8d8e820225adb1~mv2.jpg)
+![Masia Heretat Sabartés i Santuari de Montferri — Aitor i Mariona](/blog/boda-masia-heretat-sabartes-aitor-mariona/2d4f94_716129e7a351452fbf8d8e820225adb1~mv2.webp)
 
 Les bodes són moments plens d'emoció, bellesa i records imborrables. Quan l'Aitor i la Mariona van triar com celebrar la seva unió, van apostar per dos llocs espectaculars de Tarragona que capturaven a la perfecció l'essència de la seva història d'amor: **Masia Heretat Sabartés** i el **Santuari de Montferri**. En aquest post repassem l'encant de cadascun i com van contribuir a un dia màgic.
 
@@ -14,7 +14,7 @@ Masia Heretat Sabartés és una masia catalana tradicional amb un ambient càlid
 
 L'arquitectura de la masia és un dels seus punts forts: parets de pedra, bigues de fusta i terrasses àmplies creen un ambient acollidor que se sent alhora elegant i íntim. Per a l'Aitor i la Mariona, aquesta tria va permetre que els convidats es relaxessin i gaudissin de la celebració en un espai sofisticat però proper.
 
-![Masia Heretat Sabartés](/blog/boda-masia-heretat-sabartes-aitor-mariona/2d4f94_568ce8b8094c4e8cb27717cf73ed5dad~mv2.jpg)
+![Masia Heretat Sabartés](/blog/boda-masia-heretat-sabartes-aitor-mariona/2d4f94_568ce8b8094c4e8cb27717cf73ed5dad~mv2.webp)
 
 ### Què fa especial Masia Heretat Sabartés
 
@@ -63,7 +63,7 @@ Per a parelles que busquen una boda que combini bellesa natural, riquesa cultura
 
 Junts creen una experiència de boda que equilibra tradició i modernitat, intimitat i grandesa, natura i arquitectura.
 
-![Detall de la celebració](/blog/boda-masia-heretat-sabartes-aitor-mariona/2d4f94_eda698821f2147f5bcfa336f203f93a8~mv2.jpg)
+![Detall de la celebració](/blog/boda-masia-heretat-sabartes-aitor-mariona/2d4f94_eda698821f2147f5bcfa336f203f93a8~mv2.webp)
 
 ## Per tancar: celebrar l'amor a Tarragona
 

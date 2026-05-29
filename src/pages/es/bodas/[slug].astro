@@ -82,16 +82,19 @@ const jsonLd = [
 >
   {cover && (
     <section class="relative h-[60vh] min-h-[420px] overflow-hidden">
-      <img
-        src={coverLarge}
-        alt={wedding.venue && wedding.venue !== '—' ? `${wedding.couple} · ${wedding.venue}` : wedding.couple}
-        class="absolute inset-0 w-full h-full object-cover"
-        loading="eager"
-        fetchpriority="high"
-        decoding="async"
-        width="1920"
-        height="1280"
-      />
+      <picture>
+        <source type="image/webp" srcset={coverLarge.replace(/\.jpe?g$/, '.webp')} />
+        <img
+          src={coverLarge}
+          alt={wedding.venue && wedding.venue !== '—' ? `${wedding.couple} · ${wedding.venue}` : wedding.couple}
+          class="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+          width="1920"
+          height="1280"
+        />
+      </picture>
       <div class="absolute inset-0 bg-black/40"></div>
       <div class="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-6">
         <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">Bodas</p>
@@ -118,18 +121,25 @@ const jsonLd = [
                   class="block"
                   aria-label={`Foto ${i + 1}`}
                 >
-                  <img
-                    src={img.variants.md}
-                    srcset={`${img.variants.sm} 640w, ${img.variants.md} 1200w, ${img.variants.lg} 1920w`}
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    alt={description}
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    loading={i < 2 ? 'eager' : 'lazy'}
-                    fetchpriority={i === 0 ? 'high' : 'auto'}
-                    decoding="async"
-                    width={img.width}
-                    height={img.height}
-                  />
+                  <picture>
+                    <source
+                      type="image/webp"
+                      srcset={`${img.variants.sm.replace(/\.jpe?g$/, '.webp')} 640w, ${img.variants.md.replace(/\.jpe?g$/, '.webp')} 1200w, ${img.variants.lg.replace(/\.jpe?g$/, '.webp')} 1920w`}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                    <img
+                      src={img.variants.md}
+                      srcset={`${img.variants.sm} 640w, ${img.variants.md} 1200w, ${img.variants.lg} 1920w`}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      alt={description}
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading={i < 2 ? 'eager' : 'lazy'}
+                      fetchpriority={i === 0 ? 'high' : 'auto'}
+                      decoding="async"
+                      width={img.width}
+                      height={img.height}
+                    />
+                  </picture>
                 </a>
                 <a
                   href={pinterestUrl}

@@ -1,7 +1,7 @@
 // Blog posts catalogued from the legacy Wix blog-posts-sitemap.xml.
 // `legacySlug` is what the old URL used; `slug` is our cleaner new URL.
 // Body content lives in src/content/blog/*.md (Astro content collection)
-// and covers are rehosted under public/blog/<slug>/cover.jpg.
+// and covers are rehosted under public/blog/<slug>/cover.webp.
 
 export type BlogCategory = 'bodas' | 'fotografia';
 
@@ -14,7 +14,7 @@ export interface BlogPost {
   updatedAt: string; // ISO date
   readingTime?: number; // minutes
   category: BlogCategory;
-  cover?: string; // absolute path under /public, e.g. /blog/<slug>/cover.jpg
+  cover?: string; // absolute path under /public, e.g. /blog/<slug>/cover.webp
 }
 
 export const BLOG_CATEGORIES: Record<BlogCategory, { es: string; ca: string; en: string; slug: string }> = {
@@ -32,7 +32,7 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedAt: '2026-05-29',
     readingTime: 5,
     category: 'bodas',
-    cover: '/blog/bodas-en-otono-en-tarragona/cover.jpg',
+    cover: '/blog/bodas-en-otono-en-tarragona/cover.webp',
   },
   {
     slug: '7-errores-al-contratar-fotografo-de-boda',
@@ -43,7 +43,7 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedAt: '2026-01-21',
     readingTime: 4,
     category: 'bodas',
-    cover: '/blog/7-errores-al-contratar-fotografo-de-boda/cover.jpg',
+    cover: '/blog/7-errores-al-contratar-fotografo-de-boda/cover.webp',
   },
   {
     slug: 'ferran-y-eric-fotografo-videografo-tarragona',
@@ -54,7 +54,7 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedAt: '2025-10-22',
     readingTime: 3,
     category: 'bodas',
-    cover: '/blog/ferran-y-eric-fotografo-videografo-tarragona/cover.jpg',
+    cover: '/blog/ferran-y-eric-fotografo-videografo-tarragona/cover.webp',
   },
   {
     slug: 'bodas-con-dron-en-tarragona',
@@ -75,7 +75,7 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedAt: '2025-07-29',
     readingTime: 4,
     category: 'bodas',
-    cover: '/blog/los-7-mejores-fotografos-de-boda-en-tarragona-2025/cover.jpg',
+    cover: '/blog/los-7-mejores-fotografos-de-boda-en-tarragona-2025/cover.webp',
   },
   {
     slug: 'gafas-personalizadas-fotos-epicas-boda',
@@ -96,7 +96,7 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedAt: '2025-07-10',
     readingTime: 2,
     category: 'bodas',
-    cover: '/blog/chupitos-tequila-rosa-tendencia-bodas-2025/cover.jpg',
+    cover: '/blog/chupitos-tequila-rosa-tendencia-bodas-2025/cover.webp',
   },
   {
     slug: '10-fotos-imprescindibles-sesion-boda',
@@ -106,7 +106,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: null,
     updatedAt: '2025-07-03',
     category: 'fotografia',
-    cover: '/blog/10-fotos-imprescindibles-sesion-boda/cover.jpg',
+    cover: '/blog/10-fotos-imprescindibles-sesion-boda/cover.webp',
   },
   {
     slug: 'sesion-preboda-siurana-picnic-pizza',
@@ -117,7 +117,7 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedAt: '2025-06-18',
     readingTime: 2,
     category: 'bodas',
-    cover: '/blog/sesion-preboda-siurana-picnic-pizza/cover.jpg',
+    cover: '/blog/sesion-preboda-siurana-picnic-pizza/cover.webp',
   },
   {
     slug: 'como-elegir-fotografo-videografo-bodas-tarragona',
@@ -128,7 +128,7 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedAt: '2025-03-20',
     readingTime: 3,
     category: 'bodas',
-    cover: '/blog/como-elegir-fotografo-videografo-bodas-tarragona/cover.jpg',
+    cover: '/blog/como-elegir-fotografo-videografo-bodas-tarragona/cover.webp',
   },
   {
     slug: 'boda-masia-can-marti-dani-marta',
@@ -138,7 +138,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: null,
     updatedAt: '2026-03-12',
     category: 'bodas',
-    cover: '/blog/boda-masia-can-marti-dani-marta/cover.jpg',
+    cover: '/blog/boda-masia-can-marti-dani-marta/cover.webp',
   },
   {
     slug: 'boda-masia-can-marti-jennifer-albert',
@@ -148,7 +148,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: null,
     updatedAt: '2025-03-31',
     category: 'bodas',
-    cover: '/blog/boda-masia-can-marti-jennifer-albert/cover.jpg',
+    cover: '/blog/boda-masia-can-marti-jennifer-albert/cover.webp',
   },
   {
     slug: 'boda-masia-heretat-sabartes-aitor-mariona',
@@ -159,7 +159,7 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedAt: '2026-04-09',
     readingTime: 3,
     category: 'bodas',
-    cover: '/blog/boda-masia-heretat-sabartes-aitor-mariona/cover.jpg',
+    cover: '/blog/boda-masia-heretat-sabartes-aitor-mariona/cover.webp',
   },
   {
     slug: 'boda-dosterras-wine-garden-idoya-pau',
@@ -170,7 +170,7 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedAt: '2025-03-21',
     readingTime: 2,
     category: 'bodas',
-    cover: '/blog/boda-dosterras-wine-garden-idoya-pau/cover.jpg',
+    cover: '/blog/boda-dosterras-wine-garden-idoya-pau/cover.webp',
   },
   {
     slug: 'boda-masia-can-marti-lifetime',
@@ -180,7 +180,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: null,
     updatedAt: '2025-03-20',
     category: 'bodas',
-    cover: '/blog/boda-masia-can-marti-lifetime/cover.jpg',
+    cover: '/blog/boda-masia-can-marti-lifetime/cover.webp',
   },
   {
     slug: 'review-sony-sel50f18f',
@@ -190,7 +190,7 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: null,
     updatedAt: '2025-03-20',
     category: 'fotografia',
-    cover: '/blog/review-sony-sel50f18f/cover.jpg',
+    cover: '/blog/review-sony-sel50f18f/cover.webp',
   },
   {
     slug: 'boda-lgtb-bea-bea',
@@ -200,6 +200,6 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: '2020-03-07',
     updatedAt: '2025-03-19',
     category: 'bodas',
-    cover: '/blog/boda-lgtb-bea-bea/cover.jpg',
+    cover: '/blog/boda-lgtb-bea-bea/cover.webp',
   },
 ];

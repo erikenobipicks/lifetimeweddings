@@ -9,7 +9,7 @@ legacySlug: "50-mm-de-sony-una-ganga-de-objetivo-que-hay-que-tener-en-tu-equipo-
 
 ## El 50 mm. de sony que es toda una ganga **Review Sony SEL50F18F.syx**
 
-![](/blog/review-sony-sel50f18f/2d4f94_d0d19698c42f4ac4ab79d56f655a2b77~mv2.jpg)
+![](/blog/review-sony-sel50f18f/2d4f94_d0d19698c42f4ac4ab79d56f655a2b77~mv2.webp)
 
 ### El Objetivo más humilde de la familia Sony.
 
@@ -49,7 +49,7 @@ Personalmente después de probar puede ser un poco perezoso el enfoque pero aun 
 
 ## Calidad superior a un precio asequible. Su punto mas fuerte
 
-![](/blog/review-sony-sel50f18f/2d4f94_d0d19698c42f4ac4ab79d56f655a2b77~mv2.jpg)
+![](/blog/review-sony-sel50f18f/2d4f94_d0d19698c42f4ac4ab79d56f655a2b77~mv2.webp)
 
 No llega a los niveles de calidad de las ópticas de mayor gama pero su ratio calidad/precio hacen que sea un objetivo muy asequible de obtener y de amortizar.
 
@@ -68,7 +68,7 @@ Su precio que ronda los 300€ aunque puedes encontrar ofertas como esta.
 
 ## Review Sony SEL50F18F.syx
 
-![](/blog/review-sony-sel50f18f/2d4f94_ce59175537664870b4454061eb5e63dd~mv2.jpg)![](/blog/review-sony-sel50f18f/2d4f94_ce59175537664870b4454061eb5e63dd~mv2.jpg)![](/blog/review-sony-sel50f18f/2d4f94_45271a58d63940ebb2903edc1247b1d9~mv2.jpg)![](/blog/review-sony-sel50f18f/2d4f94_45271a58d63940ebb2903edc1247b1d9~mv2.jpg)![](/blog/review-sony-sel50f18f/2d4f94_255d3ca01c1b4238935aeff2f98827a6~mv2.jpg)![](/blog/review-sony-sel50f18f/2d4f94_255d3ca01c1b4238935aeff2f98827a6~mv2.jpg)![](/blog/review-sony-sel50f18f/2d4f94_5f6e5954fafa4aa1bda693768ddffd55~mv2.jpg)![](/blog/review-sony-sel50f18f/2d4f94_5f6e5954fafa4aa1bda693768ddffd55~mv2.jpg)![](/blog/review-sony-sel50f18f/2d4f94_6d48ab7d98f24ad5b313f5e51065ee3a~mv2.jpg)![](/blog/review-sony-sel50f18f/2d4f94_6d48ab7d98f24ad5b313f5e51065ee3a~mv2.jpg)![](/blog/review-sony-sel50f18f/2d4f94_8043b395bb874bb59eeebe25aff5a7a6~mv2.jpg)![](/blog/review-sony-sel50f18f/2d4f94_8043b395bb874bb59eeebe25aff5a7a6~mv2.jpg)
+![](/blog/review-sony-sel50f18f/2d4f94_ce59175537664870b4454061eb5e63dd~mv2.webp)![](/blog/review-sony-sel50f18f/2d4f94_ce59175537664870b4454061eb5e63dd~mv2.webp)![](/blog/review-sony-sel50f18f/2d4f94_45271a58d63940ebb2903edc1247b1d9~mv2.webp)![](/blog/review-sony-sel50f18f/2d4f94_45271a58d63940ebb2903edc1247b1d9~mv2.webp)![](/blog/review-sony-sel50f18f/2d4f94_255d3ca01c1b4238935aeff2f98827a6~mv2.webp)![](/blog/review-sony-sel50f18f/2d4f94_255d3ca01c1b4238935aeff2f98827a6~mv2.webp)![](/blog/review-sony-sel50f18f/2d4f94_5f6e5954fafa4aa1bda693768ddffd55~mv2.webp)![](/blog/review-sony-sel50f18f/2d4f94_5f6e5954fafa4aa1bda693768ddffd55~mv2.webp)![](/blog/review-sony-sel50f18f/2d4f94_6d48ab7d98f24ad5b313f5e51065ee3a~mv2.webp)![](/blog/review-sony-sel50f18f/2d4f94_6d48ab7d98f24ad5b313f5e51065ee3a~mv2.webp)![](/blog/review-sony-sel50f18f/2d4f94_8043b395bb874bb59eeebe25aff5a7a6~mv2.webp)![](/blog/review-sony-sel50f18f/2d4f94_8043b395bb874bb59eeebe25aff5a7a6~mv2.webp)
 
 ## Mas acerca del 50mm de sony
 

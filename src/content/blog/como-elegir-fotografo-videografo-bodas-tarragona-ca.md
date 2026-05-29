@@ -14,7 +14,7 @@ En aquesta guia us expliquem **les claus per triar l'equip ideal de foto i víde
 
 📷 🎥 **A** [**Lifetime Weddings, el Ferran i l'Eric**](/) **formem un equip compacte que garanteix que cada instant quedi immortalitzat amb naturalitat i emoció.**
 
-![Un instant únic capturat en una boda real a Tarragona. L'emoció no es posa, es viu.](/blog/como-elegir-fotografo-videografo-bodas-tarragona/2d4f94_732d97914da947be961943290ed15008~mv2.jpg)
+![Un instant únic capturat en una boda real a Tarragona. L'emoció no es posa, es viu.](/blog/como-elegir-fotografo-videografo-bodas-tarragona/2d4f94_732d97914da947be961943290ed15008~mv2.webp)
 
 *Un instant únic capturat en una boda real a Tarragona. L'emoció no es posa, es viu.*
 
@@ -56,7 +56,7 @@ A **Lifetime Weddings**, el nostre estil es basa en:
 
 🎥 [**Mireu la nostra feina aquí**](https://studio.youtube.com/channel/UCuJ0g4nYwjGB1PIeWlTrOlg)
 
-![Les millors fotos no es forcen, simplement passen.](/blog/como-elegir-fotografo-videografo-bodas-tarragona/2d4f94_ec9a5d16bbf349968d45295fb5ab8f1d~mv2.jpg)
+![Les millors fotos no es forcen, simplement passen.](/blog/como-elegir-fotografo-videografo-bodas-tarragona/2d4f94_ec9a5d16bbf349968d45295fb5ab8f1d~mv2.webp)
 
 *Les millors fotos no es forcen, simplement passen.*
 
@@ -68,7 +68,7 @@ No tots els fotògrafs saben narrar una boda. **L'experiència és clau per capt
 
 **Un fotògraf i videògraf experimentats saben:** ✔ Anticipar-se als moments clau. ✔ Gestionar els imprevistos. ✔ Mantenir la naturalitat sense incomodar els nuvis.
 
-![L'experiència és saber ser al lloc correcte, en el moment perfecte.](/blog/como-elegir-fotografo-videografo-bodas-tarragona/2d4f94_c2ec265d6b2a44569f8421be3dd1b750~mv2.jpg)
+![L'experiència és saber ser al lloc correcte, en el moment perfecte.](/blog/como-elegir-fotografo-videografo-bodas-tarragona/2d4f94_c2ec265d6b2a44569f8421be3dd1b750~mv2.webp)
 
 *L'experiència és saber ser al lloc correcte, en el moment perfecte.*
 

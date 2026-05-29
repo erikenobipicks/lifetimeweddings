@@ -10,11 +10,11 @@ Si somieu amb una boda on la gent s'ho passi de bogeria, on no falti la **divers
 
 No és postureo, és **pur desmadre fotogràfic**. Aquestes ulleres fa temps que ho peten a les bodes més divertides de Tarragona, Reus, Cambrils, Salou i rodalies. Fotos naturals, vídeos plens de momentassos, i uns **reels d'Instagram** que són pura fantasia. També per als nostàlgics: queden top a l'**àlbum de boda**.
 
-![Ulleres personalitzades: convidats gaudint amb ulleres originals durant la festa](/blog/gafas-personalizadas-fotos-epicas-boda/2d4f94_022527a90af445cf89ddb0ce5348914c~mv2.jpg)
+![Ulleres personalitzades: convidats gaudint amb ulleres originals durant la festa](/blog/gafas-personalizadas-fotos-epicas-boda/2d4f94_022527a90af445cf89ddb0ce5348914c~mv2.webp)
 
 *El nuvi! Ulleres personalitzades a la pista: convidats gaudint amb ulleres originals durant la festa.*
 
-![Convidats amb ulleres personalitzades a la festa](/blog/gafas-personalizadas-fotos-epicas-boda/2d4f94_48f67b2d2c45477781ad0ab099e67431~mv2.jpg)
+![Convidats amb ulleres personalitzades a la festa](/blog/gafas-personalizadas-fotos-epicas-boda/2d4f94_48f67b2d2c45477781ad0ab099e67431~mv2.webp)
 
 ### 🎉 Idees fàcils per petar-ho amb ulleres personalitzades
 
@@ -23,7 +23,7 @@ No és postureo, és **pur desmadre fotogràfic**. Aquestes ulleres fa temps que
 - **Moment xupito + ulleres a la barra lliure:** aquí neixen els millors reels 😜.
 - **Minut boig durant el ball:** nosaltres a [Lifetime Weddings](/) sempre agafem uns minuts de bogeria amb grups i ulleres… pura màgia!
 
-![Ferryphotographer. Ulleres personalitzades en acció a la festa](/blog/gafas-personalizadas-fotos-epicas-boda/2d4f94_aadd0d4f57fc4abd929c4480eb25c6c4~mv2.jpg)
+![Ferryphotographer. Ulleres personalitzades en acció a la festa](/blog/gafas-personalizadas-fotos-epicas-boda/2d4f94_aadd0d4f57fc4abd929c4480eb25c6c4~mv2.webp)
 
 *@Ferryphotographer. Convidats gaudint amb ulleres originals durant la festa.*
 

@@ -18,7 +18,7 @@ Something their couples really value is transparency: they always deliver comple
 
 **Contact:** [www.lifetime.photo](https://www.lifetime.photo) or Instagram [@lifetime.weddings](https://www.instagram.com/lifetime.weddings/).
 
-![Best wedding photographers in Tarragona](/blog/los-7-mejores-fotografos-de-boda-en-tarragona-2025/2d4f94_8a85a58ab9224588a4bf89bb712bc336~mv2.jpg)
+![Best wedding photographers in Tarragona](/blog/los-7-mejores-fotografos-de-boda-en-tarragona-2025/2d4f94_8a85a58ab9224588a4bf89bb712bc336~mv2.webp)
 
 ### 2. David Griso
 
