@@ -3,11 +3,12 @@ export const prerender = true;
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Section from '~/components/Section.astro';
 import WeddingGalleryChunk from '~/components/WeddingGalleryChunk.astro';
-import { WEDDINGS, weddingCover, weddingGallery } from '~/data/weddings';
+import { WEDDINGS, weddingCover, weddingGallery, type Wedding } from '~/data/weddings';
 import { VENUES } from '~/data/venues';
 import { useTranslations } from '~/i18n/ui';
 import { SITE, WHATSAPP_BASE } from '~/data/site';
 import { breadcrumbJsonLd, imageGalleryJsonLd } from '~/lib/seo';
+import { getGbpRating } from '~/lib/gbp-rating';
 
 export function getStaticPaths() {
   return WEDDINGS.map((w) => ({ params: { slug: w.slug }, props: { wedding: w } }));
@@ -18,16 +19,13 @@ const lang = 'ca' as const;
 const t = useTranslations(lang);
 const cover = weddingCover(wedding);
 const gallery = weddingGallery(wedding);
-// Hero cover in largest size for above-the-fold quality.
 const coverLarge = gallery[0]?.variants.lg ?? cover;
 const totalPhotos = gallery.length;
 const hasVenue = wedding.venue && wedding.venue !== '—';
 const hasLocation = wedding.location && wedding.location !== '—';
 
-// If we have a dedicated venue landing for this wedding's venue, use
-// the venue name as a contextual internal link. Boosts the landing's
-// inbound equity and gives the visitor a path to deeper content.
 const venueLanding = VENUES.find((v) => v.realWeddingSlug === wedding.slug) ?? null;
+const rating = await getGbpRating();
 
 /** Alt text for gallery image i (1-indexed position). Never empty. */
 function galleryAlt(i: number): string {
@@ -42,10 +40,6 @@ function galleryAlt(i: number): string {
   return `Boda de ${wedding.couple} · Lifetime Weddings · Foto ${nn} de ${count}`;
 }
 
-// Split the gallery into ~3 equal chunks so the page can intersperse a
-// short intro paragraph and a mid-page CTA between blocks of photos.
-// Single-photo galleries collapse to one chunk and the CTA still renders
-// — the visitor never sees an empty section.
 function chunkGallery<T>(arr: T[], n: number): T[][] {
   if (arr.length === 0) return [];
   const size = Math.ceil(arr.length / n);
@@ -59,12 +53,40 @@ const chunks = chunkGallery(gallery, 3);
 const chunkStart = (idx: number): number =>
   chunks.slice(0, idx).reduce((sum, c) => sum + c.length, 0);
 
-// Pre-filled WhatsApp link mentioning the couple, so we know which
-// gallery the lead came from without asking.
+// Related weddings — surface 3 sibling pages so visitors who finish the
+// gallery have an obvious next click instead of bouncing. Relevance =
+// same venue (×10) + same location (×5) + photo count (tiebreaker).
+const relatedAll: Wedding[] = WEDDINGS.filter(
+  (w) => w.slug !== wedding.slug && weddingGallery(w).length > 0,
+);
+const relatedScored = relatedAll
+  .map((w) => {
+    const sameVenue = hasVenue && w.venue === wedding.venue ? 10 : 0;
+    const sameLocation = hasLocation && w.location === wedding.location ? 5 : 0;
+    const photos = weddingGallery(w).length / 1000;
+    return { w, score: sameVenue + sameLocation + photos };
+  })
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 3)
+  .map((x) => x.w);
+
 const waMessage = encodeURIComponent(
   `Hola! Hem vist la boda de ${wedding.couple} al vostre web. Ens casem i tenim ganes de saber si tenim disponibilitat.`,
 );
 const waLink = `${WHATSAPP_BASE}&text=${waMessage}`;
+
+// SEO meta — front-load the search terms a couple types in:
+// "fotograf de boda <venue>" / "fotograf de boda <location>".
+const seoTitle = hasVenue && hasLocation
+  ? `Boda de ${wedding.couple} a ${wedding.venue}, ${wedding.location} · Fotògraf documental | Lifetime Weddings`
+  : hasVenue
+    ? `Boda de ${wedding.couple} a ${wedding.venue} · Fotògraf documental | Lifetime Weddings`
+    : `Boda de ${wedding.couple} · Fotògraf documental de bodes | Lifetime Weddings`;
+const seoDescription = hasVenue && hasLocation
+  ? `Galeria documental de la boda de ${wedding.couple} a ${wedding.venue} (${wedding.location}). Foto + vídeo en parella, sense posats. Mira ${totalPhotos} fotografies del dia.`
+  : hasVenue
+    ? `Galeria documental de la boda de ${wedding.couple} a ${wedding.venue}. Foto + vídeo en parella, sense posats.`
+    : `Galeria documental de la boda de ${wedding.couple}. Foto + vídeo en parella, sense posats.`;
 
 const pageUrl = `${SITE.url}/bodas/${wedding.slug}`;
 const jsonLd = [
@@ -80,9 +102,7 @@ const jsonLd = [
           name: hasVenue
             ? `Boda de ${wedding.couple} a ${wedding.venue}`
             : `Boda de ${wedding.couple}`,
-          description: hasVenue && hasLocation
-            ? `Galeria de la boda de ${wedding.couple} a ${wedding.venue} (${wedding.location}).`
-            : `Galeria de la boda de ${wedding.couple}.`,
+          description: seoDescription,
           contentLocation: hasVenue
             ? { name: wedding.venue, addressLocality: hasLocation ? wedding.location : undefined }
             : undefined,
@@ -97,16 +117,14 @@ const jsonLd = [
       ]
     : []),
 ];
+
+const h1 = hasVenue ? `Boda de ${wedding.couple} a ${wedding.venue}` : `Boda de ${wedding.couple}`;
 ---
 
 <BaseLayout
   lang={lang}
-  title={wedding.venue && wedding.venue !== '—'
-    ? `${wedding.couple} · ${wedding.venue} · Lifetime Weddings`
-    : `${wedding.couple} · Lifetime Weddings`}
-  description={wedding.venue && wedding.venue !== '—'
-    ? `Galeria de la boda de ${wedding.couple} a ${wedding.venue} (${wedding.location}).`
-    : `Galeria de la boda de ${wedding.couple}.`}
+  title={seoTitle}
+  description={seoDescription}
   canonicalPath={`/bodas/${wedding.slug}`}
   jsonLd={jsonLd}
   ogImage={cover ?? '/og-default.jpg'}
@@ -118,7 +136,7 @@ const jsonLd = [
         <source type="image/webp" srcset={coverLarge.replace(/\.jpe?g$/, '.webp')} />
         <img
           src={coverLarge}
-          alt={wedding.venue && wedding.venue !== '—' ? `${wedding.couple} · ${wedding.venue}` : wedding.couple}
+          alt={`${h1}${hasLocation ? ' · ' + wedding.location : ''} · Reportatge documental per Lifetime Weddings`}
           class="absolute inset-0 w-full h-full object-cover"
           loading="eager"
           fetchpriority="high"
@@ -127,10 +145,10 @@ const jsonLd = [
           height="1280"
         />
       </picture>
-      <div class="absolute inset-0 bg-black/40"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
       <div class="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-6">
-        <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">Bodes</p>
-        <h1 class="font-display text-4xl md:text-5xl font-bold">{wedding.couple}</h1>
+        <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">Bodes · Reportatge documental</p>
+        <h1 class="font-display text-3xl md:text-5xl font-bold leading-tight max-w-4xl">{h1}</h1>
         <p class="mt-3 opacity-90">
           {venueLanding ? (
             <a href={`/venues/${venueLanding.slug}`} class="border-b border-gold/60 hover:text-gold transition-colors">{wedding.venue}</a>
@@ -144,6 +162,27 @@ const jsonLd = [
     </section>
   )}
 
+  <!-- Social proof bar — same numbers as /venues, gives crawlers + visitors
+       an immediate trust signal right under the hero. -->
+  <section class="bg-ink text-white py-6 px-6 border-y border-gold/20">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row gap-4 sm:gap-10 items-center justify-center text-center text-sm">
+      <div class="flex items-center gap-2">
+        <span class="text-gold font-bold">+150</span>
+        <span class="opacity-85">bodes documentades</span>
+      </div>
+      <div class="hidden sm:block w-px h-5 bg-white/20"></div>
+      <div class="flex items-center gap-2">
+        <span class="text-gold font-bold">{rating.ratingValue.toFixed(1)}★</span>
+        <span class="opacity-85">Google · {rating.reviewCount} ressenyes</span>
+      </div>
+      <div class="hidden sm:block w-px h-5 bg-white/20"></div>
+      <div class="flex items-center gap-2">
+        <span class="text-gold font-bold">2</span>
+        <span class="opacity-85">germans · foto + vídeo en un sol equip</span>
+      </div>
+    </div>
+  </section>
+
   {gallery.length === 0 ? (
     <Section>
       <div class="max-w-2xl mx-auto text-center text-ink/75 leading-relaxed">
@@ -152,17 +191,23 @@ const jsonLd = [
     </Section>
   ) : (
     <>
-      {/* Intro paragraph — short context beat right under the hero so the
-          page doesn't open with a wall of photos. */}
+      {/* Story / intro section — richer than the previous single paragraph.
+          Adds a stylistic claim and an inline link to the venue landing
+          when one exists. */}
       <Section>
         <div class="max-w-2xl mx-auto px-2 text-center">
           <p class="text-ink/85 leading-relaxed text-base md:text-lg">
             {hasVenue && hasLocation
-              ? <>Una jornada documentada a <span class="font-semibold">{wedding.venue}</span>, {wedding.location}. {totalPhotos} fotografies de la boda de <span class="font-semibold">{wedding.couple}</span> — sense posats, captant el dia tal com va passar.</>
+              ? <>Un reportatge documental de la boda de <span class="font-semibold">{wedding.couple}</span> a <span class="font-semibold">{wedding.venue}</span>, {wedding.location}. {totalPhotos} fotografies del dia — sense posats, captant l'emoció real entre cerimònia, cocktail i festa.</>
               : hasVenue
-                ? <>Una jornada documentada a <span class="font-semibold">{wedding.venue}</span>. {totalPhotos} fotografies de la boda de <span class="font-semibold">{wedding.couple}</span> — sense posats, captant el dia tal com va passar.</>
-                : <>{totalPhotos} fotografies de la boda de <span class="font-semibold">{wedding.couple}</span> — sense posats, captant el dia tal com va passar.</>}
+                ? <>Un reportatge documental de la boda de <span class="font-semibold">{wedding.couple}</span> a <span class="font-semibold">{wedding.venue}</span>. {totalPhotos} fotografies del dia — sense posats, captant l'emoció real entre cerimònia, cocktail i festa.</>
+                : <>Un reportatge documental de la boda de <span class="font-semibold">{wedding.couple}</span>. {totalPhotos} fotografies del dia — sense posats, captant l'emoció real entre cerimònia, cocktail i festa.</>}
           </p>
+          {venueLanding && (
+            <p class="mt-5 text-sm text-ink/70">
+              ¿Us caseu aquí mateix? Mira la nostra <a href={`/venues/${venueLanding.slug}`} class="border-b border-gold text-ink font-semibold hover:text-gold transition-colors">cobertura específica per a {wedding.venue}</a>.
+            </p>
+          )}
         </div>
       </Section>
 
@@ -178,8 +223,7 @@ const jsonLd = [
         />
       </Section>
 
-      {/* Mid CTA — only renders if there's more than one chunk; otherwise
-          we'd be CTA-ing a visitor who's barely seen anything. */}
+      {/* Mid CTA */}
       {chunks.length > 1 && (
         <section class="bg-cream py-12 md:py-16 px-6 border-y border-ink/10">
           <div class="max-w-2xl mx-auto text-center">
@@ -189,7 +233,7 @@ const jsonLd = [
               </p>
             ) : (
               <p class="text-ink/85 leading-relaxed text-base md:text-lg mb-5">
-                Vols una boda documentada així? Acceptem un màxim de 20 bodes l'any — mira si tenim la teva data lliure.
+                Vols una boda documentada així{hasLocation ? ` a ${wedding.location}` : ''}? Acceptem un màxim de 20 bodes l'any — mira si tenim la teva data lliure.
               </p>
             )}
             <a
@@ -204,35 +248,19 @@ const jsonLd = [
         </section>
       )}
 
-      {/* Chunk 2 */}
       {chunks[1] && (
         <Section>
-          <WeddingGalleryChunk
-            photos={chunks[1]}
-            startIndex={chunkStart(1)}
-            pageUrl={pageUrl}
-            galleryAlt={galleryAlt}
-            photoLabel={(i) => `Foto ${i}`}
-            pinterestLabel="Desa a Pinterest"
-          />
+          <WeddingGalleryChunk photos={chunks[1]} startIndex={chunkStart(1)} pageUrl={pageUrl} galleryAlt={galleryAlt} photoLabel={(i) => `Foto ${i}`} pinterestLabel="Desa a Pinterest" />
         </Section>
       )}
 
-      {/* Chunk 3 */}
       {chunks[2] && (
         <Section>
-          <WeddingGalleryChunk
-            photos={chunks[2]}
-            startIndex={chunkStart(2)}
-            pageUrl={pageUrl}
-            galleryAlt={galleryAlt}
-            photoLabel={(i) => `Foto ${i}`}
-            pinterestLabel="Desa a Pinterest"
-          />
+          <WeddingGalleryChunk photos={chunks[2]} startIndex={chunkStart(2)} pageUrl={pageUrl} galleryAlt={galleryAlt} photoLabel={(i) => `Foto ${i}`} pinterestLabel="Desa a Pinterest" />
         </Section>
       )}
 
-      {/* Final venue reference (if applicable) + booking CTA */}
+      {/* Final venue block + booking CTA */}
       <Section bg="cream">
         <div class="max-w-2xl mx-auto px-2 text-center">
           {venueLanding && (
@@ -246,7 +274,7 @@ const jsonLd = [
             </>
           )}
           <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">
-            Vols una boda així?
+            {hasLocation ? `Vols una boda així a ${wedding.location}?` : 'Vols una boda així?'}
           </h2>
           <p class="text-ink/75 leading-relaxed mb-8 text-base md:text-lg">
             Anem en parella — foto + vídeo en un sol equip. Acceptem un màxim de 20 bodes l'any.
@@ -269,6 +297,51 @@ const jsonLd = [
           </div>
         </div>
       </Section>
+
+      {/* Related real weddings — keeps visitors on-site after they finish
+          the gallery, prioritising same-venue / same-location matches. */}
+      {relatedScored.length > 0 && (
+        <Section>
+          <div class="max-w-6xl mx-auto px-2">
+            <h2 class="font-display text-2xl md:text-3xl font-bold text-center mb-10">
+              Altres bodes que t'agradaran
+            </h2>
+            <div class="grid md:grid-cols-3 gap-6 md:gap-8">
+              {relatedScored.map((w) => {
+                const wCover = weddingCover(w);
+                const wG = weddingGallery(w);
+                const wThumb = wG[0]?.variants.md ?? wCover ?? '/og-default.jpg';
+                const wThumbWebp = wThumb.replace(/\.jpe?g$/, '.webp');
+                return (
+                  <a href={`/bodas/${w.slug}`} class="block group">
+                    <div class="relative overflow-hidden aspect-[4/5]">
+                      <picture>
+                        <source type="image/webp" srcset={wThumbWebp} />
+                        <img
+                          src={wThumb}
+                          alt={`Boda de ${w.couple}${w.venue !== '—' ? ' a ' + w.venue : ''}`}
+                          class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          loading="lazy"
+                          decoding="async"
+                          width="800"
+                          height="1000"
+                        />
+                      </picture>
+                      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
+                      <div class="absolute bottom-4 left-4 right-4 text-white">
+                        <p class="font-display italic text-xl leading-tight" style="font-weight: 400; letter-spacing: -0.01em;">{w.couple}</p>
+                        {w.venue !== '—' && (
+                          <p class="text-xs uppercase tracking-[0.12em] text-white/80 mt-1">{w.venue}</p>
+                        )}
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        </Section>
+      )}
     </>
   )}
 </BaseLayout>
