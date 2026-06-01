@@ -87,6 +87,12 @@ function rowToBooking(row: Record<string, unknown>): Booking {
     formSubmittedAt: fromIso(row.form_submitted_at),
     depositPaidAt: fromIso(row.deposit_paid_at),
     contractReadyAt: fromIso(row.contract_ready_at),
+    facturadirectaInvoiceId: row.facturadirecta_invoice_id
+      ? String(row.facturadirecta_invoice_id)
+      : null,
+    facturadirectaInvoiceNumber: row.facturadirecta_invoice_number
+      ? String(row.facturadirecta_invoice_number)
+      : null,
   };
 }
 
@@ -474,6 +480,22 @@ export async function markDepositPaid(bookingId: string): Promise<void> {
           SET deposit_paid_at = COALESCE(deposit_paid_at, ?)
           WHERE id = ?`,
     args: [now, bookingId],
+  });
+}
+
+/** Persist the FacturaDirecta deposit-invoice reference on a booking. Called
+ *  after a successful invoice issue; the id then gates re-invoicing. */
+export async function setFacturadirectaInvoice(
+  bookingId: string,
+  invoiceId: string,
+  invoiceNumber?: string | null,
+): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: `UPDATE bookings
+          SET facturadirecta_invoice_id = ?, facturadirecta_invoice_number = ?
+          WHERE id = ?`,
+    args: [invoiceId, invoiceNumber ?? null, bookingId],
   });
 }
 

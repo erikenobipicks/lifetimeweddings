@@ -79,6 +79,13 @@ export interface Booking {
    *  the entire contrato cycle; this timestamp differentiates the sub-state
    *  without needing to extend the CHECK-constrained status enum. */
   contractReadyAt: Date | null;
+
+  /** FacturaDirecta invoice id for the deposit (anticipo), set once the
+   *  deposit is marked received and the invoice is issued. Doubles as the
+   *  idempotency guard — a non-null value means "already invoiced". */
+  facturadirectaInvoiceId: string | null;
+  /** Human-readable invoice number returned by FacturaDirecta (display only). */
+  facturadirectaInvoiceNumber: string | null;
 }
 
 /** Input for creating a new booking from admin UI. Slug + id + timestamps

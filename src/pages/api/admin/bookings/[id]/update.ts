@@ -23,6 +23,7 @@ import {
   updateBooking,
   type BookingUpdate,
 } from '~/lib/bookings/repository';
+import { issueDepositInvoiceForBooking } from '~/lib/bookings/invoicing';
 import type { BookingStatus, PackAddon } from '~/lib/bookings/types';
 
 function parseLines(raw: string | null | undefined): string[] {
@@ -112,6 +113,9 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
       return back('?error=Cal+haver+enviat+/reserva+primer');
     }
     await markDepositPaid(id);
+    // Issue the deposit invoice in FacturaDirecta. Idempotent + fail-soft:
+    // no-op when unconfigured / already invoiced, never blocks the redirect.
+    await issueDepositInvoiceForBooking(id);
     return back('?ok=deposit:paid');
   }
   if (action === 'deposit_unpaid') {
