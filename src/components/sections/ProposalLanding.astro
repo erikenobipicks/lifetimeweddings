@@ -1,0 +1,672 @@
+---
+// Proposal-photography landing — shared component used by
+// /peticion-de-mano (CA), /es/peticion-de-mano (ES), /en/peticion-de-mano (EN).
+//
+// Audience overlap with brides-to-be is essentially zero (the proposal
+// happens months before any wedding-photographer search), so this is
+// its own page rather than a section on the home. Schema.org Service
+// + FAQPage + Breadcrumb let Google rank it for "fotograf petició de mà
+// Tarragona" / "fotógrafo pedida mano Tarragona" / "proposal photographer
+// Tarragona" — niches with low competition.
+//
+// All copy is keyed by `lang`. CA stays the default voice (warm,
+// local). ES is a tighter Spanish; EN leans into the foreign-traveler
+// angle since that's the segment most likely to read it.
+
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Section from '~/components/Section.astro';
+import { SITE, WHATSAPP_BASE } from '~/data/site';
+import { useTranslations, type Lang } from '~/i18n/ui';
+import { getGbpRating } from '~/lib/gbp-rating';
+import { breadcrumbJsonLd } from '~/lib/seo';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const rating = await getGbpRating();
+
+// Photos: real proposal shoots Eric ran. The "shh" hero is the
+// concept-defining image. Order chosen so the visual hits land where
+// the copy reaches its emotional beats (concept first, story second,
+// detail third).
+const heroImg = '/photos/peticions/01-hero-tamarit-shh.jpg';
+const breakImg = '/photos/peticions/05-barcelona-sagrada-shh.jpg';
+const diptychA = '/photos/peticions/02-hands-ring-box.jpg';
+const diptychB = '/photos/peticions/03-couple-walking-ring.jpg';
+const closeUp = '/photos/peticions/04-ring-detail-shoulder.jpg';
+
+const webp = (p: string): string => p.replace(/\.jpe?g$/i, '.webp');
+const langPath = lang === 'ca' ? '' : `/${lang}`;
+
+// ── Per-language copy ────────────────────────────────────────────────
+type Copy = {
+  meta: { title: string; description: string };
+  hero: {
+    eyebrow: string;
+    h1: string;
+    sub: string;
+    ctaPrimary: string;
+    ctaSecondary: string;
+    heroImgAlt: string;
+  };
+  trust: { rating: string; delivery: string; weddings: string };
+  how: {
+    title: string;
+    intro: string;
+    steps: string[];
+  };
+  what: {
+    title: string;
+    bullets: string[];
+  };
+  locations: {
+    title: string;
+    intro: string;
+    bullets: string[];
+    footnote: string;
+  };
+  midCta: { copy: string; button: string };
+  travelers: {
+    title: string;
+    intro: string;
+    bullets: string[];
+  };
+  faqTitle: string;
+  faqs: { q: string; a: string }[];
+  finalCta: { h2: string; body: string; primary: string; secondary: string };
+  quizPath: string;
+  whatsAppMessage: string;
+  breadcrumbCurrent: string;
+};
+
+const COPY: Record<Lang, Copy> = {
+  ca: {
+    meta: {
+      title: 'Fotògraf per petició de mà a Tarragona | Lifetime Weddings',
+      description:
+        'Cobertura discreta del moment de la proposta de matrimoni a Tarragona i Costa Daurada. Reservem 3-4 setmanes abans · lliurament en 7 dies · pla B per pluja.',
+    },
+    hero: {
+      eyebrow: 'Petició de mà · Tarragona',
+      h1: 'La teva petició, captada com va passar — sense que ella ho noti',
+      sub: 'Fotografia i vídeo discrets del moment exacte de la proposta. A Tamarit, la Costa Daurada, el Priorat o on imaginis. Lliurament en 7 dies.',
+      ctaPrimary: 'Parlar pel WhatsApp',
+      ctaSecondary: 'Com ho fem',
+      heroImgAlt: "Moment de la petició de mà a Tarragona — l'home demana silenci mentre la parella sosté la caixa de l'anell",
+    },
+    trust: { rating: 'a Google · {n} ressenyes', delivery: 'de lliurament', weddings: 'bodes documentades' },
+    how: {
+      title: 'Com ho fem',
+      intro:
+        "Una petició no es pot repetir. Tota la feina prèvia està orientada a que el dia D sigui exactament com l'has imaginat — i que tu només hagis de pensar en una cosa: agenollar-te o no, i com et tremola la mà al treure l'anell.",
+      steps: [
+        '**Trucada o WhatsApp de 15 minuts** per saber on, quan, l\'estil que busques i com és la teva parella. Si véns de fora, ho fem en anglès.',
+        '**Visita prèvia al lloc** (si està al Camp de Tarragona). Identifiquem els punts millors per amagar-nos, la direcció de la llum a l\'hora exacta, i els plans B si plou o hi ha massa gent.',
+        '**El dia D: arribem 60-90 minuts abans**. Disparem amb teleobjectiu des de la distància (200-400mm). La teva parella no ens veurà fins que t\'agenolles. Sortim després, fem 10 minuts de retrat formal del "sí" i marxem.',
+        '**Una selecció ràpida** per WhatsApp les 2 hores següents — perquè puguis ensenyar 5 fotos als pares aquella mateixa nit. Galeria completa editada en 7 dies.',
+      ],
+    },
+    what: {
+      title: 'Què inclou el servei',
+      bullets: [
+        '**Trucada prèvia de planificació** + visita al lloc (Camp de Tarragona) per identificar els millors punts d\'amagatall i llum.',
+        '**1-2 hores de cobertura el dia D**: fotografia discreta del moment + 10-15 minuts de retrat formal de parella un cop ja saben que som allà.',
+        '**Vídeo del moment** (opcional, segon professional) — una segona càmera amb àudio direccional per capturar el "sí".',
+        '**Selecció ràpida per WhatsApp** en menys de 2 hores. 5-10 fotos perquè puguis compartir aquella mateixa nit.',
+        '**Galeria online completa** en 7 dies, amb totes les fotos editades en alta resolució. Sense marca d\'aigua, descàrrega lliure.',
+      ],
+    },
+    locations: {
+      title: "Idees d'ubicació a la zona de Tarragona",
+      intro:
+        'Tarragona té escenaris que sembla que estiguin dissenyats per a una petició. Algunes de les nostres ubicacions favorites:',
+      bullets: [
+        '**Platja i castell de Tamarit** — posta de sol al castell amb el Mediterrani de fons. Una de les més demanades per la seva fotogenia bruta.',
+        '**Balcó del Mediterrani i amfiteatre romà** — el centre de Tarragona té una història de 2000 anys. Funciona molt bé per a viatgers que volen el "moment iconic" amb Tarragona reconeixible al fons.',
+        '**Cala Romana / Cala Fonda** — més íntimes, sense gent. Bones per a peticions privades al matí o a primera hora de la tarda.',
+        '**Vinyes del Priorat o Costers del Segre** — si la teva parella aprecia el vi o la natura, una ruta de vinyes amb el sol baix és difícil de superar visualment.',
+        '**Siurana o Prades** — si voleu un escenari de pel·lícula amb cingles i poble medieval. Cal cotxe i una mica de caminada.',
+      ],
+      footnote:
+        'I si tens un lloc personal que vol dir alguna cosa per a vosaltres dos (la cafeteria on us vau conèixer, la platja del primer petó) — encara millor. La història val més que el postal.',
+    },
+    midCta: {
+      copy: 'Si tens data i ubicació en ment, comprovem disponibilitat al moment per WhatsApp. Si encara estàs decidint, també — podem fer la planificació junts.',
+      button: 'Parlar pel WhatsApp',
+    },
+    travelers: {
+      title: 'Veniu a Tarragona només per la petició?',
+      intro:
+        "Aproximadament una de cada quatre peticions que fem és d'una parella que aterra a Barcelona o Reus expressament per a aquest moment. Ho hem cobert per parelles del Regne Unit, EEUU, Holanda i Alemanya. Funciona així:",
+      bullets: [
+        '**Trucada de planificació en anglès o castellà** abans del viatge per acordar l\'ubicació, l\'hora i el pla B.',
+        '**Llista d\'ubicacions filtrada** segons el moment del dia que arribeu i l\'estètica que busqueu (mar, ruïnes, vinya, muntanya). T\'enviem fotos de cada lloc perquè puguis triar abans d\'aterrar.',
+        '**Recollida i acompanyament opcional** des de l\'aeroport de Reus o el centre de Tarragona, perquè no et perdis abans del moment.',
+      ],
+    },
+    faqTitle: 'Preguntes habituals sobre peticions de mà',
+    faqs: [
+      {
+        q: 'Com us amagueu sense que la parella us vegi?',
+        a: "Arribem al lloc 60-90 minuts abans. Tenim ulls posats sobre la ruta acordada amb tu i quedem a una distància que ens permet fer fotos amb un teleobjectiu (200-400mm) sense quedar dins el camp visual de la parella. Si l'ubicació té gent, ens barregem com qualsevol turista amb càmera.",
+      },
+      {
+        q: 'Quan he de reservar?',
+        a: "Idealment 3-4 setmanes abans, però hem cobert peticions amb 5 dies d'antelació. Com més marge ens dones, més bé podem visitar el lloc i identificar els punts millors per amagar-nos.",
+      },
+      {
+        q: 'I si plou?',
+        a: "Si el pla B és viable (un altre lloc amb sostre o sota arbres), el fem servir. Si la teva petició depèn d'un escenari concret (posta de sol al castell de Tamarit, p. ex.), proposem reprogramar al primer dia bonic — sense cost si avisem abans de 24h.",
+      },
+      {
+        q: 'Quan rebo les fotos?',
+        a: 'Una galeria online amb totes les fotos editades en **7 dies**. Si ens demanes una selecció ràpida per ensenyar als pares aquella mateixa nit, et passem 5-10 fotos en menys de 2 hores per WhatsApp.',
+      },
+      {
+        q: 'I si ella diu que no?',
+        a: 'Ens ha passat zero vegades en 3 anys de servei. Si arribés a passar, et donaríem la sessió sense facturar — no és el moment per cobrar a algú.',
+      },
+      {
+        q: 'Veniu de fora? Què passa si visitem Tarragona només per la petició?',
+        a: "És una de les raons per les quals oferim aquest servei. Si voleu, fem una breu trucada de planificació en anglès, espanyol o català per acordar exactament el lloc i el cronograma. Tenim una llista d'ubicacions favorites a Tamarit, la Costa Daurada i la Tarragona romana que solen funcionar molt bé per a viatgers.",
+      },
+    ],
+    finalCta: {
+      h2: 'Tens una data al cap?',
+      body: 'Escriu-nos pel WhatsApp i et confirmem disponibilitat el mateix dia. Si encara estàs pensant on i quan, també — fem la planificació junts.',
+      primary: 'WhatsApp directe',
+      secondary: "Quiz d'1 minut",
+    },
+    quizPath: '/quiz',
+    whatsAppMessage:
+      "Hola! Estic preparant una petició de mà a la zona de Tarragona i m'agradaria parlar de disponibilitat i com ho fem.",
+    breadcrumbCurrent: 'Petició de mà',
+  },
+
+  es: {
+    meta: {
+      title: 'Fotógrafo para pedida de mano en Tarragona | Lifetime Weddings',
+      description:
+        'Cobertura discreta del momento de la propuesta de matrimonio en Tarragona y Costa Daurada. Reserva 3-4 semanas antes · entrega en 7 días · plan B por lluvia.',
+    },
+    hero: {
+      eyebrow: 'Pedida de mano · Tarragona',
+      h1: 'Tu pedida de mano, capturada tal como pasó — sin que ella lo note',
+      sub: 'Fotografía y vídeo discretos del momento exacto de la propuesta. En Tamarit, la Costa Daurada, el Priorat o donde imagines. Entrega en 7 días.',
+      ctaPrimary: 'Hablar por WhatsApp',
+      ctaSecondary: 'Cómo lo hacemos',
+      heroImgAlt: 'Momento de la pedida de mano en Tarragona — él pide silencio mientras la pareja sostiene la caja del anillo',
+    },
+    trust: { rating: 'en Google · {n} reseñas', delivery: 'de entrega', weddings: 'bodas documentadas' },
+    how: {
+      title: 'Cómo lo hacemos',
+      intro:
+        'Una pedida no se puede repetir. Todo el trabajo previo va orientado a que el día D sea exactamente como lo has imaginado — y que tú solo tengas que pensar en una cosa: arrodillarte o no, y cómo te tiembla la mano al sacar el anillo.',
+      steps: [
+        '**Llamada o WhatsApp de 15 minutos** para saber dónde, cuándo, el estilo que buscas y cómo es tu pareja. Si vienes de fuera, lo hacemos en inglés.',
+        '**Visita previa al lugar** (si está en el Camp de Tarragona). Identificamos los puntos mejores para escondernos, la dirección de la luz a la hora exacta, y los planes B si llueve o hay demasiada gente.',
+        '**El día D: llegamos 60-90 minutos antes**. Disparamos con teleobjetivo desde la distancia (200-400mm). Tu pareja no nos verá hasta que te arrodillas. Salimos después, hacemos 10 minutos de retrato formal del "sí" y nos marchamos.',
+        '**Una selección rápida** por WhatsApp en las 2 horas siguientes — para que puedas enseñar 5 fotos a los padres esa misma noche. Galería completa editada en 7 días.',
+      ],
+    },
+    what: {
+      title: 'Qué incluye el servicio',
+      bullets: [
+        '**Llamada previa de planificación** + visita al lugar (Camp de Tarragona) para identificar los mejores puntos de escondite y luz.',
+        '**1-2 horas de cobertura el día D**: fotografía discreta del momento + 10-15 minutos de retrato formal de pareja una vez ya saben que estamos allí.',
+        '**Vídeo del momento** (opcional, segundo profesional) — una segunda cámara con audio direccional para capturar el "sí".',
+        '**Selección rápida por WhatsApp** en menos de 2 horas. 5-10 fotos para que puedas compartir esa misma noche.',
+        '**Galería online completa** en 7 días, con todas las fotos editadas en alta resolución. Sin marca de agua, descarga libre.',
+      ],
+    },
+    locations: {
+      title: 'Ideas de ubicación en la zona de Tarragona',
+      intro:
+        'Tarragona tiene escenarios que parecen diseñados para una pedida. Algunas de nuestras ubicaciones favoritas:',
+      bullets: [
+        '**Playa y castillo de Tamarit** — puesta de sol en el castillo con el Mediterráneo de fondo. Una de las más demandadas por su fotogenia bruta.',
+        '**Balcón del Mediterráneo y anfiteatro romano** — el centro de Tarragona tiene una historia de 2000 años. Funciona muy bien para viajeros que quieren el "momento icónico" con Tarragona reconocible al fondo.',
+        '**Cala Romana / Cala Fonda** — más íntimas, sin gente. Buenas para pedidas privadas por la mañana o a primera hora de la tarde.',
+        '**Viñedos del Priorat o Costers del Segre** — si tu pareja aprecia el vino o la naturaleza, una ruta de viñedos con el sol bajo es difícil de superar visualmente.',
+        '**Siurana o Prades** — si queréis un escenario de película con acantilados y pueblo medieval. Hay que ir en coche y caminar un poco.',
+      ],
+      footnote:
+        'Y si tienes un lugar personal que significa algo para vosotros dos (la cafetería donde os conocisteis, la playa del primer beso) — aún mejor. La historia vale más que la postal.',
+    },
+    midCta: {
+      copy: 'Si tienes fecha y ubicación en mente, comprobamos disponibilidad al momento por WhatsApp. Si todavía estás decidiendo, también — podemos hacer la planificación juntos.',
+      button: 'Hablar por WhatsApp',
+    },
+    travelers: {
+      title: '¿Venís a Tarragona solo para la pedida?',
+      intro:
+        'Aproximadamente una de cada cuatro pedidas que hacemos es de una pareja que aterriza en Barcelona o Reus expresamente para este momento. Lo hemos cubierto para parejas de Reino Unido, EEUU, Holanda y Alemania. Funciona así:',
+      bullets: [
+        '**Llamada de planificación en inglés o castellano** antes del viaje para acordar la ubicación, la hora y el plan B.',
+        '**Lista de ubicaciones filtrada** según el momento del día que lleguéis y la estética que buscáis (mar, ruinas, viña, montaña). Te enviamos fotos de cada lugar para que puedas elegir antes de aterrizar.',
+        '**Recogida y acompañamiento opcional** desde el aeropuerto de Reus o el centro de Tarragona, para que no te pierdas antes del momento.',
+      ],
+    },
+    faqTitle: 'Preguntas habituales sobre pedidas de mano',
+    faqs: [
+      {
+        q: '¿Cómo os escondéis sin que la pareja os vea?',
+        a: 'Llegamos al lugar 60-90 minutos antes. Tenemos los ojos puestos en la ruta acordada contigo y nos quedamos a una distancia que nos permite hacer fotos con un teleobjetivo (200-400mm) sin quedar dentro del campo visual de la pareja. Si la ubicación tiene gente, nos camuflamos como cualquier turista con cámara.',
+      },
+      {
+        q: '¿Cuándo tengo que reservar?',
+        a: 'Idealmente 3-4 semanas antes, pero hemos cubierto pedidas con 5 días de antelación. Cuanto más margen nos das, mejor podemos visitar el lugar e identificar los puntos mejores para escondernos.',
+      },
+      {
+        q: '¿Y si llueve?',
+        a: 'Si el plan B es viable (otro lugar con techo o bajo árboles), lo usamos. Si tu pedida depende de un escenario concreto (puesta de sol en el castillo de Tamarit, por ejemplo), proponemos reprogramar al primer día bonito — sin coste si avisamos antes de 24h.',
+      },
+      {
+        q: '¿Cuándo recibo las fotos?',
+        a: 'Una galería online con todas las fotos editadas en **7 días**. Si nos pides una selección rápida para enseñar a los padres esa misma noche, te pasamos 5-10 fotos en menos de 2 horas por WhatsApp.',
+      },
+      {
+        q: '¿Y si ella dice que no?',
+        a: 'Nos ha pasado cero veces en 3 años de servicio. Si llegara a pasar, te daríamos la sesión sin facturar — no es el momento para cobrar a nadie.',
+      },
+      {
+        q: '¿Venís de fuera? ¿Qué pasa si visitamos Tarragona solo para la pedida?',
+        a: 'Es una de las razones por las que ofrecemos este servicio. Si queréis, hacemos una breve llamada de planificación en inglés, español o catalán para acordar exactamente el lugar y el cronograma. Tenemos una lista de ubicaciones favoritas en Tamarit, la Costa Daurada y la Tarragona romana que suelen funcionar muy bien para viajeros.',
+      },
+    ],
+    finalCta: {
+      h2: '¿Tienes una fecha en mente?',
+      body: 'Escríbenos por WhatsApp y te confirmamos disponibilidad el mismo día. Si todavía estás pensando dónde y cuándo, también — hacemos la planificación juntos.',
+      primary: 'WhatsApp directo',
+      secondary: 'Quiz de 1 minuto',
+    },
+    quizPath: '/es/quiz',
+    whatsAppMessage:
+      '¡Hola! Estoy preparando una pedida de mano en la zona de Tarragona y me gustaría hablar de disponibilidad y de cómo lo hacemos.',
+    breadcrumbCurrent: 'Pedida de mano',
+  },
+
+  en: {
+    meta: {
+      title: 'Proposal photographer in Tarragona, Spain | Lifetime Weddings',
+      description:
+        'Discreet photo + video coverage of your proposal in Tarragona and the Costa Daurada. Book 3-4 weeks ahead · 7-day delivery · rain backup plan · English-speaking team.',
+    },
+    hero: {
+      eyebrow: 'Proposal photography · Tarragona, Spain',
+      h1: "Your proposal, captured exactly as it happened — without them noticing",
+      sub: 'Discreet photo and video of the moment itself. At Tamarit, the Costa Daurada, the Priorat, or wherever you have in mind. Gallery delivered in 7 days.',
+      ctaPrimary: 'Message us on WhatsApp',
+      ctaSecondary: 'How it works',
+      heroImgAlt: 'Proposal moment in Tarragona — partner gestures for silence while holding the ring box',
+    },
+    trust: { rating: 'on Google · {n} reviews', delivery: 'delivery', weddings: 'weddings documented' },
+    how: {
+      title: 'How it works',
+      intro:
+        "A proposal can't be repeated. Everything we do beforehand is about making the day go exactly the way you've pictured it — so you only have to think about one thing: whether to kneel, and how to keep your hands steady while you open the box.",
+      steps: [
+        '**15-minute call or WhatsApp** to talk through where, when, the vibe you want, and what your partner is like. We work in English, Spanish, or Catalan.',
+        '**Location scout** (when the spot is in the Tarragona area). We map the best hiding angles, light direction at the exact hour, and the rain / crowd plan B.',
+        '**On the day: we arrive 60-90 minutes early**. We shoot with a long lens from a distance (200-400mm) — your partner won\'t see us until you actually kneel. Afterwards we step in for a short 10-minute formal portrait of the "yes" and head off.',
+        '**Fast WhatsApp selection** within 2 hours of the shoot, so you can send 5 photos to family that same night. Full edited gallery online in 7 days.',
+      ],
+    },
+    what: {
+      title: 'What the service includes',
+      bullets: [
+        '**Pre-shoot planning call** + on-site scout (Tarragona area) to identify the best hiding spots and light direction.',
+        '**1-2 hours of coverage on the day**: discreet photography of the moment + 10-15 minutes of formal couple portraits once they know we\'re there.',
+        '**Optional video of the moment** (second crew member) — a second camera with directional audio to capture the "yes".',
+        '**Fast WhatsApp selection** in under 2 hours. 5-10 photos so you can share that same night.',
+        '**Full online gallery** in 7 days, all photos edited in high resolution. No watermark, free download.',
+      ],
+    },
+    locations: {
+      title: 'Location ideas around Tarragona',
+      intro:
+        'Tarragona has settings that almost feel designed for a proposal. A few of our favourite spots:',
+      bullets: [
+        '**Tamarit beach and castle** — sunset at the castle with the Mediterranean behind. One of the most requested for its raw photogenic quality.',
+        '**Balcó del Mediterrani and the Roman amphitheatre** — central Tarragona carries 2,000 years of history. Works particularly well for travellers who want an iconic-recognisable Tarragona shot.',
+        '**Cala Romana / Cala Fonda** — quieter, less crowded. Great for private proposals in the morning or early afternoon.',
+        '**Priorat or Costers del Segre vineyards** — if your partner loves wine or nature, walking through vines in low golden light is hard to beat.',
+        '**Siurana or Prades** — for film-set drama with cliffs and a medieval village. Car needed and a short walk.',
+      ],
+      footnote:
+        "And if you have a place that means something personal to the two of you (the café where you met, the beach of your first kiss) — even better. The story beats the postcard.",
+    },
+    midCta: {
+      copy: "If you've got a date and a location in mind, we'll confirm availability over WhatsApp the same day. Still deciding? Also fine — we plan it together.",
+      button: 'Message us on WhatsApp',
+    },
+    travelers: {
+      title: 'Flying to Tarragona just for the proposal?',
+      intro:
+        'Roughly one in four proposals we shoot is for a couple who flies in for the moment itself. We\'ve covered couples from the UK, US, Netherlands, and Germany. Here\'s how it works for travellers:',
+      bullets: [
+        '**Planning call in English or Spanish** before you travel, to agree on the location, the time, and the rain plan B.',
+        '**Curated location shortlist** based on what time of day you land and the aesthetic you\'re after (sea, ruins, vineyards, mountain). We send photos of each so you can pick before boarding the plane.',
+        '**Optional airport pickup and walk-in** from Reus airport or central Tarragona, so you don\'t get lost before the moment.',
+      ],
+    },
+    faqTitle: 'Common questions about proposal photography',
+    faqs: [
+      {
+        q: 'How do you hide without your partner spotting you?',
+        a: "We arrive 60-90 minutes early. We post ourselves along the route you've shared, far enough away to shoot with a telephoto (200-400mm) without entering your partner's field of view. If the spot has people, we blend in like any tourist with a camera.",
+      },
+      {
+        q: 'When should I book?',
+        a: "Ideally 3-4 weeks in advance, but we've covered proposals with 5 days' notice. The more time you give us, the better we can scout the location and identify the best hiding angles.",
+      },
+      {
+        q: 'What if it rains?',
+        a: "If a plan B is viable (a covered location or under trees), we use it. If your proposal depends on a specific setting (sunset at Tamarit castle, for example), we suggest rescheduling to the next clear day — no cost if you let us know more than 24h ahead.",
+      },
+      {
+        q: 'When do I get the photos?',
+        a: "An online gallery with every edited photo within **7 days**. If you ask for a fast selection to show family that same night, we send 5-10 photos within 2 hours over WhatsApp.",
+      },
+      {
+        q: 'What if she says no?',
+        a: "It's never happened in 3 years of running this service. If it did, we'd hand over the session without invoicing — that's not a moment to charge anyone for.",
+      },
+      {
+        q: "We're flying in — what does the planning look like for a Tarragona-only trip?",
+        a: 'This is one of the reasons we offer the service. We do a short planning call in English, Spanish, or Catalan to agree on the exact location and timing. We keep a curated list of go-to spots in Tamarit, the Costa Daurada, and Roman Tarragona that work especially well for travellers.',
+      },
+    ],
+    finalCta: {
+      h2: 'Have a date in mind?',
+      body: "Message us on WhatsApp and we'll confirm availability the same day. If you're still deciding the where and when, message us anyway — we plan it together.",
+      primary: 'WhatsApp us',
+      secondary: '1-minute quiz',
+    },
+    quizPath: '/en/quiz',
+    whatsAppMessage:
+      "Hi! I'm planning a proposal in the Tarragona area and would like to talk about availability and how the service works.",
+    breadcrumbCurrent: 'Proposal photography',
+  },
+};
+
+const c = COPY[lang];
+
+const waLink = `${WHATSAPP_BASE}&text=${encodeURIComponent(c.whatsAppMessage)}`;
+const canonicalUrl = `${SITE.url}${langPath}/peticion-de-mano`;
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: t('schema.breadcrumb.home'), url: `${SITE.url}${langPath}/` },
+    { name: c.breadcrumbCurrent, url: canonicalUrl },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: c.meta.title.split(' | ')[0],
+    description: c.meta.description,
+    provider: { '@type': 'LocalBusiness', name: 'Lifetime Weddings', url: SITE.url },
+    areaServed: { '@type': 'AdministrativeArea', name: 'Tarragona, Catalonia, Spain' },
+    serviceType: 'Proposal photography',
+    url: canonicalUrl,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: c.faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+
+/** Render a copy snippet that may contain **bold** Markdown markers. */
+function renderBold(s: string): string {
+  return s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+}
+---
+
+<BaseLayout
+  lang={lang}
+  title={c.meta.title}
+  description={c.meta.description}
+  canonicalPath="/peticion-de-mano"
+  jsonLd={jsonLd}
+  ogImage={heroImg}
+  ogType="article"
+>
+  <!-- Hero -->
+  <section class="relative h-[70vh] min-h-[480px] overflow-hidden">
+    <picture>
+      <source type="image/webp" srcset={webp(heroImg)} />
+      <img
+        src={heroImg}
+        alt={c.hero.heroImgAlt}
+        class="absolute inset-0 w-full h-full object-cover"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+        width="1080"
+        height="1920"
+      />
+    </picture>
+    <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
+    <div class="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-6">
+      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{c.hero.eyebrow}</p>
+      <h1 class="font-display text-3xl md:text-5xl font-bold max-w-4xl leading-tight">{c.hero.h1}</h1>
+      <p class="mt-5 max-w-2xl text-base md:text-lg leading-relaxed opacity-95">{c.hero.sub}</p>
+      <div class="mt-8 flex flex-col sm:flex-row gap-3">
+        <a
+          href={waLink}
+          target="_blank"
+          rel="noopener"
+          class="inline-block bg-gold text-ink border-2 border-gold px-8 py-3.5 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white hover:border-ink transition-colors"
+        >
+          {c.hero.ctaPrimary}
+        </a>
+        <a
+          href="#com-ho-fem"
+          class="inline-block border-2 border-white/80 text-white px-8 py-3.5 text-sm font-bold tracking-[0.14em] uppercase hover:bg-white/10 transition-colors"
+        >
+          {c.hero.ctaSecondary}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Social proof bar -->
+  <section class="bg-ink text-white py-6 px-6 border-y border-gold/20">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row gap-4 sm:gap-10 items-center justify-center text-center text-sm">
+      <div class="flex items-center gap-2">
+        <span class="text-gold font-bold">{rating.ratingValue.toFixed(1)}★</span>
+        <span class="opacity-85">{c.trust.rating.replace('{n}', String(rating.reviewCount))}</span>
+      </div>
+      <div class="hidden sm:block w-px h-5 bg-white/20"></div>
+      <div class="flex items-center gap-2">
+        <span class="text-gold font-bold">7</span>
+        <span class="opacity-85">{lang === 'en' ? 'day' : 'dies'} {c.trust.delivery}</span>
+      </div>
+      <div class="hidden sm:block w-px h-5 bg-white/20"></div>
+      <div class="flex items-center gap-2">
+        <span class="text-gold font-bold">+150</span>
+        <span class="opacity-85">{c.trust.weddings}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <Section id="com-ho-fem">
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-5">{c.how.title}</h2>
+      <p class="text-ink/75 leading-relaxed mb-6 text-base md:text-lg">{c.how.intro}</p>
+      <ol class="space-y-5 mb-10">
+        {c.how.steps.map((step, i) => (
+          <li class="flex gap-4">
+            <span class="font-display text-2xl text-gold font-bold flex-shrink-0">{i + 1}.</span>
+            <span class="text-ink/85 leading-relaxed pt-1" set:html={renderBold(step)} />
+          </li>
+        ))}
+      </ol>
+    </div>
+  </Section>
+
+  <!-- Photo break A — full bleed Barcelona shh -->
+  <picture>
+    <source type="image/webp" srcset={webp(breakImg)} sizes="100vw" />
+    <img
+      src={breakImg}
+      alt=""
+      aria-hidden="true"
+      class="w-full h-[50vh] md:h-[65vh] object-cover"
+      loading="lazy"
+      decoding="async"
+      width="1125"
+      height="2000"
+    />
+  </picture>
+
+  <!-- What's included -->
+  <Section bg="cream">
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-5">{c.what.title}</h2>
+      <ul class="space-y-4 mb-8">
+        {c.what.bullets.map((b) => (
+          <li class="flex gap-3">
+            <span class="text-gold font-bold flex-shrink-0 mt-1">·</span>
+            <span class="text-ink/85 leading-relaxed" set:html={renderBold(b)} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  </Section>
+
+  <!-- Diptych (hands + walking) -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
+    {[diptychA, diptychB].map((src) => (
+      <picture>
+        <source type="image/webp" srcset={webp(src)} />
+        <img
+          src={src}
+          alt=""
+          aria-hidden="true"
+          class="w-full h-[55vh] md:h-[70vh] object-cover"
+          loading="lazy"
+          decoding="async"
+          width="1334"
+          height="2000"
+        />
+      </picture>
+    ))}
+  </div>
+
+  <!-- Location ideas -->
+  <Section>
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-5">{c.locations.title}</h2>
+      <p class="text-ink/75 leading-relaxed mb-6 text-base md:text-lg">{c.locations.intro}</p>
+      <ul class="space-y-4 mb-8">
+        {c.locations.bullets.map((b) => (
+          <li class="flex gap-3">
+            <span class="text-gold font-bold flex-shrink-0 mt-1">·</span>
+            <span class="text-ink/85 leading-relaxed" set:html={renderBold(b)} />
+          </li>
+        ))}
+      </ul>
+      <p class="text-ink/65 italic text-sm">{c.locations.footnote}</p>
+    </div>
+  </Section>
+
+  <!-- Mid CTA -->
+  <section class="bg-cream py-12 md:py-16 px-6 border-y border-ink/10">
+    <div class="max-w-2xl mx-auto text-center">
+      <p class="text-ink/85 leading-relaxed text-base md:text-lg mb-5">{c.midCta.copy}</p>
+      <a
+        href={waLink}
+        target="_blank"
+        rel="noopener"
+        class="inline-block bg-ink text-white border-2 border-ink px-8 py-3.5 text-sm font-bold tracking-[0.14em] uppercase hover:bg-gold hover:border-gold transition-colors"
+      >
+        {c.midCta.button}
+      </a>
+    </div>
+  </section>
+
+  <!-- For travelers -->
+  <Section>
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-5">{c.travelers.title}</h2>
+      <p class="text-ink/75 leading-relaxed mb-6 text-base md:text-lg">{c.travelers.intro}</p>
+      <ul class="space-y-4 mb-8">
+        {c.travelers.bullets.map((b) => (
+          <li class="flex gap-3">
+            <span class="text-gold font-bold flex-shrink-0 mt-1">·</span>
+            <span class="text-ink/85 leading-relaxed" set:html={renderBold(b)} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  </Section>
+
+  <!-- Intimate ring close-up -->
+  <picture>
+    <source type="image/webp" srcset={webp(closeUp)} sizes="100vw" />
+    <img
+      src={closeUp}
+      alt=""
+      aria-hidden="true"
+      class="w-full h-[55vh] md:h-[70vh] object-cover"
+      loading="lazy"
+      decoding="async"
+      width="1335"
+      height="2000"
+    />
+  </picture>
+
+  <!-- FAQ -->
+  <Section bg="cream">
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-8">{c.faqTitle}</h2>
+      <div class="divide-y divide-black/10 border-y border-black/10">
+        {c.faqs.map((f) => (
+          <details class="group">
+            <summary class="flex items-start justify-between gap-4 py-5 md:py-6 cursor-pointer list-none select-none">
+              <span class="text-base md:text-lg leading-snug pr-2" style="font-weight: 500;">{f.q}</span>
+              <span aria-hidden="true" class="shrink-0 w-6 h-6 mt-1 flex items-center justify-center text-gold transition-transform duration-200 group-open:rotate-45">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5">
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+              </span>
+            </summary>
+            <p class="pb-5 md:pb-6 pr-10 text-ink/75 leading-relaxed text-[0.95rem]" set:html={renderBold(f.a)} />
+          </details>
+        ))}
+      </div>
+    </div>
+  </Section>
+
+  <!-- Final CTA -->
+  <Section>
+    <div class="max-w-2xl mx-auto px-2 text-center">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-5">{c.finalCta.h2}</h2>
+      <p class="text-ink/75 leading-relaxed mb-8 text-base md:text-lg">{c.finalCta.body}</p>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <a
+          href={waLink}
+          target="_blank"
+          rel="noopener"
+          class="inline-block bg-gold text-ink border-2 border-gold px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white hover:border-ink transition-colors"
+        >
+          {c.finalCta.primary}
+        </a>
+        <a
+          href={c.quizPath}
+          class="inline-block border-2 border-ink text-ink px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white transition-colors"
+        >
+          {c.finalCta.secondary}
+        </a>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>
