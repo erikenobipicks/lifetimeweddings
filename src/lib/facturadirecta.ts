@@ -1,46 +1,57 @@
 // FacturaDirecta REST client — issues the deposit (anticipo) invoice for a
 // signed booking once the operator confirms the deposit was received.
 //
-// Activation: this module is a NO-OP unless FACTURADIRECTA_API_TOKEN *and*
-// FACTURADIRECTA_API_BASE are set. That keeps dev and any environment
+// Activation: this module is a NO-OP unless FACTURADIRECTA_API_KEY *and*
+// FACTURADIRECTA_COMPANY_ID are set. That keeps dev and any environment
 // without credentials safe. The single public helper is fail-soft (errors
 // are logged, never thrown) — FacturaDirecta downtime must not break the
 // admin "marcar dipòsit rebut" action.
 //
-// API shape (FacturaDirecta legacy XML REST API):
-//   - Base URL is account-scoped: https://<account>.facturadirecta.com/api
-//   - Auth: HTTP Basic, api-token as the username and any string ("x") as
-//     the password.  (curl -u <token>:x)
-//   - Request + response bodies are XML; we set Accept/Content-Type to
-//     application/xml.
+// API shape (FacturaDirecta v3 — the modern JSON REST API, the one behind
+// 3.facturadirecta.com / app.facturadirecta.com with granular API keys):
+//   - Base URL is company-scoped:
+//       https://app.facturadirecta.com/api/{COMPANY_ID}
+//     (COMPANY_ID looks like "com_c6b526af-…", visible in the web app URL.)
+//   - Auth: a single header  `facturadirecta-api-key: <key>`  (NOT
+//     Authorization / NOT basic auth — that was the legacy XML API).
+//   - Request + response bodies are JSON.
 //   - Resources used here:
-//       POST /clients/companies.xml  → create a fiscal client (company)
-//       GET  /clients/companies.xml  → search (best-effort dedupe by taxCode)
-//       POST /invoices.xml           → issue an invoice
+//       GET  /contacts?nif=…  → search a fiscal contact (best-effort dedupe)
+//       POST /contacts        → create a fiscal contact (returns id "con_…")
+//       POST /invoices        → create the invoice referencing contactId
 //
-// The exact element names below follow the public legacy docs
-// (dev.facturadirecta.com). They should be confirmed against the live
-// account once a real token is in hand — but because the whole module is
-// env-gated and fail-soft, an imperfect shape can only ever log an error,
-// never corrupt the booking flow. No XML library is pulled in: we build the
-// payload as strings (escaped) and extract ids with a narrow regex, matching
-// the dependency-free convention of the rest of the repo.
+// Verification note: this environment can't reach the FacturaDirecta API or
+// its docs (network allowlist), so the invoice body (contactId/date/lines/
+// taxes) is taken from the public quickstart, and the contact field names
+// (name/nif/address/email/phone) plus the search param are best-effort. The
+// request() error log includes FacturaDirecta's response body verbatim, so
+// the first real call surfaces any field mismatch precisely. Because the
+// whole module is env-gated and fail-soft, an imperfect shape can only ever
+// log an error — never corrupt the booking flow.
 
 import 'dotenv/config';
 
-const API_TOKEN = process.env.FACTURADIRECTA_API_TOKEN ?? '';
-const API_BASE = (process.env.FACTURADIRECTA_API_BASE ?? '').replace(/\/$/, '');
-/** Invoice series/serial (e.g. "2026"). Empty → let FacturaDirecta apply the
- *  account default. */
-const INVOICE_SERIAL = process.env.FACTURADIRECTA_INVOICE_SERIAL ?? '';
+// Accept either the new name or the previous FACTURADIRECTA_API_TOKEN so an
+// already-configured environment keeps working.
+const API_KEY =
+  process.env.FACTURADIRECTA_API_KEY ?? process.env.FACTURADIRECTA_API_TOKEN ?? '';
+const COMPANY_ID = process.env.FACTURADIRECTA_COMPANY_ID ?? '';
+const API_BASE = (
+  process.env.FACTURADIRECTA_API_BASE ?? 'https://app.facturadirecta.com/api'
+).replace(/\/$/, '');
+/** Invoice series code (e.g. "2026"). Empty → FacturaDirecta account default. */
+const INVOICE_SERIES =
+  process.env.FACTURADIRECTA_INVOICE_SERIES ?? process.env.FACTURADIRECTA_INVOICE_SERIAL ?? '';
 /** VAT rate applied to the deposit line, as a percentage. Spain standard 21. */
 const IVA_RATE = Number(process.env.FACTURADIRECTA_IVA_RATE ?? '21');
-/** Optional catalogue product code to stamp on the deposit line. */
-const DEPOSIT_PRODUCT_CODE = process.env.FACTURADIRECTA_DEPOSIT_PRODUCT_CODE ?? '';
 
 /** Module is disabled (silently) when credentials are missing. */
 function enabled(): boolean {
-  return API_TOKEN.length > 0 && API_BASE.length > 0;
+  return API_KEY.length > 0 && COMPANY_ID.length > 0;
+}
+
+function baseUrl(): string {
+  return `${API_BASE}/${COMPANY_ID}`;
 }
 
 // ─── HTTP ──────────────────────────────────────────────────────────────────
@@ -48,89 +59,83 @@ function enabled(): boolean {
 interface FdRequestInit {
   method: 'GET' | 'POST';
   path: string;
-  /** Raw XML body for POSTs. */
-  body?: string;
+  body?: unknown;
 }
 
-async function request({ method, path, body }: FdRequestInit): Promise<string> {
-  const url = `${API_BASE}${path}`;
-  // Basic auth: token as user, "x" as a throwaway password.
-  const auth = Buffer.from(`${API_TOKEN}:x`).toString('base64');
+async function request<T>({ method, path, body }: FdRequestInit): Promise<T> {
+  const url = `${baseUrl()}${path}`;
   const res = await fetch(url, {
     method,
     headers: {
-      'Authorization': `Basic ${auth}`,
-      'Accept': 'application/xml',
-      ...(body ? { 'Content-Type': 'application/xml' } : {}),
+      'facturadirecta-api-key': API_KEY,
+      'Accept': 'application/json',
+      ...(body ? { 'Content-Type': 'application/json' } : {}),
     },
-    body,
+    body: body ? JSON.stringify(body) : undefined,
   });
   const text = await res.text().catch(() => '');
   if (!res.ok) {
-    throw new Error(`facturadirecta ${method} ${path} → ${res.status} ${text.slice(0, 200)}`);
+    throw new Error(`facturadirecta ${method} ${path} → ${res.status} ${text.slice(0, 300)}`);
   }
-  return text;
+  return (text ? JSON.parse(text) : {}) as T;
 }
 
-// ─── XML helpers (dependency-free) ───────────────────────────────────────────
+// ─── Contact upsert ──────────────────────────────────────────────────────────
 
-function escapeXml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
-}
-
-/** Extract the first <tag>…</tag> text from an XML string, or null. Used to
- *  read back the created resource id without a full XML parser. */
-function firstTag(xml: string, tag: string): string | null {
-  const m = xml.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`, 'i'));
-  return m ? m[1].trim() : null;
-}
-
-// ─── Client (company) upsert ─────────────────────────────────────────────────
-
-interface ClientInput {
+interface ContactInput {
   name: string;
-  taxCode: string;
+  nif: string;
   address?: string;
   email?: string;
   phone?: string;
 }
 
-/** Find an existing fiscal client by taxCode, else create one. Returns the
- *  FacturaDirecta company id. Search is best-effort: any failure falls
- *  through to a create (FacturaDirecta dedupes on taxCode on its side). */
-async function upsertClientCompany(input: ClientInput): Promise<string> {
-  if (input.taxCode) {
+interface ContactRef {
+  id?: string;
+}
+interface ContactSearchResponse {
+  // FacturaDirecta list endpoints typically wrap rows under a data/items key;
+  // we read defensively from a few shapes.
+  contacts?: ContactRef[];
+  items?: ContactRef[];
+  data?: ContactRef[];
+}
+
+function firstContactId(res: ContactSearchResponse): string | null {
+  const row = res.contacts?.[0] ?? res.items?.[0] ?? res.data?.[0];
+  return row?.id ?? null;
+}
+
+/** Find an existing fiscal contact by NIF, else create one. Returns the
+ *  FacturaDirecta contact id ("con_…"). Search is best-effort: any failure
+ *  falls through to a create. */
+async function upsertContact(input: ContactInput): Promise<string> {
+  if (input.nif) {
     try {
-      const found = await request({
+      const found = await request<ContactSearchResponse>({
         method: 'GET',
-        path: `/clients/companies.xml?taxCode=${encodeURIComponent(input.taxCode)}`,
+        path: `/contacts?nif=${encodeURIComponent(input.nif)}`,
       });
-      const id = firstTag(found, 'id');
+      const id = firstContactId(found);
       if (id) return id;
     } catch (err) {
-      console.warn('[facturadirecta] client search failed, creating instead', err);
+      console.warn('[facturadirecta] contact search failed, creating instead', err);
     }
   }
 
-  const xml =
-    `<?xml version="1.0" encoding="UTF-8"?>` +
-    `<company>` +
-    `<name>${escapeXml(input.name)}</name>` +
-    `<taxCode>${escapeXml(input.taxCode)}</taxCode>` +
-    (input.address ? `<address>${escapeXml(input.address)}</address>` : '') +
-    (input.email ? `<email>${escapeXml(input.email)}</email>` : '') +
-    (input.phone ? `<phone>${escapeXml(input.phone)}</phone>` : '') +
-    `</company>`;
-
-  const created = await request({ method: 'POST', path: '/clients/companies.xml', body: xml });
-  const id = firstTag(created, 'id');
-  if (!id) throw new Error('facturadirecta: created client returned no id');
-  return id;
+  const created = await request<ContactRef>({
+    method: 'POST',
+    path: '/contacts',
+    body: {
+      name: input.name,
+      nif: input.nif,
+      ...(input.address ? { address: input.address } : {}),
+      ...(input.email ? { email: input.email } : {}),
+      ...(input.phone ? { phone: input.phone } : {}),
+    },
+  });
+  if (!created.id) throw new Error('facturadirecta: created contact returned no id');
+  return created.id;
 }
 
 // ─── Public helper (fail-soft) ───────────────────────────────────────────────
@@ -144,7 +149,7 @@ export interface IssueDepositInvoiceInput {
   clientEmail?: string | null;
   clientPhone?: string | null;
   /** Deposit amount in cents, VAT *included* (gross). The invoice line stores
-   *  the net base (gross / (1 + IVA)) and VAT is added back at invoice level,
+   *  the net base (gross / (1 + IVA)) and VAT is added back via the line tax,
    *  so the document total matches this gross figure. */
   depositCents: number;
   /** Human description for the invoice line. */
@@ -158,17 +163,23 @@ export interface IssuedInvoice {
   number: string | null;
 }
 
-/** Create + issue the deposit invoice. Returns the new invoice id/number, or
- *  null when the module is disabled or the call failed (both are non-fatal —
- *  the caller treats a null as "nothing persisted, can retry later"). */
+interface InvoiceResponse {
+  id?: string;
+  number?: string;
+  invoiceNumber?: string;
+}
+
+/** Create the deposit invoice. Returns the new invoice id/number, or null
+ *  when the module is disabled or the call failed (both non-fatal — the
+ *  caller treats null as "nothing persisted, can retry later"). */
 export async function issueDepositInvoice(
   input: IssueDepositInvoiceInput,
 ): Promise<IssuedInvoice | null> {
   if (!enabled()) return null;
   try {
-    const clientId = await upsertClientCompany({
+    const contactId = await upsertContact({
       name: input.clientName,
-      taxCode: input.clientTaxCode,
+      nif: input.clientTaxCode,
       address: input.clientAddress ?? undefined,
       email: input.clientEmail ?? undefined,
       phone: input.clientPhone ?? undefined,
@@ -178,32 +189,30 @@ export async function issueDepositInvoice(
     // base + IVA% ≈ deposit. Kept to 2 decimals (euros) for the line.
     const grossEuros = input.depositCents / 100;
     const netEuros = grossEuros / (1 + IVA_RATE / 100);
-    const unitPrice = netEuros.toFixed(2);
+    const unitPrice = Number(netEuros.toFixed(2));
 
     const date = (input.invoiceDate ?? new Date()).toISOString().slice(0, 10);
 
-    const xml =
-      `<?xml version="1.0" encoding="UTF-8"?>` +
-      `<invoice>` +
-      `<client><id>${escapeXml(clientId)}</id></client>` +
-      `<invoiceDate>${date}</invoiceDate>` +
-      (INVOICE_SERIAL ? `<invoiceSerial>${escapeXml(INVOICE_SERIAL)}</invoiceSerial>` : '') +
-      `<currency>EUR</currency>` +
-      `<tax><name>IVA</name><rate>${IVA_RATE}</rate></tax>` +
-      `<invoiceLines>` +
-      `<invoiceLine>` +
-      (DEPOSIT_PRODUCT_CODE ? `<productCode>${escapeXml(DEPOSIT_PRODUCT_CODE)}</productCode>` : '') +
-      `<description>${escapeXml(input.description)}</description>` +
-      `<quantity>1</quantity>` +
-      `<unitPrice>${unitPrice}</unitPrice>` +
-      `</invoiceLine>` +
-      `</invoiceLines>` +
-      `</invoice>`;
+    const res = await request<InvoiceResponse>({
+      method: 'POST',
+      path: '/invoices',
+      body: {
+        contactId,
+        date,
+        ...(INVOICE_SERIES ? { series: INVOICE_SERIES } : {}),
+        lines: [
+          {
+            description: input.description,
+            quantity: 1,
+            unitPrice,
+            taxes: [{ name: 'IVA', percent: IVA_RATE }],
+          },
+        ],
+      },
+    });
 
-    const res = await request({ method: 'POST', path: '/invoices.xml', body: xml });
-    const id = firstTag(res, 'id');
-    if (!id) throw new Error('facturadirecta: created invoice returned no id');
-    return { id, number: firstTag(res, 'invoiceNumber') };
+    if (!res.id) throw new Error('facturadirecta: created invoice returned no id');
+    return { id: res.id, number: res.number ?? res.invoiceNumber ?? null };
   } catch (err) {
     console.error('[facturadirecta] issueDepositInvoice failed (non-fatal)', err);
     return null;
