@@ -39,13 +39,14 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 const rating = await getGbpRating();
 
-// Photos: real proposal shoots Eric ran. The hands-with-ring-box hero
-// (2000×2000 native) reads as "the moment" instantly and stretches
-// cleanly to wide hero crops. The lower-res 01 "shh" moves into the
-// diptych where it's only rendered at ~960px on desktop — close to
-// its native 1080 width, no visible upscale.
-const heroImg = '/photos/peticions/02-hands-ring-box.jpg';
+// Photos: real proposal shoots Eric ran. The Born-market landscape
+// hero (2000×1333, native landscape) shows the full proposal moment
+// in environment — couple in frame, no upscale on wide displays.
+// The hands-ring-box anchors the "couple session" beat: an intimate
+// detail that lands right after the "not just the moment" copy.
+const heroImg = '/photos/peticions/06-born-proposing.jpg';
 const breakImg = '/photos/peticions/05-barcelona-sagrada-shh.jpg';
+const sessionImg = '/photos/peticions/02-hands-ring-box.jpg';
 const diptychA = '/photos/peticions/01-hero-tamarit-shh.jpg';
 const diptychB = '/photos/peticions/03-couple-walking-ring.jpg';
 const closeUp = '/photos/peticions/04-ring-detail-shoulder.jpg';
@@ -92,6 +93,13 @@ type Copy = {
     moreLabel: string;
     playLabel: string;
   };
+  /** "It's a full couple session, not just the moment" — copy beat
+      we surface right after "What's included" so the reader doesn't
+      think the deliverable is 5 photos of the kneel and nothing else. */
+  session: {
+    title: string;
+    body: string;
+  };
   faqTitle: string;
   faqs: { q: string; a: string }[];
   finalCta: { h2: string; body: string; primary: string; secondary: string };
@@ -109,11 +117,11 @@ const COPY: Record<Lang, Copy> = {
     },
     hero: {
       eyebrow: 'Petició de mà · Tarragona',
-      h1: 'La teva petició, captada com va passar — sense que ella ho noti',
-      sub: 'Fotografia i vídeo discrets del moment exacte de la proposta. A Tamarit, la Costa Daurada, el Priorat o on imaginis. Lliurament en 7 dies.',
+      h1: 'La teva petició — i tota la sessió de parella després del "sí"',
+      sub: 'Cobertura discreta del moment exacte + una sessió de parella sencera després del "sí": passejada, mirades, abraçades, anell de prop. A Tamarit, la Costa Daurada, el Priorat o on imaginis. 30-50 fotos lliurades en 7 dies.',
       ctaPrimary: 'Parlar pel WhatsApp',
       ctaSecondary: 'Com ho fem',
-      heroImgAlt: "Moment de la petició de mà a Tarragona — l'home demana silenci mentre la parella sosté la caixa de l'anell",
+      heroImgAlt: "Petició de mà al Mercat del Born de Barcelona — l'home, agenollat, presenta l'anell a la seva parella sota l'arquitectura modernista del mercat",
     },
     trust: { rating: 'a Google · {n} ressenyes', delivery: 'de lliurament', weddings: 'bodes documentades' },
     how: {
@@ -123,7 +131,7 @@ const COPY: Record<Lang, Copy> = {
       steps: [
         '**Trucada o WhatsApp de 15 minuts** per saber on, quan, l\'estil que busques i com és la teva parella. Si véns de fora, ho fem en anglès.',
         '**Visita prèvia al lloc** (si està al Camp de Tarragona). Identifiquem els punts millors per amagar-nos, la direcció de la llum a l\'hora exacta, i els plans B si plou o hi ha massa gent.',
-        '**El dia D: arribem 60-90 minuts abans**. Disparem amb teleobjectiu des de la distància (200-400mm). La teva parella no ens veurà fins que t\'agenolles. Sortim després, fem 10 minuts de retrat formal del "sí" i marxem.',
+        '**El dia D: arribem 60-90 minuts abans**. Disparem amb teleobjectiu des de la distància (200-400mm). La teva parella no ens veurà fins que t\'agenolles. Després sortim i fem **una sessió de parella sencera** — no només el retrat formal del "sí": passejada per la zona, primer abraç amb anell, mirades, l\'anell de prop, retrats d\'ambient. 45-60 minuts més de fotos.',
         '**Una selecció ràpida** per WhatsApp les 2 hores següents — perquè puguis ensenyar 5 fotos als pares aquella mateixa nit. Galeria completa editada en 7 dies.',
       ],
     },
@@ -131,10 +139,10 @@ const COPY: Record<Lang, Copy> = {
       title: 'Què inclou el servei',
       bullets: [
         '**Trucada prèvia de planificació** + visita al lloc (Camp de Tarragona) per identificar els millors punts d\'amagatall i llum.',
-        '**1-2 hores de cobertura el dia D**: fotografia discreta del moment + 10-15 minuts de retrat formal de parella un cop ja saben que som allà.',
+        '**2-2.5 hores de cobertura el dia D**: la cobertura secreta del moment + 45-60 minuts addicionals de **sessió de parella sencera** després del "sí" (passejada, abraçades, mirades, anell de prop, retrats d\'ambient).',
         '**Vídeo del moment** (opcional, segon professional) — una segona càmera amb àudio direccional per capturar el "sí".',
         '**Selecció ràpida per WhatsApp** en menys de 2 hores. 5-10 fotos perquè puguis compartir aquella mateixa nit.',
-        '**Galeria online completa** en 7 dies, amb totes les fotos editades en alta resolució. Sense marca d\'aigua, descàrrega lliure.',
+        '**Galeria online completa** en 7 dies amb **30-50 fotos editades** en alta resolució — el moment, la reacció i la sessió de parella. Sense marca d\'aigua, descàrrega lliure.',
       ],
     },
     locations: {
@@ -170,6 +178,10 @@ const COPY: Record<Lang, Copy> = {
       intro: 'Tres minuts a YouTube — un parell de peticions completes en horitzontal i dues snapshots verticals del moment exacte.',
       moreLabel: 'Més vídeos al nostre canal',
       playLabel: 'Reproduir vídeo',
+    },
+    session: {
+      title: 'No és només el moment — és una sessió de parella sencera',
+      body: 'Quan baixem de l\'amagatall, no fem 10 minuts de retrat formal i marxem. Després del "sí" tens **45-60 minuts més** de fotos: la primera abraçada amb anell, les mirades de la teva parella mirant-se el dit, les rialles nervioses, una passejada per la zona, l\'anell de prop, retrats d\'ambient. **Sortiràs amb 30-50 fotos del dia**, no 5 del moment.',
     },
     faqTitle: 'Preguntes habituals sobre peticions de mà',
     faqs: [
@@ -218,11 +230,11 @@ const COPY: Record<Lang, Copy> = {
     },
     hero: {
       eyebrow: 'Pedida de mano · Tarragona',
-      h1: 'Tu pedida de mano, capturada tal como pasó — sin que ella lo note',
-      sub: 'Fotografía y vídeo discretos del momento exacto de la propuesta. En Tamarit, la Costa Daurada, el Priorat o donde imagines. Entrega en 7 días.',
+      h1: 'Tu pedida — y toda la sesión de pareja después del "sí"',
+      sub: 'Cobertura discreta del momento exacto + una sesión de pareja entera después del "sí": paseo, miradas, abrazos, anillo de cerca. En Tamarit, la Costa Daurada, el Priorat o donde imagines. 30-50 fotos entregadas en 7 días.',
       ctaPrimary: 'Hablar por WhatsApp',
       ctaSecondary: 'Cómo lo hacemos',
-      heroImgAlt: 'Momento de la pedida de mano en Tarragona — él pide silencio mientras la pareja sostiene la caja del anillo',
+      heroImgAlt: 'Pedida de mano en el Mercat del Born de Barcelona — él, arrodillado, presenta el anillo a su pareja bajo la arquitectura modernista del mercado',
     },
     trust: { rating: 'en Google · {n} reseñas', delivery: 'de entrega', weddings: 'bodas documentadas' },
     how: {
@@ -232,7 +244,7 @@ const COPY: Record<Lang, Copy> = {
       steps: [
         '**Llamada o WhatsApp de 15 minutos** para saber dónde, cuándo, el estilo que buscas y cómo es tu pareja. Si vienes de fuera, lo hacemos en inglés.',
         '**Visita previa al lugar** (si está en el Camp de Tarragona). Identificamos los puntos mejores para escondernos, la dirección de la luz a la hora exacta, y los planes B si llueve o hay demasiada gente.',
-        '**El día D: llegamos 60-90 minutos antes**. Disparamos con teleobjetivo desde la distancia (200-400mm). Tu pareja no nos verá hasta que te arrodillas. Salimos después, hacemos 10 minutos de retrato formal del "sí" y nos marchamos.',
+        '**El día D: llegamos 60-90 minutos antes**. Disparamos con teleobjetivo desde la distancia (200-400mm). Tu pareja no nos verá hasta que te arrodillas. Después salimos y hacemos **una sesión de pareja entera** — no solo el retrato formal del "sí": paseo por la zona, primer abrazo con anillo, miradas, anillo de cerca, retratos de ambiente. 45-60 minutos más de fotos.',
         '**Una selección rápida** por WhatsApp en las 2 horas siguientes — para que puedas enseñar 5 fotos a los padres esa misma noche. Galería completa editada en 7 días.',
       ],
     },
@@ -240,10 +252,10 @@ const COPY: Record<Lang, Copy> = {
       title: 'Qué incluye el servicio',
       bullets: [
         '**Llamada previa de planificación** + visita al lugar (Camp de Tarragona) para identificar los mejores puntos de escondite y luz.',
-        '**1-2 horas de cobertura el día D**: fotografía discreta del momento + 10-15 minutos de retrato formal de pareja una vez ya saben que estamos allí.',
+        '**2-2.5 horas de cobertura el día D**: la cobertura secreta del momento + 45-60 minutos adicionales de **sesión de pareja entera** después del "sí" (paseo, abrazos, miradas, anillo de cerca, retratos de ambiente).',
         '**Vídeo del momento** (opcional, segundo profesional) — una segunda cámara con audio direccional para capturar el "sí".',
         '**Selección rápida por WhatsApp** en menos de 2 horas. 5-10 fotos para que puedas compartir esa misma noche.',
-        '**Galería online completa** en 7 días, con todas las fotos editadas en alta resolución. Sin marca de agua, descarga libre.',
+        '**Galería online completa** en 7 días con **30-50 fotos editadas** en alta resolución — el momento, la reacción y la sesión de pareja. Sin marca de agua, descarga libre.',
       ],
     },
     locations: {
@@ -279,6 +291,10 @@ const COPY: Record<Lang, Copy> = {
       intro: 'Tres minutos en YouTube — un par de pedidas completas en horizontal y dos clips verticales del momento exacto.',
       moreLabel: 'Más vídeos en nuestro canal',
       playLabel: 'Reproducir vídeo',
+    },
+    session: {
+      title: 'No es solo el momento — es una sesión de pareja entera',
+      body: 'Cuando bajamos del escondite, no hacemos 10 minutos de retrato formal y nos vamos. Después del "sí" tienes **45-60 minutos más** de fotos: el primer abrazo con anillo, las miradas de tu pareja mirándose el dedo, las risas nerviosas, un paseo por la zona, el anillo de cerca, retratos de ambiente. **Te llevarás 30-50 fotos del día**, no 5 del momento.',
     },
     faqTitle: 'Preguntas habituales sobre pedidas de mano',
     faqs: [
@@ -327,11 +343,11 @@ const COPY: Record<Lang, Copy> = {
     },
     hero: {
       eyebrow: 'Proposal photography · Tarragona, Spain',
-      h1: "Your proposal, captured exactly as it happened — without them noticing",
-      sub: 'Discreet photo and video of the moment itself. At Tamarit, the Costa Daurada, the Priorat, or wherever you have in mind. Gallery delivered in 7 days.',
+      h1: 'Your proposal — and the full couple session after the "yes"',
+      sub: 'Discreet coverage of the moment itself + a full couple session afterwards: walk, looks, hugs, ring close-ups. At Tamarit, the Costa Daurada, the Priorat, or wherever you have in mind. 30-50 photos delivered in 7 days.',
       ctaPrimary: 'Message us on WhatsApp',
       ctaSecondary: 'How it works',
-      heroImgAlt: 'Proposal moment in Tarragona — partner gestures for silence while holding the ring box',
+      heroImgAlt: "Proposal at the Mercat del Born in Barcelona — kneeling partner presents the ring under the market's modernist iron-and-wood architecture",
     },
     trust: { rating: 'on Google · {n} reviews', delivery: 'delivery', weddings: 'weddings documented' },
     how: {
@@ -341,7 +357,7 @@ const COPY: Record<Lang, Copy> = {
       steps: [
         '**15-minute call or WhatsApp** to talk through where, when, the vibe you want, and what your partner is like. We work in English, Spanish, or Catalan.',
         '**Location scout** (when the spot is in the Tarragona area). We map the best hiding angles, light direction at the exact hour, and the rain / crowd plan B.',
-        '**On the day: we arrive 60-90 minutes early**. We shoot with a long lens from a distance (200-400mm) — your partner won\'t see us until you actually kneel. Afterwards we step in for a short 10-minute formal portrait of the "yes" and head off.',
+        '**On the day: we arrive 60-90 minutes early**. We shoot with a long lens from a distance (200-400mm) — your partner won\'t see us until you actually kneel. Afterwards we step in for a **full couple session** — not just the formal portrait of the "yes": a walk through the area, first hug with the ring, looks down at the hand, ring close-ups, environmental portraits. 45-60 more minutes of shooting.',
         '**Fast WhatsApp selection** within 2 hours of the shoot, so you can send 5 photos to family that same night. Full edited gallery online in 7 days.',
       ],
     },
@@ -349,10 +365,10 @@ const COPY: Record<Lang, Copy> = {
       title: 'What the service includes',
       bullets: [
         '**Pre-shoot planning call** + on-site scout (Tarragona area) to identify the best hiding spots and light direction.',
-        '**1-2 hours of coverage on the day**: discreet photography of the moment + 10-15 minutes of formal couple portraits once they know we\'re there.',
+        '**2-2.5 hours of coverage on the day**: discreet photography of the moment + an extra 45-60 minutes of **full couple session** after the "yes" (walk, hugs, looks, ring close-ups, environmental portraits).',
         '**Optional video of the moment** (second crew member) — a second camera with directional audio to capture the "yes".',
         '**Fast WhatsApp selection** in under 2 hours. 5-10 photos so you can share that same night.',
-        '**Full online gallery** in 7 days, all photos edited in high resolution. No watermark, free download.',
+        '**Full online gallery** in 7 days with **30-50 edited photos** in high resolution — the moment, the reaction, and the couple session. No watermark, free download.',
       ],
     },
     locations: {
@@ -388,6 +404,10 @@ const COPY: Record<Lang, Copy> = {
       intro: 'Three minutes on YouTube — a couple of full proposal stories in landscape, and two vertical clips of the moment itself.',
       moreLabel: 'More videos on our channel',
       playLabel: 'Play video',
+    },
+    session: {
+      title: "It's a full couple session, not just the moment",
+      body: "Once we step out from our hiding spot, we don't shoot a quick formal portrait and leave. After the 'yes' you get **45-60 more minutes**: the first hug with the ring, the looks down at the new hand, the nervous laughter, a walk through the area, ring close-ups, environmental portraits. **You'll walk away with 30-50 photos of the day**, not 5 of the moment.",
     },
     faqTitle: 'Common questions about proposal photography',
     faqs: [
@@ -487,7 +507,7 @@ function renderBold(s: string): string {
         fetchpriority="high"
         decoding="async"
         width="2000"
-        height="2000"
+        height="1333"
       />
     </picture>
     <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
@@ -665,6 +685,31 @@ function renderBold(s: string): string {
           </li>
         ))}
       </ul>
+    </div>
+  </Section>
+
+  <!-- "Not just the moment" — the couple-session beat. Single intimate
+       photo (hands with ring box) breaks the wall of bullet lists and
+       lands right where the visitor is wondering "is that ALL I get?". -->
+  <Section>
+    <div class="max-w-3xl mx-auto px-2 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+      <picture class="block">
+        <source type="image/webp" srcset={webp(sessionImg)} />
+        <img
+          src={sessionImg}
+          alt=""
+          aria-hidden="true"
+          class="w-full aspect-square object-cover"
+          loading="lazy"
+          decoding="async"
+          width="2000"
+          height="2000"
+        />
+      </picture>
+      <div>
+        <h2 class="font-display text-2xl md:text-3xl font-bold mb-5 leading-tight">{c.session.title}</h2>
+        <p class="text-ink/80 leading-relaxed text-base md:text-lg" set:html={renderBold(c.session.body)} />
+      </div>
     </div>
   </Section>
 
