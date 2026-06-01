@@ -19,6 +19,20 @@ import { SITE, WHATSAPP_BASE } from '~/data/site';
 import { useTranslations, type Lang } from '~/i18n/ui';
 import { getGbpRating } from '~/lib/gbp-rating';
 import { breadcrumbJsonLd } from '~/lib/seo';
+import { videoThumb, videoThumbFallback } from '~/data/videos';
+
+// Real proposal videos on YouTube — two horizontal full-coverage
+// stories + two vertical Shorts of the moment itself. Click-to-load
+// so the iframes (heavy + cookies) only fire when a visitor actually
+// taps play.
+const horizVideos = [
+  { id: 'nja-UE72uaw', title: 'Petició de mà · Tarragona' },
+  { id: '0lqq6VCUcfE', title: 'Petició de mà · cobertura completa' },
+];
+const shortsVideos = [
+  { id: 'oLF630AhicU', title: 'Reel del moment · 1' },
+  { id: 'TTfcfUsv5us', title: 'Reel del moment · 2' },
+];
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
@@ -71,6 +85,12 @@ type Copy = {
     title: string;
     intro: string;
     bullets: string[];
+  };
+  videos: {
+    title: string;
+    intro: string;
+    moreLabel: string;
+    playLabel: string;
   };
   faqTitle: string;
   faqs: { q: string; a: string }[];
@@ -144,6 +164,12 @@ const COPY: Record<Lang, Copy> = {
         '**Llista d\'ubicacions filtrada** segons el moment del dia que arribeu i l\'estètica que busqueu (mar, ruïnes, vinya, muntanya). T\'enviem fotos de cada lloc perquè puguis triar abans d\'aterrar.',
         '**Recollida i acompanyament opcional** des de l\'aeroport de Reus o el centre de Tarragona, perquè no et perdis abans del moment.',
       ],
+    },
+    videos: {
+      title: 'Mira com queden les nostres peticions',
+      intro: 'Tres minuts a YouTube — un parell de peticions completes en horitzontal i dues snapshots verticals del moment exacte.',
+      moreLabel: 'Més vídeos al nostre canal',
+      playLabel: 'Reproduir vídeo',
     },
     faqTitle: 'Preguntes habituals sobre peticions de mà',
     faqs: [
@@ -248,6 +274,12 @@ const COPY: Record<Lang, Copy> = {
         '**Recogida y acompañamiento opcional** desde el aeropuerto de Reus o el centro de Tarragona, para que no te pierdas antes del momento.',
       ],
     },
+    videos: {
+      title: 'Mira cómo quedan nuestras pedidas',
+      intro: 'Tres minutos en YouTube — un par de pedidas completas en horizontal y dos clips verticales del momento exacto.',
+      moreLabel: 'Más vídeos en nuestro canal',
+      playLabel: 'Reproducir vídeo',
+    },
     faqTitle: 'Preguntas habituales sobre pedidas de mano',
     faqs: [
       {
@@ -350,6 +382,12 @@ const COPY: Record<Lang, Copy> = {
         '**Curated location shortlist** based on what time of day you land and the aesthetic you\'re after (sea, ruins, vineyards, mountain). We send photos of each so you can pick before boarding the plane.',
         '**Optional airport pickup and walk-in** from Reus airport or central Tarragona, so you don\'t get lost before the moment.',
       ],
+    },
+    videos: {
+      title: 'See how our proposals look',
+      intro: 'Three minutes on YouTube — a couple of full proposal stories in landscape, and two vertical clips of the moment itself.',
+      moreLabel: 'More videos on our channel',
+      playLabel: 'Play video',
     },
     faqTitle: 'Common questions about proposal photography',
     faqs: [
@@ -512,6 +550,94 @@ function renderBold(s: string): string {
     </div>
   </Section>
 
+  <!-- Video proof block: 2 horizontal stories on top, 2 Shorts below.
+       All click-to-load — the iframes (heavy + cookies) only fire when
+       the visitor taps play. The script at the bottom of this file
+       picks up every [data-yt-embed] on the page. -->
+  <Section bg="ink">
+    <div class="max-w-5xl mx-auto px-2">
+      <div class="text-center mb-10 md:mb-12">
+        <h2 class="font-display text-2xl md:text-3xl font-bold text-white mb-3">{c.videos.title}</h2>
+        <p class="text-white/75 leading-relaxed max-w-2xl mx-auto">{c.videos.intro}</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+        {horizVideos.map((v) => (
+          <div class="relative aspect-video bg-black overflow-hidden shadow-xl" data-yt-embed data-yt-id={v.id}>
+            <button
+              type="button"
+              class="absolute inset-0 w-full h-full group focus:outline-none focus:ring-2 focus:ring-gold"
+              aria-label={`${c.videos.playLabel}: ${v.title}`}
+              data-yt-toggle
+            >
+              <img
+                src={videoThumb(v.id)}
+                data-fallback={videoThumbFallback(v.id)}
+                alt={v.title}
+                class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+                decoding="async"
+                width="1280"
+                height="720"
+              />
+              <span class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors"></span>
+              <span class="absolute inset-0 flex items-center justify-center">
+                <span class="w-14 h-14 md:w-16 md:h-16 bg-white/90 rounded-full flex items-center justify-center group-hover:bg-white transition-colors shadow-lg">
+                  <svg viewBox="0 0 24 24" class="w-6 h-6 md:w-7 md:h-7 fill-ink ml-1" aria-hidden="true">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </span>
+              </span>
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 md:gap-6 max-w-2xl mx-auto">
+        {shortsVideos.map((v) => (
+          <div class="relative aspect-[9/16] bg-black overflow-hidden shadow-xl" data-yt-embed data-yt-id={v.id}>
+            <button
+              type="button"
+              class="absolute inset-0 w-full h-full group focus:outline-none focus:ring-2 focus:ring-gold"
+              aria-label={`${c.videos.playLabel}: ${v.title}`}
+              data-yt-toggle
+            >
+              <img
+                src={videoThumb(v.id)}
+                data-fallback={videoThumbFallback(v.id)}
+                alt={v.title}
+                class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+                decoding="async"
+                width="720"
+                height="1280"
+              />
+              <span class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors"></span>
+              <span class="absolute inset-0 flex items-center justify-center">
+                <span class="w-12 h-12 md:w-14 md:h-14 bg-white/90 rounded-full flex items-center justify-center group-hover:bg-white transition-colors shadow-lg">
+                  <svg viewBox="0 0 24 24" class="w-5 h-5 md:w-6 md:h-6 fill-ink ml-1" aria-hidden="true">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </span>
+              </span>
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div class="text-center mt-10 md:mt-12">
+        <a
+          href={SITE.social.youtube}
+          target="_blank"
+          rel="noopener"
+          class="inline-block text-xs md:text-sm font-bold tracking-[0.18em] uppercase text-gold hover:text-white transition-colors"
+        >
+          {c.videos.moreLabel} →
+        </a>
+      </div>
+    </div>
+  </Section>
+
   <!-- Photo break A — full bleed Barcelona shh -->
   <picture>
     <source type="image/webp" srcset={webp(breakImg)} sizes="100vw" />
@@ -671,3 +797,62 @@ function renderBold(s: string): string {
     </div>
   </Section>
 </BaseLayout>
+
+{/* Click-to-load YouTube — same pattern as src/components/sections/YouTube.astro.
+    No iframe is created until the visitor taps a play button, so we never
+    pay the bandwidth, layout, or third-party-cookie cost up-front. */}
+<script is:inline define:vars={{
+  gatedTitle: t('consent.gated.title'),
+  gatedBody: t('consent.gated.body'),
+  gatedCta: t('consent.gated.cta'),
+}}>
+  (() => {
+    function consentRejected() {
+      try {
+        const raw = localStorage.getItem('lifetime.cookies.v1');
+        if (!raw) return false;
+        return JSON.parse(raw)?.choice === 'reject';
+      } catch {
+        return false;
+      }
+    }
+    function showGatedMessage(wrap) {
+      const div = document.createElement('div');
+      div.className =
+        'absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-ink/90 text-white';
+      div.innerHTML =
+        '<p class="font-display text-lg font-bold mb-2">' + gatedTitle +
+        '</p><p class="text-sm text-white/80 max-w-md mb-4">' + gatedBody +
+        '</p><button type="button" data-cookie-reopen class="bg-gold text-ink text-xs font-bold tracking-[0.15em] uppercase px-5 py-2.5 hover:brightness-110 transition">' +
+        gatedCta + '</button>';
+      wrap.replaceChildren(div);
+      const btn = div.querySelector('[data-cookie-reopen]');
+      if (btn) {
+        btn.addEventListener('click', () => {
+          document.dispatchEvent(new CustomEvent('consent:reopen'));
+        });
+      }
+    }
+    document.querySelectorAll('[data-yt-embed]').forEach((wrap) => {
+      const btn = wrap.querySelector('[data-yt-toggle]');
+      const img = wrap.querySelector('img[data-fallback]');
+      const id = wrap.getAttribute('data-yt-id');
+      if (img) {
+        img.addEventListener('error', () => { img.src = img.dataset.fallback; }, { once: true });
+      }
+      if (!btn || !id) return;
+      btn.addEventListener('click', () => {
+        if (consentRejected()) { showGatedMessage(wrap); return; }
+        const iframe = document.createElement('iframe');
+        iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+        iframe.title = btn.getAttribute('aria-label') || 'Video';
+        iframe.className = 'absolute inset-0 w-full h-full';
+        iframe.setAttribute('frameborder', '0');
+        iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+        iframe.setAttribute('allowfullscreen', '');
+        iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+        wrap.replaceChildren(iframe);
+      });
+    });
+  })();
+</script>
