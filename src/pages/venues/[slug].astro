@@ -15,6 +15,7 @@ export const prerender = true;
 
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Section from '~/components/Section.astro';
+import StickyMobileCta from '~/components/StickyMobileCta.astro';
 import { VENUES } from '~/data/venues';
 import { WEDDINGS, weddingCover, weddingGallery } from '~/data/weddings';
 import { SITE, WHATSAPP_BASE } from '~/data/site';
@@ -446,4 +447,11 @@ const waLink = `${WHATSAPP_BASE}&text=${waMessage}`;
       </div>
     </div>
   </section>
+
+  <StickyMobileCta
+    lang={lang}
+    whatsAppHref={waLink}
+    secondaryHref="/quiz"
+    primaryLabel="WhatsApp"
+  />
 </BaseLayout>

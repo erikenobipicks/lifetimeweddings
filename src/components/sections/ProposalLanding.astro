@@ -15,6 +15,7 @@
 
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Section from '~/components/Section.astro';
+import StickyMobileCta from '~/components/StickyMobileCta.astro';
 import { SITE, WHATSAPP_BASE } from '~/data/site';
 import { useTranslations, type Lang } from '~/i18n/ui';
 import { getGbpRating } from '~/lib/gbp-rating';
@@ -838,6 +839,14 @@ function renderBold(s: string): string {
       </div>
     </div>
   </Section>
+
+  <StickyMobileCta
+    lang={lang}
+    whatsAppHref={waLink}
+    secondaryHref={c.quizPath}
+    primaryLabel={c.finalCta.primary}
+    secondaryLabel={c.finalCta.secondary}
+  />
 </BaseLayout>
 
 {/* Click-to-load YouTube — same pattern as src/components/sections/YouTube.astro.
