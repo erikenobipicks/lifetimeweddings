@@ -1,0 +1,262 @@
+---
+// /es/venues/<slug> — Spanish venue landings. Mirrors the structure of
+// the CA template at src/pages/venues/[slug].astro but reads its copy
+// from VENUES_I18N[slug].es.
+
+export const prerender = true;
+
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Section from '~/components/Section.astro';
+import StickyMobileCta from '~/components/StickyMobileCta.astro';
+import { VENUES } from '~/data/venues';
+import { VENUES_I18N } from '~/data/venues.i18n';
+import { WEDDINGS, weddingCover, weddingGallery } from '~/data/weddings';
+import { SITE, WHATSAPP_BASE } from '~/data/site';
+import { useTranslations } from '~/i18n/ui';
+import { breadcrumbJsonLd, venueServiceJsonLd, faqPageJsonLd } from '~/lib/seo';
+import { getGbpRating } from '~/lib/gbp-rating';
+
+export function getStaticPaths() {
+  return VENUES
+    .filter((v) => VENUES_I18N[v.slug]?.es)
+    .map((v) => ({ params: { slug: v.slug }, props: { venue: v, copy: VENUES_I18N[v.slug].es } }));
+}
+
+const { venue, copy } = Astro.props;
+const lang = 'es' as const;
+const t = useTranslations(lang);
+
+const realWedding = WEDDINGS.find((w) => w.slug === venue.realWeddingSlug);
+const gallery = realWedding ? weddingGallery(realWedding) : [];
+const cover = realWedding ? weddingCover(realWedding) : null;
+const coverLarge = gallery[0]?.variants.lg ?? cover ?? '/og-default.jpg';
+const totalPhotos = gallery.length;
+
+const breakA = gallery[1];
+const diptychA = gallery[2];
+const diptychB = gallery[3];
+const trio = gallery.slice(4, 7);
+const ctaBackdrop = gallery[7] ?? gallery[0];
+
+function webp(path: string): string {
+  return path.replace(/\.jpe?g$/i, '.webp');
+}
+
+const rating = await getGbpRating();
+
+const canonicalUrl = `${SITE.url}/es/venues/${venue.slug}`;
+const jsonLd = [
+  venueServiceJsonLd({
+    venueName: venue.name,
+    venueRegion: venue.region,
+    canonicalUrl,
+  }),
+  faqPageJsonLd(copy.faqs),
+  breadcrumbJsonLd([
+    { name: t('schema.breadcrumb.home'), url: `${SITE.url}/es` },
+    { name: 'Venues', url: `${SITE.url}/es/venues/${venue.slug}` },
+    { name: venue.name, url: canonicalUrl },
+  ]),
+];
+
+function galleryAlt(i: number): string {
+  const nn = String(i).padStart(2, '0');
+  const count = String(totalPhotos).padStart(2, '0');
+  return `Boda en ${venue.name} · ${venue.realWeddingCouple} · Foto ${nn} de ${count}`;
+}
+
+const waMessage = encodeURIComponent(
+  `¡Hola! Nos casamos y estamos mirando si tenéis disponibilidad para ${venue.name}.`,
+);
+const waLink = `${WHATSAPP_BASE}&text=${waMessage}`;
+---
+
+<BaseLayout
+  lang={lang}
+  title={copy.metaTitle}
+  description={copy.metaDescription}
+  canonicalPath={`/venues/${venue.slug}`}
+  jsonLd={jsonLd}
+  ogImage={cover ?? '/og-default.jpg'}
+>
+  <section class="relative h-[70vh] min-h-[480px] overflow-hidden">
+    <picture>
+      <source type="image/webp" srcset={webp(coverLarge)} />
+      <img
+        src={coverLarge}
+        alt={`${venue.name} · ${venue.realWeddingCouple}`}
+        class="absolute inset-0 w-full h-full object-cover"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+        width="1920"
+        height="1280"
+      />
+    </picture>
+    <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
+    <div class="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-6">
+      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{copy.eyebrow}</p>
+      <h1 class="font-display text-3xl md:text-5xl font-bold max-w-4xl leading-tight">{copy.h1}</h1>
+      <p class="mt-5 max-w-2xl text-base md:text-lg leading-relaxed opacity-95">{copy.subtitle}</p>
+      <div class="mt-8 flex flex-col sm:flex-row gap-3">
+        <a
+          href={waLink}
+          target="_blank"
+          rel="noopener"
+          class="inline-block bg-gold text-ink border-2 border-gold px-8 py-3.5 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white hover:border-ink transition-colors"
+        >
+          Mira si la fecha sigue libre
+        </a>
+        <a
+          href="/es/quiz"
+          class="inline-block border-2 border-white/80 text-white px-8 py-3.5 text-sm font-bold tracking-[0.14em] uppercase hover:bg-white/10 transition-colors"
+        >
+          Quiz de 1 minuto
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-ink text-white py-6 px-6 border-y border-gold/20">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row gap-4 sm:gap-10 items-center justify-center text-center text-sm">
+      <div class="flex items-center gap-2"><span class="text-gold font-bold">+150</span><span class="opacity-85">bodas documentadas</span></div>
+      <div class="hidden sm:block w-px h-5 bg-white/20"></div>
+      <div class="flex items-center gap-2"><span class="text-gold font-bold">{rating.ratingValue.toFixed(1)}★</span><span class="opacity-85">en Google · {rating.reviewCount} reseñas</span></div>
+      <div class="hidden sm:block w-px h-5 bg-white/20"></div>
+      <div class="flex items-center gap-2"><span class="text-gold font-bold">2</span><span class="opacity-85">hermanos · foto + vídeo en un solo equipo</span></div>
+    </div>
+  </section>
+
+  <Section>
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">Una boda real en {venue.name}</h2>
+      <p class="text-ink/75 leading-relaxed text-base md:text-lg">{copy.realWeddingIntro}</p>
+      {copy.extraResource && (
+        <p class="mt-4">
+          <a href={copy.extraResource.href} class="inline-block border-b border-gold text-ink font-semibold hover:text-gold transition-colors">
+            {copy.extraResource.label} →
+          </a>
+        </p>
+      )}
+    </div>
+  </Section>
+
+  {breakA && (
+    <a href={breakA.variants.lg} target="_blank" rel="noopener" class="block relative overflow-hidden group" aria-label={galleryAlt(2)}>
+      <picture>
+        <source type="image/webp" srcset={`${webp(breakA.variants.sm)} 640w, ${webp(breakA.variants.md)} 1200w, ${webp(breakA.variants.lg)} 1920w`} sizes="100vw" />
+        <img src={breakA.variants.md} srcset={`${breakA.variants.sm} 640w, ${breakA.variants.md} 1200w, ${breakA.variants.lg} 1920w`} sizes="100vw" alt={galleryAlt(2)} class="w-full h-[50vh] md:h-[60vh] object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" decoding="async" width={breakA.width} height={breakA.height} />
+      </picture>
+    </a>
+  )}
+
+  <Section bg="cream">
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-5">Qué aporta filmar y fotografiar en {venue.name}</h2>
+      <p class="text-ink/75 leading-relaxed mb-6 text-base md:text-lg">{copy.whatItOffersIntro}</p>
+      <ul class="space-y-4">
+        {copy.whatItOffersBullets.map((b) => (
+          <li class="flex gap-3"><span class="text-gold font-bold flex-shrink-0 mt-1">·</span><span class="text-ink/85 leading-relaxed">{b}</span></li>
+        ))}
+      </ul>
+    </div>
+  </Section>
+
+  {(diptychA || diptychB) && (
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
+      {[diptychA, diptychB].filter(Boolean).map((img, k) => (
+        <a href={img!.variants.lg} target="_blank" rel="noopener" class="block overflow-hidden group" aria-label={galleryAlt(3 + k)}>
+          <picture>
+            <source type="image/webp" srcset={`${webp(img!.variants.sm)} 640w, ${webp(img!.variants.md)} 1200w, ${webp(img!.variants.lg)} 1920w`} sizes="(max-width: 768px) 100vw, 50vw" />
+            <img src={img!.variants.md} srcset={`${img!.variants.sm} 640w, ${img!.variants.md} 1200w, ${img!.variants.lg} 1920w`} sizes="(max-width: 768px) 100vw, 50vw" alt={galleryAlt(3 + k)} class="w-full h-[55vh] md:h-[70vh] object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" decoding="async" width={img!.width} height={img!.height} />
+          </picture>
+        </a>
+      ))}
+    </div>
+  )}
+
+  <Section>
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-5">Por qué nos eligen las parejas que se casan en {venue.name}</h2>
+      <p class="text-ink/75 leading-relaxed mb-6 text-base md:text-lg">{copy.whyChooseIntro}</p>
+      <ol class="space-y-5 mb-10">
+        {copy.whyChoosePoints.map((p, i) => (
+          <li class="flex gap-4"><span class="font-display text-2xl text-gold font-bold flex-shrink-0">{i + 1}.</span><span class="text-ink/85 leading-relaxed pt-1">{p}</span></li>
+        ))}
+      </ol>
+      <div class="text-center pt-4">
+        <a href={waLink} target="_blank" rel="noopener" class="inline-block bg-ink text-white border-2 border-ink px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-gold hover:border-gold transition-colors">Hablemos por WhatsApp</a>
+      </div>
+    </div>
+  </Section>
+
+  {trio.length > 0 && (
+    <div class:list={['grid gap-2 md:gap-3', trio.length === 1 && 'grid-cols-1', trio.length === 2 && 'grid-cols-2', trio.length >= 3 && 'grid-cols-3']}>
+      {trio.map((img, k) => (
+        <a href={img.variants.lg} target="_blank" rel="noopener" class="block overflow-hidden group" aria-label={galleryAlt(5 + k)}>
+          <picture>
+            <source type="image/webp" srcset={`${webp(img.variants.sm)} 640w, ${webp(img.variants.md)} 1200w`} sizes="(max-width: 768px) 33vw, 33vw" />
+            <img src={img.variants.md} srcset={`${img.variants.sm} 640w, ${img.variants.md} 1200w`} sizes="(max-width: 768px) 33vw, 33vw" alt={galleryAlt(5 + k)} class="w-full h-[40vh] md:h-[55vh] object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" decoding="async" width={img.width} height={img.height} />
+          </picture>
+        </a>
+      ))}
+    </div>
+  )}
+
+  {realWedding && totalPhotos > (trio.length + 4) && (
+    <Section>
+      <div class="max-w-2xl mx-auto px-2 text-center">
+        <p class="text-ink/75 leading-relaxed mb-5 text-base md:text-lg">
+          Hay más fotos de esta boda real en {venue.name} — entra en la galería completa de {venue.realWeddingCouple}.
+        </p>
+        <a href={`/es/bodas/${realWedding.slug}`} class="inline-block border-2 border-ink text-ink px-8 py-3.5 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white transition-colors">
+          Ver la galería completa →
+        </a>
+      </div>
+    </Section>
+  )}
+
+  <section class="bg-cream py-8 md:py-10 px-6 border-y border-ink/10">
+    <div class="max-w-3xl mx-auto text-center">
+      <p class="text-ink/85 leading-relaxed text-base md:text-lg">
+        <span class="font-bold">Aceptamos un máximo de 20 bodas al año</span>
+        para poder dedicarnos a cada una sin prisa. Si tenéis la fecha, comprobadla con nosotros cuanto antes mejor.
+      </p>
+    </div>
+  </section>
+
+  <Section bg="cream">
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-8">Preguntas habituales sobre nuestra cobertura en {venue.name}</h2>
+      <dl class="space-y-6">
+        {copy.faqs.map((f) => (
+          <div class="border-b border-ink/10 pb-6">
+            <dt class="font-display text-lg font-bold text-ink mb-2">{f.question}</dt>
+            <dd class="text-ink/80 leading-relaxed">{f.answer}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </Section>
+
+  <section class="relative overflow-hidden">
+    {ctaBackdrop && (
+      <picture class="absolute inset-0 -z-10">
+        <source type="image/webp" srcset={`${webp(ctaBackdrop.variants.md)} 1200w, ${webp(ctaBackdrop.variants.lg)} 1920w`} sizes="100vw" />
+        <img src={ctaBackdrop.variants.lg} srcset={`${ctaBackdrop.variants.md} 1200w, ${ctaBackdrop.variants.lg} 1920w`} sizes="100vw" alt="" aria-hidden="true" class="w-full h-full object-cover" loading="lazy" decoding="async" width={ctaBackdrop.width} height={ctaBackdrop.height} />
+      </picture>
+    )}
+    <div class={`relative ${ctaBackdrop ? 'bg-ink/70' : 'bg-cream'}`}>
+      <div class="max-w-2xl mx-auto px-6 py-20 md:py-28 text-center">
+        <h2 class:list={['font-display text-3xl md:text-4xl font-bold mb-5', ctaBackdrop && 'text-white']}>{copy.finalCtaH2}</h2>
+        <p class:list={['leading-relaxed mb-8 text-base md:text-lg', ctaBackdrop ? 'text-white/90' : 'text-ink/75']}>{copy.finalCtaBody}</p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <a href={waLink} target="_blank" rel="noopener" class="inline-block bg-gold text-ink border-2 border-gold px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white hover:border-ink transition-colors">WhatsApp directo</a>
+          <a href="/es/quiz" class:list={['inline-block border-2 px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase transition-colors', ctaBackdrop ? 'border-white/80 text-white hover:bg-white/10' : 'border-ink text-ink hover:bg-ink hover:text-white']}>Quiz de 1 minuto con presupuesto</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <StickyMobileCta lang={lang} whatsAppHref={waLink} secondaryHref="/es/quiz" primaryLabel="WhatsApp" />
+</BaseLayout>
