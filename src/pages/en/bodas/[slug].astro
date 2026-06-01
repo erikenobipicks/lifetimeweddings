@@ -3,10 +3,11 @@ export const prerender = true;
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Section from '~/components/Section.astro';
 import WeddingGalleryChunk from '~/components/WeddingGalleryChunk.astro';
-import { WEDDINGS, weddingCover, weddingGallery } from '~/data/weddings';
+import { WEDDINGS, weddingCover, weddingGallery, type Wedding } from '~/data/weddings';
 import { useTranslations } from '~/i18n/ui';
 import { SITE, WHATSAPP_BASE } from '~/data/site';
 import { breadcrumbJsonLd, imageGalleryJsonLd } from '~/lib/seo';
+import { getGbpRating } from '~/lib/gbp-rating';
 
 export function getStaticPaths() {
   return WEDDINGS.map((w) => ({ params: { slug: w.slug }, props: { wedding: w } }));
@@ -22,7 +23,8 @@ const totalPhotos = gallery.length;
 const hasVenue = wedding.venue && wedding.venue !== '—';
 const hasLocation = wedding.location && wedding.location !== '—';
 
-/** Alt text for gallery image i (1-indexed position). Never empty. */
+const rating = await getGbpRating();
+
 function galleryAlt(i: number): string {
   const nn = String(i).padStart(2, '0');
   const count = String(totalPhotos).padStart(2, '0');
@@ -48,10 +50,35 @@ const chunks = chunkGallery(gallery, 3);
 const chunkStart = (idx: number): number =>
   chunks.slice(0, idx).reduce((sum, c) => sum + c.length, 0);
 
+const relatedAll: Wedding[] = WEDDINGS.filter(
+  (w) => w.slug !== wedding.slug && weddingGallery(w).length > 0,
+);
+const relatedScored = relatedAll
+  .map((w) => {
+    const sameVenue = hasVenue && w.venue === wedding.venue ? 10 : 0;
+    const sameLocation = hasLocation && w.location === wedding.location ? 5 : 0;
+    const photos = weddingGallery(w).length / 1000;
+    return { w, score: sameVenue + sameLocation + photos };
+  })
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 3)
+  .map((x) => x.w);
+
 const waMessage = encodeURIComponent(
   `Hi! We saw ${wedding.couple}'s wedding on your site. We're getting married and would love to know if you're available.`,
 );
 const waLink = `${WHATSAPP_BASE}&text=${waMessage}`;
+
+const seoTitle = hasVenue && hasLocation
+  ? `${wedding.couple} at ${wedding.venue}, ${wedding.location} · Documentary wedding photographer | Lifetime Weddings`
+  : hasVenue
+    ? `${wedding.couple} at ${wedding.venue} · Documentary wedding photographer | Lifetime Weddings`
+    : `${wedding.couple} · Documentary wedding photographer | Lifetime Weddings`;
+const seoDescription = hasVenue && hasLocation
+  ? `Documentary gallery of ${wedding.couple}'s wedding at ${wedding.venue} (${wedding.location}). Photo + video as a team, no posing. ${totalPhotos} photographs from the day.`
+  : hasVenue
+    ? `Documentary gallery of ${wedding.couple}'s wedding at ${wedding.venue}. Photo + video as a team, no posing.`
+    : `Documentary gallery of ${wedding.couple}'s wedding. Photo + video as a team, no posing.`;
 
 const pageUrl = `${SITE.url}/en/bodas/${wedding.slug}`;
 const jsonLd = [
@@ -64,12 +91,8 @@ const jsonLd = [
     ? [
         imageGalleryJsonLd({
           pageUrl,
-          name: hasVenue
-            ? `${wedding.couple}'s wedding at ${wedding.venue}`
-            : `${wedding.couple}'s wedding`,
-          description: hasVenue && hasLocation
-            ? `Gallery of ${wedding.couple}'s wedding at ${wedding.venue} (${wedding.location}).`
-            : `Gallery of ${wedding.couple}'s wedding.`,
+          name: hasVenue ? `${wedding.couple}'s wedding at ${wedding.venue}` : `${wedding.couple}'s wedding`,
+          description: seoDescription,
           contentLocation: hasVenue
             ? { name: wedding.venue, addressLocality: hasLocation ? wedding.location : undefined }
             : undefined,
@@ -84,16 +107,14 @@ const jsonLd = [
       ]
     : []),
 ];
+
+const h1 = hasVenue ? `${wedding.couple} at ${wedding.venue}` : `${wedding.couple}'s wedding`;
 ---
 
 <BaseLayout
   lang={lang}
-  title={wedding.venue && wedding.venue !== '—'
-    ? `${wedding.couple} · ${wedding.venue} · Lifetime Weddings`
-    : `${wedding.couple} · Lifetime Weddings`}
-  description={wedding.venue && wedding.venue !== '—'
-    ? `Gallery of ${wedding.couple}'s wedding at ${wedding.venue} (${wedding.location}).`
-    : `Gallery of ${wedding.couple}'s wedding.`}
+  title={seoTitle}
+  description={seoDescription}
   canonicalPath={`/bodas/${wedding.slug}`}
   jsonLd={jsonLd}
   ogImage={cover ?? '/og-default.jpg'}
@@ -105,7 +126,7 @@ const jsonLd = [
         <source type="image/webp" srcset={coverLarge.replace(/\.jpe?g$/, '.webp')} />
         <img
           src={coverLarge}
-          alt={wedding.venue && wedding.venue !== '—' ? `${wedding.couple} · ${wedding.venue}` : wedding.couple}
+          alt={`${h1}${hasLocation ? ' · ' + wedding.location : ''} · Documentary coverage by Lifetime Weddings`}
           class="absolute inset-0 w-full h-full object-cover"
           loading="eager"
           fetchpriority="high"
@@ -114,14 +135,37 @@ const jsonLd = [
           height="1280"
         />
       </picture>
-      <div class="absolute inset-0 bg-black/40"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
       <div class="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-6">
-        <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">Weddings</p>
-        <h1 class="font-display text-4xl md:text-5xl font-bold">{wedding.couple}</h1>
-        <p class="mt-3 opacity-90">{wedding.venue !== '—' ? wedding.venue : ''} {wedding.venue !== '—' && wedding.location !== '—' ? '·' : ''} {wedding.location !== '—' ? wedding.location : ''}</p>
+        <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">Weddings · Documentary</p>
+        <h1 class="font-display text-3xl md:text-5xl font-bold leading-tight max-w-4xl">{h1}</h1>
+        <p class="mt-3 opacity-90">
+          {wedding.venue !== '—' ? wedding.venue : ''}
+          {wedding.venue !== '—' && wedding.location !== '—' ? ' · ' : ''}
+          {wedding.location !== '—' ? wedding.location : ''}
+        </p>
       </div>
     </section>
   )}
+
+  <section class="bg-ink text-white py-6 px-6 border-y border-gold/20">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row gap-4 sm:gap-10 items-center justify-center text-center text-sm">
+      <div class="flex items-center gap-2">
+        <span class="text-gold font-bold">+150</span>
+        <span class="opacity-85">weddings documented</span>
+      </div>
+      <div class="hidden sm:block w-px h-5 bg-white/20"></div>
+      <div class="flex items-center gap-2">
+        <span class="text-gold font-bold">{rating.ratingValue.toFixed(1)}★</span>
+        <span class="opacity-85">Google · {rating.reviewCount} reviews</span>
+      </div>
+      <div class="hidden sm:block w-px h-5 bg-white/20"></div>
+      <div class="flex items-center gap-2">
+        <span class="text-gold font-bold">2</span>
+        <span class="opacity-85">brothers · photo + video, one team</span>
+      </div>
+    </div>
+  </section>
 
   {gallery.length === 0 ? (
     <Section>
@@ -135,37 +179,25 @@ const jsonLd = [
         <div class="max-w-2xl mx-auto px-2 text-center">
           <p class="text-ink/85 leading-relaxed text-base md:text-lg">
             {hasVenue && hasLocation
-              ? <>A day documented at <span class="font-semibold">{wedding.venue}</span>, {wedding.location}. {totalPhotos} photographs from <span class="font-semibold">{wedding.couple}</span>'s wedding — no posing, capturing the day as it happened.</>
+              ? <>A documentary coverage of <span class="font-semibold">{wedding.couple}</span>'s wedding at <span class="font-semibold">{wedding.venue}</span>, {wedding.location}. {totalPhotos} photographs from the day — no posing, real emotion across ceremony, cocktail and party.</>
               : hasVenue
-                ? <>A day documented at <span class="font-semibold">{wedding.venue}</span>. {totalPhotos} photographs from <span class="font-semibold">{wedding.couple}</span>'s wedding — no posing, capturing the day as it happened.</>
-                : <>{totalPhotos} photographs from <span class="font-semibold">{wedding.couple}</span>'s wedding — no posing, capturing the day as it happened.</>}
+                ? <>A documentary coverage of <span class="font-semibold">{wedding.couple}</span>'s wedding at <span class="font-semibold">{wedding.venue}</span>. {totalPhotos} photographs from the day — no posing, real emotion across ceremony, cocktail and party.</>
+                : <>A documentary coverage of <span class="font-semibold">{wedding.couple}</span>'s wedding. {totalPhotos} photographs from the day — no posing, real emotion across ceremony, cocktail and party.</>}
           </p>
         </div>
       </Section>
 
       <Section>
-        <WeddingGalleryChunk
-          photos={chunks[0]}
-          startIndex={0}
-          pageUrl={pageUrl}
-          galleryAlt={galleryAlt}
-          photoLabel={(i) => `Photo ${i}`}
-          pinterestLabel="Save to Pinterest"
-        />
+        <WeddingGalleryChunk photos={chunks[0]} startIndex={0} pageUrl={pageUrl} galleryAlt={galleryAlt} photoLabel={(i) => `Photo ${i}`} pinterestLabel="Save to Pinterest" />
       </Section>
 
       {chunks.length > 1 && (
         <section class="bg-cream py-12 md:py-16 px-6 border-y border-ink/10">
           <div class="max-w-2xl mx-auto text-center">
             <p class="text-ink/85 leading-relaxed text-base md:text-lg mb-5">
-              Want a wedding documented like this? We accept a max of 20 weddings per year — check if your date is still open.
+              Want a wedding documented like this{hasLocation ? ` in ${wedding.location}` : ''}? We take a max of 20 weddings a year — check if your date is still open.
             </p>
-            <a
-              href={waLink}
-              target="_blank"
-              rel="noopener"
-              class="inline-block bg-ink text-white border-2 border-ink px-7 py-3 text-sm font-bold tracking-[0.14em] uppercase hover:bg-gold hover:border-gold transition-colors"
-            >
+            <a href={waLink} target="_blank" rel="noopener" class="inline-block bg-ink text-white border-2 border-ink px-7 py-3 text-sm font-bold tracking-[0.14em] uppercase hover:bg-gold hover:border-gold transition-colors">
               WhatsApp us
             </a>
           </div>
@@ -174,56 +206,63 @@ const jsonLd = [
 
       {chunks[1] && (
         <Section>
-          <WeddingGalleryChunk
-            photos={chunks[1]}
-            startIndex={chunkStart(1)}
-            pageUrl={pageUrl}
-            galleryAlt={galleryAlt}
-            photoLabel={(i) => `Photo ${i}`}
-            pinterestLabel="Save to Pinterest"
-          />
+          <WeddingGalleryChunk photos={chunks[1]} startIndex={chunkStart(1)} pageUrl={pageUrl} galleryAlt={galleryAlt} photoLabel={(i) => `Photo ${i}`} pinterestLabel="Save to Pinterest" />
         </Section>
       )}
-
       {chunks[2] && (
         <Section>
-          <WeddingGalleryChunk
-            photos={chunks[2]}
-            startIndex={chunkStart(2)}
-            pageUrl={pageUrl}
-            galleryAlt={galleryAlt}
-            photoLabel={(i) => `Photo ${i}`}
-            pinterestLabel="Save to Pinterest"
-          />
+          <WeddingGalleryChunk photos={chunks[2]} startIndex={chunkStart(2)} pageUrl={pageUrl} galleryAlt={galleryAlt} photoLabel={(i) => `Photo ${i}`} pinterestLabel="Save to Pinterest" />
         </Section>
       )}
 
       <Section bg="cream">
         <div class="max-w-2xl mx-auto px-2 text-center">
           <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">
-            Want a wedding like this?
+            {hasLocation ? `Want a wedding like this in ${wedding.location}?` : 'Want a wedding like this?'}
           </h2>
           <p class="text-ink/75 leading-relaxed mb-8 text-base md:text-lg">
             We work as a team of two — photo + video, one crew. Max 20 weddings per year.
           </p>
           <div class="flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href={waLink}
-              target="_blank"
-              rel="noopener"
-              class="inline-block bg-gold text-ink border-2 border-gold px-8 py-3.5 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white hover:border-ink transition-colors"
-            >
+            <a href={waLink} target="_blank" rel="noopener" class="inline-block bg-gold text-ink border-2 border-gold px-8 py-3.5 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white hover:border-ink transition-colors">
               WhatsApp us
             </a>
-            <a
-              href="/en/quiz"
-              class="inline-block border-2 border-ink text-ink px-8 py-3.5 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white transition-colors"
-            >
+            <a href="/en/quiz" class="inline-block border-2 border-ink text-ink px-8 py-3.5 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white transition-colors">
               1-minute quiz
             </a>
           </div>
         </div>
       </Section>
+
+      {relatedScored.length > 0 && (
+        <Section>
+          <div class="max-w-6xl mx-auto px-2">
+            <h2 class="font-display text-2xl md:text-3xl font-bold text-center mb-10">More weddings you'll love</h2>
+            <div class="grid md:grid-cols-3 gap-6 md:gap-8">
+              {relatedScored.map((w) => {
+                const wG = weddingGallery(w);
+                const wThumb = wG[0]?.variants.md ?? weddingCover(w) ?? '/og-default.jpg';
+                const wThumbWebp = wThumb.replace(/\.jpe?g$/, '.webp');
+                return (
+                  <a href={`/en/bodas/${w.slug}`} class="block group">
+                    <div class="relative overflow-hidden aspect-[4/5]">
+                      <picture>
+                        <source type="image/webp" srcset={wThumbWebp} />
+                        <img src={wThumb} alt={`${w.couple}'s wedding${w.venue !== '—' ? ' at ' + w.venue : ''}`} class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" decoding="async" width="800" height="1000" />
+                      </picture>
+                      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
+                      <div class="absolute bottom-4 left-4 right-4 text-white">
+                        <p class="font-display italic text-xl leading-tight" style="font-weight: 400; letter-spacing: -0.01em;">{w.couple}</p>
+                        {w.venue !== '—' && <p class="text-xs uppercase tracking-[0.12em] text-white/80 mt-1">{w.venue}</p>}
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        </Section>
+      )}
     </>
   )}
 </BaseLayout>
