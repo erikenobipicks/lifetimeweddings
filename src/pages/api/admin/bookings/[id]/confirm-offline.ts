@@ -23,6 +23,7 @@ import {
   getFormResponseForBooking,
   markDepositPaid,
 } from '~/lib/bookings/repository';
+import { issueDepositInvoiceForBooking } from '~/lib/bookings/invoicing';
 
 const DNI_REGEX = /^([0-9]{8}[A-Za-z]|[XYZxyz][0-9]{7}[A-Za-z])$/;
 const PHONE_REGEX = /^\+?[\d\s\-()]{6,20}$/;
@@ -120,6 +121,9 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
     userAgent: `admin:${user}`,
   });
   await markDepositPaid(id);
+  // Deposit is received by definition in the offline fast-track → issue the
+  // anticipo invoice (idempotent + fail-soft, no-op when unconfigured).
+  await issueDepositInvoiceForBooking(id);
 
   return redirect(`/admin/bookings/${id}?ok=offline_confirmed`, 303);
 };

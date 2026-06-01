@@ -233,6 +233,12 @@ export async function initSchema() {
   // state ("paid deposit, awaiting contract data").
   await ensureColumn('bookings', 'deposit_paid_at', 'TEXT');
   await ensureColumn('bookings', 'contract_ready_at', 'TEXT');
+  // FacturaDirecta deposit-invoice reference. Set when the operator marks the
+  // deposit received and the anticipo invoice is issued; doubles as the
+  // re-invoicing idempotency guard. Nullable — bookings created before this
+  // (or with FacturaDirecta unconfigured) simply stay null.
+  await ensureColumn('bookings', 'facturadirecta_invoice_id', 'TEXT');
+  await ensureColumn('bookings', 'facturadirecta_invoice_number', 'TEXT');
   await ensureColumn('booking_form_responses', 'language_between', 'TEXT');
   await ensureColumn('booking_form_responses', 'ceremony_location_text', 'TEXT');
   await ensureColumn('booking_form_responses', 'reception_location_text', 'TEXT');
