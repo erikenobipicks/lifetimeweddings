@@ -1,0 +1,420 @@
+---
+// /peticion-de-mano — proposal photography service landing.
+//
+// Distinct funnel from the wedding pages: the visitor here is planning
+// a proposal (often months before the wedding even gets discussed),
+// not researching a wedding photographer. Audiences likely include:
+//   - Catalans / Spaniards planning a proposal in the Tarragona area.
+//   - Foreigners flying in to propose in Tamarit / Cala Romana / the
+//     Roman ruins, where the scenery sells itself.
+//
+// Schema.org Service + areaServed=Tarragona so Google can surface this
+// for niche queries ("fotograf petició de mà Tarragona", "proposal
+// photographer Tarragona", etc.) where the broader wedding pages
+// don't fit the intent.
+//
+// Photos here are placeholders pulled from existing wedding galleries
+// (intimate portraits, mountain backdrops, romantic landscapes). Swap
+// for actual proposal shots when Eric drops them under
+// /public/photos/peticions/.
+
+export const prerender = true;
+
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Section from '~/components/Section.astro';
+import { SITE, WHATSAPP_BASE } from '~/data/site';
+import { useTranslations } from '~/i18n/ui';
+import { getGbpRating } from '~/lib/gbp-rating';
+import { breadcrumbJsonLd } from '~/lib/seo';
+
+const lang = 'ca' as const;
+const t = useTranslations(lang);
+const rating = await getGbpRating();
+
+const heroImg = '/photos/josep-eli/008-lg.jpg';
+const breakImg = '/photos/vanesa-david/006-lg.jpg';
+const diptychA = '/photos/elena-jordi/005-md.jpg';
+const diptychB = '/photos/cristina-daniel/003-md.jpg';
+const trio = [
+  '/photos/aaron-marta/001-md.jpg',
+  '/photos/josep-eli/008-lg.jpg',
+  '/photos/vanesa-david/006-lg.jpg',
+];
+
+function webp(p: string): string { return p.replace(/\.jpe?g$/i, '.webp'); }
+
+const waMessage = encodeURIComponent(
+  "Hola! Estic preparant una petició de mà a la zona de Tarragona i m'agradaria parlar de disponibilitat i com ho fem.",
+);
+const waLink = `${WHATSAPP_BASE}&text=${waMessage}`;
+
+const canonicalUrl = `${SITE.url}/peticion-de-mano`;
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: t('schema.breadcrumb.home'), url: `${SITE.url}/` },
+    { name: 'Petició de mà', url: canonicalUrl },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'Fotografia i vídeo de petició de mà',
+    description:
+      'Cobertura discreta del moment de la proposta de matrimoni a Tarragona, Costa Daurada i Priorat. Fotògraf amagat, planificació prèvia, lliurament en 7 dies.',
+    provider: { '@type': 'LocalBusiness', name: 'Lifetime Weddings', url: SITE.url },
+    areaServed: { '@type': 'AdministrativeArea', name: 'Tarragona, Catalonia, Spain' },
+    serviceType: 'Proposal photography',
+    url: canonicalUrl,
+  },
+];
+
+const faqs = [
+  {
+    q: 'Com us amagueu sense que la parella us vegi?',
+    a: 'Arribem al lloc 60-90 minuts abans. Tenim ulls posats sobre la ruta acordada amb tu i quedem a una distància que ens permet fer fotos amb un teleobjectiu (200-400mm) sense quedar dins el camp visual de la parella. Si l\'ubicació té gent, ens barregem com qualsevol turista amb càmera.',
+  },
+  {
+    q: 'Quan he de reservar?',
+    a: 'Idealment 3-4 setmanes abans, però hem cobert peticions amb 5 dies d\'antelació. Com més marge ens dones, més bé podem visitar el lloc i identificar els punts millors per amagar-nos.',
+  },
+  {
+    q: 'I si plou?',
+    a: 'Si el pla B és viable (un altre lloc amb sostre o sota arbres), el fem servir. Si la teva petició depèn d\'un escenari concret (posta de sol al castell de Tamarit, p. ex.), proposem reprogramar al primer dia bonic — sense cost si avisem abans de 24h.',
+  },
+  {
+    q: 'Quan rebo les fotos?',
+    a: 'Una galeria online amb totes les fotos editades en **7 dies**. Si ens demanes una selecció ràpida per ensenyar als pares aquella mateixa nit, et passem 5-10 fotos en menys de 2 hores per WhatsApp.',
+  },
+  {
+    q: 'I si ella diu que no?',
+    a: 'Ens ha passat zero vegades en 3 anys de servei. Si arribés a passar, et donaríem la sessió sense facturar — no és el moment per cobrar a algú.',
+  },
+  {
+    q: 'Veniu de fora? Què passa si visitem Tarragona només per la petició?',
+    a: 'És una de les raons per les quals oferim aquest servei. Si voleu, fem una breu trucada de planificació en anglès, espanyol o català per acordar exactament el lloc i el cronograma. Tenim una llista d\'ubicacions favorites a Tamarit, la Costa Daurada i la Tarragona romana que solen funcionar molt bé per a viatgers.',
+  },
+];
+---
+
+<BaseLayout
+  lang={lang}
+  title="Fotògraf per petició de mà a Tarragona | Lifetime Weddings"
+  description="Cobertura discreta del moment de la proposta de matrimoni a Tarragona i Costa Daurada. Reservem 3-4 setmanes abans · lliurament en 7 dies · pla B per pluja."
+  canonicalPath="/peticion-de-mano"
+  jsonLd={jsonLd}
+  ogImage={heroImg}
+  ogType="article"
+>
+  <!-- Hero -->
+  <section class="relative h-[70vh] min-h-[480px] overflow-hidden">
+    <picture>
+      <source type="image/webp" srcset={webp(heroImg)} />
+      <img
+        src={heroImg}
+        alt="Petició de mà al Camp de Tarragona"
+        class="absolute inset-0 w-full h-full object-cover"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+        width="1920"
+        height="1280"
+      />
+    </picture>
+    <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
+    <div class="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-6">
+      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">Petició de mà · Tarragona</p>
+      <h1 class="font-display text-3xl md:text-5xl font-bold max-w-4xl leading-tight">
+        Una petició capturada com va passar, sense que ella ho noti
+      </h1>
+      <p class="mt-5 max-w-2xl text-base md:text-lg leading-relaxed opacity-95">
+        Fotografia i vídeo discrets del moment exacte de la proposta. A Tamarit, la Costa Daurada, el Priorat o on imaginis. Lliurament en 7 dies.
+      </p>
+      <div class="mt-8 flex flex-col sm:flex-row gap-3">
+        <a
+          href={waLink}
+          target="_blank"
+          rel="noopener"
+          class="inline-block bg-gold text-ink border-2 border-gold px-8 py-3.5 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white hover:border-ink transition-colors"
+        >
+          Parlar pel WhatsApp
+        </a>
+        <a
+          href="#com-ho-fem"
+          class="inline-block border-2 border-white/80 text-white px-8 py-3.5 text-sm font-bold tracking-[0.14em] uppercase hover:bg-white/10 transition-colors"
+        >
+          Com ho fem
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Social proof bar -->
+  <section class="bg-ink text-white py-6 px-6 border-y border-gold/20">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row gap-4 sm:gap-10 items-center justify-center text-center text-sm">
+      <div class="flex items-center gap-2">
+        <span class="text-gold font-bold">{rating.ratingValue.toFixed(1)}★</span>
+        <span class="opacity-85">a Google · {rating.reviewCount} ressenyes</span>
+      </div>
+      <div class="hidden sm:block w-px h-5 bg-white/20"></div>
+      <div class="flex items-center gap-2">
+        <span class="text-gold font-bold">7 dies</span>
+        <span class="opacity-85">de lliurament</span>
+      </div>
+      <div class="hidden sm:block w-px h-5 bg-white/20"></div>
+      <div class="flex items-center gap-2">
+        <span class="text-gold font-bold">+150</span>
+        <span class="opacity-85">bodes documentades</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Com ho fem -->
+  <Section id="com-ho-fem">
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-5">Com ho fem</h2>
+      <p class="text-ink/75 leading-relaxed mb-6 text-base md:text-lg">
+        Una petició no es pot repetir. Tota la feina prèvia està orientada a que el dia D sigui exactament com l'has imaginat — i que tu només hagis de pensar en una cosa: agenollar-te o no, i com et tremola la mà al treure l'anell.
+      </p>
+      <ol class="space-y-5 mb-10">
+        <li class="flex gap-4">
+          <span class="font-display text-2xl text-gold font-bold flex-shrink-0">1.</span>
+          <span class="text-ink/85 leading-relaxed pt-1"><strong>Trucada o WhatsApp de 15 minuts</strong> per saber on, quan, l'estil que busques i com és la teva parella. Si vens de fora, ho fem en anglès.</span>
+        </li>
+        <li class="flex gap-4">
+          <span class="font-display text-2xl text-gold font-bold flex-shrink-0">2.</span>
+          <span class="text-ink/85 leading-relaxed pt-1"><strong>Visita prèvia al lloc</strong> (si està al Camp de Tarragona). Identifiquem els punts millors per amagar-nos, la direcció de la llum a l'hora exacta, i els plans B si plou o hi ha massa gent.</span>
+        </li>
+        <li class="flex gap-4">
+          <span class="font-display text-2xl text-gold font-bold flex-shrink-0">3.</span>
+          <span class="text-ink/85 leading-relaxed pt-1"><strong>El dia D: arribem 60-90 minuts abans</strong>. Disparem amb teleobjectiu des de la distància (200-400mm). La teva parella no ens veurà fins que t'agenolles. Sortim després, fem 10 minuts de retrat formal del "sí" i marxem.</span>
+        </li>
+        <li class="flex gap-4">
+          <span class="font-display text-2xl text-gold font-bold flex-shrink-0">4.</span>
+          <span class="text-ink/85 leading-relaxed pt-1"><strong>Una selecció ràpida</strong> per WhatsApp les 2 hores següents — perquè puguis ensenyar 5 fotos als pares aquella mateixa nit. Galeria completa editada en 7 dies.</span>
+        </li>
+      </ol>
+    </div>
+  </Section>
+
+  <!-- Photo break A -->
+  <picture>
+    <source type="image/webp" srcset={webp(breakImg)} sizes="100vw" />
+    <img
+      src={breakImg}
+      alt=""
+      aria-hidden="true"
+      class="w-full h-[50vh] md:h-[60vh] object-cover"
+      loading="lazy"
+      decoding="async"
+      width="1920"
+      height="1280"
+    />
+  </picture>
+
+  <!-- Què inclou -->
+  <Section bg="cream">
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-5">Què inclou el servei</h2>
+      <ul class="space-y-4 mb-8">
+        <li class="flex gap-3">
+          <span class="text-gold font-bold flex-shrink-0 mt-1">·</span>
+          <span class="text-ink/85 leading-relaxed"><strong>Trucada prèvia de planificació</strong> + visita al lloc (Camp de Tarragona) per identificar els millors punts d'amagatall i llum.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="text-gold font-bold flex-shrink-0 mt-1">·</span>
+          <span class="text-ink/85 leading-relaxed"><strong>1-2 hores de cobertura el dia D</strong>: fotografia discreta del moment + 10-15 minuts de retrat formal de parella un cop ja saben que som allà.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="text-gold font-bold flex-shrink-0 mt-1">·</span>
+          <span class="text-ink/85 leading-relaxed"><strong>Vídeo del moment</strong> (opcional, segon professional) — una segona càmera amb àudio direccional per capturar el "sí".</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="text-gold font-bold flex-shrink-0 mt-1">·</span>
+          <span class="text-ink/85 leading-relaxed"><strong>Selecció ràpida per WhatsApp</strong> en menys de 2 hores. 5-10 fotos perquè puguis compartir aquella mateixa nit.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="text-gold font-bold flex-shrink-0 mt-1">·</span>
+          <span class="text-ink/85 leading-relaxed"><strong>Galeria online completa</strong> en 7 dies, amb totes les fotos editades en alta resolució. Sense marca d'aigua, descàrrega lliure.</span>
+        </li>
+      </ul>
+    </div>
+  </Section>
+
+  <!-- Diptych -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
+    {[diptychA, diptychB].map((src) => (
+      <picture>
+        <source type="image/webp" srcset={webp(src)} />
+        <img
+          src={src}
+          alt=""
+          aria-hidden="true"
+          class="w-full h-[55vh] md:h-[70vh] object-cover"
+          loading="lazy"
+          decoding="async"
+          width="1200"
+          height="800"
+        />
+      </picture>
+    ))}
+  </div>
+
+  <!-- Idees d'ubicació -->
+  <Section>
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-5">Idees d'ubicació a la zona de Tarragona</h2>
+      <p class="text-ink/75 leading-relaxed mb-6 text-base md:text-lg">
+        Tarragona té escenaris que sembla que estiguin dissenyats per a una petició. Algunes de les nostres ubicacions favorites:
+      </p>
+      <ul class="space-y-4 mb-8">
+        <li class="flex gap-3">
+          <span class="text-gold font-bold flex-shrink-0 mt-1">·</span>
+          <span class="text-ink/85 leading-relaxed"><strong>Platja i castell de Tamarit</strong> — posta de sol al castell amb el Mediterrani de fons. Una de les més demanades per la seva fotogenia bruta.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="text-gold font-bold flex-shrink-0 mt-1">·</span>
+          <span class="text-ink/85 leading-relaxed"><strong>Balcó del Mediterrani i amfiteatre romà</strong> — el centre de Tarragona té una història de 2000 anys. Funciona molt bé per a viatgers que volen el "moment iconic" amb Tarragona reconeixible al fons.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="text-gold font-bold flex-shrink-0 mt-1">·</span>
+          <span class="text-ink/85 leading-relaxed"><strong>Cala Romana / Cala Fonda</strong> — més íntimes, sense gent. Bones per a peticions privades al matí o a primera hora de la tarda.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="text-gold font-bold flex-shrink-0 mt-1">·</span>
+          <span class="text-ink/85 leading-relaxed"><strong>Vinyes del Priorat o Costers del Segre</strong> — si la teva parella aprecia el vi o la natura, una ruta de vinyes amb el sol baix és difícil de superar visualment.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="text-gold font-bold flex-shrink-0 mt-1">·</span>
+          <span class="text-ink/85 leading-relaxed"><strong>Siurana o Prades</strong> — si voleu un escenari de pel·lícula amb cingles i poble medieval. Cal cotxe i una mica de caminada.</span>
+        </li>
+      </ul>
+      <p class="text-ink/65 italic text-sm">
+        I si tens un lloc personal que vol dir alguna cosa per a vosaltres dos (la cafeteria on us vau conèixer, la platja del primer petó) — encara millor. La història val més que el postal.
+      </p>
+    </div>
+  </Section>
+
+  <!-- Mid CTA -->
+  <section class="bg-cream py-12 md:py-16 px-6 border-y border-ink/10">
+    <div class="max-w-2xl mx-auto text-center">
+      <p class="text-ink/85 leading-relaxed text-base md:text-lg mb-5">
+        Si tens data i ubicació en ment, comprovem disponibilitat al moment per WhatsApp. Si encara estàs decidint, també — podem fer la planificació junts.
+      </p>
+      <a
+        href={waLink}
+        target="_blank"
+        rel="noopener"
+        class="inline-block bg-ink text-white border-2 border-ink px-8 py-3.5 text-sm font-bold tracking-[0.14em] uppercase hover:bg-gold hover:border-gold transition-colors"
+      >
+        Parlar pel WhatsApp
+      </a>
+    </div>
+  </section>
+
+  <!-- For travelers -->
+  <Section>
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-5">Veniu a Tarragona només per la petició?</h2>
+      <p class="text-ink/75 leading-relaxed mb-6 text-base md:text-lg">
+        Aproximadament una de cada quatre peticions que fem és d'una parella que aterra a Barcelona o Reus expressament per a aquest moment. Ho hem cobert per parelles del Regne Unit, EEUU, Holanda i Alemanya. Funciona així:
+      </p>
+      <ul class="space-y-4 mb-8">
+        <li class="flex gap-3">
+          <span class="text-gold font-bold flex-shrink-0 mt-1">·</span>
+          <span class="text-ink/85 leading-relaxed"><strong>Trucada de planificació en anglès o castellà</strong> abans del viatge per acordar l'ubicació, l'hora i el pla B.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="text-gold font-bold flex-shrink-0 mt-1">·</span>
+          <span class="text-ink/85 leading-relaxed"><strong>Llista d'ubicacions filtrada</strong> segons el moment del dia que arribeu i l'estètica que busqueu (mar, ruïnes, vinya, muntanya). T'enviem fotos de cada lloc perquè puguis triar abans d'aterrar.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="text-gold font-bold flex-shrink-0 mt-1">·</span>
+          <span class="text-ink/85 leading-relaxed"><strong>Recollida i acompanyament opcional</strong> des de l'aeroport de Reus o el centre de Tarragona, perquè no et perdis abans del moment.</span>
+        </li>
+      </ul>
+    </div>
+  </Section>
+
+  <!-- Photo trio -->
+  <div class="grid grid-cols-3 gap-2 md:gap-3">
+    {trio.map((src) => (
+      <picture>
+        <source type="image/webp" srcset={webp(src)} />
+        <img
+          src={src}
+          alt=""
+          aria-hidden="true"
+          class="w-full h-[40vh] md:h-[55vh] object-cover"
+          loading="lazy"
+          decoding="async"
+          width="1200"
+          height="800"
+        />
+      </picture>
+    ))}
+  </div>
+
+  <!-- FAQ -->
+  <Section bg="cream">
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-8">Preguntes habituals sobre peticions de mà</h2>
+      <div class="divide-y divide-black/10 border-y border-black/10">
+        {faqs.map((f) => (
+          <details class="group">
+            <summary class="flex items-start justify-between gap-4 py-5 md:py-6 cursor-pointer list-none select-none">
+              <span class="text-base md:text-lg leading-snug pr-2" style="font-weight: 500;">{f.q}</span>
+              <span aria-hidden="true" class="shrink-0 w-6 h-6 mt-1 flex items-center justify-center text-gold transition-transform duration-200 group-open:rotate-45">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5">
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+              </span>
+            </summary>
+            <p class="pb-5 md:pb-6 pr-10 text-ink/75 leading-relaxed text-[0.95rem]">{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </Section>
+
+  {/* FAQ JSON-LD mirror */}
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqs.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    })}
+  />
+
+  <!-- Final CTA -->
+  <Section>
+    <div class="max-w-2xl mx-auto px-2 text-center">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-5">
+        Tens una data al cap?
+      </h2>
+      <p class="text-ink/75 leading-relaxed mb-8 text-base md:text-lg">
+        Escriu-nos pel WhatsApp i et confirmem disponibilitat el mateix dia. Si encara estàs pensant on i quan, també — fem la planificació junts.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <a
+          href={waLink}
+          target="_blank"
+          rel="noopener"
+          class="inline-block bg-gold text-ink border-2 border-gold px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white hover:border-ink transition-colors"
+        >
+          WhatsApp directe
+        </a>
+        <a
+          href="/quiz"
+          class="inline-block border-2 border-ink text-ink px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white transition-colors"
+        >
+          Quiz d'1 minut
+        </a>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>
