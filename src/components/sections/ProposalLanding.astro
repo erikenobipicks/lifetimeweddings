@@ -25,13 +25,14 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 const rating = await getGbpRating();
 
-// Photos: real proposal shoots Eric ran. The "shh" hero is the
-// concept-defining image. Order chosen so the visual hits land where
-// the copy reaches its emotional beats (concept first, story second,
-// detail third).
-const heroImg = '/photos/peticions/01-hero-tamarit-shh.jpg';
+// Photos: real proposal shoots Eric ran. The hands-with-ring-box hero
+// (2000×2000 native) reads as "the moment" instantly and stretches
+// cleanly to wide hero crops. The lower-res 01 "shh" moves into the
+// diptych where it's only rendered at ~960px on desktop — close to
+// its native 1080 width, no visible upscale.
+const heroImg = '/photos/peticions/02-hands-ring-box.jpg';
 const breakImg = '/photos/peticions/05-barcelona-sagrada-shh.jpg';
-const diptychA = '/photos/peticions/02-hands-ring-box.jpg';
+const diptychA = '/photos/peticions/01-hero-tamarit-shh.jpg';
 const diptychB = '/photos/peticions/03-couple-walking-ring.jpg';
 const closeUp = '/photos/peticions/04-ring-detail-shoulder.jpg';
 
@@ -447,8 +448,8 @@ function renderBold(s: string): string {
         loading="eager"
         fetchpriority="high"
         decoding="async"
-        width="1080"
-        height="1920"
+        width="2000"
+        height="2000"
       />
     </picture>
     <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
