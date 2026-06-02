@@ -1,0 +1,308 @@
+---
+// Public booking-request form. Renders the 3-locale variants of
+// /sol-licitar-reserva. Posts to /api/booking-request/submit.
+//
+// Inline copy map (CA/ES/EN) instead of going through useTranslations so
+// this stays self-contained — only one consumer for now (the three
+// /sol-licitar-reserva pages).
+
+import type { Lang } from '~/i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
+
+const COPY = {
+  ca: {
+    eyebrow: 'Sol·licitar reserva',
+    h1: 'Reserva la nostra cobertura per a la vostra boda',
+    subtitle:
+      "Ompliu el formulari amb les dades de la vostra boda. Us responem amb una proposta personalitzada en menys de 24h amb el link al contracte i al pagament del dipòsit.",
+    fields: {
+      coupleName1: 'El teu nom',
+      coupleName2: 'Nom de la parella',
+      email: 'Email de contacte',
+      phone: 'Telèfon mòbil',
+      weddingDate: 'Data de la boda',
+      venue: 'Lloc de la boda (venue)',
+      venuePlaceholder: 'p. ex. Mas la Boella, Tarragona',
+      location: 'Població / zona',
+      locationPlaceholder: 'p. ex. Reus, Penedès, Costa Daurada…',
+      guestCount: 'Convidats aproximats',
+      guestCountPlaceholder: 'p. ex. 90',
+      howFoundUs: 'Com ens heu conegut?',
+      howFoundUsPlaceholder: 'Google, Pinterest, una boda nostra, un amic…',
+      notes: 'Notes (opcional)',
+      notesPlaceholder:
+        "Detalls que us agradaria que sabéssim: estil, expectatives, dubtes…",
+      consent: 'Accepto el tractament de les dades per a aquesta sol·licitud i futurs contactes relacionats.',
+      submit: 'Enviar sol·licitud',
+      microcopy: 'Resposta en menys de 24h · Sense compromís',
+    },
+    success: 'Hem rebut la teva sol·licitud. Et responem amb la proposta personalitzada en menys de 24h.',
+    error: 'Hi ha hagut un problema enviant la sol·licitud. Prova-ho de nou o escriu-nos directament a hola@lifetime.photo.',
+    required: '*',
+  },
+  es: {
+    eyebrow: 'Solicitar reserva',
+    h1: 'Reserva nuestra cobertura para vuestra boda',
+    subtitle:
+      'Rellena el formulario con los datos de tu boda. Te respondemos con una propuesta personalizada en menos de 24h con el link al contrato y al pago del depósito.',
+    fields: {
+      coupleName1: 'Tu nombre',
+      coupleName2: 'Nombre de tu pareja',
+      email: 'Email de contacto',
+      phone: 'Teléfono móvil',
+      weddingDate: 'Fecha de la boda',
+      venue: 'Lugar de la boda (venue)',
+      venuePlaceholder: 'p. ej. Mas la Boella, Tarragona',
+      location: 'Población / zona',
+      locationPlaceholder: 'p. ej. Reus, Penedès, Costa Daurada…',
+      guestCount: 'Invitados aproximados',
+      guestCountPlaceholder: 'p. ej. 90',
+      howFoundUs: '¿Cómo nos habéis conocido?',
+      howFoundUsPlaceholder: 'Google, Pinterest, una boda nuestra, un amigo…',
+      notes: 'Notas (opcional)',
+      notesPlaceholder:
+        'Detalles que os gustaría que supiéramos: estilo, expectativas, dudas…',
+      consent: 'Acepto el tratamiento de los datos para esta solicitud y futuros contactos relacionados.',
+      submit: 'Enviar solicitud',
+      microcopy: 'Respuesta en menos de 24h · Sin compromiso',
+    },
+    success: 'Hemos recibido tu solicitud. Te respondemos con la propuesta personalizada en menos de 24h.',
+    error: 'Ha habido un problema enviando la solicitud. Inténtalo de nuevo o escríbenos directamente a hola@lifetime.photo.',
+    required: '*',
+  },
+  en: {
+    eyebrow: 'Request a booking',
+    h1: 'Book us for your wedding',
+    subtitle:
+      "Fill in the form with your wedding details. We'll reply with a personalised proposal within 24h, including the link to your contract and deposit payment.",
+    fields: {
+      coupleName1: 'Your name',
+      coupleName2: "Your partner's name",
+      email: 'Contact email',
+      phone: 'Mobile phone',
+      weddingDate: 'Wedding date',
+      venue: 'Wedding venue',
+      venuePlaceholder: 'e.g. Mas la Boella, Tarragona',
+      location: 'City / area',
+      locationPlaceholder: 'e.g. Reus, Penedès, Costa Daurada…',
+      guestCount: 'Approximate guest count',
+      guestCountPlaceholder: 'e.g. 90',
+      howFoundUs: 'How did you hear about us?',
+      howFoundUsPlaceholder: 'Google, Pinterest, one of our weddings, a friend…',
+      notes: 'Notes (optional)',
+      notesPlaceholder:
+        "Anything you'd like us to know: style, expectations, questions…",
+      consent: 'I accept the processing of this data for this request and related future contact.',
+      submit: 'Send request',
+      microcopy: 'Reply within 24h · No commitment',
+    },
+    success: "We've received your request. We'll reply with the personalised proposal within 24h.",
+    error: 'There was a problem sending your request. Please try again or write directly to hola@lifetime.photo.',
+    required: '*',
+  },
+}[lang];
+---
+
+<div class="max-w-2xl mx-auto px-4">
+  <div class="text-center mb-10">
+    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{COPY.eyebrow}</p>
+    <h1 class="font-display text-3xl md:text-4xl font-bold mb-4">{COPY.h1}</h1>
+    <p class="text-ink/75 leading-relaxed">{COPY.subtitle}</p>
+  </div>
+
+  <form
+    class="grid gap-5 text-left"
+    data-booking-form
+    action="/api/booking-request/submit"
+    method="POST"
+    novalidate
+  >
+    <input type="hidden" name="_language" value={lang} />
+    <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+
+    <div class="grid md:grid-cols-2 gap-5">
+      <div>
+        <label for="couple_name_1" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">
+          {COPY.fields.coupleName1} {COPY.required}
+        </label>
+        <input
+          id="couple_name_1" name="couple_name_1" type="text" required autocomplete="given-name"
+          class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors"
+        />
+      </div>
+      <div>
+        <label for="couple_name_2" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">
+          {COPY.fields.coupleName2}
+        </label>
+        <input
+          id="couple_name_2" name="couple_name_2" type="text" autocomplete="off"
+          class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors"
+        />
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-5">
+      <div>
+        <label for="email" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">
+          {COPY.fields.email} {COPY.required}
+        </label>
+        <input
+          id="email" name="email" type="email" required autocomplete="email"
+          class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors"
+        />
+      </div>
+      <div>
+        <label for="phone" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">
+          {COPY.fields.phone}
+        </label>
+        <input
+          id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel"
+          class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors"
+        />
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-5">
+      <div>
+        <label for="wedding_date" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">
+          {COPY.fields.weddingDate}
+        </label>
+        <input
+          id="wedding_date" name="wedding_date" type="date"
+          class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors"
+        />
+      </div>
+      <div>
+        <label for="guest_count" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">
+          {COPY.fields.guestCount}
+        </label>
+        <input
+          id="guest_count" name="guest_count" type="number" min="1" max="2000" inputmode="numeric"
+          placeholder={COPY.fields.guestCountPlaceholder}
+          class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label for="venue" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">
+        {COPY.fields.venue}
+      </label>
+      <input
+        id="venue" name="venue" type="text" placeholder={COPY.fields.venuePlaceholder}
+        class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors"
+      />
+    </div>
+
+    <div>
+      <label for="location" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">
+        {COPY.fields.location}
+      </label>
+      <input
+        id="location" name="location" type="text" placeholder={COPY.fields.locationPlaceholder}
+        class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors"
+      />
+    </div>
+
+    <div>
+      <label for="how_found_us" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">
+        {COPY.fields.howFoundUs}
+      </label>
+      <input
+        id="how_found_us" name="how_found_us" type="text" placeholder={COPY.fields.howFoundUsPlaceholder}
+        class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors"
+      />
+    </div>
+
+    <div>
+      <label for="notes" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">
+        {COPY.fields.notes}
+      </label>
+      <textarea
+        id="notes" name="notes" rows="4" placeholder={COPY.fields.notesPlaceholder}
+        class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors resize-y"
+      ></textarea>
+    </div>
+
+    <label class="flex items-start gap-2 text-sm text-ink/75">
+      <input type="checkbox" name="consent" required class="mt-1 accent-gold" />
+      <span>{COPY.fields.consent}</span>
+    </label>
+
+    {turnstileSitekey && (
+      <div class="cf-turnstile flex justify-center" data-sitekey={turnstileSitekey} data-theme="light" data-size="flexible"></div>
+    )}
+
+    <div class="flex flex-col items-center gap-3">
+      <button
+        type="submit"
+        class="border-2 border-ink bg-ink text-white px-14 py-4 text-xs font-bold tracking-[0.18em] uppercase hover:bg-gold hover:border-gold transition-colors"
+        data-booking-submit
+      >
+        {COPY.fields.submit}
+      </button>
+      <p class="text-xs text-ink/60">{COPY.fields.microcopy}</p>
+    </div>
+
+    <p class="hidden text-center font-display italic text-gold text-lg leading-relaxed" data-booking-success>{COPY.success}</p>
+    <p class="hidden text-center text-red-600" data-booking-error>{COPY.error}</p>
+  </form>
+</div>
+
+{turnstileSitekey && (
+  <script
+    src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+    async
+    defer
+  ></script>
+)}
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-booking-form]');
+  const successEl = document.querySelector<HTMLElement>('[data-booking-success]');
+  const errorEl = document.querySelector<HTMLElement>('[data-booking-error]');
+  const submitBtn = document.querySelector<HTMLButtonElement>('[data-booking-submit]');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (errorEl) errorEl.classList.add('hidden');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-60', 'cursor-wait');
+      }
+      const fd = new FormData(form);
+      // Turnstile token (if loaded) is set on a hidden input named cf-turnstile-response.
+      const tsToken = fd.get('cf-turnstile-response');
+      const payload: Record<string, unknown> = {};
+      for (const [k, v] of fd.entries()) payload[k] = v;
+      if (tsToken) payload.captchaToken = tsToken;
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+          form.querySelectorAll('input, textarea, button').forEach((el) => {
+            (el as HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement).disabled = true;
+          });
+          if (successEl) successEl.classList.remove('hidden');
+          successEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          throw new Error(`HTTP ${res.status}`);
+        }
+      } catch (err) {
+        console.error('[booking-form] submit failed', err);
+        if (errorEl) errorEl.classList.remove('hidden');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('opacity-60', 'cursor-wait');
+        }
+      }
+    });
+  }
+</script>
