@@ -128,6 +128,7 @@ function rowToFormResponse(row: Record<string, unknown>): BookingFormResponse {
     serviceEndTime: row.service_end_time ? String(row.service_end_time) : null,
     guestCountEstimate:
       row.guest_count_estimate != null ? Number(row.guest_count_estimate) : null,
+    weddingTimeSlot: (row.wedding_time_slot as BookingFormResponse['weddingTimeSlot']) ?? null,
 
     preferredCommunication: (row.preferred_communication as BookingFormResponse['preferredCommunication']) ?? null,
     preferredLanguage: (row.preferred_language as Lang | null) ?? null,
@@ -391,6 +392,7 @@ export interface FormResponseCreateInput {
   ceremonyTime?: string | null;
   serviceEndTime?: string | null;
   guestCountEstimate?: number | null;
+  weddingTimeSlot?: 'morning' | 'afternoon' | null;
 
   preferredCommunication?: 'email' | 'whatsapp' | 'phone' | null;
   preferredLanguage?: Lang | null;
@@ -423,7 +425,7 @@ export async function createFormResponse(input: FormResponseCreateInput): Promis
           c2_full_name, c2_dni, c2_birth_date, c2_address, c2_email, c2_phone,
           billing_address_same, billing_name, billing_dni, billing_address,
           wedding_date_confirmed, wedding_date_alt, venue_confirmed, venue_alt_name,
-          ceremony_time, service_end_time, guest_count_estimate,
+          ceremony_time, service_end_time, guest_count_estimate, wedding_time_slot,
           preferred_communication, preferred_language, preferred_payment_method,
           how_did_you_find_us, important_notes,
           submitted_at, ip_address, user_agent
@@ -433,7 +435,7 @@ export async function createFormResponse(input: FormResponseCreateInput): Promis
           ?, ?, ?, ?, ?, ?,
           ?, ?, ?, ?,
           ?, ?, ?, ?,
-          ?, ?, ?,
+          ?, ?, ?, ?,
           ?, ?, ?,
           ?, ?,
           ?, ?, ?
@@ -448,7 +450,7 @@ export async function createFormResponse(input: FormResponseCreateInput): Promis
           toIso(input.weddingDateAlt ?? null),
           toBoolInt(input.venueConfirmed, true),
           input.venueAltName ?? null,
-          input.ceremonyTime ?? null, input.serviceEndTime ?? null, input.guestCountEstimate ?? null,
+          input.ceremonyTime ?? null, input.serviceEndTime ?? null, input.guestCountEstimate ?? null, input.weddingTimeSlot ?? null,
           input.preferredCommunication ?? null, input.preferredLanguage ?? null, input.preferredPaymentMethod ?? null,
           input.howDidYouFindUs ?? null, input.importantNotes ?? null,
           now, input.ipAddress ?? null, input.userAgent ?? null,

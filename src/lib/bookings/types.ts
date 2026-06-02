@@ -148,6 +148,10 @@ export interface BookingFormResponse {
   ceremonyTime: string | null;
   serviceEndTime: string | null;
   guestCountEstimate: number | null;
+  /** Half-day slot — collected on /reserva step 1 since the exact
+   *  ceremony time often isn't known months out. Either NULL (couple
+   *  skipped it) or 'morning' / 'afternoon'. */
+  weddingTimeSlot: 'morning' | 'afternoon' | null;
 
   preferredCommunication: 'email' | 'whatsapp' | 'phone' | null;
   preferredLanguage: Lang | null;
