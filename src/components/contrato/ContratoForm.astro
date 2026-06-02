@@ -79,6 +79,21 @@ const consentChannels: Array<{
           </label>
         </div>
 
+        <!-- Prep addresses per partner. Optional, but encouraged so the
+             operator knows where to drive at sunrise on the day. -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <label class="block">
+            <span class="text-sm font-semibold text-ink/70">{t('contrato.field.c1PrepAddress')}</span>
+            <span class="block text-xs text-ink/50 mt-0.5">{t('contrato.field.prepAddress.help')}</span>
+            <input name="c1PrepAddress" maxlength="300" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+          </label>
+          <label class="block">
+            <span class="text-sm font-semibold text-ink/70">{t('contrato.field.c2PrepAddress')}</span>
+            <span class="block text-xs text-ink/50 mt-0.5">{t('contrato.field.prepAddress.help')}</span>
+            <input name="c2PrepAddress" maxlength="300" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+          </label>
+        </div>
+
         <div>
           <p class="text-sm font-semibold text-ink/70 mb-2">{t('contrato.field.ceremonyType')} *</p>
           <div class="flex flex-wrap gap-6">
@@ -214,6 +229,8 @@ const consentChannels: Array<{
         ceremonyType: fd.get('ceremonyType'),
         ceremonyTypeOther: fd.get('ceremonyTypeOther') || undefined,
         firstLook: fd.get('firstLook'),
+        c1PrepAddress: fd.get('c1PrepAddress') || undefined,
+        c2PrepAddress: fd.get('c2PrepAddress') || undefined,
         publicationConsent: consent,
         gdprAccepted: fd.get('gdprAccepted') === 'on',
       };

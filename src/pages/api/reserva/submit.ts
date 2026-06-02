@@ -323,6 +323,7 @@ export const POST: APIRoute = async ({ request }) => {
           : (dateOnly(d.weddingDateAlt) ?? updated.weddingDate),
         venueName: d.venueConfirmed ? updated.venueName : (d.venueAltName ?? updated.venueName),
         venueCity: updated.venueCity,
+        packName: updated.packName,
       }),
     ]);
   }

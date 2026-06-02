@@ -496,3 +496,94 @@ export async function sendContratoInternalAlert(
   ].join('\n');
   await sendTelegramNotification(tgMessage);
 }
+
+// ─── Deposit-paid → /contrato invite ─────────────────────────────────────
+// Triggered when the operator marks the deposit as received from /admin.
+// Tells the couple "great, deposit received, now please fill in the
+// last details via this link" — avoids the operator having to send the
+// /contrato/<slug> URL manually each time.
+
+interface ContratoInviteCopy {
+  subject: string;
+  greeting: string;
+  body: string;
+  ctaLabel: string;
+  signoff: string;
+}
+
+function contratoInviteCopy(booking: Booking): ContratoInviteCopy {
+  const lang: Lang = booking.preferredLanguage;
+  const n1 = booking.coupleName1;
+  const n2 = booking.coupleName2;
+  if (lang === 'es') {
+    return {
+      subject: `Depósito recibido — últimos detalles para el contrato, ${n1}`,
+      greeting: `Hola ${n1} y ${n2},`,
+      body:
+        '¡Hemos recibido vuestro depósito! Vuestra fecha está oficialmente reservada. Ahora solo nos faltan los últimos detalles para preparar el contrato: direcciones de los preparativos del día D, tipo de ceremonia y los permisos para publicar las fotos. Tardareis unos 5 minutos.',
+      ctaLabel: 'Rellenar los últimos detalles',
+      signoff: 'Hablamos pronto.\n\nFerran y Eric\nLifetime',
+    };
+  }
+  if (lang === 'en') {
+    return {
+      subject: `Deposit received — last details for the contract, ${n1}`,
+      greeting: `Hi ${n1} and ${n2},`,
+      body:
+        "We've received your deposit — your date is officially booked! All that's left is the last set of details for the contract: where each of you will get ready, ceremony type, and the photo-publication permissions. About 5 minutes.",
+      ctaLabel: 'Fill in the last details',
+      signoff: 'Talk soon.\n\nFerran and Eric\nLifetime',
+    };
+  }
+  return {
+    subject: `Dipòsit rebut — últims detalls per al contracte, ${n1}`,
+    greeting: `Hola ${n1} i ${n2},`,
+    body:
+      "Hem rebut el vostre dipòsit! La vostra data ja està oficialment reservada. Només ens falten els últims detalls per preparar el contracte: adreces dels preparatius del dia D, tipus de cerimònia i els permisos per publicar les fotos. Trigareu uns 5 minuts.",
+    ctaLabel: 'Omplir els últims detalls',
+    signoff: 'Parlem aviat.\n\nFerran i Eric\nLifetime',
+  };
+}
+
+export async function sendContratoInvite(booking: Booking): Promise<void> {
+  const c = contratoInviteCopy(booking);
+  const langPrefix = booking.preferredLanguage === 'ca' ? '' : `/${booking.preferredLanguage}`;
+  const url = `${SITE.url}${langPrefix}/contrato/${booking.slug}`;
+  const html = `
+    <div style="font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:#1a1a1a;line-height:1.6;max-width:560px;margin:0 auto;padding:24px">
+      <p style="margin:0 0 16px">${escapeHtml(c.greeting)}</p>
+      <p style="margin:0 0 24px">${escapeHtml(c.body)}</p>
+      <p style="margin:0 0 32px">
+        <a href="${url}" style="display:inline-block;background:#1a1a1a;color:#fff;text-decoration:none;padding:14px 28px;font-weight:600;letter-spacing:0.05em">${escapeHtml(c.ctaLabel)}</a>
+      </p>
+      <p style="margin:0 0 24px;color:#666;font-size:13px">
+        <a href="${url}" style="color:#666">${url}</a>
+      </p>
+      <p style="margin:0;white-space:pre-line">${escapeHtml(c.signoff)}</p>
+      <hr style="border:none;border-top:1px solid #eee;margin:32px 0 16px"/>
+      <p style="color:#999;font-size:12px;margin:0">
+        Lifetime Weddings · ${SITE.phoneDisplay} · ${SITE.email}<br/>
+        ${SITE.address.street}, ${SITE.address.city} (${SITE.address.region})
+      </p>
+    </div>
+  `;
+  const text = [c.greeting, '', c.body, '', `→ ${url}`, '', c.signoff].join('\n');
+
+  if (!resend) {
+    // eslint-disable-next-line no-console
+    console.log('[booking-email] (dev) contrato invite:', { to: booking.coupleEmailPrimary, subject: c.subject, url });
+    return;
+  }
+  try {
+    await resend.emails.send({
+      from: FROM_HELLO,
+      to: [booking.coupleEmailPrimary],
+      subject: c.subject,
+      html,
+      text,
+    });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[booking-email] contrato invite failed (non-fatal)', err);
+  }
+}

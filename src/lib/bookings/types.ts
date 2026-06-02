@@ -184,6 +184,11 @@ export interface BookingFormResponse {
   ceremonyTypeOther: string | null;
   /** Whether the couple wants a First Look session before the ceremony. */
   firstLook: 'yes' | 'no' | 'not_sure' | null;
+  /** Address where partner 1 will get ready on the day. Operational info for
+   *  the photographer's morning route — distinct from c1Address (tax/billing). */
+  c1PrepAddress: string | null;
+  /** Address where partner 2 will get ready on the day. */
+  c2PrepAddress: string | null;
   /** Image-rights consent: which publication channels the couple authorises.
    *  Stored as a JSON array of channel keys. Empty array = consented to
    *  nothing (still valid). NULL = consent step not yet completed. */

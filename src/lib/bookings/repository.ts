@@ -149,6 +149,8 @@ function rowToFormResponse(row: Record<string, unknown>): BookingFormResponse {
     firstLook: (row.first_look as BookingFormResponse['firstLook']) ?? null,
     publicationConsent: safeParseJson<PublicationChannel[] | null>(row.publication_consent, null),
     gdprAcceptedAt: fromIso(row.gdpr_accepted_at),
+    c1PrepAddress: row.c1_prep_address ? String(row.c1_prep_address) : null,
+    c2PrepAddress: row.c2_prep_address ? String(row.c2_prep_address) : null,
   };
 }
 
@@ -524,6 +526,8 @@ export interface ContractDataInput {
   firstLook: 'yes' | 'no' | 'not_sure';
   publicationConsent: PublicationChannel[];
   gdprAcceptedAt: Date;
+  c1PrepAddress?: string | null;
+  c2PrepAddress?: string | null;
 }
 
 /** Update the booking_form_responses row with /contrato data and stamp
@@ -544,7 +548,9 @@ export async function submitContractData(input: ContractDataInput): Promise<void
                   ceremony_type_other = ?,
                   first_look = ?,
                   publication_consent = ?,
-                  gdpr_accepted_at = ?
+                  gdpr_accepted_at = ?,
+                  c1_prep_address = ?,
+                  c2_prep_address = ?
               WHERE booking_id = ?`,
         args: [
           input.languageBetween ?? null,
@@ -555,6 +561,8 @@ export async function submitContractData(input: ContractDataInput): Promise<void
           input.firstLook,
           JSON.stringify(input.publicationConsent),
           toIso(input.gdprAcceptedAt),
+          input.c1PrepAddress ?? null,
+          input.c2PrepAddress ?? null,
           input.bookingId,
         ],
       },

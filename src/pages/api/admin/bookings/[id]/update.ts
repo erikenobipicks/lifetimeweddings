@@ -24,6 +24,7 @@ import {
   type BookingUpdate,
 } from '~/lib/bookings/repository';
 import { issueDepositInvoiceForBooking } from '~/lib/bookings/invoicing';
+import { sendContratoInvite } from '~/lib/bookings/emails';
 import type { BookingStatus, PackAddon } from '~/lib/bookings/types';
 
 function parseLines(raw: string | null | undefined): string[] {
@@ -116,6 +117,11 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
     // Issue the deposit invoice in FacturaDirecta. Idempotent + fail-soft:
     // no-op when unconfigured / already invoiced, never blocks the redirect.
     await issueDepositInvoiceForBooking(id);
+    // Send the couple their /contrato/<slug> link. Re-read so the helper sees
+    // the deposit_paid_at stamp (currently unused but safer for future
+    // copy that branches on it). Fail-soft inside sendContratoInvite.
+    const fresh = await getBookingById(id);
+    if (fresh) await sendContratoInvite(fresh);
     return back('?ok=deposit:paid');
   }
   if (action === 'deposit_unpaid') {

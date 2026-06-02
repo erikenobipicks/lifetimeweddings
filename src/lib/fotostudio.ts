@@ -180,6 +180,10 @@ export interface PushBookingInput {
   weddingDate: Date;
   venueName: string;
   venueCity?: string | null;
+  /** Pack name from the booking — appended to the project name in
+   *  fotostudio so the operator sees "Boda Laura & Marc · Foto+Vídeo" at
+   *  a glance and picks the right contract template. */
+  packName?: string | null;
 }
 
 /** Called from /api/reserva/submit.ts after the form_response is persisted.
@@ -209,7 +213,9 @@ export async function pushBookingToFotostudio(input: PushBookingInput): Promise<
     const projectId = await createProject({
       contact_id: contactId,
       project_type_id: BODA_PROJECT_TYPE_ID,
-      name: `Boda ${input.coupleDisplayName}`,
+      name: input.packName
+        ? `Boda ${input.coupleDisplayName} · ${input.packName}`
+        : `Boda ${input.coupleDisplayName}`,
       start_time: start.toISOString(),
       location: location || undefined,
     });
