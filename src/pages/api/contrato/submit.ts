@@ -69,6 +69,8 @@ const submitSchema = z.object({
   ceremonyType: z.enum(['civil', 'religious', 'other']),
   ceremonyTypeOther: z.string().trim().max(120).optional(),
   firstLook: z.enum(['yes', 'no', 'not_sure']),
+  c1PrepAddress: z.string().trim().max(300).optional(),
+  c2PrepAddress: z.string().trim().max(300).optional(),
   publicationConsent: z.array(z.enum(PUBLICATION_CHANNELS)).default([]),
   // Mandatory true — the form HTML requires the checkbox, but we re-check
   // server-side so the legal consent is durable and not bypassable.
@@ -144,6 +146,8 @@ export const POST: APIRoute = async ({ request }) => {
     firstLook: d.firstLook,
     publicationConsent: d.publicationConsent,
     gdprAcceptedAt: new Date(),
+    c1PrepAddress: d.c1PrepAddress ?? null,
+    c2PrepAddress: d.c2PrepAddress ?? null,
   });
 
   // Re-fetch + dispatch notifications fail-soft (same pattern as

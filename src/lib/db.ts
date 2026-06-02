@@ -251,6 +251,11 @@ export async function initSchema() {
   // ceremony time may not be known months out; this lets the couple commit
   // to half-day so the operator can plan staffing before /contrato.
   await ensureColumn('booking_form_responses', 'wedding_time_slot', 'TEXT');
+  // Preparation addresses per partner — collected on /contrato (step 2)
+  // because the operator needs to know where to drive at sunrise on the day.
+  // Distinct from c1_address / c2_address (which are tax/billing addresses).
+  await ensureColumn('booking_form_responses', 'c1_prep_address', 'TEXT');
+  await ensureColumn('booking_form_responses', 'c2_prep_address', 'TEXT');
 
   // ── Retention sweep (boot-time) ───────────────────────────────────────
   // Data-minimisation per RGPD: keep personal data only as long as needed.
