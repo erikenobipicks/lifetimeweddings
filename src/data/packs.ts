@@ -56,7 +56,7 @@ export const PACKS: Pack[] = [
   {
     id: 'lqsa',
     type: 'photo',
-    name: { es: '¡La que se avecina!', ca: 'La que s’atansa!', en: 'Here It Comes!' },
+    name: { es: '¡La que se avecina!', ca: '¡La que se avecina!', en: '¡La que se avecina!' },
     price: '1.740 € + IVA',
     includes: {
       es: ['Todo lo del pack anterior', 'Álbum de madera personalizado 30×40 cm (30 páginas)'],
@@ -138,8 +138,8 @@ export const PACKS: Pack[] = [
     type: 'combo',
     name: {
       es: '¡La que se avecina! + This Is Us',
-      ca: 'La que s’atansa! + This Is Us',
-      en: 'Here It Comes! + This Is Us',
+      ca: '¡La que se avecina! + This Is Us',
+      en: '¡La que se avecina! + This Is Us',
     },
     price: '2.900 € + IVA',
     highlight: 'star',
@@ -154,8 +154,8 @@ export const PACKS: Pack[] = [
     type: 'combo',
     name: {
       es: '¡La que se avecina! + Outlander',
-      ca: 'La que s’atansa! + Outlander',
-      en: 'Here It Comes! + Outlander',
+      ca: '¡La que se avecina! + Outlander',
+      en: '¡La que se avecina! + Outlander',
     },
     price: '3.170 € + IVA',
     includes: {
