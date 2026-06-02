@@ -56,6 +56,10 @@ export interface Booking {
 
   // Personalisation
   customIntro: string | null;
+  /** Operator-only context: referrer, custom arrangement, anything the
+   *  team wants to remember. NEVER rendered on the public /reserva page
+   *  and NEVER included in any email to the couple. */
+  internalNotes: string | null;
   referenceTestimonial: ReferenceTestimonial | null;
   /** Optional YouTube id (from src/data/videos.ts) to feature on the
    *  proposal page. null → hard-coded default fallback. */
@@ -112,6 +116,7 @@ export interface BookingCreateInput {
   paymentTerms?: string;
 
   customIntro?: string;
+  internalNotes?: string;
   referenceTestimonial?: ReferenceTestimonial;
   flagshipVideoId?: string;
 

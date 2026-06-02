@@ -66,6 +66,7 @@ const updateSchema = z.object({
   paymentTerms: z.string().max(200).optional(),
 
   customIntro: z.string().max(2000).optional(),
+  internalNotes: z.string().max(4000).optional(),
   testimonialQuote: z.string().max(2000).optional(),
   testimonialAuthor: z.string().max(120).optional(),
   testimonialContext: z.string().max(120).optional(),
@@ -167,6 +168,7 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
   if (d.paymentTerms !== undefined) patch.paymentTerms = d.paymentTerms.trim() || null;
 
   if (d.customIntro !== undefined) patch.customIntro = d.customIntro.trim() || null;
+  if (d.internalNotes !== undefined) patch.internalNotes = d.internalNotes.trim() || null;
 
   // Flagship video: empty string means "go back to default" → null.
   if (d.flagshipVideoId !== undefined) patch.flagshipVideoId = d.flagshipVideoId.trim() || null;

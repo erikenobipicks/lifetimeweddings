@@ -370,6 +370,11 @@ const t = booking.referenceTestimonial;
         <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Intro personalitzada</span>
         <textarea name="customIntro" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{booking.customIntro ?? ''}</textarea>
       </label>
+      <label class="block">
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Notes internes</span>
+        <span class="block text-[11px] text-ink/50 mb-1">només per a tu — referrer, acords especials. <strong>Mai es mostra a la parella</strong>.</span>
+        <textarea name="internalNotes" rows="3" placeholder="ex: ve de part de Maria & Joan (boda 2024) · descompte 10%" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{booking.internalNotes ?? ''}</textarea>
+      </label>
       <div class="border-t border-black/10 pt-4">
         <p class="text-xs font-bold tracking-widest uppercase text-ink/60 mb-3">Testimoni de referència</p>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

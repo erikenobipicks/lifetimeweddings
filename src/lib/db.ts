@@ -260,6 +260,10 @@ export async function initSchema() {
   // to ('c1' or 'c2'). Distinct from billingAddressSame, which still gates a
   // fully external billing identity override. NULL → fall back to c1.
   await ensureColumn('booking_form_responses', 'billing_contact', 'TEXT');
+  // Operator-only free text on the booking — context for the team that
+  // must never leak to the couple. Used for referrals, special arrangements,
+  // anything the operator wants to remember when reopening months later.
+  await ensureColumn('bookings', 'internal_notes', 'TEXT');
 
   // ── Retention sweep (boot-time) ───────────────────────────────────────
   // Data-minimisation per RGPD: keep personal data only as long as needed.
