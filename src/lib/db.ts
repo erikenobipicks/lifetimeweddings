@@ -256,6 +256,10 @@ export async function initSchema() {
   // Distinct from c1_address / c2_address (which are tax/billing addresses).
   await ensureColumn('booking_form_responses', 'c1_prep_address', 'TEXT');
   await ensureColumn('booking_form_responses', 'c2_prep_address', 'TEXT');
+  // Which of the two contraents the contract + invoice should be addressed
+  // to ('c1' or 'c2'). Distinct from billingAddressSame, which still gates a
+  // fully external billing identity override. NULL → fall back to c1.
+  await ensureColumn('booking_form_responses', 'billing_contact', 'TEXT');
 
   // ── Retention sweep (boot-time) ───────────────────────────────────────
   // Data-minimisation per RGPD: keep personal data only as long as needed.

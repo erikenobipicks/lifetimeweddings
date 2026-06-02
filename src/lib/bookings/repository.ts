@@ -119,6 +119,7 @@ function rowToFormResponse(row: Record<string, unknown>): BookingFormResponse {
     billingName: row.billing_name ? String(row.billing_name) : null,
     billingDni: row.billing_dni ? String(row.billing_dni) : null,
     billingAddress: row.billing_address ? String(row.billing_address) : null,
+    billingContact: (row.billing_contact as 'c1' | 'c2' | null) ?? null,
 
     weddingDateConfirmed: toBool(row.wedding_date_confirmed),
     weddingDateAlt: fromIso(row.wedding_date_alt),
@@ -386,6 +387,7 @@ export interface FormResponseCreateInput {
   billingName?: string | null;
   billingDni?: string | null;
   billingAddress?: string | null;
+  billingContact?: 'c1' | 'c2' | null;
 
   weddingDateConfirmed: boolean;
   weddingDateAlt?: Date | null;
@@ -425,7 +427,7 @@ export async function createFormResponse(input: FormResponseCreateInput): Promis
           id, booking_id,
           c1_full_name, c1_dni, c1_birth_date, c1_address, c1_email, c1_phone,
           c2_full_name, c2_dni, c2_birth_date, c2_address, c2_email, c2_phone,
-          billing_address_same, billing_name, billing_dni, billing_address,
+          billing_address_same, billing_name, billing_dni, billing_address, billing_contact,
           wedding_date_confirmed, wedding_date_alt, venue_confirmed, venue_alt_name,
           ceremony_time, service_end_time, guest_count_estimate, wedding_time_slot,
           preferred_communication, preferred_language, preferred_payment_method,
@@ -435,7 +437,7 @@ export async function createFormResponse(input: FormResponseCreateInput): Promis
           ?, ?,
           ?, ?, ?, ?, ?, ?,
           ?, ?, ?, ?, ?, ?,
-          ?, ?, ?, ?,
+          ?, ?, ?, ?, ?,
           ?, ?, ?, ?,
           ?, ?, ?, ?,
           ?, ?, ?,
@@ -447,7 +449,7 @@ export async function createFormResponse(input: FormResponseCreateInput): Promis
           input.c1FullName, input.c1Dni, toIso(input.c1BirthDate ?? null), input.c1Address, input.c1Email, input.c1Phone,
           input.c2FullName, input.c2Dni, toIso(input.c2BirthDate ?? null), input.c2Address, input.c2Email, input.c2Phone,
           toBoolInt(input.billingAddressSame),
-          input.billingName ?? null, input.billingDni ?? null, input.billingAddress ?? null,
+          input.billingName ?? null, input.billingDni ?? null, input.billingAddress ?? null, input.billingContact ?? null,
           toBoolInt(input.weddingDateConfirmed, true),
           toIso(input.weddingDateAlt ?? null),
           toBoolInt(input.venueConfirmed, true),

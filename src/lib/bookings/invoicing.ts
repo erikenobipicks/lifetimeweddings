@@ -43,9 +43,20 @@ export async function issueDepositInvoiceForBooking(bookingId: string): Promise<
     const useBilling =
       !form.billingAddressSame && !!form.billingName && !!form.billingDni;
 
-    const clientName = useBilling ? form.billingName! : form.c1FullName;
-    const clientTaxCode = useBilling ? form.billingDni! : form.c1Dni;
-    const clientAddress = useBilling ? form.billingAddress : form.c1Address;
+    // When the override isn't active, the principal contraent (billingContact)
+    // decides whose name + DNI + address goes on the invoice. NULL → c1.
+    const useC2 = !useBilling && form.billingContact === 'c2';
+    const clientName = useBilling
+      ? form.billingName!
+      : useC2 ? form.c2FullName : form.c1FullName;
+    const clientTaxCode = useBilling
+      ? form.billingDni!
+      : useC2 ? form.c2Dni : form.c1Dni;
+    const clientAddress = useBilling
+      ? form.billingAddress
+      : useC2 ? form.c2Address : form.c1Address;
+    const clientEmail = useC2 ? form.c2Email : form.c1Email;
+    const clientPhone = useC2 ? form.c2Phone : form.c1Phone;
 
     const weddingDate = booking.weddingDate.toISOString().slice(0, 10);
     const description =
@@ -55,8 +66,8 @@ export async function issueDepositInvoiceForBooking(bookingId: string): Promise<
       clientName,
       clientTaxCode,
       clientAddress,
-      clientEmail: form.c1Email,
-      clientPhone: form.c1Phone,
+      clientEmail,
+      clientPhone,
       depositCents: booking.depositCents,
       description,
     });

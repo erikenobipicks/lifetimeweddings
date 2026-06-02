@@ -74,7 +74,19 @@ const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
       <!-- ─── Section 3: Billing ──────────────────────────────────── -->
       <fieldset class="space-y-4">
         <legend class="font-display text-xl md:text-2xl font-bold mb-4">{t('reserva.form.section.billing')}</legend>
-        <label class="flex items-center gap-3 cursor-pointer">
+
+        <!-- Which of the two contraents is the principal on the contract +
+             invoice. Decoupled from billingAddressSame below — that one
+             still gates a third-party billing identity (e.g. company pays). -->
+        <div>
+          <p class="text-sm font-semibold text-ink/70 mb-2">{t('reserva.form.field.billingContact')}</p>
+          <div class="flex flex-wrap gap-6">
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="billingContact" value="c1" checked class="accent-gold" />{t('reserva.form.opt.contraent1')}</label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="billingContact" value="c2" class="accent-gold" />{t('reserva.form.opt.contraent2')}</label>
+          </div>
+        </div>
+
+        <label class="flex items-center gap-3 cursor-pointer pt-3 border-t border-ink/10">
           <input type="checkbox" name="billingAddressSame" value="1" checked id="billingSameToggle" class="h-5 w-5 accent-gold" />
           <span class="text-sm">{t('reserva.form.field.billingSame')}</span>
         </label>

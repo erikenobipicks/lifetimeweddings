@@ -140,6 +140,9 @@ export interface BookingFormResponse {
   billingName: string | null;
   billingDni: string | null;
   billingAddress: string | null;
+  /** Which of the two contraents the contract + invoice are addressed to.
+   *  NULL on pre-existing rows → treat as 'c1' at read time. */
+  billingContact: 'c1' | 'c2' | null;
 
   weddingDateConfirmed: boolean;
   weddingDateAlt: Date | null;

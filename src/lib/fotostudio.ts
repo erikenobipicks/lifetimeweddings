@@ -79,6 +79,10 @@ interface ProjectPayload {
   name?: string;
   start_time?: string;
   location?: string;
+  /** Stored on the project as the {shoot_description} contract variable.
+   *  We use it to surface both contraents' full names in the contract body
+   *  even though only one contact_id is linked to the project. */
+  description?: string;
 }
 
 interface ContactResponse { id: number }
@@ -184,6 +188,10 @@ export interface PushBookingInput {
    *  fotostudio so the operator sees "Boda Laura & Marc · Foto+Vídeo" at
    *  a glance and picks the right contract template. */
   packName?: string | null;
+  /** Free-text description for the project. Renders into the contract
+   *  template via {shoot_description}. Typically "Boda de <c1 full name> i
+   *  <c2 full name>" so the contract mentions both contraents. */
+  shootDescription?: string | null;
 }
 
 /** Called from /api/reserva/submit.ts after the form_response is persisted.
@@ -218,6 +226,7 @@ export async function pushBookingToFotostudio(input: PushBookingInput): Promise<
         : `Boda ${input.coupleDisplayName}`,
       start_time: start.toISOString(),
       location: location || undefined,
+      description: input.shootDescription ?? undefined,
     });
 
     await applyWorkflow(projectId, BODA_WORKFLOW_ID);

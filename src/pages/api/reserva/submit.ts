@@ -128,6 +128,7 @@ const submitSchema = z.object({
   serviceEndTime: z.string().regex(TIME_REGEX).optional(),
   guestCountEstimate: z.coerce.number().int().positive().max(2000).optional(),
   weddingTimeSlot: z.enum(['morning', 'afternoon']).optional(),
+  billingContact: z.enum(['c1', 'c2']).optional(),
 
   preferredCommunication: z.enum(['email', 'whatsapp', 'phone']).optional(),
   preferredLanguage: z.enum(['ca', 'es', 'en']).optional(),
@@ -244,6 +245,7 @@ export const POST: APIRoute = async ({ request }) => {
     serviceEndTime: normaliseTime(d.serviceEndTime) ?? null,
     guestCountEstimate: d.guestCountEstimate ?? null,
     weddingTimeSlot: d.weddingTimeSlot ?? null,
+    billingContact: d.billingContact ?? null,
     preferredCommunication: d.preferredCommunication ?? null,
     preferredLanguage: d.preferredLanguage ?? null,
     preferredPaymentMethod: d.preferredPaymentMethod ?? null,
@@ -324,6 +326,11 @@ export const POST: APIRoute = async ({ request }) => {
         venueName: d.venueConfirmed ? updated.venueName : (d.venueAltName ?? updated.venueName),
         venueCity: updated.venueCity,
         packName: updated.packName,
+        // Surfaces both full names into the contract via {shoot_description}.
+        // We connect with "i" (CA) by default; even when the couple's
+        // preferred language is ES/EN the FotoStudio operator sees both
+        // names side by side, which is what matters for the contract body.
+        shootDescription: `Boda de ${d.c1FullName} i ${d.c2FullName}`,
       }),
     ]);
   }
