@@ -33,7 +33,7 @@ export const ui = {
 
     // Hero
     'hero.eyebrow': 'Fotografía y vídeo de bodas · Tarragona · Reus · Lleida',
-    'hero.title': 'Dos hermanos. Una cámara y una de vídeo.',
+    'hero.title': 'Dos hermanos. Dos cámaras: una de foto, una de vídeo.',
     'hero.title2': 'Vuestra historia, contada a cuatro manos.',
     'hero.subtitle': 'Somos la segunda generación de una familia de fotógrafos. Llevamos más de 15 años contando bodas en Cataluña con un estilo documental, natural y sin poses forzadas.',
     'hero.cta': 'Consultar disponibilidad',
@@ -559,7 +559,7 @@ export const ui = {
     'nav.book': 'Consultar disponibilitat',
 
     'hero.eyebrow': 'Fotografia i vídeo de bodes · Tarragona · Reus · Lleida',
-    'hero.title': 'Dos germans. Una càmera i una de vídeo.',
+    'hero.title': 'Dos germans. Dues càmeres: una de foto, una de vídeo.',
     'hero.title2': 'La vostra història, explicada a quatre mans.',
     'hero.subtitle': 'Som la segona generació d’una família de fotògrafs. Fa més de 15 anys que expliquem bodes a Catalunya amb un estil documental, natural i sense posats forçats.',
     'hero.cta': 'Consultar disponibilitat',
