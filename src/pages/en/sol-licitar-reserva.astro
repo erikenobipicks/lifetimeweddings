@@ -1,0 +1,33 @@
+---
+export const prerender = true;
+
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Section from '~/components/Section.astro';
+import BookingRequestForm from '~/components/sections/BookingRequestForm.astro';
+import { SITE } from '~/data/site';
+import { useTranslations } from '~/i18n/ui';
+import { breadcrumbJsonLd } from '~/lib/seo';
+
+const lang = 'en' as const;
+const t = useTranslations(lang);
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: t('schema.breadcrumb.home'), url: `${SITE.url}/en` },
+    { name: 'Request a booking', url: `${SITE.url}/en/sol-licitar-reserva` },
+  ]),
+];
+---
+
+<BaseLayout
+  lang={lang}
+  title="Request a booking | Lifetime Weddings"
+  description="Request our wedding photo + video coverage. Personalised proposal reply within 24h."
+  canonicalPath="/sol-licitar-reserva"
+  jsonLd={jsonLd}
+  noindex
+>
+  <Section bg="cream" class="pt-28 pb-16">
+    <BookingRequestForm lang={lang} />
+  </Section>
+</BaseLayout>

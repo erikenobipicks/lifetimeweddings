@@ -1,0 +1,33 @@
+---
+export const prerender = true;
+
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Section from '~/components/Section.astro';
+import BookingRequestForm from '~/components/sections/BookingRequestForm.astro';
+import { SITE } from '~/data/site';
+import { useTranslations } from '~/i18n/ui';
+import { breadcrumbJsonLd } from '~/lib/seo';
+
+const lang = 'ca' as const;
+const t = useTranslations(lang);
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: t('schema.breadcrumb.home'), url: `${SITE.url}/` },
+    { name: 'Sol·licitar reserva', url: `${SITE.url}/sol-licitar-reserva` },
+  ]),
+];
+---
+
+<BaseLayout
+  lang={lang}
+  title="Sol·licitar reserva | Lifetime Weddings"
+  description="Sol·licita la nostra cobertura de foto i vídeo per a la teva boda. Resposta amb proposta personalitzada en menys de 24h."
+  canonicalPath="/sol-licitar-reserva"
+  jsonLd={jsonLd}
+  noindex
+>
+  <Section bg="cream" class="pt-28 pb-16">
+    <BookingRequestForm lang={lang} />
+  </Section>
+</BaseLayout>
