@@ -127,6 +127,7 @@ const submitSchema = z.object({
   ceremonyTime: z.string().regex(TIME_REGEX).optional(),
   serviceEndTime: z.string().regex(TIME_REGEX).optional(),
   guestCountEstimate: z.coerce.number().int().positive().max(2000).optional(),
+  weddingTimeSlot: z.enum(['morning', 'afternoon']).optional(),
 
   preferredCommunication: z.enum(['email', 'whatsapp', 'phone']).optional(),
   preferredLanguage: z.enum(['ca', 'es', 'en']).optional(),
@@ -242,6 +243,7 @@ export const POST: APIRoute = async ({ request }) => {
     ceremonyTime: normaliseTime(d.ceremonyTime) ?? null,
     serviceEndTime: normaliseTime(d.serviceEndTime) ?? null,
     guestCountEstimate: d.guestCountEstimate ?? null,
+    weddingTimeSlot: d.weddingTimeSlot ?? null,
     preferredCommunication: d.preferredCommunication ?? null,
     preferredLanguage: d.preferredLanguage ?? null,
     preferredPaymentMethod: d.preferredPaymentMethod ?? null,

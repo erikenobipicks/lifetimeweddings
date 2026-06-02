@@ -247,6 +247,10 @@ export async function initSchema() {
   await ensureColumn('booking_form_responses', 'first_look', 'TEXT');
   await ensureColumn('booking_form_responses', 'publication_consent', 'TEXT');
   await ensureColumn('booking_form_responses', 'gdpr_accepted_at', 'TEXT');
+  // Morning/afternoon slot collected on /reserva (step 1) — the exact
+  // ceremony time may not be known months out; this lets the couple commit
+  // to half-day so the operator can plan staffing before /contrato.
+  await ensureColumn('booking_form_responses', 'wedding_time_slot', 'TEXT');
 
   // ── Retention sweep (boot-time) ───────────────────────────────────────
   // Data-minimisation per RGPD: keep personal data only as long as needed.

@@ -115,6 +115,18 @@ const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
           </label>
         </div>
 
+        <!-- Morning vs afternoon. Asked separately from the exact ceremony
+             time below because the half-day slot is often known months
+             before the exact hour. -->
+        <div class="pt-4 border-t border-ink/10">
+          <p class="text-sm font-semibold text-ink/70 mb-1">{t('reserva.form.field.timeSlot')}</p>
+          <p class="text-xs text-ink/55 mb-2">{t('reserva.form.field.timeSlot.hint')}</p>
+          <div class="flex gap-6">
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="weddingTimeSlot" value="morning" class="accent-gold" />{t('reserva.form.opt.morning')}</label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="weddingTimeSlot" value="afternoon" class="accent-gold" />{t('reserva.form.opt.afternoon')}</label>
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-ink/10">
           <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.ceremonyTime')}</span><input type="time" name="ceremonyTime" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
           <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.serviceEndTime')}</span><input type="time" name="serviceEndTime" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
