@@ -72,6 +72,7 @@ function rowToBooking(row: Record<string, unknown>): Booking {
     paymentTerms: row.payment_terms ? String(row.payment_terms) : null,
 
     customIntro: row.custom_intro ? String(row.custom_intro) : null,
+    internalNotes: row.internal_notes ? String(row.internal_notes) : null,
     referenceTestimonial: safeParseJson<ReferenceTestimonial | null>(
       row.reference_testimonial,
       null,
@@ -171,7 +172,7 @@ export async function createBooking(input: BookingCreateInput): Promise<Booking>
       wedding_date, venue_name, venue_city, venue_address,
       pack_name, pack_description, pack_includes, pack_excludes, pack_addons,
       pack_price_cents, deposit_cents, payment_terms,
-      custom_intro, reference_testimonial, flagship_video_id,
+      custom_intro, internal_notes, reference_testimonial, flagship_video_id,
       status, expires_at,
       created_at, updated_at
     ) VALUES (
@@ -180,7 +181,7 @@ export async function createBooking(input: BookingCreateInput): Promise<Booking>
       ?, ?, ?, ?,
       ?, ?, ?, ?, ?,
       ?, ?, ?,
-      ?, ?, ?,
+      ?, ?, ?, ?,
       'draft', ?,
       ?, ?
     )`,
@@ -195,6 +196,7 @@ export async function createBooking(input: BookingCreateInput): Promise<Booking>
       JSON.stringify(input.packAddons ?? []),
       input.packPriceCents, input.depositCents, input.paymentTerms ?? null,
       input.customIntro ?? null,
+      input.internalNotes ?? null,
       input.referenceTestimonial ? JSON.stringify(input.referenceTestimonial) : null,
       input.flagshipVideoId ?? null,
       toIso(input.expiresAt ?? null),
@@ -281,6 +283,7 @@ export type BookingUpdate = Partial<{
   depositCents: number;
   paymentTerms: string | null;
   customIntro: string | null;
+  internalNotes: string | null;
   referenceTestimonial: ReferenceTestimonial | null;
   flagshipVideoId: string | null;
   expiresAt: Date | null;
@@ -305,6 +308,7 @@ const COLUMN_FOR: Record<keyof BookingUpdate, string> = {
   depositCents: 'deposit_cents',
   paymentTerms: 'payment_terms',
   customIntro: 'custom_intro',
+  internalNotes: 'internal_notes',
   referenceTestimonial: 'reference_testimonial',
   flagshipVideoId: 'flagship_video_id',
   expiresAt: 'expires_at',

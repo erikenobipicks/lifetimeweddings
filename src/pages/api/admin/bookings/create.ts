@@ -73,6 +73,7 @@ const formSchema = z.object({
   paymentTerms: z.string().max(200).optional(),
 
   customIntro: z.string().max(2000).optional(),
+  internalNotes: z.string().max(4000).optional(),
   testimonialQuote: z.string().max(2000).optional(),
   testimonialAuthor: z.string().max(120).optional(),
   testimonialContext: z.string().max(120).optional(),
@@ -132,6 +133,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     paymentTerms: d.paymentTerms?.trim() || undefined,
 
     customIntro: d.customIntro?.trim() || undefined,
+    internalNotes: d.internalNotes?.trim() || undefined,
     referenceTestimonial: parseTestimonial(d.testimonialQuote, d.testimonialAuthor, d.testimonialContext),
     flagshipVideoId: d.flagshipVideoId?.trim() || undefined,
 
