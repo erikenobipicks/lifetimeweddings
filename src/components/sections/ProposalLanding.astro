@@ -47,9 +47,8 @@ const rating = await getGbpRating();
 // detail that lands right after the "not just the moment" copy.
 const heroImg = '/photos/peticions/06-born-proposing.jpg';
 const sessionImg = '/photos/peticions/02-hands-ring-box.jpg';
-const diptychA = '/photos/peticions/01-hero-tamarit-shh.jpg';
-const diptychB = '/photos/peticions/03-couple-walking-ring.jpg';
-const closeUp = '/photos/peticions/04-ring-detail-shoulder.jpg';
+const diptychA = '/photos/peticions/03-couple-walking-ring.jpg';
+const diptychB = '/photos/peticions/04-ring-detail-shoulder.jpg';
 
 const webp = (p: string): string => p.replace(/\.jpe?g$/i, '.webp');
 const langPath = lang === 'ca' ? '' : `/${lang}`;
@@ -761,21 +760,6 @@ function renderBold(s: string): string {
       </ul>
     </div>
   </Section>
-
-  <!-- Intimate ring close-up -->
-  <picture>
-    <source type="image/webp" srcset={webp(closeUp)} sizes="100vw" />
-    <img
-      src={closeUp}
-      alt=""
-      aria-hidden="true"
-      class="w-full h-[55vh] md:h-[70vh] object-cover"
-      loading="lazy"
-      decoding="async"
-      width="1335"
-      height="2000"
-    />
-  </picture>
 
   <!-- FAQ -->
   <Section bg="cream">
