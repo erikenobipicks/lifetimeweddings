@@ -46,7 +46,6 @@ const rating = await getGbpRating();
 // The hands-ring-box anchors the "couple session" beat: an intimate
 // detail that lands right after the "not just the moment" copy.
 const heroImg = '/photos/peticions/06-born-proposing.jpg';
-const breakImg = '/photos/peticions/05-barcelona-sagrada-shh.jpg';
 const sessionImg = '/photos/peticions/02-hands-ring-box.jpg';
 const diptychA = '/photos/peticions/01-hero-tamarit-shh.jpg';
 const diptychB = '/photos/peticions/03-couple-walking-ring.jpg';
@@ -655,21 +654,6 @@ function renderBold(s: string): string {
       </div>
     </div>
   </Section>
-
-  <!-- Photo break A — full bleed Barcelona shh -->
-  <picture>
-    <source type="image/webp" srcset={webp(breakImg)} sizes="100vw" />
-    <img
-      src={breakImg}
-      alt=""
-      aria-hidden="true"
-      class="w-full h-[50vh] md:h-[65vh] object-cover"
-      loading="lazy"
-      decoding="async"
-      width="1125"
-      height="2000"
-    />
-  </picture>
 
   <!-- What's included -->
   <Section bg="cream">
