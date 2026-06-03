@@ -142,23 +142,21 @@ export const POST: APIRoute = async ({ request }) => {
 
   const parsed = submitSchema.safeParse(body);
   if (!parsed.success) {
-    return jsonResponse(
-      {
-        error: 'validation',
-        issues: parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
-      },
-      400,
-    );
+    const issues = parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message }));
+    console.warn('[contrato.submit] validation failed:', issues.map((i) => `${i.path}: ${i.message}`).join(' · '));
+    return jsonResponse({ error: 'validation', issues }, 400);
   }
   const d = parsed.data;
 
   const captchaOk = await verifyTurnstile(d.captchaToken, ip === 'unknown' ? undefined : ip);
   if (!captchaOk) {
+    console.warn('[contrato.submit] captcha_failed', { slug: d.slug });
     return jsonResponse({ error: 'captcha_failed' }, 403);
   }
 
   const booking = await getBookingBySlug(d.slug);
   if (!booking || booking.status === 'archived') {
+    console.warn('[contrato.submit] not_found', { slug: d.slug, exists: Boolean(booking), status: booking?.status });
     return jsonResponse({ error: 'not_found' }, 404);
   }
 
@@ -166,15 +164,20 @@ export const POST: APIRoute = async ({ request }) => {
   // not, this is an out-of-order access — gracefully tell them.
   const formResponse = await getFormResponseForBooking(booking.id);
   if (!formResponse) {
+    console.warn('[contrato.submit] reserva_not_submitted', { slug: d.slug });
     return jsonResponse({ error: 'reserva_not_submitted' }, 409);
   }
 
   if (!booking.depositPaidAt) {
+    console.warn('[contrato.submit] deposit_pending', { slug: d.slug });
     return jsonResponse({ error: 'deposit_pending' }, 409);
   }
   if (booking.contractReadyAt) {
+    console.warn('[contrato.submit] already_submitted', { slug: d.slug });
     return jsonResponse({ error: 'already_submitted' }, 409);
   }
+
+  console.log('[contrato.submit] persisting', { slug: d.slug });
 
   await submitContractData({
     bookingId: booking.id,

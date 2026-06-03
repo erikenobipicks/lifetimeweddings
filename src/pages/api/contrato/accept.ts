@@ -48,7 +48,8 @@ const schema = z.object({
 
 function acceptanceLine(lang: 'ca' | 'es' | 'en', n1: string, n2: string, when: Date, ip: string): string {
   const date = formatWeddingDateLong(when, lang);
-  const time = when.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+  const localeMap = { ca: 'ca-ES', es: 'es-ES', en: 'en-GB' } as const;
+  const time = when.toLocaleTimeString(localeMap[lang], { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
   if (lang === 'es') return `Aceptado electrónicamente por ${n1} y ${n2} el ${date} a las ${time} (IP ${ip}).`;
   if (lang === 'en') return `Accepted electronically by ${n1} and ${n2} on ${date} at ${time} (IP ${ip}).`;
   return `Acceptat electrònicament per ${n1} i ${n2} el ${date} a les ${time} (IP ${ip}).`;
@@ -66,40 +67,48 @@ export const POST: APIRoute = async ({ request }) => {
 
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
+    console.warn('[contrato.accept] validation failed', parsed.error.issues);
     return json({ error: 'validation' }, 400);
   }
   const d = parsed.data;
 
   const captchaOk = await verifyTurnstile(d.captchaToken, ip === 'unknown' ? undefined : ip);
   if (!captchaOk) {
+    console.warn('[contrato.accept] captcha_failed', { slug: d.slug });
     return json({ error: 'captcha_failed' }, 403);
   }
 
   const booking = await getBookingBySlug(d.slug);
   if (!booking || booking.status === 'archived') {
+    console.warn('[contrato.accept] not_found', { slug: d.slug });
     return json({ error: 'not_found' }, 404);
   }
   if (!booking.depositPaidAt) {
+    console.warn('[contrato.accept] deposit_pending', { slug: d.slug });
     return json({ error: 'deposit_pending' }, 409);
   }
   if (!booking.contractReadyAt) {
-    // Couple hasn't submitted the contract data yet.
+    console.warn('[contrato.accept] data_pending', { slug: d.slug });
     return json({ error: 'data_pending' }, 409);
   }
   if (booking.contractAcceptedAt) {
+    console.warn('[contrato.accept] already_accepted', { slug: d.slug });
     return json({ error: 'already_accepted' }, 409);
   }
 
   const fr = await getFormResponseForBooking(booking.id);
   if (!fr) {
+    console.warn('[contrato.accept] data_pending (no formResponse)', { slug: d.slug });
     return json({ error: 'data_pending' }, 409);
   }
 
   // Record acceptance first (idempotent — only the first wins).
   const stamped = await markContractAccepted(booking.id, ip);
   if (!stamped) {
+    console.warn('[contrato.accept] already_accepted (race)', { slug: d.slug });
     return json({ error: 'already_accepted' }, 409);
   }
+  console.log('[contrato.accept] stamped', { slug: d.slug, ip });
 
   // Generate the filled contract PDF with the acceptance footer, then email
   // copies. PDF / email failures are logged but don't undo the acceptance.

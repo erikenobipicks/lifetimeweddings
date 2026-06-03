@@ -46,3 +46,11 @@ export function transferReferenceFor(booking: Pick<Booking, 'coupleName1' | 'cou
 export function isStripeEnabled(): boolean {
   return Boolean((process.env.STRIPE_SECRET_KEY ?? '').trim());
 }
+
+/** True when the configured Stripe key is a TEST key (`sk_test_…`). Lets
+ *  admin views warn loudly so we never quietly serve test checkouts in
+ *  what looks like a live deployment. */
+export function isStripeTestMode(): boolean {
+  const key = (process.env.STRIPE_SECRET_KEY ?? '').trim();
+  return key.startsWith('sk_test_');
+}
