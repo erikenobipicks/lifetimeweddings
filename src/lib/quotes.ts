@@ -129,11 +129,22 @@ export async function archiveQuote(id: number): Promise<void> {
 
 /** Hard-delete a quote and its dependent rows. Irreversible. Use only for
  *  cleanup of test/demo data — archiving is preferred for real quotes
- *  because it keeps the historical record. Cascades take care of `events`;
- *  `leads.quote_id` becomes NULL via ON DELETE SET NULL. */
+ *  because it keeps the historical record.
+ *
+ *  Belt + braces: we delete dependents explicitly (events) and null out
+ *  `leads.quote_id` before dropping the row, instead of relying purely
+ *  on the schema's CASCADE/SET NULL. Older databases may pre-date those
+ *  clauses, and FK enforcement is now also turned on in initSchema. */
 export async function deleteQuote(id: number): Promise<void> {
   await initSchema();
-  await db.execute({ sql: 'DELETE FROM quotes WHERE id = ?', args: [id] });
+  await db.batch(
+    [
+      { sql: 'UPDATE leads SET quote_id = NULL WHERE quote_id = ?', args: [id] },
+      { sql: 'DELETE FROM events WHERE quote_id = ?', args: [id] },
+      { sql: 'DELETE FROM quotes WHERE id = ?', args: [id] },
+    ],
+    'write',
+  );
 }
 
 export async function verifyQuotePassword(token: string, password: string): Promise<boolean> {

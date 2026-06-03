@@ -122,10 +122,18 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
 
   // Hard-delete: irreversible. For cleanup of test/demo bookings only.
   // Confirm dialog is on the client form; we trust the admin session.
-  // Cascade in the schema removes booking_form_responses.
+  // deleteBooking removes booking_form_responses explicitly so it works
+  // even when the SQLite CASCADE isn't enforced on older databases.
   if (action === 'delete') {
-    await deleteBooking(id);
-    return redirect('/admin/bookings?ok=deleted', 303);
+    try {
+      await deleteBooking(id);
+      return redirect('/admin/bookings?ok=deleted', 303);
+    } catch (err) {
+      // Surface in the logs and tell the admin instead of silently 500'ing.
+      console.error('[admin.bookings.delete] failed', { bookingId: id, err });
+      const msg = err instanceof Error ? err.message : 'error desconegut';
+      return back(`?error=No+s%27ha+pogut+eliminar%3A+${encodeURIComponent(msg)}`);
+    }
   }
 
   if (action === 'status') {

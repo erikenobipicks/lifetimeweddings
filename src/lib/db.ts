@@ -28,6 +28,13 @@ export async function initSchema() {
   if (initialised) return;
   initialised = true;
 
+  // libsql/Turso disables foreign-key enforcement by default. Without this
+  // PRAGMA, `ON DELETE CASCADE` clauses are silently ignored, so deleting
+  // a booking left its `booking_form_response` row orphaned (or — with FKs
+  // enforced at the server level — failed outright). Enabling it here
+  // covers every connection that goes through initSchema, which is the
+  // entry point every other helper awaits.
+  await db.execute('PRAGMA foreign_keys = ON');
   await db.batch(
     [
       `CREATE TABLE IF NOT EXISTS quotes (
