@@ -211,25 +211,37 @@ const extrasCatalog = EXTRAS.map((x) => ({
 
         <div class="block md:col-span-2 bg-cream/60 border border-gold/30 p-4 md:p-5">
           <p class="text-xs font-bold tracking-widest uppercase text-ink/70 mb-1">💶 Calculadora de pagament</p>
-          <p class="text-[11px] text-ink/55 mb-3">Suma automàticament <strong>Inversió total + add-ons</strong>. La part en <strong>efectiu</strong> es resta de la base imposable (s'estalvia l'IVA del 21 % sobre aquell tram). Apreta <em>Inserir text al pla de pagament</em> per copiar el desglossament al camp de dalt.</p>
+          <p class="text-[11px] text-ink/55 mb-3">Suma automàticament <strong>Inversió total + add-ons</strong>. La part en <strong>efectiu</strong> es queda fora de la factura (estalvi del 21 % sobre aquell tram). Apreta el botó <strong>↻</strong> al costat d'un camp per completar-lo amb el que falta. <em>Inserir text al pla de pagament</em> copia el desglossament al camp de dalt.</p>
 
           <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
             <label class="block">
               <span class="text-[11px] font-bold tracking-wide uppercase text-ink/60">Reserva (€)</span>
-              <input id="paySchedule0" type="number" min="0" step="1" class="mt-1 w-full px-2 py-1.5 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none" />
+              <div class="mt-1 flex">
+                <input id="paySchedule0" data-pay-slot="0" type="number" min="0" step="1" class="pay-input flex-1 min-w-0 px-2 py-1.5 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none" />
+                <button type="button" data-fill-slot="0" title="Completar amb la diferència" class="pay-fill px-2 border border-l-0 border-black/15 bg-cream hover:bg-gold hover:text-white text-sm transition-colors">↻</button>
+              </div>
             </label>
             <label class="block">
               <span class="text-[11px] font-bold tracking-wide uppercase text-ink/60">2n pagament (€)</span>
-              <input id="paySchedule1" type="number" min="0" step="1" class="mt-1 w-full px-2 py-1.5 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none" />
+              <div class="mt-1 flex">
+                <input id="paySchedule1" data-pay-slot="1" type="number" min="0" step="1" class="pay-input flex-1 min-w-0 px-2 py-1.5 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none" />
+                <button type="button" data-fill-slot="1" title="Completar amb la diferència" class="pay-fill px-2 border border-l-0 border-black/15 bg-cream hover:bg-gold hover:text-white text-sm transition-colors">↻</button>
+              </div>
             </label>
             <label class="block">
               <span class="text-[11px] font-bold tracking-wide uppercase text-ink/60">3r pagament (€)</span>
-              <input id="paySchedule2" type="number" min="0" step="1" class="mt-1 w-full px-2 py-1.5 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none" />
+              <div class="mt-1 flex">
+                <input id="paySchedule2" data-pay-slot="2" type="number" min="0" step="1" class="pay-input flex-1 min-w-0 px-2 py-1.5 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none" />
+                <button type="button" data-fill-slot="2" title="Completar amb la diferència" class="pay-fill px-2 border border-l-0 border-black/15 bg-cream hover:bg-gold hover:text-white text-sm transition-colors">↻</button>
+              </div>
             </label>
             <label class="block">
               <span class="text-[11px] font-bold tracking-wide uppercase text-ink/60">En efectiu (€)</span>
-              <input id="payCash" type="number" min="0" step="1" class="mt-1 w-full px-2 py-1.5 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none" />
-              <span class="block text-[10px] text-ink/45 mt-0.5">tram que s'estalvia l'IVA</span>
+              <div class="mt-1 flex">
+                <input id="payCash" data-pay-slot="cash" type="number" min="0" step="1" class="pay-input flex-1 min-w-0 px-2 py-1.5 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none" />
+                <button type="button" data-fill-slot="cash" title="Completar amb la diferència" class="pay-fill px-2 border border-l-0 border-black/15 bg-cream hover:bg-gold hover:text-white text-sm transition-colors">↻</button>
+              </div>
+              <span class="block text-[10px] text-ink/45 mt-0.5">tram fora de factura (estalvi IVA)</span>
             </label>
           </div>
 
@@ -252,7 +264,8 @@ const extrasCatalog = EXTRAS.map((x) => ({
             </div>
             <div class="col-span-2 md:col-span-4 text-[10px] text-ink/55 border-t border-black/5 pt-2">
               Base imposable: <span id="calcBase">0 €</span> · IVA 21 %: <span id="calcVat">0 €</span> · Estalvi efectiu: <span id="calcCashSaving">0 €</span>
-              · Pagaments programats: <span id="calcScheduled">0 €</span> <span id="calcMismatch" class="hidden text-red-700 font-bold">⚠ no quadra amb el total a cobrar</span>
+              · Pagaments programats: <span id="calcScheduled">0 €</span>
+              <span id="calcRemaining" class="ml-2 font-bold"></span>
             </div>
           </div>
 
@@ -466,10 +479,16 @@ const extrasCatalog = EXTRAS.map((x) => ({
   });
 
   // ─── Payment calculator ────────────────────────────────────────────────
-  // Sums: packPrice + sum(addons) = gross (IVA included). Cash slice is
-  // subtracted from the taxable base — that's the "VAT-free" portion the
-  // couple pays in cash, so the displayed total drops by 21 % of that
-  // amount (matches the FotoStudio quote at the top of the thread).
+  // gross = pack + addons (IVA included on the invoice we'd issue).
+  // cash slice sits OUTSIDE that invoice — couple pays it in cash, we
+  // don't invoice it, they save the 21 % VAT we'd have charged on top.
+  //   cashSaving = cash * 0.21
+  //   net (what they actually hand over) = gross - cashSaving
+  //   sched0 + sched1 + sched2 + cash = net
+  //     ⇒  sched_sum = gross - cash * 1.21
+  //     ⇒  cash = (gross - sched_sum) / 1.21
+  // The ↻ buttons solve the missing slot from the other three using
+  // those identities.
   const pricePackInput = document.getElementById('packPriceField') as HTMLInputElement | null;
   const addonsTextarea = document.getElementById('packAddonsField') as HTMLTextAreaElement | null;
   const cashInput = document.getElementById('payCash') as HTMLInputElement | null;
@@ -484,7 +503,7 @@ const extrasCatalog = EXTRAS.map((x) => ({
   const elVat = document.getElementById('calcVat');
   const elCashSav = document.getElementById('calcCashSaving');
   const elScheduled = document.getElementById('calcScheduled');
-  const elMismatch = document.getElementById('calcMismatch');
+  const elRemaining = document.getElementById('calcRemaining');
   const insertBtn = document.getElementById('insertPaymentPlanBtn');
 
   function parseEuros(s: string | null | undefined): number {
@@ -505,53 +524,100 @@ const extrasCatalog = EXTRAS.map((x) => ({
       .reduce((acc, m) => acc + (m ? parseEuros(m[1]) : 0), 0);
   }
 
-  function recalcPayment() {
+  function paymentState() {
     const pack = parseEuros(pricePackInput?.value);
     const addons = sumAddons();
     const gross = pack + addons;
-    const cash = Math.min(parseEuros(cashInput?.value), gross);
-    // Cash amount represents the VAT-included euros the couple hands over
-    // in cash; we strip the 21 % VAT portion of that slice → saving.
-    const cashSaving = cash > 0 ? cash - cash / 1.21 : 0;
+    const cash = Math.max(0, parseEuros(cashInput?.value));
+    const cashSaving = cash * 0.21;
     const net = gross - cashSaving;
-    const base = gross / 1.21;
-    const vat = gross - base;
-    const scheduled = parseEuros(sched0?.value) + parseEuros(sched1?.value) + parseEuros(sched2?.value);
+    const s = [
+      parseEuros(sched0?.value),
+      parseEuros(sched1?.value),
+      parseEuros(sched2?.value),
+    ];
+    const scheduled = s[0] + s[1] + s[2];
+    const paid = scheduled + cash;
+    // Invoiced portion only — the cash slice falls outside the invoice.
+    const invoiced = Math.max(0, gross - cash * 1.21);
+    const base = invoiced / 1.21;
+    const vat = invoiced - base;
+    return { pack, addons, gross, cash, cashSaving, net, s, scheduled, paid, base, vat };
+  }
 
-    if (elPack) elPack.textContent = fmt(pack);
-    if (elAddons) elAddons.textContent = fmt(addons);
-    if (elGross) elGross.textContent = fmt(gross);
-    if (elNet) elNet.textContent = fmt(net);
-    if (elBase) elBase.textContent = fmt(base);
-    if (elVat) elVat.textContent = fmt(vat);
-    if (elCashSav) elCashSav.textContent = fmt(cashSaving);
-    if (elScheduled) elScheduled.textContent = fmt(scheduled);
-    if (elMismatch) {
-      const ok = Math.abs(scheduled - net) < 1;
-      elMismatch.classList.toggle('hidden', ok || scheduled === 0);
+  function recalcPayment() {
+    const st = paymentState();
+    if (elPack) elPack.textContent = fmt(st.pack);
+    if (elAddons) elAddons.textContent = fmt(st.addons);
+    if (elGross) elGross.textContent = fmt(st.gross);
+    if (elNet) elNet.textContent = fmt(st.net);
+    if (elBase) elBase.textContent = fmt(st.base);
+    if (elVat) elVat.textContent = fmt(st.vat);
+    if (elCashSav) elCashSav.textContent = fmt(st.cashSaving);
+    if (elScheduled) elScheduled.textContent = fmt(st.scheduled);
+    if (elRemaining) {
+      const diff = st.net - st.paid;
+      if (st.gross === 0) {
+        elRemaining.textContent = '';
+        elRemaining.className = 'ml-2 font-bold';
+      } else if (Math.abs(diff) < 1) {
+        elRemaining.textContent = '✓ quadra';
+        elRemaining.className = 'ml-2 font-bold text-green-700';
+      } else if (diff > 0) {
+        elRemaining.textContent = `Falta ${fmt(diff)}`;
+        elRemaining.className = 'ml-2 font-bold text-amber-700';
+      } else {
+        elRemaining.textContent = `Sobra ${fmt(-diff)}`;
+        elRemaining.className = 'ml-2 font-bold text-red-700';
+      }
     }
   }
 
+  // Compute the value that would make `slot` close the equation given
+  // the current values of the other three. For sched slots this is
+  // `gross - cash*1.21 - other_scheds`. For the cash slot it's
+  // `(gross - sched_sum) / 1.21`. Result is clamped at 0 and rounded
+  // to whole euros (matches how Eric writes the FotoStudio quotes).
+  function solveSlot(slot: '0' | '1' | '2' | 'cash'): number {
+    const st = paymentState();
+    if (slot === 'cash') {
+      const v = (st.gross - st.scheduled) / 1.21;
+      return Math.max(0, Math.round(v));
+    }
+    const idx = Number(slot);
+    const otherScheds = st.s.reduce((acc, x, i) => (i === idx ? acc : acc + x), 0);
+    const v = st.gross - st.cash * 1.21 - otherScheds;
+    return Math.max(0, Math.round(v));
+  }
+
   function generatePaymentText(): string {
-    const pack = parseEuros(pricePackInput?.value);
-    const addons = sumAddons();
-    const gross = pack + addons;
-    const cash = Math.min(parseEuros(cashInput?.value), gross);
-    const net = gross - (cash > 0 ? cash - cash / 1.21 : 0);
-    const r = Math.round(parseEuros(sched0?.value));
-    const p2 = Math.round(parseEuros(sched1?.value));
-    const p3 = Math.round(parseEuros(sched2?.value));
+    const st = paymentState();
+    const r = Math.round(st.s[0]);
+    const p2 = Math.round(st.s[1]);
+    const p3 = Math.round(st.s[2]);
+    const cash = Math.round(st.cash);
     const lines: string[] = [];
     if (r > 0) lines.push(`Reserva: ${r} €`);
     if (p2 > 0) lines.push(`2n pagament: ${p2} €`);
     if (p3 > 0) lines.push(`3r pagament: ${p3} €`);
-    if (cash > 0) lines.push(`+${Math.round(cash)} € en efectiu (estalvi IVA)`);
-    lines.push(`Total: ${Math.round(net)} €`);
+    if (cash > 0) lines.push(`+${cash} € en efectiu (estalvi IVA)`);
+    lines.push(`Total: ${Math.round(st.net)} €`);
     return lines.join(' · ');
   }
 
   [pricePackInput, addonsTextarea, cashInput, sched0, sched1, sched2].forEach((el) => {
     el?.addEventListener('input', recalcPayment);
+  });
+  // ↻ buttons: each one fills its sibling input with the diff.
+  document.querySelectorAll<HTMLButtonElement>('.pay-fill').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const slot = btn.dataset.fillSlot as '0' | '1' | '2' | 'cash' | undefined;
+      if (!slot) return;
+      const target = document.querySelector<HTMLInputElement>(`.pay-input[data-pay-slot="${slot}"]`);
+      if (!target) return;
+      target.value = String(solveSlot(slot));
+      recalcPayment();
+    });
   });
   insertBtn?.addEventListener('click', () => {
     const target = document.getElementById('paymentTermsField') as HTMLInputElement | null;
