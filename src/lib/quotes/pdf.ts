@@ -8,7 +8,7 @@
 
 import PDFDocument from 'pdfkit';
 import path from 'node:path';
-import { PACKS, getComposedSubpacks, type Pack } from '~/data/packs';
+import { PACKS, getComposedSubpacks, type Pack, type PackType } from '~/data/packs';
 import { SITE } from '~/data/site';
 import type { Lang } from '~/i18n/ui';
 
@@ -59,6 +59,16 @@ function copy(lang: Lang) {
     ivaNote: 'Preus amb IVA inclòs.',
     footerTalk: 'Parlem? Responeu al correu o escriviu-nos pel WhatsApp.',
   };
+}
+
+/** Service-type label so each pack clearly reads as photo / video / both. */
+function typeLabel(type: PackType, lang: Lang): string {
+  const map: Record<PackType, Record<Lang, string>> = {
+    photo: { ca: 'Fotografia', es: 'Fotografía', en: 'Photography' },
+    video: { ca: 'Vídeo', es: 'Vídeo', en: 'Video' },
+    combo: { ca: 'Foto + Vídeo', es: 'Foto + Vídeo', en: 'Photo + Video' },
+  };
+  return map[type][lang];
 }
 
 /** Render the quote to a PDF Buffer. */
@@ -124,7 +134,16 @@ export function generateQuotePdf(input: QuotePdfInput): Promise<Buffer> {
         .font('Helvetica-Bold')
         .fontSize(15)
         .text(pack.price, M, y, { width: contentW, align: 'right' });
-      y = Math.max(nameBottom, doc.y) + 8;
+      y = Math.max(nameBottom, doc.y) + 3;
+
+      // Service-type label under the name (Fotografia / Vídeo / Foto + Vídeo)
+      // so the pack name alone isn't ambiguous about what it covers.
+      doc
+        .fillColor(MUTED)
+        .font('Helvetica-Oblique')
+        .fontSize(10)
+        .text(typeLabel(pack.type, input.lang), M, y);
+      y = doc.y + 8;
 
       // Includes — expand combos into their sub-packs, then the combo's
       // own synergy bullets, matching the /p/<token> breakdown.
@@ -132,7 +151,10 @@ export function generateQuotePdf(input: QuotePdfInput): Promise<Buffer> {
       const blocks: Array<{ title?: string; bullets: string[] }> =
         subpacks.length > 0
           ? [
-              ...subpacks.map((sp) => ({ title: sp.name[input.lang], bullets: sp.includes[input.lang] })),
+              ...subpacks.map((sp) => ({
+                title: `${sp.name[input.lang]} · ${typeLabel(sp.type, input.lang)}`,
+                bullets: sp.includes[input.lang],
+              })),
               ...(pack.includes[input.lang].length > 0 ? [{ bullets: pack.includes[input.lang] }] : []),
             ]
           : [{ bullets: pack.includes[input.lang] }];
