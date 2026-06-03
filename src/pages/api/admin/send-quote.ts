@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { getUser } from '~/lib/auth';
 import { getQuoteById } from '~/lib/quotes';
 import { sendNotification } from '~/lib/email';
+import { generateQuotePdf } from '~/lib/quotes/pdf';
 import { SITE } from '~/data/site';
 
 const schema = z.object({
@@ -41,8 +42,29 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   const link = `${SITE_URL}/p/${quote.token}`;
   const greet = quote.coupleName.split('&')[0].trim(); // "Anna & Marc" → "Anna"
 
+  // Build the branded quote PDF to attach. Fail-soft: if generation throws
+  // (bad data, missing asset), we still send the email with the link —
+  // losing the attachment is better than not sending the proposal.
+  let attachments: { filename: string; content: Buffer }[] | undefined;
+  try {
+    if (quote.packIds.length > 0) {
+      const pdf = await generateQuotePdf({
+        coupleName: quote.coupleName,
+        packIds: quote.packIds,
+        notes: quote.notes,
+        lang: quote.preferredLanguage,
+      });
+      const safeName = quote.coupleName.replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '').slice(0, 40) || 'proposta';
+      attachments = [{ filename: `Proposta-${safeName}.pdf`, content: pdf }];
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[send-quote] PDF generation failed, sending without attachment', err);
+  }
+
   await sendNotification({
     to,
+    attachments,
     subject: `La vostra proposta · Lifetime Weddings`,
     html: `
       <p>Hola ${escapeHtml(greet)},</p>

@@ -23,19 +23,32 @@ const PUBLIC_SITE_URL = process.env.PUBLIC_SITE_URL ?? SITE.url;
  *  send"). */
 export const resend = apiKey ? new Resend(apiKey) : null;
 
+export interface EmailAttachment {
+  filename: string;
+  /** Raw bytes — Resend accepts a Buffer for `content`. */
+  content: Buffer;
+}
+
 export interface EmailPayload {
   subject: string;
   html: string;
   to?: string | string[];
   /** If present, replying from Gmail goes straight to this address (the lead). */
   replyTo?: string;
+  /** Optional file attachments (e.g. the quote PDF). */
+  attachments?: EmailAttachment[];
 }
 
 export async function sendNotification(payload: EmailPayload): Promise<void> {
   const to = payload.to ?? TO;
   if (!resend) {
     // eslint-disable-next-line no-console
-    console.log('[email] (dev) would send:', { to, subject: payload.subject, replyTo: payload.replyTo });
+    console.log('[email] (dev) would send:', {
+      to,
+      subject: payload.subject,
+      replyTo: payload.replyTo,
+      attachments: payload.attachments?.map((a) => a.filename),
+    });
     return;
   }
   try {
@@ -45,6 +58,9 @@ export async function sendNotification(payload: EmailPayload): Promise<void> {
       subject: payload.subject,
       html: payload.html,
       ...(payload.replyTo ? { replyTo: payload.replyTo } : {}),
+      ...(payload.attachments && payload.attachments.length
+        ? { attachments: payload.attachments.map((a) => ({ filename: a.filename, content: a.content })) }
+        : {}),
     });
   } catch (err) {
     // eslint-disable-next-line no-console
