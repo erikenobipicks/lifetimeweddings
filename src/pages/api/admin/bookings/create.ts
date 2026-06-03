@@ -17,6 +17,35 @@ import type { BookingCreateInput, PackAddon, ReferenceTestimonial } from '~/lib/
 // Each list field comes as a textarea with one line per item; addons come
 // as "Name | 290" lines (name pipe price-in-euros). Empty lines ignored.
 
+// Accepted price formats (Spanish-first, US fallback):
+//   "3170"   "3170.00"   "3170,00"
+//   "3.170"  "3.170,00"  "1.500.000,00"
+// Spanish convention: "." = thousands separator, "," = decimal.
+// US fallback: a bare "1500.00" with 1–2 trailing digits is treated as
+// decimal so old quotes / picker output keep working.
+const SPANISH_EUROS_RE = /^(?:\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:[.,]\d{1,2})?)$/;
+
+/** Parse a Spanish (or US-style) euro string into cents. Returns NaN if
+ *  the input is unparseable so the caller can reject it. */
+function eurosStringToCents(raw: string): number {
+  const s = raw.trim();
+  if (!SPANISH_EUROS_RE.test(s)) return NaN;
+  // If a comma is present, it's the decimal — strip all dots (thousands)
+  // and swap the comma. Without a comma, ".\d{3}" groups are thousands;
+  // a lone ".\d{1,2}" tail is a decimal (US fallback).
+  let normalized: string;
+  if (s.includes(',')) {
+    normalized = s.replace(/\./g, '').replace(',', '.');
+  } else if (/^\d{1,3}(?:\.\d{3})+$/.test(s)) {
+    normalized = s.replace(/\./g, '');
+  } else {
+    normalized = s;
+  }
+  const n = parseFloat(normalized);
+  if (!Number.isFinite(n) || n < 0) return NaN;
+  return Math.round(n * 100);
+}
+
 function parseLines(raw: string | null | undefined): string[] {
   if (!raw) return [];
   return raw
@@ -28,12 +57,16 @@ function parseLines(raw: string | null | undefined): string[] {
 function parseAddons(raw: string | null | undefined): PackAddon[] {
   return parseLines(raw)
     .map((line): PackAddon | null => {
-      const m = line.match(/^(.+?)\s*\|\s*(\d+(?:[.,]\d+)?)$/);
-      if (!m) return null;
-      const name = m[1].trim();
-      const euros = parseFloat(m[2].replace(',', '.'));
-      if (Number.isNaN(euros) || euros < 0) return null;
-      return { name, price_cents: Math.round(euros * 100) };
+      // Split on the last "|" so names containing the pipe character
+      // (unlikely but possible) don't break the parse.
+      const idx = line.lastIndexOf('|');
+      if (idx < 0) return null;
+      const name = line.slice(0, idx).trim();
+      const priceStr = line.slice(idx + 1).trim();
+      if (!name) return null;
+      const cents = eurosStringToCents(priceStr);
+      if (Number.isNaN(cents)) return null;
+      return { name, price_cents: cents };
     })
     .filter((x): x is PackAddon => x !== null);
 }
@@ -68,8 +101,12 @@ const formSchema = z.object({
   packIncludes: z.string().optional(),
   packExcludes: z.string().optional(),
   packAddons: z.string().optional(),
-  packPriceEuros: z.string().regex(/^\d+(?:[.,]\d+)?$/, 'Format: 1500 or 1500.00'),
-  depositEuros: z.string().regex(/^\d+(?:[.,]\d+)?$/, 'Format: 500 or 500.00'),
+  packPriceEuros: z
+    .string()
+    .regex(SPANISH_EUROS_RE, 'Format: 1500, 1.500, 1500,00 o 1.500,00'),
+  depositEuros: z
+    .string()
+    .regex(SPANISH_EUROS_RE, 'Format: 500, 500,00 o 1.500,00'),
   paymentTerms: z.string().max(200).optional(),
 
   customIntro: z.string().max(2000).optional(),
@@ -128,8 +165,8 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     packIncludes: parseLines(d.packIncludes),
     packExcludes: parseLines(d.packExcludes),
     packAddons: parseAddons(d.packAddons),
-    packPriceCents: Math.round(parseFloat(d.packPriceEuros.replace(',', '.')) * 100),
-    depositCents: Math.round(parseFloat(d.depositEuros.replace(',', '.')) * 100),
+    packPriceCents: eurosStringToCents(d.packPriceEuros),
+    depositCents: eurosStringToCents(d.depositEuros),
     paymentTerms: d.paymentTerms?.trim() || undefined,
 
     customIntro: d.customIntro?.trim() || undefined,
