@@ -229,6 +229,36 @@ const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
     errorValidation: t('reserva.form.error.validation'),
     submitting: t('reserva.form.submitting'),
     submitLabel: t('reserva.form.submit'),
+    // Human-readable labels per zod path. Surfaced in the validation
+    // error banner so the couple knows exactly which field failed.
+    fieldLabels: {
+      c1FullName: t('reserva.form.section.c1') + ' · ' + t('reserva.form.field.fullName'),
+      c1Dni: t('reserva.form.section.c1') + ' · ' + t('reserva.form.field.dni'),
+      c1BirthDate: t('reserva.form.section.c1') + ' · ' + t('reserva.form.field.birthDate'),
+      c1Address: t('reserva.form.section.c1') + ' · ' + t('reserva.form.field.address'),
+      c1Email: t('reserva.form.section.c1') + ' · ' + t('reserva.form.field.email'),
+      c1Phone: t('reserva.form.section.c1') + ' · ' + t('reserva.form.field.phone'),
+      c2FullName: t('reserva.form.section.c2') + ' · ' + t('reserva.form.field.fullName'),
+      c2Dni: t('reserva.form.section.c2') + ' · ' + t('reserva.form.field.dni'),
+      c2BirthDate: t('reserva.form.section.c2') + ' · ' + t('reserva.form.field.birthDate'),
+      c2Address: t('reserva.form.section.c2') + ' · ' + t('reserva.form.field.address'),
+      c2Email: t('reserva.form.section.c2') + ' · ' + t('reserva.form.field.email'),
+      c2Phone: t('reserva.form.section.c2') + ' · ' + t('reserva.form.field.phone'),
+      billingName: t('reserva.form.section.billing') + ' · ' + t('reserva.form.field.billingName'),
+      billingDni: t('reserva.form.section.billing') + ' · ' + t('reserva.form.field.billingDni'),
+      billingAddress: t('reserva.form.section.billing') + ' · ' + t('reserva.form.field.billingAddress'),
+      weddingDateAlt: t('reserva.form.field.dateAlt'),
+      venueAltName: t('reserva.form.field.venueAlt'),
+      ceremonyTime: t('reserva.form.field.ceremonyTime'),
+      serviceEndTime: t('reserva.form.field.serviceEndTime'),
+      guestCountEstimate: t('reserva.form.field.guestCount'),
+      weddingTimeSlot: t('reserva.form.field.timeSlot'),
+      preferredCommunication: t('reserva.form.field.communication'),
+      preferredLanguage: t('reserva.form.field.language'),
+      preferredPaymentMethod: t('reserva.form.field.payment'),
+      howDidYouFindUs: t('reserva.form.field.howFound'),
+      importantNotes: t('reserva.form.field.notes'),
+    },
   }}
 >
   (() => {
@@ -291,6 +321,36 @@ const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
       status.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
+    function escHtml(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    // Render an HTML list of friendly field-name + reason rows from the
+    // zod issues the server returns on 400.
+    function renderIssuesBody(issues) {
+      const items = issues
+        .map((it) => {
+          const path = (it.path || '').split('.')[0];
+          const label = fieldLabels[path] || path || 'Camp';
+          return `<li><strong>${escHtml(label)}</strong> · <span class="text-ink/75">${escHtml(it.message || '')}</span></li>`;
+        })
+        .join('');
+      return `<p class="mb-2">${escHtml(errorValidation)}</p><ul class="list-disc pl-5 space-y-1">${items}</ul>`;
+    }
+
+    // Outline + scroll-to the first failing field so the couple lands on it.
+    function highlightFirstField(issues) {
+      // Clear previous highlights from a prior failed submit.
+      form.querySelectorAll('.field-err').forEach((el) => el.classList.remove('field-err', 'border-red-500', 'ring-2', 'ring-red-200'));
+      if (!issues || issues.length === 0) return;
+      const first = (issues[0].path || '').split('.')[0];
+      const el = form.querySelector(`[name="${first}"]`);
+      if (!el) return;
+      el.classList.add('field-err', 'border-red-500', 'ring-2', 'ring-red-200');
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      try { el.focus({ preventScroll: true }); } catch {}
+    }
+
     form.addEventListener('submit', async (ev) => {
       ev.preventDefault();
       // Native browser validation pass first (required, email, etc.).
@@ -310,6 +370,16 @@ const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
       for (const k of ['c1BirthDate','c2BirthDate','weddingDateAlt','ceremonyTime','serviceEndTime']) {
         if (obj[k] === '') delete obj[k];
       }
+      // The "—" option on the optional selects has value="", which the
+      // server-side `z.enum(...).optional()` rejects (it expects either a
+      // valid enum member or `undefined`). Strip the empties here so the
+      // couple can leave them blank.
+      for (const k of ['preferredCommunication','preferredLanguage','preferredPaymentMethod','weddingTimeSlot','billingContact','guestCountEstimate']) {
+        if (obj[k] === '') delete obj[k];
+      }
+      // Strip the "Vivim junts" toggle — it's purely client-side UX, not
+      // part of the API schema.
+      delete obj.sameAddressAsC1;
 
       // Cloudflare Turnstile drops its token into a hidden input named
       // `cf-turnstile-response`. Move it onto the field the API expects.
@@ -340,7 +410,13 @@ const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
         if (res.status === 429) {
           showStatus('err', '⚠', errorRate);
         } else if (res.status === 400) {
-          showStatus('err', '⚠', errorValidation);
+          const issues = Array.isArray(data && data.issues) ? data.issues : [];
+          if (issues.length > 0) {
+            showStatus('err', '⚠', renderIssuesBody(issues));
+            highlightFirstField(issues);
+          } else {
+            showStatus('err', '⚠', errorValidation);
+          }
         } else {
           showStatus('err', '⚠', errorGeneric);
         }
