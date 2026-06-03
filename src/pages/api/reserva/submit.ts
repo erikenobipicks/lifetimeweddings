@@ -182,12 +182,40 @@ export const POST: APIRoute = async ({ request }) => {
     return jsonResponse({ error: 'invalid_json' }, 400);
   }
 
+  // Defensive: coerce empty strings to `undefined` for the optional
+  // fields whose schema is a regex/enum/number that would reject "".
+  // The client already strips these, but a cached/old page (or a
+  // non-browser caller) might still send empty strings — this keeps the
+  // submit working regardless of which page version is loaded.
+  if (body && typeof body === 'object') {
+    const b = body as Record<string, unknown>;
+    const optionalEmptyable = [
+      'c1BirthDate', 'c2BirthDate', 'weddingDateAlt', 'ceremonyTime', 'serviceEndTime',
+      'guestCountEstimate', 'weddingTimeSlot', 'billingContact',
+      'preferredCommunication', 'preferredLanguage', 'preferredPaymentMethod',
+    ];
+    for (const k of optionalEmptyable) {
+      if (b[k] === '') delete b[k];
+    }
+    // Strip the client-only "live together" toggle if it ever leaks in.
+    delete b.sameAddressAsC1;
+  }
+
   const parsed = submitSchema.safeParse(body);
   if (!parsed.success) {
-    return jsonResponse(
-      { error: 'validation', issues: parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })) },
-      400,
-    );
+    const issues = parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message }));
+    // Log the exact failing fields (paths + the offending values) so we
+    // can diagnose from the server logs. We log the value too — these are
+    // the raw posted strings, helpful when a regex (DNI/phone/time) is the
+    // culprit. Values are truncated to avoid dumping huge payloads.
+    const b = (body ?? {}) as Record<string, unknown>;
+    const detail = issues.map((i) => {
+      const v = b[i.path];
+      const vStr = v === undefined ? '∅(missing)' : JSON.stringify(v);
+      return `${i.path}=${vStr.length > 60 ? vStr.slice(0, 60) + '…' : vStr} (${i.message})`;
+    });
+    console.warn('[reserva.submit] validation failed:', detail.join(' | '));
+    return jsonResponse({ error: 'validation', issues }, 400);
   }
   const d = parsed.data;
 
