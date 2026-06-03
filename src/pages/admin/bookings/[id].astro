@@ -144,7 +144,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
         )}
 
         {booking.status !== 'archived' && (
-          <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline" onsubmit="return confirm('Arxivar aquesta reserva? La pàgina pública deixarà de servir-se.')">
+          <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline" onsubmit="return confirm('Arxivar aquesta reserva? La pàgina pública deixarà de servir-se però es pot recuperar.')">
             <input type="hidden" name="_action" value="status" />
             <input type="hidden" name="status" value="archived" />
             <button type="submit" class="border border-red-300 text-red-700 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-red-50 transition-colors">
@@ -152,6 +152,12 @@ const ibanPlaceholder = transfer.isPlaceholder;
             </button>
           </form>
         )}
+        <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline" onsubmit="return confirm('⚠ ELIMINAR aquesta reserva DEFINITIVAMENT?\n\nNo es podrà recuperar. També s'esborraran les dades de la parella i el contracte.\n\nFes-ho servir només per netejar proves.')">
+          <input type="hidden" name="_action" value="delete" />
+          <button type="submit" class="border-2 border-red-600 text-red-600 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-red-600 hover:text-white transition-colors">
+            Eliminar definitivament
+          </button>
+        </form>
       </div>
     </div>
     <dl class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5 pt-5 border-t border-black/10 text-xs">
