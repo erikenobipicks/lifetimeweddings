@@ -11,12 +11,20 @@ export interface ContractData {
   /** Used to infer photo/video/combo. */
   packName: string;
   packIncludes: string[];
-  /** Signatory (the billing contraent). */
+  /** Primary signatory (the billing contraent). */
   firstname: string;
   lastname: string;
   dni: string;
   /** Full postal address as captured (single field). */
   address: string;
+  /** Second contraent — appears in the header as a co-party so both
+   *  partners figure on the legal document. Optional only because pre-
+   *  Phase-2 bookings may not have a form_response yet; in practice the
+   *  contract step is gated behind /reserva, so this is always set. */
+  partner2Firstname?: string;
+  partner2Lastname?: string;
+  partner2Dni?: string;
+  partner2Address?: string;
   /** "Boda de X i Y" — both partners' names. */
   shootDescription: string;
   shootDateLong: string;
@@ -91,6 +99,12 @@ export function buildContractHtml(data: ContractData): { html: string; type: Con
     street: data.address,
     zipcode: '',
     city: '',
+    // Second contraent (co-party in the header) — empty string when absent
+    // so a missing value renders cleanly without "{partner2_…}" leaking.
+    partner2_firstname: data.partner2Firstname ?? '',
+    partner2_lastname: data.partner2Lastname ?? '',
+    partner2_vat: data.partner2Dni ?? '',
+    partner2_street: data.partner2Address ?? '',
     shoot_description: data.shootDescription,
     shoot_date: data.shootDateLong,
     shoot_time: data.shootTime,
@@ -105,10 +119,17 @@ export function buildContractHtml(data: ContractData): { html: string; type: Con
   for (const [k, v] of Object.entries(vars)) {
     html = html.split(`{${k}}`).join(escapeHtml(v));
   }
-  // Tidy the address sentence when zip/city are empty: "a X,  " → "a X".
-  html = html.replace(/,\s*,/g, ',').replace(/,\s*<\/em>/g, '</em>').replace(/ {2,}/g, ' ');
-  // Collapse "domicili a <addr>,  ." style leftovers: ", ." → "."
-  html = html.replace(/,\s*\./g, '.');
+  // Tidy leftover separators when zipcode/city are empty (the address is
+  // captured as a single line, so {zipcode} {city} render as ""). Order
+  // matters: collapse double-commas first, then trim before terminal
+  // punctuation, then strip trailing commas before tag close.
+  // Only trim trailing punctuation when the preceding chunk was actually a
+  // template hole that left the address half-empty — never strip commas
+  // that belong to the original prose (e.g. `D'una banda, "Lifetime …"`).
+  html = html
+    .replace(/,\s*,/g, ',')      // double comma from {street}, {zipcode} {city}
+    .replace(/,\s*\./g, '.')     // comma stuck before a sentence end
+    .replace(/ {2,}/g, ' ');     // collapse runs of spaces
 
   return { html, type };
 }

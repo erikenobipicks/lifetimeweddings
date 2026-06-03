@@ -70,7 +70,11 @@ function parseAddons(raw: string | null | undefined): PackAddon[] {
 const updateSchema = z.object({
   coupleName1: z.string().min(1).max(60).optional(),
   coupleName2: z.string().min(1).max(60).optional(),
+  // Optional on PATCH (only validated if present), but if present must be
+  // a valid email — empty string is rejected so a stray edit can't blank
+  // the email and break every downstream notification.
   coupleEmailPrimary: z.string().email().max(120).optional(),
+  // (See create.ts: primary email is required at booking creation.)
   couplePhonePrimary: z.string().max(40).optional(),
   preferredLanguage: z.enum(['ca', 'es', 'en']).optional(),
 
@@ -137,15 +141,22 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
     if (booking.status !== 'form_submitted') {
       return back('?error=Cal+haver+enviat+/reserva+primer');
     }
+    // Guard against a re-click / Stripe-webhook race: only do the side
+    // effects (invoice, /contrato invite email) the FIRST time. The DB
+    // helpers are already idempotent on their own, but `sendContratoInvite`
+    // is not — without this guard a re-click sends a second identical
+    // "Dipòsit rebut, omple /contrato" email to the couple.
+    const alreadyPaid = booking.depositPaidAt instanceof Date;
     await markDepositPaid(id);
-    // Issue the deposit invoice in FacturaDirecta. Idempotent + fail-soft:
-    // no-op when unconfigured / already invoiced, never blocks the redirect.
-    await issueDepositInvoiceForBooking(id);
-    // Send the couple their /contrato/<slug> link. Re-read so the helper sees
-    // the deposit_paid_at stamp (currently unused but safer for future
-    // copy that branches on it). Fail-soft inside sendContratoInvite.
-    const fresh = await getBookingById(id);
-    if (fresh) await sendContratoInvite(fresh);
+    if (!alreadyPaid) {
+      // Issue the deposit invoice in FacturaDirecta. Idempotent + fail-soft:
+      // no-op when unconfigured / already invoiced, never blocks the redirect.
+      await issueDepositInvoiceForBooking(id);
+      // Send the couple their /contrato/<slug> link. Re-read so the helper
+      // sees the deposit_paid_at stamp. Fail-soft inside sendContratoInvite.
+      const fresh = await getBookingById(id);
+      if (fresh) await sendContratoInvite(fresh);
+    }
     return back('?ok=deposit:paid');
   }
   if (action === 'deposit_unpaid') {

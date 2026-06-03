@@ -18,14 +18,21 @@ export function contractDataFromBooking(
   booking: Booking,
   fr: BookingFormResponse,
 ): ContractData {
-  // The contract is addressed to the billing contraent (the one the invoice
-  // goes to). Default to c1 for pre-existing rows.
+  // The signatory is the billing contraent (the one the invoice goes to);
+  // the OTHER one figures alongside in the contract header so both
+  // contraents are parties to the agreement. Default to c1 for pre-
+  // existing rows.
   const billing = fr.billingContact === 'c2' ? 'c2' : 'c1';
   const signatory =
     billing === 'c2'
       ? { full: fr.c2FullName, dni: fr.c2Dni, address: fr.c2Address }
       : { full: fr.c1FullName, dni: fr.c1Dni, address: fr.c1Address };
+  const coParty =
+    billing === 'c2'
+      ? { full: fr.c1FullName, dni: fr.c1Dni, address: fr.c1Address }
+      : { full: fr.c2FullName, dni: fr.c2Dni, address: fr.c2Address };
   const { firstname, lastname } = splitName(signatory.full);
+  const co = splitName(coParty.full);
 
   // Wedding date: the confirmed one, or the couple's proposed alternative.
   const weddingDate =
@@ -51,6 +58,10 @@ export function contractDataFromBooking(
     lastname,
     dni: signatory.dni,
     address: signatory.address,
+    partner2Firstname: co.firstname,
+    partner2Lastname: co.lastname,
+    partner2Dni: coParty.dni,
+    partner2Address: coParty.address,
     shootDescription: `Boda de ${fr.c1FullName} i ${fr.c2FullName}`,
     shootDateLong: formatWeddingDateLong(weddingDate, booking.preferredLanguage),
     shootTime,

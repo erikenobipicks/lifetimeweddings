@@ -544,14 +544,22 @@ export async function setFotostudioProjectId(
   });
 }
 
-/** Clear the deposit flag (admin un-marks). Also clears contract_ready_at
- *  because letting a contrato submission survive a deposit reversal would
- *  be inconsistent. */
+/** Clear the deposit flag (admin un-marks). Also clears every downstream
+ *  stamp that doesn't make sense without a paid deposit: contract data,
+ *  contract acceptance, and the FacturaDirecta invoice reference (so
+ *  re-marking later re-issues correctly). The invoice ITSELF is NOT
+ *  deleted from FacturaDirecta — that's intentional, the operator must
+ *  void or credit-note it manually if needed. */
 export async function unmarkDepositPaid(bookingId: string): Promise<void> {
   await initSchema();
   await db.execute({
     sql: `UPDATE bookings
-          SET deposit_paid_at = NULL, contract_ready_at = NULL
+          SET deposit_paid_at = NULL,
+              contract_ready_at = NULL,
+              contract_accepted_at = NULL,
+              contract_accepted_ip = NULL,
+              facturadirecta_invoice_id = NULL,
+              facturadirecta_invoice_number = NULL
           WHERE id = ?`,
     args: [bookingId],
   });

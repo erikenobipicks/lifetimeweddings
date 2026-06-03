@@ -19,7 +19,7 @@ const CA_PHOTO = `<h2 style="text-align:center;">CONTRACTE DE REPORTATGE FOTOGR�
 
 <h3>REUNITS</h3>
 <p>D'una banda, <strong>"Lifetime Weddings"</strong>, amb raó social <strong>Objectiu S.C.P.</strong>, CIF <strong>J43300581</strong>, i domicili fiscal al carrer Mare Molas, 26 de Reus, d'ara endavant <em>"els fotògrafs"</em>.</p>
-<p>I de l'altra, <strong>{firstname} {lastname}</strong>, amb DNI <strong>{vat}</strong> i domicili a {street}, {zipcode} {city}, d'ara endavant <em>"la parella"</em>.</p>
+<p>I de l'altra, <strong>{firstname} {lastname}</strong>, amb DNI <strong>{vat}</strong> i domicili a {street}, i <strong>{partner2_firstname} {partner2_lastname}</strong>, amb DNI <strong>{partner2_vat}</strong> i domicili a {partner2_street}, d'ara endavant <em>"la parella"</em>.</p>
 
 <h3>INTERVENEN</h3>
 <p>Les parts, actuant en el seu propi nom i dret, i reconeixent-se plena capacitat per obligar-se, acorden el present Contracte de Prestació de Serveis per a la <strong>{shoot_description}</strong>, manifestant que els fotògrafs disposen dels equips i coneixements necessaris per realitzar el treball requerit, i ho pacten d'acord amb les següents:</p>
@@ -108,7 +108,7 @@ const CA_VIDEO = `<h2 style="text-align:center;">CONTRACTE DE REPORTATGE VIDEOGR
 
 <h3>REUNITS</h3>
 <p>D'una banda, <strong>"Lifetime Weddings"</strong>, amb raó social <strong>Objectiu S.C.P.</strong>, CIF <strong>J43300581</strong>, i domicili fiscal al carrer Mare Molas, 26 de Reus, d'ara endavant <em>"els videògrafs"</em>.</p>
-<p>I de l'altra, <strong>{firstname} {lastname}</strong>, amb DNI <strong>{vat}</strong> i domicili a {street}, {zipcode} {city}, d'ara endavant <em>"la parella"</em>.</p>
+<p>I de l'altra, <strong>{firstname} {lastname}</strong>, amb DNI <strong>{vat}</strong> i domicili a {street}, i <strong>{partner2_firstname} {partner2_lastname}</strong>, amb DNI <strong>{partner2_vat}</strong> i domicili a {partner2_street}, d'ara endavant <em>"la parella"</em>.</p>
 
 <h3>INTERVENEN</h3>
 <p>Les parts, actuant en el seu propi nom i dret, i reconeixent-se plena capacitat per obligar-se, acorden el present Contracte de Prestació de Serveis per a la <strong>{shoot_description}</strong>, manifestant que els videògrafs disposen dels equips i coneixements necessaris per realitzar el treball requerit, i ho pacten d'acord amb les següents:</p>
@@ -197,7 +197,7 @@ const CA_COMBO = `<h2 style="text-align:center;">CONTRACTE DE REPORTATGE DE BODA
 
 <h3>REUNITS</h3>
 <p>D'una banda, <strong>"Lifetime Weddings"</strong>, amb raó social <strong>Objectiu S.C.P.</strong>, CIF <strong>J43300581</strong>, i domicili fiscal al carrer Mare Molas, 26 de Reus, d'ara endavant <em>"els fotògrafs i videògrafs"</em>.</p>
-<p>I de l'altra, <strong>{firstname} {lastname}</strong>, amb DNI <strong>{vat}</strong> i domicili a {street}, {zipcode} {city}, d'ara endavant <em>"la parella"</em>.</p>
+<p>I de l'altra, <strong>{firstname} {lastname}</strong>, amb DNI <strong>{vat}</strong> i domicili a {street}, i <strong>{partner2_firstname} {partner2_lastname}</strong>, amb DNI <strong>{partner2_vat}</strong> i domicili a {partner2_street}, d'ara endavant <em>"la parella"</em>.</p>
 
 <h3>INTERVENEN</h3>
 <p>Les parts, actuant en el seu propi nom i dret, i reconeixent-se plena capacitat per obligar-se, acorden el present Contracte de Prestació de Serveis per a la <strong>{shoot_description}</strong>, manifestant que els fotògrafs i videògrafs disposen dels equips i coneixements necessaris per realitzar el treball requerit, i ho pacten d'acord amb les següents:</p>
@@ -287,7 +287,7 @@ const ES_PHOTO = `<h2 style="text-align:center;">CONTRATO DE REPORTAJE FOTOGRÁF
 
 <h3>REUNIDOS</h3>
 <p>De una parte, <strong>"Lifetime Weddings"</strong>, con razón social <strong>Objectiu S.C.P.</strong>, CIF <strong>J43300581</strong>, y domicilio fiscal en la calle Mare Molas, 26 de Reus, en adelante <em>"los fotógrafos"</em>.</p>
-<p>Y de la otra, <strong>{firstname} {lastname}</strong>, con DNI <strong>{vat}</strong> y domicilio en {street}, {zipcode} {city}, en adelante <em>"la pareja"</em>.</p>
+<p>Y de la otra, <strong>{firstname} {lastname}</strong>, con DNI <strong>{vat}</strong> y domicilio en {street}, y <strong>{partner2_firstname} {partner2_lastname}</strong>, con DNI <strong>{partner2_vat}</strong> y domicilio en {partner2_street}, en adelante <em>"la pareja"</em>.</p>
 
 <h3>INTERVIENEN</h3>
 <p>Las partes, actuando en su propio nombre y derecho, y reconociéndose plena capacidad para obligarse, acuerdan el presente Contrato de Prestación de Servicios para la <strong>{shoot_description}</strong>, manifestando que los fotógrafos disponen de los equipos y conocimientos necesarios para realizar el trabajo requerido, y lo pactan de acuerdo con las siguientes:</p>
@@ -376,7 +376,7 @@ const ES_VIDEO = `<h2 style="text-align:center;">CONTRATO DE REPORTAJE VIDEOGRÁ
 
 <h3>REUNIDOS</h3>
 <p>De una parte, <strong>"Lifetime Weddings"</strong>, con razón social <strong>Objectiu S.C.P.</strong>, CIF <strong>J43300581</strong>, y domicilio fiscal en la calle Mare Molas, 26 de Reus, en adelante <em>"los videógrafos"</em>.</p>
-<p>Y de la otra, <strong>{firstname} {lastname}</strong>, con DNI <strong>{vat}</strong> y domicilio en {street}, {zipcode} {city}, en adelante <em>"la pareja"</em>.</p>
+<p>Y de la otra, <strong>{firstname} {lastname}</strong>, con DNI <strong>{vat}</strong> y domicilio en {street}, y <strong>{partner2_firstname} {partner2_lastname}</strong>, con DNI <strong>{partner2_vat}</strong> y domicilio en {partner2_street}, en adelante <em>"la pareja"</em>.</p>
 
 <h3>INTERVIENEN</h3>
 <p>Las partes, actuando en su propio nombre y derecho, y reconociéndose plena capacidad para obligarse, acuerdan el presente Contrato de Prestación de Servicios para la <strong>{shoot_description}</strong>, manifestando que los videógrafos disponen de los equipos y conocimientos necesarios para realizar el trabajo requerido, y lo pactan de acuerdo con las siguientes:</p>
@@ -465,7 +465,7 @@ const ES_COMBO = `<h2 style="text-align:center;">CONTRATO DE REPORTAJE DE BODA</
 
 <h3>REUNIDOS</h3>
 <p>De una parte, <strong>"Lifetime Weddings"</strong>, con razón social <strong>Objectiu S.C.P.</strong>, CIF <strong>J43300581</strong>, y domicilio fiscal en la calle Mare Molas, 26 de Reus, en adelante <em>"los fotógrafos y videógrafos"</em>.</p>
-<p>Y de la otra, <strong>{firstname} {lastname}</strong>, con DNI <strong>{vat}</strong> y domicilio en {street}, {zipcode} {city}, en adelante <em>"la pareja"</em>.</p>
+<p>Y de la otra, <strong>{firstname} {lastname}</strong>, con DNI <strong>{vat}</strong> y domicilio en {street}, y <strong>{partner2_firstname} {partner2_lastname}</strong>, con DNI <strong>{partner2_vat}</strong> y domicilio en {partner2_street}, en adelante <em>"la pareja"</em>.</p>
 
 <h3>INTERVIENEN</h3>
 <p>Las partes, actuando en su propio nombre y derecho, y reconociéndose plena capacidad para obligarse, acuerdan el presente Contrato de Prestación de Servicios para la <strong>{shoot_description}</strong>, manifestando que los fotógrafos y videógrafos disponen de los equipos y conocimientos necesarios para realizar el trabajo requerido, y lo pactan de acuerdo con las siguientes:</p>

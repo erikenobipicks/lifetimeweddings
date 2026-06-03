@@ -9,6 +9,7 @@ import AdminLayout from '~/layouts/AdminLayout.astro';
 import { getBookingById, getFormResponseForBooking } from '~/lib/bookings/repository';
 import type { BookingStatus } from '~/lib/bookings/types';
 import { videos } from '~/data/videos';
+import { getBankTransferDetails, isStripeTestMode } from '~/lib/payments/config';
 
 const id = Astro.params.id!;
 const booking = await getBookingById(id);
@@ -54,9 +55,29 @@ const addonsText = booking.packAddons
 
 const couple = `${booking.coupleName1} & ${booking.coupleName2}`;
 const t = booking.referenceTestimonial;
+
+// Payment-config warnings: surface in admin so we never accidentally ship
+// a test Stripe key or the placeholder IBAN to a real couple.
+const stripeTest = isStripeTestMode();
+const transfer = getBankTransferDetails();
+const ibanPlaceholder = transfer.isPlaceholder;
 ---
 
 <AdminLayout title={`Reserva · ${couple}`}>
+  {(stripeTest || ibanPlaceholder) && (
+    <div class="mb-6 space-y-2">
+      {stripeTest && (
+        <div class="px-4 py-3 bg-amber-50 border border-amber-300 text-amber-900 text-sm">
+          <strong class="font-bold">⚠ Stripe en mode TEST.</strong> Els pagaments amb targeta no es cobraran realment. Posa la clau <code>sk_live_…</code> a Railway abans de cobrar de veritat.
+        </div>
+      )}
+      {ibanPlaceholder && (
+        <div class="px-4 py-3 bg-amber-50 border border-amber-300 text-amber-900 text-sm">
+          <strong class="font-bold">⚠ IBAN no configurat.</strong> Es mostra a la parella un IBAN fals (<code>ES00 …</code>). Posa <code>BANK_TRANSFER_IBAN</code> a Railway abans d'enviar la URL de la reserva.
+        </div>
+      )}
+    </div>
+  )}
   <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6">
     <div class="min-w-0">
       <a href="/admin/bookings" class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold">← Llistat</a>
