@@ -6,7 +6,8 @@
 // or back here with ?error=... preserving values.
 import AdminLayout from '~/layouts/AdminLayout.astro';
 import { videos } from '~/data/videos';
-import { PACKS, EXTRAS } from '~/data/packs';
+import { PACKS, EXTRAS, getComposedSubpacks } from '~/data/packs';
+import type { Lang } from '~/i18n/ui';
 
 const params = Astro.url.searchParams;
 const error = params.get('error');
@@ -24,13 +25,45 @@ function eurosFromPriceString(s: string): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+// For combos: build a "fully expanded" includes list per language by
+// stitching each sub-pack's includes with its name as a header line,
+// then appending the combo's own bullets under "I junts:" / "Y juntos:"
+// / "And together:". Mirrors the breakdown the renderer produces on
+// /p/<token> so the FotoStudio quote text matches what couples see.
+const COMBO_TOGETHER_HEADER: Record<Lang, string> = {
+  ca: 'I junts:',
+  es: 'Y juntos:',
+  en: 'And together:',
+};
+
+function expandedIncludes(pack: typeof PACKS[number]): Record<Lang, string[]> {
+  const subs = getComposedSubpacks(pack);
+  if (subs.length === 0) {
+    return pack.includes;
+  }
+  const out = { ca: [] as string[], es: [] as string[], en: [] as string[] };
+  (['ca', 'es', 'en'] as const).forEach((lang) => {
+    subs.forEach((sp, i) => {
+      if (i > 0) out[lang].push('');
+      out[lang].push(`— ${sp.name[lang]} —`);
+      out[lang].push(...sp.includes[lang]);
+    });
+    if (pack.includes[lang].length > 0) {
+      out[lang].push('');
+      out[lang].push(COMBO_TOGETHER_HEADER[lang]);
+      out[lang].push(...pack.includes[lang]);
+    }
+  });
+  return out;
+}
+
 // Pre-built JSON the client script consumes. Trilingual snapshots of each
 // pack's includes + parsed numeric price so the picker can fill the form
 // according to the language the operator picked above.
 const packCatalog = PACKS.map((p) => ({
   id: p.id,
   name: p.name,
-  includes: p.includes,
+  includes: expandedIncludes(p),
   priceEuros: eurosFromPriceString(p.price),
 }));
 const extrasCatalog = EXTRAS.map((x) => ({
@@ -146,16 +179,20 @@ const extrasCatalog = EXTRAS.map((x) => ({
         </label>
         <div class="block md:col-span-2 bg-cream/60 border border-gold/30 p-4 md:p-5">
           <p class="text-xs font-bold tracking-widest uppercase text-ink/70">Extres del catàleg</p>
-          <p class="text-[11px] text-ink/55 mb-3">Marca'n els que vols incloure i s'afegiran sols a la llista d'add-ons de dalt. Pots editar el text després.</p>
+          <p class="text-[11px] text-ink/55 mb-3">Marca'n els que vols incloure i s'afegiran sols a la llista d'add-ons de dalt. Marca <strong>🎁 Regal</strong> per afegir-lo a cost 0 €.</p>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
             {EXTRAS.map((x) => (
-              <label class="flex items-start gap-2 py-1.5 px-2 hover:bg-white cursor-pointer">
-                <input type="checkbox" data-extra-id={x.id} class="extra-toggle mt-1 accent-gold" />
-                <span class="flex-1 text-sm">
+              <div class="flex items-start gap-2 py-1.5 px-2 hover:bg-white">
+                <input id={`extra-${x.id}`} type="checkbox" data-extra-id={x.id} class="extra-toggle mt-1 accent-gold cursor-pointer" />
+                <label for={`extra-${x.id}`} class="flex-1 text-sm cursor-pointer">
                   <span class="text-ink">{x.name.ca}</span>
                   <span class="block text-[11px] text-gold font-bold">{x.price}</span>
-                </span>
-              </label>
+                </label>
+                <label class={`gift-toggle-wrap text-[11px] inline-flex items-center gap-1 px-1.5 py-0.5 rounded cursor-pointer select-none border border-transparent hover:border-gold/40`} data-gift-wrap-for={x.id}>
+                  <input type="checkbox" data-gift-id={x.id} class="gift-toggle accent-gold" />
+                  <span>🎁 Regal</span>
+                </label>
+              </div>
             ))}
           </div>
         </div>
@@ -169,8 +206,60 @@ const extrasCatalog = EXTRAS.map((x) => ({
         </label>
         <label class="block md:col-span-2">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Termes de pagament</span>
-          <input name="paymentTerms" value={v('paymentTerms')} placeholder="50% en signar, 50% un mes abans" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input id="paymentTermsField" name="paymentTerms" value={v('paymentTerms')} placeholder="50% en signar, 50% un mes abans" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
+
+        <div class="block md:col-span-2 bg-cream/60 border border-gold/30 p-4 md:p-5">
+          <p class="text-xs font-bold tracking-widest uppercase text-ink/70 mb-1">💶 Calculadora de pagament</p>
+          <p class="text-[11px] text-ink/55 mb-3">Suma automàticament <strong>Inversió total + add-ons</strong>. La part en <strong>efectiu</strong> es resta de la base imposable (s'estalvia l'IVA del 21 % sobre aquell tram). Apreta <em>Inserir text al pla de pagament</em> per copiar el desglossament al camp de dalt.</p>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+            <label class="block">
+              <span class="text-[11px] font-bold tracking-wide uppercase text-ink/60">Reserva (€)</span>
+              <input id="paySchedule0" type="number" min="0" step="1" class="mt-1 w-full px-2 py-1.5 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none" />
+            </label>
+            <label class="block">
+              <span class="text-[11px] font-bold tracking-wide uppercase text-ink/60">2n pagament (€)</span>
+              <input id="paySchedule1" type="number" min="0" step="1" class="mt-1 w-full px-2 py-1.5 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none" />
+            </label>
+            <label class="block">
+              <span class="text-[11px] font-bold tracking-wide uppercase text-ink/60">3r pagament (€)</span>
+              <input id="paySchedule2" type="number" min="0" step="1" class="mt-1 w-full px-2 py-1.5 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none" />
+            </label>
+            <label class="block">
+              <span class="text-[11px] font-bold tracking-wide uppercase text-ink/60">En efectiu (€)</span>
+              <input id="payCash" type="number" min="0" step="1" class="mt-1 w-full px-2 py-1.5 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none" />
+              <span class="block text-[10px] text-ink/45 mt-0.5">tram que s'estalvia l'IVA</span>
+            </label>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs bg-white border border-black/10 p-3">
+            <div>
+              <p class="text-ink/55">Inversió pack</p>
+              <p id="calcPackTotal" class="font-bold text-ink">0 €</p>
+            </div>
+            <div>
+              <p class="text-ink/55">Suma add-ons</p>
+              <p id="calcAddonsTotal" class="font-bold text-ink">0 €</p>
+            </div>
+            <div>
+              <p class="text-ink/55">Total amb IVA</p>
+              <p id="calcGrossTotal" class="font-bold text-ink">0 €</p>
+            </div>
+            <div>
+              <p class="text-ink/55">Total a cobrar <span class="text-[10px]">(amb efectiu)</span></p>
+              <p id="calcNetTotal" class="font-bold text-gold">0 €</p>
+            </div>
+            <div class="col-span-2 md:col-span-4 text-[10px] text-ink/55 border-t border-black/5 pt-2">
+              Base imposable: <span id="calcBase">0 €</span> · IVA 21 %: <span id="calcVat">0 €</span> · Estalvi efectiu: <span id="calcCashSaving">0 €</span>
+              · Pagaments programats: <span id="calcScheduled">0 €</span> <span id="calcMismatch" class="hidden text-red-700 font-bold">⚠ no quadra amb el total a cobrar</span>
+            </div>
+          </div>
+
+          <button type="button" id="insertPaymentPlanBtn" class="mt-3 inline-block bg-ink text-white px-3 py-2 text-[11px] font-bold tracking-widest uppercase hover:bg-gold transition-colors">
+            Inserir text al pla de pagament
+          </button>
+        </div>
       </div>
     </fieldset>
 
@@ -285,6 +374,8 @@ const extrasCatalog = EXTRAS.map((x) => ({
     if (includesField) includesField.value = p.includes[lang].join('\n');
     if (priceField) priceField.value = String(p.priceEuros);
     if (depositField) depositField.value = String(Math.round(p.priceEuros * 0.3));
+    // Recompute the calculator since we just rewrote the price.
+    recalcPayment();
   }
 
   picker?.addEventListener('change', () => applyPack(picker.value));
@@ -314,20 +405,157 @@ const extrasCatalog = EXTRAS.map((x) => ({
       .join('\n');
   }
 
+  // For each extra: lookup its gift-toggle (the small 🎁 checkbox in the
+  // same row) so the line we write — and remove — knows whether to use
+  // the regular price or 0 €.
+  function giftToggleFor(extraId: string): HTMLInputElement | null {
+    return document.querySelector<HTMLInputElement>(`input.gift-toggle[data-gift-id="${extraId}"]`);
+  }
+
+  // Build the line we'd write for an extra, with or without the gift mark.
+  function lineFor(x: ExtraCatalogItem, lang: Lang, asGift: boolean): string {
+    return asGift ? `🎁 ${x.name[lang]} (regal) | 0` : `${x.name[lang]} | ${x.priceEuros}`;
+  }
+
+  // Remove ANY existing line for this extra (gift or not) — matches both
+  // the gift form ("🎁 …| 0") and the paid form ("…| <priceEuros>"). We
+  // detect via the price suffix or the leading 🎁 + extra name (CA fallback)
+  // so trailing manual edits inside the textarea don't break the remove.
+  function removeAnyLineFor(textarea: HTMLTextAreaElement, x: ExtraCatalogItem) {
+    const paidSuffix = `| ${x.priceEuros}`;
+    const giftSuffix = `| 0`;
+    const caGiftPrefix = `🎁 ${x.name.ca}`;
+    const esGiftPrefix = `🎁 ${x.name.es}`;
+    const enGiftPrefix = `🎁 ${x.name.en}`;
+    removeLine(textarea, (l) => {
+      const t = l.trim();
+      if (t.endsWith(paidSuffix)) return true;
+      if (t.endsWith(giftSuffix) && (
+        t.startsWith(caGiftPrefix) || t.startsWith(esGiftPrefix) || t.startsWith(enGiftPrefix)
+      )) return true;
+      return false;
+    });
+  }
+
+  function applyExtra(extraId: string) {
+    if (!addonsField) return;
+    const x = extras.find((e) => e.id === extraId);
+    if (!x) return;
+    const cb = document.querySelector<HTMLInputElement>(`input.extra-toggle[data-extra-id="${extraId}"]`);
+    const gift = giftToggleFor(extraId);
+    removeAnyLineFor(addonsField, x);
+    if (cb?.checked) {
+      appendLine(addonsField, lineFor(x, currentLang(), gift?.checked === true));
+    }
+    recalcPayment();
+  }
+
   document.querySelectorAll<HTMLInputElement>('.extra-toggle').forEach((cb) => {
-    cb.addEventListener('change', () => {
-      if (!addonsField) return;
-      const id = cb.dataset.extraId!;
-      const x = extras.find((e) => e.id === id);
-      if (!x) return;
-      const lang = currentLang();
-      if (cb.checked) {
-        appendLine(addonsField, extraLine(x, lang));
-      } else {
-        // Remove by trailing "| <priceEuros>" — tolerant to name edits.
-        const suffix = `| ${x.priceEuros}`;
-        removeLine(addonsField, (l) => l.trim().endsWith(suffix));
-      }
+    cb.addEventListener('change', () => applyExtra(cb.dataset.extraId!));
+  });
+  document.querySelectorAll<HTMLInputElement>('.gift-toggle').forEach((g) => {
+    g.addEventListener('change', () => {
+      const id = g.dataset.giftId!;
+      // If gifting an unticked extra, tick it implicitly so the line gets
+      // written. Untick the gift toggle alone does NOT remove the extra —
+      // it just flips it back to the paid price.
+      const cb = document.querySelector<HTMLInputElement>(`input.extra-toggle[data-extra-id="${id}"]`);
+      if (cb && !cb.checked && g.checked) cb.checked = true;
+      applyExtra(id);
     });
   });
+
+  // ─── Payment calculator ────────────────────────────────────────────────
+  // Sums: packPrice + sum(addons) = gross (IVA included). Cash slice is
+  // subtracted from the taxable base — that's the "VAT-free" portion the
+  // couple pays in cash, so the displayed total drops by 21 % of that
+  // amount (matches the FotoStudio quote at the top of the thread).
+  const pricePackInput = document.getElementById('packPriceField') as HTMLInputElement | null;
+  const addonsTextarea = document.getElementById('packAddonsField') as HTMLTextAreaElement | null;
+  const cashInput = document.getElementById('payCash') as HTMLInputElement | null;
+  const sched0 = document.getElementById('paySchedule0') as HTMLInputElement | null;
+  const sched1 = document.getElementById('paySchedule1') as HTMLInputElement | null;
+  const sched2 = document.getElementById('paySchedule2') as HTMLInputElement | null;
+  const elPack = document.getElementById('calcPackTotal');
+  const elAddons = document.getElementById('calcAddonsTotal');
+  const elGross = document.getElementById('calcGrossTotal');
+  const elNet = document.getElementById('calcNetTotal');
+  const elBase = document.getElementById('calcBase');
+  const elVat = document.getElementById('calcVat');
+  const elCashSav = document.getElementById('calcCashSaving');
+  const elScheduled = document.getElementById('calcScheduled');
+  const elMismatch = document.getElementById('calcMismatch');
+  const insertBtn = document.getElementById('insertPaymentPlanBtn');
+
+  function parseEuros(s: string | null | undefined): number {
+    if (!s) return 0;
+    const n = parseFloat(String(s).replace(',', '.'));
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function fmt(n: number): string {
+    return `${n.toLocaleString('ca-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} €`;
+  }
+
+  function sumAddons(): number {
+    if (!addonsTextarea) return 0;
+    return addonsTextarea.value
+      .split(/\r?\n/)
+      .map((l) => l.match(/\|\s*(\d+(?:[.,]\d+)?)\s*$/))
+      .reduce((acc, m) => acc + (m ? parseEuros(m[1]) : 0), 0);
+  }
+
+  function recalcPayment() {
+    const pack = parseEuros(pricePackInput?.value);
+    const addons = sumAddons();
+    const gross = pack + addons;
+    const cash = Math.min(parseEuros(cashInput?.value), gross);
+    // Cash amount represents the VAT-included euros the couple hands over
+    // in cash; we strip the 21 % VAT portion of that slice → saving.
+    const cashSaving = cash > 0 ? cash - cash / 1.21 : 0;
+    const net = gross - cashSaving;
+    const base = gross / 1.21;
+    const vat = gross - base;
+    const scheduled = parseEuros(sched0?.value) + parseEuros(sched1?.value) + parseEuros(sched2?.value);
+
+    if (elPack) elPack.textContent = fmt(pack);
+    if (elAddons) elAddons.textContent = fmt(addons);
+    if (elGross) elGross.textContent = fmt(gross);
+    if (elNet) elNet.textContent = fmt(net);
+    if (elBase) elBase.textContent = fmt(base);
+    if (elVat) elVat.textContent = fmt(vat);
+    if (elCashSav) elCashSav.textContent = fmt(cashSaving);
+    if (elScheduled) elScheduled.textContent = fmt(scheduled);
+    if (elMismatch) {
+      const ok = Math.abs(scheduled - net) < 1;
+      elMismatch.classList.toggle('hidden', ok || scheduled === 0);
+    }
+  }
+
+  function generatePaymentText(): string {
+    const pack = parseEuros(pricePackInput?.value);
+    const addons = sumAddons();
+    const gross = pack + addons;
+    const cash = Math.min(parseEuros(cashInput?.value), gross);
+    const net = gross - (cash > 0 ? cash - cash / 1.21 : 0);
+    const r = Math.round(parseEuros(sched0?.value));
+    const p2 = Math.round(parseEuros(sched1?.value));
+    const p3 = Math.round(parseEuros(sched2?.value));
+    const lines: string[] = [];
+    if (r > 0) lines.push(`Reserva: ${r} €`);
+    if (p2 > 0) lines.push(`2n pagament: ${p2} €`);
+    if (p3 > 0) lines.push(`3r pagament: ${p3} €`);
+    if (cash > 0) lines.push(`+${Math.round(cash)} € en efectiu (estalvi IVA)`);
+    lines.push(`Total: ${Math.round(net)} €`);
+    return lines.join(' · ');
+  }
+
+  [pricePackInput, addonsTextarea, cashInput, sched0, sched1, sched2].forEach((el) => {
+    el?.addEventListener('input', recalcPayment);
+  });
+  insertBtn?.addEventListener('click', () => {
+    const target = document.getElementById('paymentTermsField') as HTMLInputElement | null;
+    if (target) target.value = generatePaymentText();
+  });
+  recalcPayment();
 </script>

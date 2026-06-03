@@ -1,7 +1,7 @@
 ---
 import AdminLayout from '~/layouts/AdminLayout.astro';
 import { createQuote, getLeadById, linkLeadToQuote } from '~/lib/quotes';
-import { PACKS, EXTRAS } from '~/data/packs';
+import { PACKS, EXTRAS, getComposedSubpacks } from '~/data/packs';
 import { recommendPacks } from '~/lib/matcher';
 import { videos } from '~/data/videos';
 
@@ -147,26 +147,56 @@ const LABELS: Record<string, string> = {
       <p class="text-xs font-bold tracking-widest uppercase mb-3">Packs a mostrar *</p>
       <p class="text-[0.7rem] text-ink/55 mb-3 -mt-2">Clica el ▾ per veure el detall que veurà la parella al pressupost.</p>
       <div class="space-y-2">
-        {PACKS.map((p) => (
-          <details class="border border-black/10 bg-white open:border-gold/40">
-            <summary class="cursor-pointer list-none flex items-start gap-3 p-3 hover:bg-cream">
-              <input type="checkbox" name="packs" value={p.id}
-                     checked={recommendedPackIds.includes(p.id)}
-                     onclick="event.stopPropagation()"
-                     class="mt-1 accent-gold" />
-              <span class="flex-1">
-                <span class="font-bold">{p.name.ca}</span>
-                <span class="block text-xs text-ink/60">{p.type} · {p.price}</span>
-              </span>
-              <span class="text-ink/40 text-sm leading-none mt-1 select-none">▾</span>
-            </summary>
-            <ul class="px-4 pb-4 -mt-1 space-y-1.5 text-sm text-ink/80 border-t border-black/5 pt-3">
-              {p.includes.ca.map((it) => (
-                <li class="flex gap-2"><span class="text-gold shrink-0">✓</span><span>{it}</span></li>
-              ))}
-            </ul>
-          </details>
-        ))}
+        {PACKS.map((p) => {
+          const subpacks = getComposedSubpacks(p);
+          return (
+            <details class="border border-black/10 bg-white open:border-gold/40">
+              <summary class="cursor-pointer list-none flex items-start gap-3 p-3 hover:bg-cream">
+                <input type="checkbox" name="packs" value={p.id}
+                       checked={recommendedPackIds.includes(p.id)}
+                       onclick="event.stopPropagation()"
+                       class="mt-1 accent-gold" />
+                <span class="flex-1">
+                  <span class="font-bold">{p.name.ca}</span>
+                  <span class="block text-xs text-ink/60">{p.type} · {p.price}</span>
+                </span>
+                <span class="text-ink/40 text-sm leading-none mt-1 select-none">▾</span>
+              </summary>
+              <div class="px-4 pb-4 -mt-1 border-t border-black/5 pt-3 space-y-3">
+                {subpacks.length > 0 ? (
+                  <>
+                    {subpacks.map((sp) => (
+                      <div>
+                        <p class="text-[0.7rem] font-bold uppercase tracking-wide text-ink/70 mb-1">{sp.name.ca}</p>
+                        <ul class="space-y-1.5 text-sm text-ink/80">
+                          {sp.includes.ca.map((it) => (
+                            <li class="flex gap-2"><span class="text-gold shrink-0">✓</span><span>{it}</span></li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                    {p.includes.ca.length > 0 && (
+                      <div class="pt-2 border-t border-black/5">
+                        <p class="text-[0.7rem] font-bold uppercase tracking-wide text-gold mb-1">I junts:</p>
+                        <ul class="space-y-1.5 text-sm text-ink/80">
+                          {p.includes.ca.map((it) => (
+                            <li class="flex gap-2"><span class="text-gold shrink-0">✓</span><span>{it}</span></li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <ul class="space-y-1.5 text-sm text-ink/80">
+                    {p.includes.ca.map((it) => (
+                      <li class="flex gap-2"><span class="text-gold shrink-0">✓</span><span>{it}</span></li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </details>
+          );
+        })}
       </div>
     </div>
 

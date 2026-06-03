@@ -20,6 +20,12 @@ export interface Pack {
   price: string;
   includes: Record<Lang, string[]>;
   highlight?: PackHighlight;
+  /** Combo packs only: the IDs of the base packs they bundle. When set,
+   *  the renderer expands these into their own sub-sections (mirrors how
+   *  our FotoStudio quotes break a combo down line-by-line instead of
+   *  saying "everything in pack X"). The combo's own `includes` stays
+   *  for the synergy bullets only ("coordinated by two brothers"). */
+  composedOf?: string[];
 }
 
 /** Optional add-ons that couples can layer on top of any base pack.
@@ -158,6 +164,7 @@ export const PACKS: Pack[] = [
   {
     id: 'combo-cc-tu',
     type: 'combo',
+    composedOf: ['como-conoci', 'this-is-us'],
     name: {
       es: 'Cómo conocí + This Is Us',
       ca: 'Com vaig conèixer + This Is Us',
@@ -166,20 +173,14 @@ export const PACKS: Pack[] = [
     price: '2.480 €',
     includes: {
       es: [
-        'Todo del pack "Cómo conocí a vuestra madre" (foto)',
-        'Todo del pack "This Is Us" (vídeo)',
         'Foto + vídeo coordinados por dos hermanos en un solo equipo',
         'Sin necesidad de coordinar dos proveedores externos',
       ],
       ca: [
-        'Tot del pack "Com vaig conèixer la vostra mare" (foto)',
-        'Tot del pack "This Is Us" (vídeo)',
         'Foto + vídeo coordinats per dos germans en un sol equip',
         'Sense haver de coordinar dos proveïdors externs',
       ],
       en: [
-        'Everything in the "How I Met Your Mother" pack (photo)',
-        'Everything in the "This Is Us" pack (video)',
         'Photo + video coordinated by two brothers as one crew',
         'No need to coordinate two separate vendors',
       ],
@@ -188,6 +189,7 @@ export const PACKS: Pack[] = [
   {
     id: 'combo-cc-ol',
     type: 'combo',
+    composedOf: ['como-conoci', 'outlander'],
     name: {
       es: 'Cómo conocí + Outlander',
       ca: 'Com vaig conèixer + Outlander',
@@ -195,26 +197,15 @@ export const PACKS: Pack[] = [
     },
     price: '2.750 €',
     includes: {
-      es: [
-        'Todo del pack "Cómo conocí a vuestra madre" (foto)',
-        'Todo del pack "Outlander" (vídeo con extras y tráiler)',
-        'Foto + vídeo coordinados por dos hermanos en un solo equipo',
-      ],
-      ca: [
-        'Tot del pack "Com vaig conèixer la vostra mare" (foto)',
-        'Tot del pack "Outlander" (vídeo amb extres i tràiler)',
-        'Foto + vídeo coordinats per dos germans en un sol equip',
-      ],
-      en: [
-        'Everything in the "How I Met Your Mother" pack (photo)',
-        'Everything in the "Outlander" pack (video with extras and trailer)',
-        'Photo + video coordinated by two brothers as one crew',
-      ],
+      es: ['Foto + vídeo coordinados por dos hermanos en un solo equipo'],
+      ca: ['Foto + vídeo coordinats per dos germans en un sol equip'],
+      en: ['Photo + video coordinated by two brothers as one crew'],
     },
   },
   {
     id: 'combo-lqsa-tu',
     type: 'combo',
+    composedOf: ['lqsa', 'this-is-us'],
     name: {
       es: '¡La que se avecina! + This Is Us',
       ca: '¡La que se avecina! + This Is Us',
@@ -224,20 +215,14 @@ export const PACKS: Pack[] = [
     highlight: 'star',
     includes: {
       es: [
-        'Todo del pack "¡La que se avecina!" (foto + álbum de madera 30×40)',
-        'Todo del pack "This Is Us" (vídeo documental)',
         'Foto + vídeo coordinados por dos hermanos en un solo equipo',
         'El pack más completo y elegido por las parejas',
       ],
       ca: [
-        'Tot del pack "¡La que se avecina!" (foto + àlbum de fusta 30×40)',
-        'Tot del pack "This Is Us" (vídeo documental)',
         'Foto + vídeo coordinats per dos germans en un sol equip',
         'El pack més complet i triat per les parelles',
       ],
       en: [
-        'Everything in the "¡La que se avecina!" pack (photo + 30×40 wooden album)',
-        'Everything in the "This Is Us" pack (documentary film)',
         'Photo + video coordinated by two brothers as one crew',
         'The most complete and most-picked pack',
       ],
@@ -246,6 +231,7 @@ export const PACKS: Pack[] = [
   {
     id: 'combo-lqsa-ol',
     type: 'combo',
+    composedOf: ['lqsa', 'outlander'],
     name: {
       es: '¡La que se avecina! + Outlander',
       ca: '¡La que se avecina! + Outlander',
@@ -254,26 +240,31 @@ export const PACKS: Pack[] = [
     price: '3.170 €',
     includes: {
       es: [
-        'Todo del pack "¡La que se avecina!" (foto + álbum de madera 30×40)',
-        'Todo del pack "Outlander" (vídeo con extras y tráiler)',
         'Foto + vídeo coordinados por dos hermanos en un solo equipo',
         'La cobertura más completa que ofrecemos',
       ],
       ca: [
-        'Tot del pack "¡La que se avecina!" (foto + àlbum de fusta 30×40)',
-        'Tot del pack "Outlander" (vídeo amb extres i tràiler)',
         'Foto + vídeo coordinats per dos germans en un sol equip',
         'La cobertura més completa que oferim',
       ],
       en: [
-        'Everything in the "¡La que se avecina!" pack (photo + 30×40 wooden album)',
-        'Everything in the "Outlander" pack (video with extras and trailer)',
         'Photo + video coordinated by two brothers as one crew',
         'The most complete coverage we offer',
       ],
     },
   },
 ];
+
+/** Resolve the composedOf chain to the actual sub-packs, in the order
+ *  the combo lists them. Returns [] for non-combo or unresolved packs.
+ *  Both renderers (web /p/<token>) and the booking-form auto-populate
+ *  (/admin/bookings/new) share this so the breakdown stays consistent. */
+export function getComposedSubpacks(pack: Pack): Pack[] {
+  if (!pack.composedOf || pack.composedOf.length === 0) return [];
+  return pack.composedOf
+    .map((id) => PACKS.find((p) => p.id === id))
+    .filter((p): p is Pack => p !== undefined);
+}
 
 /** Optional add-ons quoted on top of any base pack. Order matches the
  *  Canva "Extra" page (DAHBl3CKN-U) — first the staffing add-ons, then

@@ -5,7 +5,7 @@ import QuoteTracker from '~/components/QuoteTracker.astro';
 import VideoEmbed from '~/components/reserva/VideoEmbed.astro';
 import VideoCallCTA from '~/components/reserva/VideoCallCTA.astro';
 import { getQuoteByToken, recordView, verifyQuotePassword, getLeadByQuoteId } from '~/lib/quotes';
-import { PACKS, EXTRAS } from '~/data/packs';
+import { PACKS, EXTRAS, getComposedSubpacks } from '~/data/packs';
 import { SHOWCASES } from '~/data/showcases';
 import { recommendShowcase } from '~/lib/matcher';
 import { SITE, waLink } from '~/data/site';
@@ -190,19 +190,50 @@ const flagshipVideo = overrideHit
           <div class="max-w-5xl mx-auto">
             <h2 class="font-display text-3xl font-bold text-center mb-12">{t('quote.packs.heading')}</h2>
             <div class="grid md:grid-cols-2 gap-6">
-              {packs.map((p) => (
-                <article class="bg-white p-7 border border-black/10">
-                  <div class="text-gold mb-3"><Icon name={iconForType(p.type) as any} size={28} /></div>
-                  <h3 class="font-display text-xl font-bold mb-3">{p.name[lang]}</h3>
-                  <p class="text-3xl font-display font-bold text-gold mb-5">{p.price}</p>
-                  <p class="text-xs font-bold tracking-[0.12em] uppercase text-ink/60 mb-3">{t('quote.packs.includes')}</p>
-                  <ul class="space-y-2 text-sm text-ink/80">
-                    {p.includes[lang].map((it) => (
-                      <li class="flex gap-2"><span class="text-gold">✓</span><span>{it}</span></li>
-                    ))}
-                  </ul>
-                </article>
-              ))}
+              {packs.map((p) => {
+                const subpacks = getComposedSubpacks(p);
+                return (
+                  <article class="bg-white p-7 border border-black/10">
+                    <div class="text-gold mb-3"><Icon name={iconForType(p.type) as any} size={28} /></div>
+                    <h3 class="font-display text-xl font-bold mb-3">{p.name[lang]}</h3>
+                    <p class="text-3xl font-display font-bold text-gold mb-5">{p.price}</p>
+                    <p class="text-xs font-bold tracking-[0.12em] uppercase text-ink/60 mb-3">{t('quote.packs.includes')}</p>
+                    {subpacks.length > 0 ? (
+                      <>
+                        {subpacks.map((sp) => (
+                          <div class="mb-5 last:mb-4">
+                            <p class="text-[0.78rem] font-bold tracking-wide text-ink mb-2 flex items-center gap-2">
+                              <Icon name={iconForType(sp.type) as any} size={14} />
+                              <span>{sp.name[lang]}</span>
+                            </p>
+                            <ul class="space-y-2 text-sm text-ink/80 pl-1">
+                              {sp.includes[lang].map((it) => (
+                                <li class="flex gap-2"><span class="text-gold">✓</span><span>{it}</span></li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                        {p.includes[lang].length > 0 && (
+                          <div class="mt-4 pt-4 border-t border-black/10">
+                            <p class="text-[0.78rem] font-bold tracking-wide text-gold mb-2">{t('quote.combo.extras.heading')}</p>
+                            <ul class="space-y-2 text-sm text-ink/80 pl-1">
+                              {p.includes[lang].map((it) => (
+                                <li class="flex gap-2"><span class="text-gold">✓</span><span>{it}</span></li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <ul class="space-y-2 text-sm text-ink/80">
+                        {p.includes[lang].map((it) => (
+                          <li class="flex gap-2"><span class="text-gold">✓</span><span>{it}</span></li>
+                        ))}
+                      </ul>
+                    )}
+                  </article>
+                );
+              })}
             </div>
           </div>
         </Section>
