@@ -713,3 +713,80 @@ export async function sendContratoInvite(booking: Booking): Promise<void> {
     console.error('[booking-email] contrato invite failed (non-fatal)', err);
   }
 }
+
+// ─── Signed-contract copy ────────────────────────────────────────────────
+// Sent once the couple electronically accepts the contract. The filled
+// contract PDF is attached. Goes to the couple (primary + both partners'
+// emails) and, separately, an internal copy to the studio. Fail-soft.
+
+function contractCopyCopy(lang: Lang, n1: string, n2: string) {
+  if (lang === 'es') {
+    return {
+      subject: `Vuestro contrato · Lifetime Weddings`,
+      body: `Hola ${n1} y ${n2},\n\nGracias por aceptar el contrato. Adjuntamos vuestra copia en PDF. Cualquier duda, respondednos sin problema.\n\nFerran y Eric\nLifetime`,
+    };
+  }
+  if (lang === 'en') {
+    return {
+      subject: `Your contract · Lifetime Weddings`,
+      body: `Hi ${n1} and ${n2},\n\nThank you for accepting the contract. Your PDF copy is attached. Any questions, just reply.\n\nFerran and Eric\nLifetime`,
+    };
+  }
+  return {
+    subject: `El vostre contracte · Lifetime Weddings`,
+    body: `Hola ${n1} i ${n2},\n\nGràcies per acceptar el contracte. Us adjuntem la vostra còpia en PDF. Qualsevol dubte, responeu-nos sense problema.\n\nFerran i Eric\nLifetime`,
+  };
+}
+
+export async function sendContractAcceptedCopy(
+  booking: Booking,
+  formResponse: BookingFormResponse,
+  pdf: Buffer,
+): Promise<void> {
+  const lang = booking.preferredLanguage;
+  const c = contractCopyCopy(lang, booking.coupleName1, booking.coupleName2);
+
+  const recipients = new Set<string>();
+  if (booking.coupleEmailPrimary) recipients.add(booking.coupleEmailPrimary.toLowerCase());
+  if (formResponse.c1Email) recipients.add(formResponse.c1Email.toLowerCase());
+  if (formResponse.c2Email) recipients.add(formResponse.c2Email.toLowerCase());
+  const to = Array.from(recipients);
+
+  const filename = `Contracte-${booking.coupleName1}-${booking.coupleName2}`
+    .replace(/[^\p{L}\p{N}]+/gu, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 50) || 'Contracte';
+  const attachment = { filename: `${filename}.pdf`, content: pdf };
+
+  const html = `<div style="font-family:-apple-system,sans-serif;color:#1a1a1a;line-height:1.6;max-width:560px;margin:0 auto;padding:24px;white-space:pre-line">${escapeHtml(c.body)}</div>`;
+
+  if (!resend) {
+    // eslint-disable-next-line no-console
+    console.log('[booking-email] (dev) contract copy:', { to, internal: INTERNAL_TO, subject: c.subject, attachment: attachment.filename });
+    return;
+  }
+  // Couple copy.
+  try {
+    if (to.length > 0) {
+      await resend.emails.send({ from: FROM_HELLO, to, subject: c.subject, html, text: c.body, attachments: [attachment] });
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[booking-email] contract copy to couple failed (non-fatal)', err);
+  }
+  // Internal copy for the studio's records.
+  try {
+    const adminUrl = `${SITE_URL}/admin/bookings/${booking.id}`;
+    await resend.emails.send({
+      from: FROM_NOTIFY,
+      to: [INTERNAL_TO],
+      subject: `[Contracte acceptat] ${booking.coupleName1} & ${booking.coupleName2}`,
+      html: `<p>Contracte acceptat electrònicament.</p><p><a href="${adminUrl}">Veure a admin</a></p>`,
+      text: `Contracte acceptat electrònicament. ${adminUrl}`,
+      attachments: [attachment],
+    });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[booking-email] contract copy to studio failed (non-fatal)', err);
+  }
+}

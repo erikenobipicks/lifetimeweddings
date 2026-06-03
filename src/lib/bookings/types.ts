@@ -83,6 +83,11 @@ export interface Booking {
    *  the entire contrato cycle; this timestamp differentiates the sub-state
    *  without needing to extend the CHECK-constrained status enum. */
   contractReadyAt: Date | null;
+  /** Set when the couple electronically accepts the (own) contract on
+   *  /contrato/[slug] — distinct from contractReadyAt (data submitted).
+   *  contractAcceptedIp records where from, for the acceptance record. */
+  contractAcceptedAt: Date | null;
+  contractAcceptedIp: string | null;
 
   /** FacturaDirecta invoice id for the deposit (anticipo), set once the
    *  deposit is marked received and the invoice is issued. Doubles as the
