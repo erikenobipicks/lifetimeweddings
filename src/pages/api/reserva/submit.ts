@@ -226,15 +226,18 @@ export const POST: APIRoute = async ({ request }) => {
   // confirm came from a real browser. No-op when the secret key isn't set.
   const captchaOk = await verifyTurnstile(d.captchaToken, ip === 'unknown' ? undefined : ip);
   if (!captchaOk) {
+    console.warn('[reserva.submit] captcha_failed', { slug: d.slug, hasToken: Boolean(d.captchaToken) });
     return jsonResponse({ error: 'captcha_failed' }, 403);
   }
 
   // Look up booking and gate by status.
   const booking = await getBookingBySlug(d.slug);
   if (!booking || booking.status === 'archived') {
+    console.warn('[reserva.submit] not_found', { slug: d.slug, exists: Boolean(booking), status: booking?.status });
     return jsonResponse({ error: 'not_found' }, 404);
   }
   if (booking.status === 'form_submitted') {
+    console.warn('[reserva.submit] already_submitted', { slug: d.slug });
     return jsonResponse({ error: 'already_submitted' }, 409);
   }
   // Accepted: draft / sent / viewed. Draft is included so the operator
@@ -247,36 +250,43 @@ export const POST: APIRoute = async ({ request }) => {
     booking.status !== 'sent' &&
     booking.status !== 'viewed'
   ) {
+    console.warn('[reserva.submit] not_active', { slug: d.slug, status: booking.status });
     return jsonResponse({ error: 'not_active' }, 409);
   }
 
   // Check expiry.
   if (booking.expiresAt && booking.expiresAt.getTime() < Date.now()) {
+    console.warn('[reserva.submit] expired', { slug: d.slug, expiresAt: booking.expiresAt });
     return jsonResponse({ error: 'expired' }, 410);
   }
 
-  // Persist form response + transition status atomically.
-  await createFormResponse({
-    bookingId: booking.id,
-    c1FullName: d.c1FullName,
-    c1Dni: d.c1Dni,
-    c1BirthDate: dateOnly(d.c1BirthDate) ?? null,
-    c1Address: d.c1Address,
-    c1Email: d.c1Email,
-    c1Phone: d.c1Phone,
-    c2FullName: d.c2FullName,
-    c2Dni: d.c2Dni,
-    c2BirthDate: dateOnly(d.c2BirthDate) ?? null,
-    c2Address: d.c2Address,
-    c2Email: d.c2Email,
-    c2Phone: d.c2Phone,
-    billingAddressSame: d.billingAddressSame,
-    billingName: d.billingAddressSame ? null : d.billingName ?? null,
-    billingDni: d.billingAddressSame ? null : d.billingDni ?? null,
-    billingAddress: d.billingAddressSame ? null : d.billingAddress ?? null,
-    weddingDateConfirmed: d.weddingDateConfirmed,
-    weddingDateAlt: d.weddingDateConfirmed ? null : dateOnly(d.weddingDateAlt) ?? null,
-    venueConfirmed: d.venueConfirmed,
+  console.log('[reserva.submit] persisting', { slug: d.slug, status: booking.status });
+
+  // Persist form response + transition status atomically. A DB failure here
+  // must surface as a real error to the client (so it shows a message)
+  // rather than bubbling up as an opaque 500 / silent reload.
+  try {
+    await createFormResponse({
+      bookingId: booking.id,
+      c1FullName: d.c1FullName,
+      c1Dni: d.c1Dni,
+      c1BirthDate: dateOnly(d.c1BirthDate) ?? null,
+      c1Address: d.c1Address,
+      c1Email: d.c1Email,
+      c1Phone: d.c1Phone,
+      c2FullName: d.c2FullName,
+      c2Dni: d.c2Dni,
+      c2BirthDate: dateOnly(d.c2BirthDate) ?? null,
+      c2Address: d.c2Address,
+      c2Email: d.c2Email,
+      c2Phone: d.c2Phone,
+      billingAddressSame: d.billingAddressSame,
+      billingName: d.billingAddressSame ? null : d.billingName ?? null,
+      billingDni: d.billingAddressSame ? null : d.billingDni ?? null,
+      billingAddress: d.billingAddressSame ? null : d.billingAddress ?? null,
+      weddingDateConfirmed: d.weddingDateConfirmed,
+      weddingDateAlt: d.weddingDateConfirmed ? null : dateOnly(d.weddingDateAlt) ?? null,
+      venueConfirmed: d.venueConfirmed,
     venueAltName: d.venueConfirmed ? null : d.venueAltName ?? null,
     ceremonyTime: normaliseTime(d.ceremonyTime) ?? null,
     serviceEndTime: normaliseTime(d.serviceEndTime) ?? null,
@@ -290,7 +300,13 @@ export const POST: APIRoute = async ({ request }) => {
     importantNotes: d.importantNotes ?? null,
     ipAddress: ip,
     userAgent: request.headers.get('user-agent'),
-  });
+    });
+  } catch (err) {
+    console.error('[reserva.submit] persist failed', { slug: d.slug, err });
+    return jsonResponse({ error: 'persist_failed' }, 500);
+  }
+
+  console.log('[reserva.submit] persisted OK, status now form_submitted', { slug: d.slug });
 
   // Re-fetch the booking + form response so emails see the post-transition
   // state (status, form_submitted_at) and correct values.

@@ -129,7 +129,7 @@ async function createProject(p: ProjectPayload): Promise<number> {
  *  the FotoStudio integration isn't configured. */
 async function updateProjectDescription(projectId: number, description: string): Promise<void> {
   await request<unknown>({
-    method: 'PUT',
+    method: 'PATCH',
     path: `/projects/${projectId}`,
     body: { description },
   });
