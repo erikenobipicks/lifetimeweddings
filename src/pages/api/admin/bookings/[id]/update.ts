@@ -25,7 +25,7 @@ import {
   type BookingUpdate,
 } from '~/lib/bookings/repository';
 import { issueDepositInvoiceForBooking } from '~/lib/bookings/invoicing';
-import { sendContratoInvite } from '~/lib/bookings/emails';
+import { sendContratoInvite, sendReservaInvite } from '~/lib/bookings/emails';
 import type { BookingStatus, PackAddon } from '~/lib/bookings/types';
 
 // Spanish-format euro parser. See create.ts for the full rationale —
@@ -140,6 +140,18 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
       return back('?error=Transició+no+permesa');
     }
     await setBookingStatus(id, target);
+
+    // First time a booking is flipped 'draft' → 'sent', invite the couple
+    // by email IF the operator left the checkbox ticked (default). The
+    // form field is "send_email" with value "1" — absent when unticked.
+    // Fail-soft inside sendReservaInvite; never blocks the redirect.
+    const firstSend = booking.status === 'draft' && target === 'sent';
+    const wantsEmail = form.get('send_email') === '1';
+    if (firstSend && wantsEmail) {
+      const fresh = await getBookingById(id);
+      if (fresh) await sendReservaInvite(fresh);
+      return back(`?ok=status:${target}+%C2%B7+email+enviat`);
+    }
     return back(`?ok=status:${target}`);
   }
 

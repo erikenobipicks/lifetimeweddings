@@ -126,12 +126,16 @@ const ibanPlaceholder = transfer.isPlaceholder;
 
         {booking.status === 'draft' && (
           <>
-            <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline">
+            <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline-flex items-center gap-3">
               <input type="hidden" name="_action" value="status" />
               <input type="hidden" name="status" value="sent" />
               <button type="submit" class="bg-blue-600 text-white text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-blue-700 transition-colors">
                 Marcar com a enviat
               </button>
+              <label class="inline-flex items-center gap-1.5 text-xs text-ink/70 cursor-pointer select-none">
+                <input type="checkbox" name="send_email" value="1" checked class="accent-gold" />
+                Enviar email a la parella
+              </label>
             </form>
             <a
               href={`/admin/bookings/${booking.id}/confirm-offline`}

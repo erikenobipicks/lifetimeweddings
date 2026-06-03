@@ -790,3 +790,94 @@ export async function sendContractAcceptedCopy(
     console.error('[booking-email] contract copy to studio failed (non-fatal)', err);
   }
 }
+
+// ─── /reserva invite (operator → couple) ────────────────────────────────
+// Sent when Eric flips a booking from draft → sent in /admin. Gives the
+// couple the URL to fill in their data on /reserva/<slug>. The data
+// submission itself triggers sendCoupleConfirmation; this one is the
+// first contact the couple has from the studio.
+
+interface ReservaInviteCopy {
+  subject: string;
+  greeting: string;
+  body: string;
+  ctaLabel: string;
+  signoff: string;
+}
+
+function reservaInviteCopy(booking: Booking): ReservaInviteCopy {
+  const lang: Lang = booking.preferredLanguage;
+  const n1 = booking.coupleName1;
+  const n2 = booking.coupleName2;
+  if (lang === 'es') {
+    return {
+      subject: `Vuestra propuesta de reserva, ${n1}`,
+      greeting: `Hola ${n1} y ${n2},`,
+      body:
+        "Como hemos hablado, aquí tenéis vuestra propuesta de reserva con todos los detalles. Cuando podáis, rellenad el formulario con vuestros datos y la confirmación del día. Os tomará unos 5 minutos.",
+      ctaLabel: 'Ver la propuesta y rellenar los datos',
+      signoff: 'Hablamos pronto.\n\nFerran y Eric\nLifetime',
+    };
+  }
+  if (lang === 'en') {
+    return {
+      subject: `Your booking proposal, ${n1}`,
+      greeting: `Hi ${n1} and ${n2},`,
+      body:
+        "As we discussed, here's your booking proposal with all the details. Whenever you can, fill in the form with your information and confirm the day. It'll take about 5 minutes.",
+      ctaLabel: 'View the proposal and fill in your details',
+      signoff: 'Talk soon.\n\nFerran and Eric\nLifetime',
+    };
+  }
+  return {
+    subject: `La vostra proposta de reserva, ${n1}`,
+    greeting: `Hola ${n1} i ${n2},`,
+    body:
+      "Tal com hem parlat, aquí teniu la vostra proposta de reserva amb tots els detalls. Quan pugueu, ompliu el formulari amb les vostres dades i la confirmació del dia. Us prendrà uns 5 minuts.",
+    ctaLabel: 'Veure la proposta i omplir les dades',
+    signoff: 'Parlem aviat.\n\nFerran i Eric\nLifetime',
+  };
+}
+
+export async function sendReservaInvite(booking: Booking): Promise<void> {
+  const c = reservaInviteCopy(booking);
+  const langPrefix = booking.preferredLanguage === 'ca' ? '' : `/${booking.preferredLanguage}`;
+  const url = `${SITE.url}${langPrefix}/reserva/${booking.slug}`;
+  const html = `
+    <div style="font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:#1a1a1a;line-height:1.6;max-width:560px;margin:0 auto;padding:24px">
+      <p style="margin:0 0 16px">${escapeHtml(c.greeting)}</p>
+      <p style="margin:0 0 24px">${escapeHtml(c.body)}</p>
+      <p style="margin:0 0 32px">
+        <a href="${url}" style="display:inline-block;background:#c9a96e;color:#1a1a1a;text-decoration:none;padding:14px 28px;font-weight:700;letter-spacing:0.05em">${escapeHtml(c.ctaLabel)}</a>
+      </p>
+      <p style="margin:0 0 24px;color:#666;font-size:13px">
+        <a href="${url}" style="color:#666">${url}</a>
+      </p>
+      <p style="margin:0;white-space:pre-line">${escapeHtml(c.signoff)}</p>
+      <hr style="border:none;border-top:1px solid #eee;margin:32px 0 16px"/>
+      <p style="color:#999;font-size:12px;margin:0">
+        Lifetime Weddings · ${SITE.phoneDisplay} · ${SITE.email}<br/>
+        ${SITE.address.street}, ${SITE.address.city} (${SITE.address.region})
+      </p>
+    </div>
+  `;
+  const text = [c.greeting, '', c.body, '', `→ ${url}`, '', c.signoff].join('\n');
+
+  if (!resend) {
+    // eslint-disable-next-line no-console
+    console.log('[booking-email] (dev) reserva invite:', { to: booking.coupleEmailPrimary, subject: c.subject, url });
+    return;
+  }
+  try {
+    await resend.emails.send({
+      from: FROM_HELLO,
+      to: [booking.coupleEmailPrimary],
+      subject: c.subject,
+      html,
+      text,
+    });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[booking-email] reserva invite failed (non-fatal)', err);
+  }
+}
