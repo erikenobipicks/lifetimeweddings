@@ -53,44 +53,44 @@ function coupleCopy(booking: Booking): CoupleEmail {
 
   if (lang === 'es') {
     return {
-      subject: `Hemos recibido vuestra reserva — siguientes pasos, ${n1}`,
+      subject: `¡Qué ilusión, ${n1}! Ya tenemos vuestros datos`,
       greeting: `Hola ${n1} y ${n2},`,
-      acknowledgment: `Acabamos de recibir vuestros datos para la reserva de la boda del ${dateLong} en ${venue}.`,
+      acknowledgment: `¡Qué alegría teneros a bordo! Ya hemos recibido todos vuestros datos para la boda del ${dateLong} en ${venue}, y estamos deseando formar parte de ese día.`,
       nextSteps: [
-        `Podéis pagar el depósito de ${deposit} ahora mismo por transferencia o tarjeta — lo tenéis todo detallado aquí abajo.`,
-        'En cuanto recibamos el depósito os enviamos el contrato para firmar online (no hay que imprimir nada).',
-        'Cuando ambas cosas estén hechas, vuestra fecha queda formalmente bloqueada en nuestro calendario.',
+        `Para reservar la fecha en exclusiva solo falta el depósito de ${deposit}. Podéis hacerlo ahora mismo por transferencia o con tarjeta — aquí abajo tenéis todos los datos.`,
+        'En cuanto lo recibamos os enviamos el contrato para firmarlo cómodamente online (nada de papeleo ni impresoras).',
+        'Y con eso hecho, vuestra fecha queda bloqueada en el calendario solo para vosotros.',
       ],
-      whatsappPrompt: 'Mientras tanto, si surge cualquier duda, escribidnos directamente al WhatsApp:',
-      signoff: 'Estamos ya pensando en vuestra boda. Hablamos pronto.\n\nFerran y Eric\nLifetime',
+      whatsappPrompt: 'Cualquier duda, por pequeña que sea, escribidnos por WhatsApp y os respondemos enseguida:',
+      signoff: 'Tenemos muchas ganas de empezar a imaginar vuestro día. ¡Hablamos muy pronto!\n\nFerran y Eric\nLifetime',
     };
   }
   if (lang === 'en') {
     return {
-      subject: `We've received your booking — next steps, ${n1}`,
+      subject: `So happy to have you, ${n1}! Here's what's next`,
       greeting: `Hi ${n1} and ${n2},`,
-      acknowledgment: `We just received your details for the booking of the wedding on ${dateLong} at ${venue}.`,
+      acknowledgment: `What a joy to have you on board! We've received all your details for the wedding on ${dateLong} at ${venue}, and we can't wait to be part of that day.`,
       nextSteps: [
-        `You can pay the ${deposit} deposit right now by bank transfer or card — all the details are below.`,
-        "As soon as we receive the deposit we'll send you the contract to sign online (no printing required).",
-        'Once both are done, your date is formally locked into our calendar.',
+        `To lock in your date exclusively, all that's left is the ${deposit} deposit. You can pay it right now by bank transfer or card — all the details are below.`,
+        "As soon as it's in, we'll send you the contract to sign comfortably online (no paperwork, no printers).",
+        'And with that done, your date is ours — blocked in the calendar just for you.',
       ],
-      whatsappPrompt: 'In the meantime, if any questions come up, message us directly on WhatsApp:',
-      signoff: "We're already thinking about your wedding. Talk soon.\n\nFerran and Eric\nLifetime",
+      whatsappPrompt: 'Any question at all, however small, message us on WhatsApp and we\'ll get right back to you:',
+      signoff: "We're really looking forward to start imagining your day. Talk very soon!\n\nFerran and Eric\nLifetime",
     };
   }
   // ca (default)
   return {
-    subject: `Hem rebut la vostra reserva — següents passos, ${n1}`,
+    subject: `Quina il·lusió, ${n1}! Ja tenim les vostres dades`,
     greeting: `Hola ${n1} i ${n2},`,
-    acknowledgment: `Acabem de rebre les vostres dades per la reserva de la boda del ${dateLong} a ${venue}.`,
+    acknowledgment: `Quina alegria tenir-vos a bord! Ja hem rebut totes les vostres dades per al casament del ${dateLong} a ${venue}, i tenim moltes ganes de formar part d'aquell dia.`,
     nextSteps: [
-      `Podeu pagar el dipòsit de ${deposit} ara mateix per transferència o targeta — ho teniu tot detallat aquí sota.`,
-      "Així que rebem el dipòsit us enviem el contracte per signar online (no cal imprimir res).",
-      'Quan totes dues coses estiguin fetes, la vostra data queda formalment bloquejada al nostre calendari.',
+      `Per reservar la data en exclusiva només falta el dipòsit de ${deposit}. El podeu fer ara mateix per transferència o amb targeta — aquí sota teniu totes les dades.`,
+      "Tan bon punt el rebem, us enviem el contracte per signar-lo còmodament online (res de paperassa ni impressores).",
+      'I amb això fet, la vostra data queda nostra: bloquejada al calendari només per a vosaltres.',
     ],
-    whatsappPrompt: 'Mentrestant, si us sorgeix qualsevol dubte, escriviu-nos directament al WhatsApp:',
-    signoff: 'Estem ja pensant en la vostra boda. Parlem aviat.\n\nFerran i Eric\nLifetime',
+    whatsappPrompt: 'Qualsevol dubte, per petit que sigui, escriviu-nos pel WhatsApp i us responem de seguida:',
+    signoff: 'Tenim moltes ganes de començar a imaginar el vostre dia. Ben aviat parlem!\n\nFerran i Eric\nLifetime',
   };
 }
 
@@ -111,6 +111,8 @@ function paymentBlockCopy(lang: Lang) {
       beneficiary: 'Beneficiario', iban: 'IBAN', bank: 'Banco', amount: 'Importe', reference: 'Concepto',
       cardLine: 'O pagad con tarjeta de forma segura desde vuestra página:',
       cardCta: 'Pagar el depósito',
+      secondPaymentNote: 'El segundo pago se hace hasta 15 días antes de la boda.',
+      cashNote: 'El pago en efectivo se entrega el día de la boda, o en una visita previa si la concertamos.',
     };
   }
   if (lang === 'en') {
@@ -122,6 +124,8 @@ function paymentBlockCopy(lang: Lang) {
       beneficiary: 'Beneficiary', iban: 'IBAN', bank: 'Bank', amount: 'Amount', reference: 'Reference',
       cardLine: 'Or pay securely by card from your page:',
       cardCta: 'Pay the deposit',
+      secondPaymentNote: 'The second payment is due up to 15 days before the wedding.',
+      cashNote: 'The cash payment is handed over on the wedding day, or at an earlier visit if we arrange one.',
     };
   }
   return {
@@ -132,7 +136,15 @@ function paymentBlockCopy(lang: Lang) {
     beneficiary: 'Beneficiari', iban: 'IBAN', bank: 'Banc', amount: 'Import', reference: 'Concepte',
     cardLine: 'O pagueu amb targeta de forma segura des de la vostra pàgina:',
     cardCta: 'Pagar el dipòsit',
+    secondPaymentNote: 'El segon pagament es fa fins a 15 dies abans de la boda.',
+    cashNote: 'El pagament en efectiu es lliura el dia de la boda, o en una visita prèvia si la concertem.',
   };
+}
+
+/** True when the payment plan text mentions cash — drives the cash-timing
+ *  note so it only appears for couples who actually pay part in cash. */
+function paymentPlanHasCash(paymentTerms: string | null): boolean {
+  return !!paymentTerms && /efect|cash/i.test(paymentTerms);
 }
 
 function renderPaymentBlock(booking: Booking): { html: string; text: string } {
@@ -144,8 +156,20 @@ function renderPaymentBlock(booking: Booking): { html: string; text: string } {
   const deposit = formatPrice(booking.depositCents, lang);
   const payUrl = `${SITE_URL}/reserva/${booking.slug}#pagament`;
 
+  const hasCash = paymentPlanHasCash(booking.paymentTerms);
+  // Timing clarifications shown under the plan: the 2nd-payment deadline
+  // always (their plan always has a staged 2nd payment), and the cash note
+  // only when part is paid in cash.
+  const planNotes: string[] = [];
+  if (booking.paymentTerms) planNotes.push(L.secondPaymentNote);
+  if (hasCash) planNotes.push(L.cashNote);
+
   const row = (label: string, value: string, strong = false) =>
     `<tr><td style="padding:4px 0;color:#666;width:45%">${escapeHtml(label)}</td><td style="padding:4px 0;text-align:right;${strong ? 'font-weight:700;color:#c9a96e' : ''}">${escapeHtml(value)}</td></tr>`;
+
+  const planNotesHtml = planNotes.length
+    ? `<div style="margin-top:8px;font-size:12px;color:#666;line-height:1.5">${planNotes.map((n) => `• ${escapeHtml(n)}`).join('<br/>')}</div>`
+    : '';
 
   const html = `
     <div style="margin:24px 0;padding:16px;background:#faf7f1;border:1px solid #eee">
@@ -156,6 +180,7 @@ function renderPaymentBlock(booking: Booking): { html: string; text: string } {
         ${row(L.deposit, deposit, true)}
         ${booking.paymentTerms ? row(L.terms, booking.paymentTerms) : ''}
       </table>
+      ${planNotesHtml}
       <div style="font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1a1a1a;margin:18px 0 8px">${escapeHtml(L.payHeading)}</div>
       <div style="font-size:14px;line-height:1.6">
         <strong>${escapeHtml(L.transferHeading)}</strong><br/>
@@ -178,6 +203,7 @@ function renderPaymentBlock(booking: Booking): { html: string; text: string } {
     `${L.total}: ${total}`,
     `${L.deposit}: ${deposit}`,
     ...(booking.paymentTerms ? [`${L.terms}: ${booking.paymentTerms}`] : []),
+    ...planNotes.map((n) => `  · ${n}`),
     '',
     L.payHeading,
     `${L.transferHeading}:`,
