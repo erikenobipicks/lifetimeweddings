@@ -284,6 +284,7 @@ export const ui = {
     // Copy locked in docs/booking-spec.md. Keep it in sync there.
     // Variables rendered with template literals at component level.
     'reserva.cta.primary': 'Reservar nuestra fecha',
+    'reserva.cta.toPayment': 'Ir al pago del depósito',
     'reserva.cta.expires': 'Esta propuesta es válida hasta el {expires}',
 
     // Hero
@@ -842,6 +843,7 @@ export const ui = {
 
     // ─── Reserva (booking proposal page) ─────────────────────────────────
     'reserva.cta.primary': 'Reservar la nostra data',
+    'reserva.cta.toPayment': 'Anar al pagament del dipòsit',
     'reserva.cta.expires': 'Aquesta proposta és vàlida fins al {expires}',
 
     // Hero
@@ -1398,6 +1400,7 @@ export const ui = {
     // ─── Reserva (booking proposal page) ─────────────────────────────────
     // ─── Reserva (booking proposal page) ─────────────────────────────────
     'reserva.cta.primary': 'Book our date',
+    'reserva.cta.toPayment': 'Go to the deposit payment',
     'reserva.cta.expires': 'This proposal is valid until {expires}',
 
     // Hero

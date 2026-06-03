@@ -17,10 +17,22 @@ interface Props {
   expiresShort: string | null;
   /** Optional cover image URL. Falls back to a solid background. */
   coverUrl?: string;
+  /** CTA target. Defaults to the reservation form anchor; the page
+   *  overrides it to #pagament (or the contract) once the form has been
+   *  submitted, so the hero never points back to a form that's no longer
+   *  on the page. */
+  ctaHref?: string;
+  /** CTA label override. Defaults to "Reservar our date". */
+  ctaLabel?: string;
 }
 
-const { lang, n1, n2, venueName, weddingDateLong, expiresShort, coverUrl } = Astro.props;
+const {
+  lang, n1, n2, venueName, weddingDateLong, expiresShort, coverUrl,
+  ctaHref = '#reservar', ctaLabel,
+} = Astro.props;
 const t = useTranslations(lang);
+
+const ctaText = ctaLabel ?? t('reserva.cta.primary');
 
 const greeting = tpl(t('reserva.hero.greeting'), { n1, n2 });
 const body = tpl(t('reserva.hero.body'), { venue: venueName, date: weddingDateLong });
@@ -58,10 +70,10 @@ const expiryLine = expiresShort
       </p>
       <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
         <a
-          href="#reservar"
+          href={ctaHref}
           class="inline-flex items-center justify-center bg-gold text-ink font-bold px-8 py-4 text-base hover:bg-white transition-colors"
         >
-          {t('reserva.cta.primary')}
+          {ctaText}
         </a>
         {expiryLine && (
           <span class="text-sm text-white/70 sm:ml-2">{expiryLine}</span>
