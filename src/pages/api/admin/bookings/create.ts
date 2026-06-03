@@ -87,7 +87,14 @@ function parseTestimonial(
 const formSchema = z.object({
   coupleName1: z.string().min(1).max(60),
   coupleName2: z.string().min(1).max(60),
-  coupleEmailPrimary: z.string().email().max(120),
+  // Optional — Eric sometimes doesn't have the email when creating the
+  // booking; the couple supplies c1Email/c2Email later via /reserva.
+  // Treats empty string as "missing" so the form can submit without a
+  // value (`<input type="email">` reports empty as `""`).
+  coupleEmailPrimary: z.union([
+    z.literal(''),
+    z.string().email().max(120),
+  ]).optional(),
   couplePhonePrimary: z.string().max(40).optional(),
   preferredLanguage: z.enum(['ca', 'es', 'en']).default('ca'),
 
@@ -151,7 +158,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   const input: BookingCreateInput = {
     coupleName1: d.coupleName1.trim(),
     coupleName2: d.coupleName2.trim(),
-    coupleEmailPrimary: d.coupleEmailPrimary.trim(),
+    coupleEmailPrimary: d.coupleEmailPrimary?.trim() ?? '',
     couplePhonePrimary: d.couplePhonePrimary?.trim() || undefined,
     preferredLanguage: d.preferredLanguage,
 

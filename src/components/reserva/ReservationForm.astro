@@ -52,7 +52,7 @@ const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
           <label class="block md:col-span-2"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.fullName')} *</span><input name="c1FullName" required maxlength="120" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
           <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.dni')} *</span><input name="c1Dni" required maxlength="12" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
           <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.birthDate')}</span><input type="date" name="c1BirthDate" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
-          <label class="block md:col-span-2"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.address')} *</span><input name="c1Address" required maxlength="200" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+          <label class="block md:col-span-2"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.address')} *</span><input name="c1Address" id="c1AddressField" required maxlength="200" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
           <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.email')} *</span><input type="email" name="c1Email" required maxlength="120" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
           <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.phone')} *</span><input type="tel" name="c1Phone" required maxlength="40" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
         </div>
@@ -61,11 +61,21 @@ const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
       <!-- ─── Section 2: Contraente 2 ─────────────────────────────── -->
       <fieldset class="space-y-4">
         <legend class="font-display text-xl md:text-2xl font-bold mb-4">{t('reserva.form.section.c2')}</legend>
+
+        <!-- "We live together" toggle. When ticked, c2Address syncs to
+             c1Address (read-only) so the couple only types it once.
+             billingAddress already inherits from billingContact's address,
+             so the invoice naturally lands at the shared home too. -->
+        <label class="flex items-start gap-3 cursor-pointer pb-2">
+          <input type="checkbox" name="sameAddressAsC1" value="1" id="sameAddressToggle" class="h-5 w-5 mt-0.5 accent-gold" />
+          <span class="text-sm leading-relaxed">{t('reserva.form.field.sameAddressAsC1')}</span>
+        </label>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label class="block md:col-span-2"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.fullName')} *</span><input name="c2FullName" required maxlength="120" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
           <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.dni')} *</span><input name="c2Dni" required maxlength="12" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
           <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.birthDate')}</span><input type="date" name="c2BirthDate" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
-          <label class="block md:col-span-2"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.address')} *</span><input name="c2Address" required maxlength="200" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
+          <label class="block md:col-span-2"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.address')} *</span><input name="c2Address" id="c2AddressField" required maxlength="200" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none read-only:bg-cream/60 read-only:text-ink/60" /></label>
           <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.email')} *</span><input type="email" name="c2Email" required maxlength="120" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
           <label class="block"><span class="text-sm font-semibold text-ink/70">{t('reserva.form.field.phone')} *</span><input type="tel" name="c2Phone" required maxlength="40" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" /></label>
         </div>
@@ -226,6 +236,26 @@ const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
     const status = document.getElementById('reserva-status');
     const submitBtn = document.getElementById('reserva-submit');
     if (!form || !status || !submitBtn) return;
+
+    // "Vivim junts" — when the c2 checkbox is ticked, c2Address mirrors
+    // c1Address in real time and becomes read-only. Untick → c2Address
+    // becomes editable again, value left as-is so the couple can edit.
+    const sameAddrChk = document.getElementById('sameAddressToggle');
+    const c1Addr = document.getElementById('c1AddressField');
+    const c2Addr = document.getElementById('c2AddressField');
+    function syncC2Address() {
+      if (!sameAddrChk || !c1Addr || !c2Addr) return;
+      if (sameAddrChk.checked) {
+        c2Addr.value = c1Addr.value;
+        c2Addr.readOnly = true;
+      } else {
+        c2Addr.readOnly = false;
+      }
+    }
+    if (sameAddrChk && c1Addr && c2Addr) {
+      sameAddrChk.addEventListener('change', syncC2Address);
+      c1Addr.addEventListener('input', syncC2Address);
+    }
 
     // Toggle billing fields visibility based on checkbox.
     const billingChk = document.getElementById('billingSameToggle');
