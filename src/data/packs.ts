@@ -22,6 +22,20 @@ export interface Pack {
   highlight?: PackHighlight;
 }
 
+/** Optional add-ons that couples can layer on top of any base pack.
+ *  Mirrors the "Extra" page in the Canva tarifes PDF (DAHBl3CKN-U).
+ *  Surfaced on /p/<token> so couples can see the menu without asking,
+ *  and on /admin/new so the team has the list at hand while quoting. */
+export interface PackExtra {
+  id: string;
+  name: Record<Lang, string>;
+  /** Formatted price string, IVA included. */
+  price: string;
+  /** Short clarification — drone weather caveat, preboda travel area,
+   *  etc. Optional. */
+  note?: Record<Lang, string>;
+}
+
 export const PACKS: Pack[] = [
   // ─── PHOTO ─────────────────────────────────────────────
   {
@@ -257,6 +271,114 @@ export const PACKS: Pack[] = [
         'Photo + video coordinated by two brothers as one crew',
         'The most complete coverage we offer',
       ],
+    },
+  },
+];
+
+/** Optional add-ons quoted on top of any base pack. Order matches the
+ *  Canva "Extra" page (DAHBl3CKN-U) — first the staffing add-ons, then
+ *  preboda/postboda services, then physical print products, then the
+ *  weather-dependent drone op. */
+export const EXTRAS: PackExtra[] = [
+  {
+    id: 'extra-videographer',
+    name: {
+      ca: 'Operador de vídeo professional addicional',
+      es: 'Operador de vídeo profesional adicional',
+      en: 'Additional professional videographer',
+    },
+    price: '545 €',
+    note: {
+      ca: 'Inclou el segon operador de càmera',
+      es: 'Incluye el segundo operador de cámara',
+      en: 'Includes the second camera operator',
+    },
+  },
+  {
+    id: 'extra-photographer',
+    name: {
+      ca: 'Segon fotògraf professional addicional',
+      es: 'Segundo fotógrafo profesional adicional',
+      en: 'Additional professional second photographer',
+    },
+    price: '425 €',
+  },
+  {
+    id: 'extra-preboda-photo',
+    name: {
+      ca: 'Sessió de fotos preboda',
+      es: 'Sesión de fotos preboda',
+      en: 'Pre-wedding photo session',
+    },
+    price: '300 €',
+    note: {
+      ca: 'A la zona de Reus o fins a 15 km i entre setmana. Per a desplaçaments més llargs o cap de setmana, es pressuposta a part.',
+      es: 'En la zona de Reus o hasta 15 km y entre semana. Para desplazamientos más largos o fin de semana, se presupuesta aparte.',
+      en: 'Within Reus or up to 15 km, weekdays only. Longer trips or weekends are quoted separately.',
+    },
+  },
+  {
+    id: 'extra-signature-book',
+    name: {
+      ca: 'Llibre de signatures amb les fotos de la preboda',
+      es: 'Libro de firmas con las fotos de la preboda',
+      en: 'Guest signature book with pre-wedding photos',
+    },
+    price: '125 €',
+  },
+  {
+    id: 'extra-preboda-video',
+    name: {
+      ca: 'Vídeo preboda',
+      es: 'Vídeo preboda',
+      en: 'Pre-wedding video',
+    },
+    price: '545 €',
+  },
+  {
+    id: 'extra-sde',
+    name: {
+      ca: 'SDE — muntatge de vídeo/tràiler el mateix dia',
+      es: 'SDE — montaje de vídeo/tráiler el mismo día',
+      en: 'SDE — same-day edit video/trailer',
+    },
+    price: '908 €',
+  },
+  {
+    id: 'extra-album-30x40',
+    name: {
+      ca: 'Àlbum de casament de fusta personalitzat 30×40 cm (30 pàgines)',
+      es: 'Álbum de boda de madera personalizado 30×40 cm (30 páginas)',
+      en: 'Personalised 30×40 cm wooden wedding album (30 pages)',
+    },
+    price: '545 €',
+    note: {
+      ca: '20 € per cada pàgina extra',
+      es: '20 € por cada página extra',
+      en: '20 € per extra page',
+    },
+  },
+  {
+    id: 'extra-album-parents',
+    name: {
+      ca: 'Àlbums per als pares (2 unitats 20×30 cm)',
+      es: 'Álbumes para los padres (2 unidades 20×30 cm)',
+      en: 'Parents albums (2 units, 20×30 cm)',
+    },
+    price: '400 €',
+  },
+  {
+    id: 'extra-drone',
+    name: {
+      ca: 'Operador professional de dron',
+      es: 'Operador profesional de dron',
+      en: 'Professional drone operator',
+    },
+    price: '484 €',
+    note: {
+      ca: 'Depèn del lloc del casament i de les condicions meteorològiques i normativa AESA',
+      es: 'Depende del lugar de la boda y de las condiciones meteorológicas y normativa AESA',
+      en: 'Subject to venue location, weather conditions and AESA regulations',
     },
   },
 ];
