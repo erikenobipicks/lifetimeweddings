@@ -627,9 +627,21 @@ export async function submitContractData(input: ContractDataInput): Promise<void
 /** Hard-delete a booking and ALL its dependents. Irreversible. Use only
  *  for cleanup of test/demo data — archiving (status='archived') is
  *  preferred for real bookings because it keeps the historical record
- *  AND the FacturaDirecta invoice link. The booking_form_responses row
- *  cascades via ON DELETE CASCADE. */
+ *  AND the FacturaDirecta invoice link.
+ *
+ *  We delete the dependent rows explicitly (in a transactional batch)
+ *  rather than relying purely on `ON DELETE CASCADE`: older deployments
+ *  may have tables that pre-date the CASCADE clause being added, and
+ *  before this fix the database also wasn't enforcing FKs at all
+ *  (`PRAGMA foreign_keys=ON` is now set in initSchema). Belt + braces
+ *  keeps cleanup reliable regardless of when the DB was first created. */
 export async function deleteBooking(bookingId: string): Promise<void> {
   await initSchema();
-  await db.execute({ sql: 'DELETE FROM bookings WHERE id = ?', args: [bookingId] });
+  await db.batch(
+    [
+      { sql: 'DELETE FROM booking_form_responses WHERE booking_id = ?', args: [bookingId] },
+      { sql: 'DELETE FROM bookings WHERE id = ?', args: [bookingId] },
+    ],
+    'write',
+  );
 }
