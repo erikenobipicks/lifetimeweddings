@@ -22,6 +22,7 @@ import { SITE, WHATSAPP_BASE } from '~/data/site';
 import { resend, sendTelegramNotification } from '~/lib/email';
 import type { Booking, BookingFormResponse, Lang } from './types';
 import { formatPrice, formatExpiresShort, formatWeddingDateLong } from './format';
+import { getBankTransferDetails, transferReferenceFor } from '~/lib/payments/config';
 
 const FROM_HELLO = process.env.EMAIL_FROM_HELLO ?? 'Lifetime Weddings <hola@lifetime.photo>';
 const FROM_NOTIFY = process.env.EMAIL_FROM ?? 'Lifetime Weddings <notifications@lifetime.photo>';
@@ -56,8 +57,8 @@ function coupleCopy(booking: Booking): CoupleEmail {
       greeting: `Hola ${n1} y ${n2},`,
       acknowledgment: `Acabamos de recibir vuestros datos para la reserva de la boda del ${dateLong} en ${venue}.`,
       nextSteps: [
-        'En menos de 24h os enviamos el contrato para firmar online (no hay que imprimir nada).',
-        `Junto con el contrato recibiréis el enlace para el depósito de ${deposit}.`,
+        `Podéis pagar el depósito de ${deposit} ahora mismo por transferencia o tarjeta — lo tenéis todo detallado aquí abajo.`,
+        'En cuanto recibamos el depósito os enviamos el contrato para firmar online (no hay que imprimir nada).',
         'Cuando ambas cosas estén hechas, vuestra fecha queda formalmente bloqueada en nuestro calendario.',
       ],
       whatsappPrompt: 'Mientras tanto, si surge cualquier duda, escribidnos directamente al WhatsApp:',
@@ -70,8 +71,8 @@ function coupleCopy(booking: Booking): CoupleEmail {
       greeting: `Hi ${n1} and ${n2},`,
       acknowledgment: `We just received your details for the booking of the wedding on ${dateLong} at ${venue}.`,
       nextSteps: [
-        "Within 24h we'll send you the contract to sign online (no printing required).",
-        `Along with the contract, you'll receive the link to pay the deposit of ${deposit}.`,
+        `You can pay the ${deposit} deposit right now by bank transfer or card — all the details are below.`,
+        "As soon as we receive the deposit we'll send you the contract to sign online (no printing required).",
         'Once both are done, your date is formally locked into our calendar.',
       ],
       whatsappPrompt: 'In the meantime, if any questions come up, message us directly on WhatsApp:',
@@ -84,8 +85,8 @@ function coupleCopy(booking: Booking): CoupleEmail {
     greeting: `Hola ${n1} i ${n2},`,
     acknowledgment: `Acabem de rebre les vostres dades per la reserva de la boda del ${dateLong} a ${venue}.`,
     nextSteps: [
-      "En menys de 24h us enviem el contracte per signar online (no cal imprimir res).",
-      `Junt amb el contracte rebreu el link per al dipòsit de ${deposit}.`,
+      `Podeu pagar el dipòsit de ${deposit} ara mateix per transferència o targeta — ho teniu tot detallat aquí sota.`,
+      "Així que rebem el dipòsit us enviem el contracte per signar online (no cal imprimir res).",
       'Quan totes dues coses estiguin fetes, la vostra data queda formalment bloquejada al nostre calendari.',
     ],
     whatsappPrompt: 'Mentrestant, si us sorgeix qualsevol dubte, escriviu-nos directament al WhatsApp:',
@@ -97,9 +98,105 @@ function escapeHtml(s: string): string {
   return s.replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c] as string));
 }
 
+// Localised labels for the quote-summary + payment block in the couple
+// email. Kept inline (not in ui.ts) because the email layer renders its
+// own HTML and never touches the page-level translator.
+function paymentBlockCopy(lang: Lang) {
+  if (lang === 'es') {
+    return {
+      summaryHeading: 'Resumen de vuestro presupuesto',
+      pack: 'Pack', total: 'Inversión total', deposit: 'Depósito de reserva', terms: 'Plan de pago',
+      payHeading: 'Cómo pagar el depósito',
+      transferHeading: 'Transferencia bancaria',
+      beneficiary: 'Beneficiario', iban: 'IBAN', bank: 'Banco', amount: 'Importe', reference: 'Concepto',
+      cardLine: 'O pagad con tarjeta de forma segura desde vuestra página:',
+      cardCta: 'Pagar el depósito',
+    };
+  }
+  if (lang === 'en') {
+    return {
+      summaryHeading: 'Your quote summary',
+      pack: 'Pack', total: 'Total investment', deposit: 'Booking deposit', terms: 'Payment plan',
+      payHeading: 'How to pay the deposit',
+      transferHeading: 'Bank transfer',
+      beneficiary: 'Beneficiary', iban: 'IBAN', bank: 'Bank', amount: 'Amount', reference: 'Reference',
+      cardLine: 'Or pay securely by card from your page:',
+      cardCta: 'Pay the deposit',
+    };
+  }
+  return {
+    summaryHeading: 'Resum del vostre pressupost',
+    pack: 'Pack', total: 'Inversió total', deposit: 'Dipòsit de reserva', terms: 'Pla de pagament',
+    payHeading: 'Com pagar el dipòsit',
+    transferHeading: 'Transferència bancària',
+    beneficiary: 'Beneficiari', iban: 'IBAN', bank: 'Banc', amount: 'Import', reference: 'Concepte',
+    cardLine: 'O pagueu amb targeta de forma segura des de la vostra pàgina:',
+    cardCta: 'Pagar el dipòsit',
+  };
+}
+
+function renderPaymentBlock(booking: Booking): { html: string; text: string } {
+  const lang = booking.preferredLanguage;
+  const L = paymentBlockCopy(lang);
+  const transfer = getBankTransferDetails();
+  const reference = transferReferenceFor(booking);
+  const total = formatPrice(booking.packPriceCents, lang);
+  const deposit = formatPrice(booking.depositCents, lang);
+  const payUrl = `${SITE_URL}/reserva/${booking.slug}#pagament`;
+
+  const row = (label: string, value: string, strong = false) =>
+    `<tr><td style="padding:4px 0;color:#666;width:45%">${escapeHtml(label)}</td><td style="padding:4px 0;text-align:right;${strong ? 'font-weight:700;color:#c9a96e' : ''}">${escapeHtml(value)}</td></tr>`;
+
+  const html = `
+    <div style="margin:24px 0;padding:16px;background:#faf7f1;border:1px solid #eee">
+      <div style="font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1a1a1a;margin-bottom:10px">${escapeHtml(L.summaryHeading)}</div>
+      <table style="width:100%;border-collapse:collapse;font-size:14px">
+        ${row(L.pack, booking.packName)}
+        ${row(L.total, total)}
+        ${row(L.deposit, deposit, true)}
+        ${booking.paymentTerms ? row(L.terms, booking.paymentTerms) : ''}
+      </table>
+      <div style="font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1a1a1a;margin:18px 0 8px">${escapeHtml(L.payHeading)}</div>
+      <div style="font-size:14px;line-height:1.6">
+        <strong>${escapeHtml(L.transferHeading)}</strong><br/>
+        ${escapeHtml(L.beneficiary)}: ${escapeHtml(transfer.beneficiary)}<br/>
+        ${escapeHtml(L.iban)}: <span style="font-family:monospace">${escapeHtml(transfer.iban)}</span><br/>
+        ${transfer.bank ? `${escapeHtml(L.bank)}: ${escapeHtml(transfer.bank)}<br/>` : ''}
+        ${escapeHtml(L.amount)}: ${escapeHtml(deposit)}<br/>
+        ${escapeHtml(L.reference)}: ${escapeHtml(reference)}
+      </div>
+      <div style="margin-top:14px;font-size:14px">
+        ${escapeHtml(L.cardLine)}<br/>
+        <a href="${payUrl}" style="display:inline-block;margin-top:8px;background:#1a1a1a;color:#fff;padding:10px 20px;text-decoration:none;font-weight:600;letter-spacing:0.05em;font-size:13px">${escapeHtml(L.cardCta)} · ${escapeHtml(deposit)} →</a>
+      </div>
+    </div>
+  `;
+
+  const text = [
+    L.summaryHeading,
+    `${L.pack}: ${booking.packName}`,
+    `${L.total}: ${total}`,
+    `${L.deposit}: ${deposit}`,
+    ...(booking.paymentTerms ? [`${L.terms}: ${booking.paymentTerms}`] : []),
+    '',
+    L.payHeading,
+    `${L.transferHeading}:`,
+    `  ${L.beneficiary}: ${transfer.beneficiary}`,
+    `  ${L.iban}: ${transfer.iban}`,
+    ...(transfer.bank ? [`  ${L.bank}: ${transfer.bank}`] : []),
+    `  ${L.amount}: ${deposit}`,
+    `  ${L.reference}: ${reference}`,
+    '',
+    `${L.cardLine} ${payUrl}`,
+  ].join('\n');
+
+  return { html, text };
+}
+
 function renderCoupleEmail(booking: Booking): { subject: string; html: string; text: string } {
   const c = coupleCopy(booking);
   const wa = WHATSAPP_BASE;
+  const pay = renderPaymentBlock(booking);
 
   const html = `
     <div style="font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:#1a1a1a;line-height:1.6;max-width:560px;margin:0 auto;padding:24px">
@@ -108,6 +205,7 @@ function renderCoupleEmail(booking: Booking): { subject: string; html: string; t
       <ol style="padding-left:20px;margin:0 0 24px">
         ${c.nextSteps.map((s) => `<li style="margin-bottom:12px">${escapeHtml(s)}</li>`).join('')}
       </ol>
+      ${pay.html}
       <p style="margin:0 0 8px">${escapeHtml(c.whatsappPrompt)}</p>
       <p style="margin:0 0 24px">
         <a href="${wa}" style="color:#c9a96e;text-decoration:underline">${wa}</a>
@@ -127,6 +225,8 @@ function renderCoupleEmail(booking: Booking): { subject: string; html: string; t
     c.acknowledgment,
     '',
     ...c.nextSteps.map((s, i) => `${i + 1}. ${s}`),
+    '',
+    pay.text,
     '',
     c.whatsappPrompt,
     wa,

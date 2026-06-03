@@ -398,13 +398,17 @@ const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
         const data = await res.json().catch(() => ({}));
 
         if (res.status === 200 && data.ok) {
-          form.style.display = 'none';
-          showStatus('ok', successTitle, successBody);
+          // Reload onto the same proposal URL — the booking is now
+          // 'form_submitted', so the server renders the deposit-payment
+          // step in place of the form. Falls back to a banner if the
+          // redirect target is missing for any reason.
+          const target = (data && data.redirect) || window.location.pathname;
+          window.location.assign(target);
           return;
         }
         if (res.status === 409) {
-          showStatus('err', successTitle, errorAlready);
-          form.style.display = 'none';
+          // Already submitted — reload to show the payment step too.
+          window.location.assign(window.location.pathname);
           return;
         }
         if (res.status === 429) {
