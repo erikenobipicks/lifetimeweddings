@@ -73,6 +73,23 @@ const payState: 'success' | 'cancel' | null =
 // reference photos per booking, the resolver moves out of here.
 const heroCoverUrl = '/photos/josep-eli/001-lg.jpg';
 
+// Hero CTA target depends on the stage so it never points at a section
+// that isn't on the page:
+//   - data not yet submitted → #reservar (the form)
+//   - submitted, deposit pending → #pagament (the payment step)
+//   - deposit paid → the contract
+const dataSubmitted = booking?.status === 'form_submitted';
+const depositPaid = booking?.depositPaidAt instanceof Date;
+let heroCtaHref = '#reservar';
+let heroCtaLabel: string | undefined; // undefined → Hero uses default label
+if (depositPaid) {
+  heroCtaHref = `/contrato/${slug}`;
+  heroCtaLabel = t('reserva.pay.paid.cta');
+} else if (dataSubmitted) {
+  heroCtaHref = '#pagament';
+  heroCtaLabel = t('reserva.cta.toPayment');
+}
+
 // Page title & description (kept private — noindex). Localised per the
 // couple's preferred_language; OG metadata pulls from these.
 const title = booking
@@ -161,6 +178,8 @@ const description = booking
         weddingDateLong={weddingDateLong}
         expiresShort={expiresShort}
         coverUrl={heroCoverUrl}
+        ctaHref={heroCtaHref}
+        ctaLabel={heroCtaLabel}
       />
 
       <!-- Resum de la vostra proposta — the only content block we need
