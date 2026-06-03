@@ -198,11 +198,11 @@ const extrasCatalog = EXTRAS.map((x) => ({
         </div>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Inversió total (€) *</span>
-          <input id="packPriceField" name="packPriceEuros" required inputmode="decimal" pattern="\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:[.,]\d{1,2})?" title="Ex: 1500, 1.500, 1500,00 o 1.500,00" value={v('packPriceEuros')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input id="packPriceField" name="packPriceEuros" required inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 1500, 1.500, 1500,00 o 1.500,00" value={v('packPriceEuros')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Dipòsit (€) *</span>
-          <input id="depositField" name="depositEuros" required inputmode="decimal" pattern="\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:[.,]\d{1,2})?" title="Ex: 500, 500,00 o 1.500,00" value={v('depositEuros')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input id="depositField" name="depositEuros" required inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 500, 500,00 o 1.500,00" value={v('depositEuros')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block md:col-span-2">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Termes de pagament</span>
