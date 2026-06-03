@@ -90,6 +90,12 @@ export interface Booking {
   facturadirectaInvoiceId: string | null;
   /** Human-readable invoice number returned by FacturaDirecta (display only). */
   facturadirectaInvoiceNumber: string | null;
+
+  /** FotoStudio project id (numeric). Set when /reserva pushes the booking
+   *  into the CRM; used by /contrato submit to update that project's
+   *  description with the publication-consent text so the contract body
+   *  reflects what the couple authorised. */
+  fotostudioProjectId: number | null;
 }
 
 /** Input for creating a new booking from admin UI. Slug + id + timestamps
@@ -207,8 +213,13 @@ export interface BookingFormResponse {
 }
 
 export type PublicationChannel =
-  | 'display'        // Aparador físic a l'estudi (C/ Mare Molas 26, Reus)
-  | 'facebook'       // Facebook professional
-  | 'website'        // lifetime.photo
-  | 'instagram'      // @lifetime.weddings
-  | 'private_video'; // Vídeo privat compartit només amb altres parelles
+  | 'display'           // Aparador físic a l'estudi (C/ Mare Molas 26, Reus)
+  | 'facebook'          // Facebook professional
+  | 'website'           // lifetime.photo
+  | 'instagram'         // @lifetime.weddings (post permanent)
+  | 'instagram_reel'    // Reel a @lifetime.weddings
+  | 'instagram_stories' // Stories el mateix dia de la boda
+  | 'blog_real_wedding' // Article a lifetime.photo/bodes (real wedding)
+  | 'paid_ads'          // Anuncis pagats (Meta / Google)
+  | 'venue_partners'    // Compartir amb el venue / wedding planner
+  | 'private_video';    // Vídeo privat compartit només amb altres parelles

@@ -94,6 +94,10 @@ function rowToBooking(row: Record<string, unknown>): Booking {
     facturadirectaInvoiceNumber: row.facturadirecta_invoice_number
       ? String(row.facturadirecta_invoice_number)
       : null,
+    fotostudioProjectId:
+      row.fotostudio_project_id == null
+        ? null
+        : Number(row.fotostudio_project_id) || null,
   };
 }
 
@@ -506,6 +510,20 @@ export async function setFacturadirectaInvoice(
           SET facturadirecta_invoice_id = ?, facturadirecta_invoice_number = ?
           WHERE id = ?`,
     args: [invoiceId, invoiceNumber ?? null, bookingId],
+  });
+}
+
+/** Record the FotoStudio project id the booking was pushed to. Set
+ *  once at /reserva submit time so /contrato submit can later update the
+ *  same project's description with the publication-consent block. */
+export async function setFotostudioProjectId(
+  bookingId: string,
+  projectId: number,
+): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: 'UPDATE bookings SET fotostudio_project_id = ? WHERE id = ?',
+    args: [projectId, bookingId],
   });
 }
 

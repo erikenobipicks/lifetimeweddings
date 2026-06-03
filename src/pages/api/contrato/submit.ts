@@ -23,6 +23,7 @@ import {
   sendContratoCoupleConfirmation,
   sendContratoInternalAlert,
 } from '~/lib/bookings/emails';
+import { updateFotostudioProjectDescription } from '~/lib/fotostudio';
 
 interface RateRecord { count: number; resetAt: number }
 const RATE_LIMIT = 3;
@@ -59,7 +60,46 @@ function maybePrune() {
   }
 }
 
-const PUBLICATION_CHANNELS = ['display', 'facebook', 'website', 'instagram', 'private_video'] as const;
+/** Human-readable Catalan labels for each consent channel — dumped into
+ *  the FotoStudio project description so the contract body
+ *  ({shoot_description}) lists the channels the couple authorised. Kept
+ *  separate from the i18n labels in ui.ts because that file is browser-
+ *  facing and trilingual; the contract is always in CA/ES (we use CA here
+ *  as the canonical wording, mirroring the contract templates). */
+const CONSENT_CONTRACT_LABEL: Record<string, string> = {
+  display: 'Aparador físic de l\'estudi',
+  facebook: 'Facebook professional',
+  website: 'Pàgina web (lifetime.photo)',
+  instagram: 'Instagram (@lifetime.weddings)',
+  instagram_reel: 'Reel d\'Instagram',
+  instagram_stories: 'Stories d\'Instagram el mateix dia de la boda',
+  blog_real_wedding: 'Article "real wedding" al blog',
+  paid_ads: 'Anuncis pagats (Meta / Google)',
+  venue_partners: 'Compartir amb el venue / wedding planner',
+  private_video: 'Vídeo privat amb altres parelles',
+};
+
+function buildConsentBlockCa(consent: readonly string[], couple: string): string {
+  const header = `Boda de ${couple}`;
+  if (consent.length === 0) {
+    return `${header}\n\nDrets d'imatge: la parella NO autoritza la publicació del reportatge per cap canal.`;
+  }
+  const lines = consent.map((ch) => `- ${CONSENT_CONTRACT_LABEL[ch] ?? ch}`);
+  return `${header}\n\nDrets d'imatge — canals autoritzats per la parella:\n${lines.join('\n')}`;
+}
+
+const PUBLICATION_CHANNELS = [
+  'display',
+  'facebook',
+  'website',
+  'instagram',
+  'instagram_reel',
+  'instagram_stories',
+  'blog_real_wedding',
+  'paid_ads',
+  'venue_partners',
+  'private_video',
+] as const;
 
 const submitSchema = z.object({
   slug: z.string().trim().min(1).max(100),
@@ -158,9 +198,23 @@ export const POST: APIRoute = async ({ request }) => {
     ? await getFormResponseForBooking(updatedBooking.id)
     : null;
   if (updatedBooking && updatedFormResponse) {
+    // Push the publication-consent block into the FotoStudio project's
+    // description so the contract body picks it up via {shoot_description}.
+    // Only fires when /reserva managed to create the FotoStudio project and
+    // we persisted its id at that time. Always fail-soft.
+    const fotostudioUpdate = updatedBooking.fotostudioProjectId
+      ? updateFotostudioProjectDescription(
+          updatedBooking.fotostudioProjectId,
+          buildConsentBlockCa(
+            d.publicationConsent,
+            `${updatedFormResponse.c1FullName} i ${updatedFormResponse.c2FullName}`,
+          ),
+        )
+      : Promise.resolve();
     await Promise.all([
       sendContratoCoupleConfirmation(updatedBooking),
       sendContratoInternalAlert(updatedBooking, updatedFormResponse),
+      fotostudioUpdate,
     ]);
   }
 

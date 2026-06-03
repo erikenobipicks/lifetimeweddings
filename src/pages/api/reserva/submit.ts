@@ -26,6 +26,7 @@ import { z } from 'zod';
 import {
   getBookingBySlug,
   createFormResponse,
+  setFotostudioProjectId,
 } from '~/lib/bookings/repository';
 import {
   sendCoupleConfirmation,
@@ -337,8 +338,11 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Fire-and-await but each helper is fail-soft internally, so a delivery
     // failure won't break the response. We parallelise to keep the request
-    // snappy from the couple's perspective.
-    await Promise.all([
+    // snappy from the couple's perspective. The FotoStudio push is its own
+    // await so we can capture the returned project id and persist it on
+    // the booking — /contrato submit reuses it later to update the
+    // project's description with the publication-consent block.
+    const [, , , fotoProjectId] = await Promise.all([
       sendCoupleConfirmation(updated, formView),
       sendInternalAlert(updated, formView),
       sendBookingTelegram(updated, formView),
@@ -361,6 +365,16 @@ export const POST: APIRoute = async ({ request }) => {
         shootDescription: `Boda de ${d.c1FullName} i ${d.c2FullName}`,
       }),
     ]);
+    if (fotoProjectId) {
+      // Persist the FotoStudio project id so /contrato submit can append
+      // the publication-consent text to the same project later on. Wrapped
+      // in try/catch — a DB blip here mustn't fail the user request.
+      try {
+        await setFotostudioProjectId(updated.id, fotoProjectId);
+      } catch (err) {
+        console.error('[reserva.submit] setFotostudioProjectId failed (non-fatal)', err);
+      }
+    }
   }
 
   return jsonResponse({ ok: true, redirect: `/reserva/${d.slug}` }, 200);
