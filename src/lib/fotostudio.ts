@@ -123,6 +123,18 @@ async function createProject(p: ProjectPayload): Promise<number> {
   return created.id;
 }
 
+/** Update a previously-created project's description. Used by /contrato
+ *  submit to surface the publication-consent text in the contract body
+ *  (which renders {shoot_description}). Fail-soft — silently no-ops if
+ *  the FotoStudio integration isn't configured. */
+async function updateProjectDescription(projectId: number, description: string): Promise<void> {
+  await request<unknown>({
+    method: 'PUT',
+    path: `/projects/${projectId}`,
+    body: { description },
+  });
+}
+
 async function applyWorkflow(projectId: number, workflowId: number): Promise<void> {
   await request<unknown>({
     method: 'POST',
@@ -196,9 +208,12 @@ export interface PushBookingInput {
 
 /** Called from /api/reserva/submit.ts after the form_response is persisted.
  *  Ensures a fotostudio contact exists (upserted by email), creates a Boda
- *  project linked to it, and applies the "Bodas" workflow. */
-export async function pushBookingToFotostudio(input: PushBookingInput): Promise<void> {
-  if (!enabled()) return;
+ *  project linked to it, and applies the "Bodas" workflow. Returns the
+ *  fotostudio project id so the caller can persist it on the booking
+ *  (used later by /contrato submit to update the same project). Returns
+ *  null on any failure — fail-soft, never throws. */
+export async function pushBookingToFotostudio(input: PushBookingInput): Promise<number | null> {
+  if (!enabled()) return null;
   try {
     const contactId = await upsertContact({
       ...splitName(input.primaryFullName),
@@ -230,7 +245,25 @@ export async function pushBookingToFotostudio(input: PushBookingInput): Promise<
     });
 
     await applyWorkflow(projectId, BODA_WORKFLOW_ID);
+    return projectId;
   } catch (err) {
     console.error('[fotostudio] pushBookingToFotostudio failed (non-fatal)', err);
+    return null;
+  }
+}
+
+/** Replace the `description` of an existing fotostudio project. Called
+ *  from /api/contrato/submit so the contract body ({shoot_description})
+ *  carries both the couple-names line and the publication-consent block.
+ *  Fail-soft. */
+export async function updateFotostudioProjectDescription(
+  projectId: number,
+  description: string,
+): Promise<void> {
+  if (!enabled()) return;
+  try {
+    await updateProjectDescription(projectId, description);
+  } catch (err) {
+    console.error('[fotostudio] updateFotostudioProjectDescription failed (non-fatal)', err);
   }
 }

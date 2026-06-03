@@ -36,13 +36,28 @@ const firstLookOptions: Array<{ value: 'yes' | 'no' | 'not_sure'; label: string 
 ];
 
 const consentChannels: Array<{
-  value: 'display' | 'facebook' | 'website' | 'instagram' | 'private_video';
+  value:
+    | 'display'
+    | 'facebook'
+    | 'website'
+    | 'instagram'
+    | 'instagram_reel'
+    | 'instagram_stories'
+    | 'blog_real_wedding'
+    | 'paid_ads'
+    | 'venue_partners'
+    | 'private_video';
   label: string;
 }> = [
-  { value: 'display', label: t('contrato.opt.consent.display') },
-  { value: 'facebook', label: t('contrato.opt.consent.facebook') },
   { value: 'website', label: t('contrato.opt.consent.website') },
+  { value: 'blog_real_wedding', label: t('contrato.opt.consent.blog_real_wedding') },
   { value: 'instagram', label: t('contrato.opt.consent.instagram') },
+  { value: 'instagram_reel', label: t('contrato.opt.consent.instagram_reel') },
+  { value: 'instagram_stories', label: t('contrato.opt.consent.instagram_stories') },
+  { value: 'facebook', label: t('contrato.opt.consent.facebook') },
+  { value: 'paid_ads', label: t('contrato.opt.consent.paid_ads') },
+  { value: 'venue_partners', label: t('contrato.opt.consent.venue_partners') },
+  { value: 'display', label: t('contrato.opt.consent.display') },
   { value: 'private_video', label: t('contrato.opt.consent.private_video') },
 ];
 ---

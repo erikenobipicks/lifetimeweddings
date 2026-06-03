@@ -239,6 +239,11 @@ export async function initSchema() {
   // (or with FacturaDirecta unconfigured) simply stay null.
   await ensureColumn('bookings', 'facturadirecta_invoice_id', 'TEXT');
   await ensureColumn('bookings', 'facturadirecta_invoice_number', 'TEXT');
+  // FotoStudio project id (numeric) — set when /reserva pushes the booking
+  // into the CRM, used by /contrato submit to update the project description
+  // with the couple's publication-consent choices. Nullable: bookings made
+  // before this migration / when FotoStudio is unconfigured stay null.
+  await ensureColumn('bookings', 'fotostudio_project_id', 'INTEGER');
   await ensureColumn('booking_form_responses', 'language_between', 'TEXT');
   await ensureColumn('booking_form_responses', 'ceremony_location_text', 'TEXT');
   await ensureColumn('booking_form_responses', 'reception_location_text', 'TEXT');

@@ -501,6 +501,15 @@ export const ui = {
     'contrato.opt.consent.instagram': 'Instagram (@lifetime.weddings)',
     'contrato.opt.consent.private_video':
       'Vídeo privado (solo compartido con otras parejas, nunca enlace público)',
+    'contrato.opt.consent.instagram_reel': 'Reel de Instagram (@lifetime.weddings)',
+    'contrato.opt.consent.instagram_stories':
+      'Stories de Instagram el mismo día de la boda (cobertura en directo)',
+    'contrato.opt.consent.blog_real_wedding':
+      'Artículo "real wedding" en el blog (lifetime.photo/bodas) con vuestra historia',
+    'contrato.opt.consent.paid_ads':
+      'Anuncios pagados en Meta / Google (uso de imágenes en campañas publicitarias)',
+    'contrato.opt.consent.venue_partners':
+      'Compartir el reportaje con el venue / wedding planner para sus propios canales',
     'contrato.field.gdpr.label': 'Acepto el tratamiento de datos',
     'contrato.field.gdpr.body':
       'De conformidad con el Reglamento (UE) 2016/679 (RGPD) y la Ley Orgánica 3/2018, le informamos que los datos personales recogidos serán tratados por OBJECTIU S.C.P. (C/ Mare Molas 26, Reus) con la finalidad de gestionar el contrato y la prestación de los servicios fotográficos. Sus datos no se cederán a terceros salvo obligación legal. Podrá ejercer sus derechos de acceso, rectificación, supresión, oposición, limitación y portabilidad escribiéndonos al correo indicado en nuestra política de privacidad.',
@@ -1049,6 +1058,15 @@ export const ui = {
     'contrato.opt.consent.instagram': 'Instagram (@lifetime.weddings)',
     'contrato.opt.consent.private_video':
       'Vídeo privat (només compartit amb altres parelles, mai enllaç públic)',
+    'contrato.opt.consent.instagram_reel': 'Reel d\'Instagram (@lifetime.weddings)',
+    'contrato.opt.consent.instagram_stories':
+      'Stories d\'Instagram el mateix dia de la boda (cobertura en directe)',
+    'contrato.opt.consent.blog_real_wedding':
+      'Article "real wedding" al blog (lifetime.photo/bodes) amb la vostra història',
+    'contrato.opt.consent.paid_ads':
+      'Anuncis pagats a Meta / Google (ús d\'imatges en campanyes publicitàries)',
+    'contrato.opt.consent.venue_partners':
+      'Compartir el reportatge amb el venue / wedding planner per als seus propis canals',
     'contrato.field.gdpr.label': 'Accepto el tractament de dades',
     'contrato.field.gdpr.body':
       "D'acord amb el Reglament (UE) 2016/679 (RGPD) i la Llei Orgànica 3/2018, l'informem que les dades personals recollides seran tractades per OBJECTIU S.C.P. (C/ Mare Molas 26, Reus) amb la finalitat de gestionar el contracte i la prestació dels serveis fotogràfics. Les seves dades no se cediran a tercers excepte en cas d'obligació legal. Podrà exercir els seus drets d'accés, rectificació, supressió, oposició, limitació i portabilitat escrivint-nos al correu indicat a la nostra política de privacitat.",
@@ -1596,6 +1614,15 @@ export const ui = {
     'contrato.opt.consent.instagram': 'Instagram (@lifetime.weddings)',
     'contrato.opt.consent.private_video':
       'Private video (shown only to other couples privately, never a public link)',
+    'contrato.opt.consent.instagram_reel': 'Instagram Reel (@lifetime.weddings)',
+    'contrato.opt.consent.instagram_stories':
+      'Instagram Stories on the wedding day (live coverage)',
+    'contrato.opt.consent.blog_real_wedding':
+      'Real-wedding blog post on lifetime.photo/bodes featuring your story',
+    'contrato.opt.consent.paid_ads':
+      'Paid ads on Meta / Google (use of images in advertising campaigns)',
+    'contrato.opt.consent.venue_partners':
+      'Share the wedding with the venue / wedding planner for their own channels',
     'contrato.field.gdpr.label': 'I accept the data processing policy',
     'contrato.field.gdpr.body':
       'In accordance with Regulation (EU) 2016/679 (GDPR) and Spanish Organic Law 3/2018, we inform you that the personal data collected will be processed by OBJECTIU S.C.P. (C/ Mare Molas 26, Reus) for the purpose of managing the contract and providing the photography services. Your data will not be shared with third parties unless required by law. You may exercise your rights of access, rectification, erasure, objection, restriction and portability by contacting us at the email indicated in our privacy policy.',
