@@ -406,8 +406,9 @@ const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
           window.location.assign(target);
           return;
         }
-        if (res.status === 409) {
-          // Already submitted — reload to show the payment step too.
+        if (res.status === 409 && data && data.error === 'already_submitted') {
+          // Genuinely already done — reload so the server shows the
+          // payment step instead of the form.
           window.location.assign(window.location.pathname);
           return;
         }
@@ -422,7 +423,13 @@ const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
             showStatus('err', '⚠', errorValidation);
           }
         } else {
-          showStatus('err', '⚠', errorGeneric);
+          // Any other failure (403 captcha, 409 not_active, 410 expired,
+          // 500 persist_failed, …): show a visible message with the
+          // server's error code INSTEAD of silently reloading — a silent
+          // reload just re-showed the empty form, which read as an
+          // inescapable loop. The code helps us diagnose from a screenshot.
+          const code = (data && data.error) ? ` (${data.error})` : '';
+          showStatus('err', '⚠', errorGeneric + code);
         }
       } catch (e) {
         showStatus('err', '⚠', errorGeneric);
