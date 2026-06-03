@@ -16,6 +16,7 @@ import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { getUser } from '~/lib/auth';
 import {
+  deleteBooking,
   getBookingById,
   markDepositPaid,
   setBookingStatus,
@@ -118,6 +119,14 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
   const form = await request.formData();
   const action = String(form.get('_action') ?? '');
   const back = (qs: string) => redirect(`/admin/bookings/${id}${qs}`, 303);
+
+  // Hard-delete: irreversible. For cleanup of test/demo bookings only.
+  // Confirm dialog is on the client form; we trust the admin session.
+  // Cascade in the schema removes booking_form_responses.
+  if (action === 'delete') {
+    await deleteBooking(id);
+    return redirect('/admin/bookings?ok=deleted', 303);
+  }
 
   if (action === 'status') {
     const next = statusSchema.safeParse({ status: form.get('status') });

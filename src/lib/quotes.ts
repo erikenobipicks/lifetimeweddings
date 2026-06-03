@@ -127,6 +127,15 @@ export async function archiveQuote(id: number): Promise<void> {
   await db.execute({ sql: 'UPDATE quotes SET archived = 1 WHERE id = ?', args: [id] });
 }
 
+/** Hard-delete a quote and its dependent rows. Irreversible. Use only for
+ *  cleanup of test/demo data — archiving is preferred for real quotes
+ *  because it keeps the historical record. Cascades take care of `events`;
+ *  `leads.quote_id` becomes NULL via ON DELETE SET NULL. */
+export async function deleteQuote(id: number): Promise<void> {
+  await initSchema();
+  await db.execute({ sql: 'DELETE FROM quotes WHERE id = ?', args: [id] });
+}
+
 export async function verifyQuotePassword(token: string, password: string): Promise<boolean> {
   const res = await db.execute({ sql: 'SELECT password_hash FROM quotes WHERE token = ?', args: [token] });
   const hash = res.rows[0]?.password_hash as string | null;

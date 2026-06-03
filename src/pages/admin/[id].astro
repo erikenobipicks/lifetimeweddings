@@ -1,6 +1,6 @@
 ---
 import AdminLayout from '~/layouts/AdminLayout.astro';
-import { getQuoteById, getQuoteStats, getQuoteEvents, archiveQuote, getLeadByQuoteId } from '~/lib/quotes';
+import { getQuoteById, getQuoteStats, getQuoteEvents, archiveQuote, deleteQuote, getLeadByQuoteId } from '~/lib/quotes';
 import { PACKS } from '~/data/packs';
 
 const id = Number(Astro.params.id);
@@ -11,6 +11,12 @@ if (Astro.request.method === 'POST') {
   if (form.get('action') === 'archive') {
     await archiveQuote(id);
     return Astro.redirect('/admin');
+  }
+  // Hard-delete: irreversible. Confirm dialog lives in the form below;
+  // the server only checks that the action token matches.
+  if (form.get('action') === 'delete') {
+    await deleteQuote(id);
+    return Astro.redirect('/admin?ok=deleted');
   }
 }
 
@@ -172,10 +178,16 @@ function humanSecs(n: number): string {
     )}
   </div>
 
-  <form method="POST" onsubmit="return confirm('Arxivar aquest pressupost? No es veurà al llistat.')">
-    <input type="hidden" name="action" value="archive" />
-    <button type="submit" class="text-xs text-red-600 hover:underline">🗑️ Arxivar pressupost</button>
-  </form>
+  <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-black/10 pt-6">
+    <form method="POST" onsubmit="return confirm('Arxivar aquest pressupost? No es veurà al llistat però es pot recuperar.')">
+      <input type="hidden" name="action" value="archive" />
+      <button type="submit" class="text-xs text-ink/60 hover:text-gold underline">📦 Arxivar</button>
+    </form>
+    <form method="POST" onsubmit="return confirm('⚠ ELIMINAR aquest pressupost DEFINITIVAMENT?\n\nNo es podrà recuperar.\nFes-ho servir només per netejar proves.')">
+      <input type="hidden" name="action" value="delete" />
+      <button type="submit" class="text-xs text-red-600 font-bold hover:underline">🗑 Eliminar definitivament</button>
+    </form>
+  </div>
 </AdminLayout>
 
 <script>

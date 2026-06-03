@@ -623,3 +623,13 @@ export async function submitContractData(input: ContractDataInput): Promise<void
     'write',
   );
 }
+
+/** Hard-delete a booking and ALL its dependents. Irreversible. Use only
+ *  for cleanup of test/demo data — archiving (status='archived') is
+ *  preferred for real bookings because it keeps the historical record
+ *  AND the FacturaDirecta invoice link. The booking_form_responses row
+ *  cascades via ON DELETE CASCADE. */
+export async function deleteBooking(bookingId: string): Promise<void> {
+  await initSchema();
+  await db.execute({ sql: 'DELETE FROM bookings WHERE id = ?', args: [bookingId] });
+}
