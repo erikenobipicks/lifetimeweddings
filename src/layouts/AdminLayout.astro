@@ -16,7 +16,7 @@ const user = Astro.locals.user;
     <link rel="icon" type="image/png" href="/favicon.png" />
   </head>
   <body class="bg-cream text-ink font-sans antialiased min-h-screen">
-    <header class="bg-ink text-white">
+    <header class="bg-ink text-white sticky top-0 z-40 shadow-sm">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
         <!-- Top row: logo + (on mobile) hamburger; (on desktop) inline nav. -->
         <div class="flex items-center justify-between gap-4">
@@ -37,16 +37,18 @@ const user = Astro.locals.user;
                 </form>
               </nav>
 
-              <!-- Mobile hamburger: only visible below md. Toggles #admin-mobile-nav. -->
+              <!-- Mobile hamburger: only visible below md. Toggles #admin-mobile-nav.
+                   Outlined so it's obvious it's a button, not a decoration. -->
               <button
                 type="button"
                 id="admin-nav-toggle"
-                class="md:hidden p-2 -m-2 text-white hover:text-gold focus:outline-none focus:ring-2 focus:ring-gold rounded"
+                class="md:hidden inline-flex items-center gap-2 px-3 py-1.5 border border-white/40 text-white text-xs font-bold tracking-widest uppercase hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-gold rounded"
                 aria-label="Obrir menú"
                 aria-controls="admin-mobile-nav"
                 aria-expanded="false"
               >
-                <svg viewBox="0 0 24 24" class="w-6 h-6 fill-current" aria-hidden="true">
+                <span>Menú</span>
+                <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current" aria-hidden="true">
                   <path id="admin-nav-icon-open" d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
                   <path id="admin-nav-icon-close" class="hidden" d="M18.3 5.71L12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.3 19.71 2.89 18.3 9.18 12 2.89 5.71 4.3 4.3l6.29 6.3 6.29-6.3z" />
                 </svg>
@@ -91,20 +93,31 @@ const user = Astro.locals.user;
         const iconOpen = document.getElementById('admin-nav-icon-open');
         const iconClose = document.getElementById('admin-nav-icon-close');
         if (!btn || !nav) return;
-        btn.addEventListener('click', () => {
-          const isOpen = !nav.classList.contains('hidden');
-          if (isOpen) {
-            nav.classList.add('hidden');
-            nav.classList.remove('flex');
-            btn.setAttribute('aria-expanded', 'false');
-            iconOpen && iconOpen.classList.remove('hidden');
-            iconClose && iconClose.classList.add('hidden');
-          } else {
+        function setOpen(open) {
+          if (open) {
             nav.classList.remove('hidden');
             nav.classList.add('flex');
             btn.setAttribute('aria-expanded', 'true');
             iconOpen && iconOpen.classList.add('hidden');
             iconClose && iconClose.classList.remove('hidden');
+          } else {
+            nav.classList.add('hidden');
+            nav.classList.remove('flex');
+            btn.setAttribute('aria-expanded', 'false');
+            iconOpen && iconOpen.classList.remove('hidden');
+            iconClose && iconClose.classList.add('hidden');
+          }
+        }
+        btn.addEventListener('click', () => {
+          setOpen(nav.classList.contains('hidden'));
+        });
+        // Close on outside-click — the mobile nav otherwise overlays the
+        // content and the only way to dismiss it was tapping the X.
+        document.addEventListener('click', (ev) => {
+          if (nav.classList.contains('hidden')) return;
+          const t = ev.target;
+          if (t instanceof Node && !nav.contains(t) && !btn.contains(t)) {
+            setOpen(false);
           }
         });
       })();
