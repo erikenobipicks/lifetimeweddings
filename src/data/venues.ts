@@ -381,7 +381,7 @@ export const VENUES: Venue[] = [
     realWeddingIntro:
       "L'Elena i en Jordi van triar Masia San Antonio perquè volien una boda sense haver de moure els convidats: cerimònia, cocktail, banquet i ball, tot al mateix lloc. Vam ser-hi des dels preparatius fins al ball. Quan acabeu de veure aquest reportatge, mireu també el tràiler complet a /videos — és el que el vídeo pot fer per la vostra boda.",
     whatItOffersIntro:
-      'Masia San Antonio és el venue ideal per a parelles que volen un sol lloc per a tot el dia. Ni desplaçaments de convidats entre cerimònia i banquet, ni perdre invitats pel camí, ni perdre temps. Tot el dia flueix en el mateix espai.',
+      'Masia San Antonio és el venue ideal per a parelles que volen un sol lloc per a tot el dia. Ni desplaçaments de convidats entre cerimònia i banquet, ni perdre convidats pel camí, ni perdre temps. Tot el dia flueix en el mateix espai.',
     whatItOffersBullets: [
       'La cerimònia es pot fer a l\'exterior amb el camp com a fons — un dels racons amb millor llum del Penedès al capvespre',
       'Els preparatius en habitacions de la masia mateixa — pedra, fusta, llum natural per les finestres. Composicions impossibles a un hotel',
