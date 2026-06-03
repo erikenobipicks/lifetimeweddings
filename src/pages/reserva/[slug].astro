@@ -33,6 +33,7 @@ import Hero from '~/components/reserva/Hero.astro';
 import PackDetail from '~/components/reserva/PackDetail.astro';
 import StatusBanner from '~/components/reserva/StatusBanner.astro';
 import ReservationForm from '~/components/reserva/ReservationForm.astro';
+import DepositPayment from '~/components/reserva/DepositPayment.astro';
 
 const slug = Astro.params.slug!;
 const booking = await getBookingBySlug(slug);
@@ -61,6 +62,12 @@ const weddingDateLong = booking ? formatWeddingDateLong(booking.weddingDate, lan
 const expiresShort =
   booking && booking.expiresAt ? formatExpiresShort(booking.expiresAt, lang) : null;
 const whatsapp = whatsappLinkFor(slug, lang);
+
+// Stripe Checkout return state: ?paid=success|cancel. Only meaningful on
+// the post-data payment step.
+const paidParam = Astro.url.searchParams.get('paid');
+const payState: 'success' | 'cancel' | null =
+  paidParam === 'success' ? 'success' : paidParam === 'cancel' ? 'cancel' : null;
 
 // Hero cover: sample fallback for the prototype. Once we have CMS-driven
 // reference photos per booking, the resolver moves out of here.
@@ -170,21 +177,23 @@ const description = booking
         paymentTerms={booking!.paymentTerms}
       />
 
-      <!-- Dades per a la reserva (or "already submitted" placeholder if
-           the couple already filled it once — StatusBanner up top covers
-           the same message and we don't want a stale form re-rendering). -->
+      <!-- Once the couple has submitted their data the form is replaced by
+           the deposit-payment step (transfer + card). DepositPayment itself
+           flips to a "deposit received → contract" state once paid. Before
+           that, the reservation form is shown. -->
       {booking!.status === 'form_submitted' ? (
-        <section id="reservar" class="px-6 md:px-12 py-16 md:py-20 bg-cream text-ink text-center">
-          <div class="max-w-xl mx-auto">
-            <p class="font-display text-lg text-ink/70 leading-relaxed">
-              {lang === 'es'
-                ? 'Ya nos habéis enviado vuestros datos. Si necesitáis modificar algo, escribidnos por WhatsApp.'
-                : lang === 'en'
-                  ? 'You have already sent us your details. If you need to change anything, message us on WhatsApp.'
-                  : 'Ja ens heu enviat les vostres dades. Si heu de modificar alguna cosa, escriviu-nos pel WhatsApp.'}
-            </p>
-          </div>
-        </section>
+        <DepositPayment
+          lang={lang}
+          slug={slug}
+          coupleName1={booking!.coupleName1}
+          coupleName2={booking!.coupleName2}
+          packName={booking!.packName}
+          packPriceCents={booking!.packPriceCents}
+          depositCents={booking!.depositCents}
+          paymentTerms={booking!.paymentTerms}
+          depositPaid={booking!.depositPaidAt instanceof Date}
+          payState={payState}
+        />
       ) : (
         <ReservationForm
           lang={lang}

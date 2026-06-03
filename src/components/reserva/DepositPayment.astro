@@ -1,0 +1,184 @@
+---
+// Deposit-payment block, shown on /reserva/[slug] once the couple has
+// submitted their data (booking.status === 'form_submitted') and the
+// deposit hasn't been recorded yet. Two channels: bank transfer (always)
+// and card via Stripe (when configured).
+//
+// When the deposit IS paid (depositPaidAt set, or we just came back from a
+// successful Stripe Checkout) we flip to a "deposit received → contract"
+// state instead.
+
+import { useTranslations, type Lang } from '~/i18n/ui';
+import { formatPrice } from '~/lib/bookings/format';
+import { getBankTransferDetails, transferReferenceFor, isStripeEnabled } from '~/lib/payments/config';
+
+interface Props {
+  lang: Lang;
+  slug: string;
+  coupleName1: string;
+  coupleName2: string;
+  packName: string;
+  packPriceCents: number;
+  depositCents: number;
+  paymentTerms: string | null;
+  /** True once the deposit has been recorded (admin or Stripe webhook). */
+  depositPaid: boolean;
+  /** ?paid=success|cancel — surfaced as a banner. */
+  payState: 'success' | 'cancel' | null;
+}
+
+const {
+  lang, slug, coupleName1, coupleName2, packName,
+  packPriceCents, depositCents, paymentTerms, depositPaid, payState,
+} = Astro.props;
+
+const t = useTranslations(lang);
+const transfer = getBankTransferDetails();
+const stripeOn = isStripeEnabled();
+const reference = transferReferenceFor({ coupleName1, coupleName2 });
+const depositStr = formatPrice(depositCents, lang);
+
+// "Paid" view trumps everything — once the money's in, the only thing left
+// is the contract. Stripe success redirect lands here too (the webhook
+// records the payment a beat later; we optimistically show the paid state).
+const showPaid = depositPaid || payState === 'success';
+---
+
+<section id="pagament" class="px-6 md:px-12 py-16 md:py-24 bg-cream text-ink">
+  <div class="max-w-3xl mx-auto">
+    {showPaid ? (
+      <div class="bg-white border border-emerald-200 p-6 md:p-10">
+        <h2 class="font-display text-3xl md:text-4xl font-bold mb-3 text-emerald-900">{t('reserva.pay.paid.heading')}</h2>
+        <p class="text-ink/75 leading-relaxed mb-6">{t('reserva.pay.paid.body')}</p>
+        <a
+          href={`/contrato/${slug}`}
+          class="inline-block bg-gold text-ink font-bold px-8 py-4 hover:bg-ink hover:text-white transition-colors"
+        >
+          {t('reserva.pay.paid.cta')} →
+        </a>
+      </div>
+    ) : (
+      <>
+        <h2 class="font-display text-3xl md:text-4xl font-bold mb-2">{t('reserva.pay.heading')}</h2>
+        <p class="text-ink/75 leading-relaxed mb-6 max-w-2xl">
+          <span class="block font-semibold text-emerald-800 mb-1">{t('reserva.pay.dataReceived')}</span>
+          {t('reserva.pay.intro')}
+        </p>
+
+        {payState === 'cancel' && (
+          <div class="mb-6 p-4 border border-amber-300 bg-amber-50 text-amber-900 text-sm">
+            {t('reserva.pay.cancel')}
+          </div>
+        )}
+
+        <!-- Budget recap -->
+        <div class="bg-white border border-ink/10 p-5 md:p-6 mb-6">
+          <dl class="space-y-2 text-sm">
+            <div class="flex justify-between gap-4">
+              <dt class="text-ink/60">{t('reserva.pay.recap.pack')}</dt>
+              <dd class="font-semibold text-right">{packName}</dd>
+            </div>
+            <div class="flex justify-between gap-4">
+              <dt class="text-ink/60">{t('reserva.pay.recap.total')}</dt>
+              <dd class="font-semibold text-right">{formatPrice(packPriceCents, lang)}</dd>
+            </div>
+            <div class="flex justify-between gap-4 pt-2 border-t border-ink/10">
+              <dt class="font-bold">{t('reserva.pay.recap.deposit')}</dt>
+              <dd class="font-display font-bold text-gold text-lg text-right">{depositStr}</dd>
+            </div>
+            {paymentTerms && (
+              <div class="flex justify-between gap-4 pt-2 border-t border-ink/10">
+                <dt class="text-ink/60">{t('reserva.pay.recap.terms')}</dt>
+                <dd class="text-right text-ink/80">{paymentTerms}</dd>
+              </div>
+            )}
+          </dl>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-2">
+          <!-- Bank transfer -->
+          <div class="bg-white border border-ink/10 p-5 md:p-6">
+            <h3 class="font-display text-lg font-bold mb-3">{t('reserva.pay.transfer.heading')}</h3>
+            <dl class="space-y-2 text-sm">
+              <div>
+                <dt class="text-ink/55 text-xs uppercase tracking-wide">{t('reserva.pay.transfer.beneficiary')}</dt>
+                <dd class="font-semibold">{transfer.beneficiary}</dd>
+              </div>
+              <div>
+                <dt class="text-ink/55 text-xs uppercase tracking-wide">{t('reserva.pay.transfer.iban')}</dt>
+                <dd class="font-mono font-semibold">{transfer.iban}</dd>
+              </div>
+              {transfer.bank && (
+                <div>
+                  <dt class="text-ink/55 text-xs uppercase tracking-wide">{t('reserva.pay.transfer.bank')}</dt>
+                  <dd>{transfer.bank}</dd>
+                </div>
+              )}
+              <div>
+                <dt class="text-ink/55 text-xs uppercase tracking-wide">{t('reserva.pay.transfer.amount')}</dt>
+                <dd class="font-semibold">{depositStr}</dd>
+              </div>
+              <div>
+                <dt class="text-ink/55 text-xs uppercase tracking-wide">{t('reserva.pay.transfer.reference')}</dt>
+                <dd class="font-semibold">{reference}</dd>
+              </div>
+            </dl>
+            <p class="text-xs text-ink/55 mt-4 leading-relaxed">{t('reserva.pay.transfer.note')}</p>
+          </div>
+
+          <!-- Card (Stripe) -->
+          {stripeOn && (
+            <div class="bg-white border border-ink/10 p-5 md:p-6 flex flex-col">
+              <h3 class="font-display text-lg font-bold mb-3">{t('reserva.pay.card.heading')}</h3>
+              <p class="text-sm text-ink/70 leading-relaxed mb-5">{t('reserva.pay.card.note')}</p>
+              <div id="pay-card-error" class="hidden mb-4 p-3 border border-red-300 bg-red-50 text-red-900 text-sm" role="alert"></div>
+              <button
+                type="button"
+                id="pay-card-btn"
+                data-slug={slug}
+                class="mt-auto inline-flex items-center justify-center bg-ink text-white font-bold px-6 py-4 hover:bg-gold hover:text-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {t('reserva.pay.card.button')} · {depositStr}
+              </button>
+            </div>
+          )}
+        </div>
+      </>
+    )}
+  </div>
+</section>
+
+{!showPaid && isStripeEnabled() && (
+  <script
+    is:inline
+    define:vars={{ cardError: t('reserva.pay.card.error') }}
+  >
+    (() => {
+      const btn = document.getElementById('pay-card-btn');
+      const errBox = document.getElementById('pay-card-error');
+      if (!btn) return;
+      btn.addEventListener('click', async () => {
+        errBox && errBox.classList.add('hidden');
+        btn.disabled = true;
+        const old = btn.textContent;
+        try {
+          const res = await fetch('/api/reserva/pay', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slug: btn.dataset.slug }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (res.status === 200 && data.url) {
+            window.location.href = data.url;
+            return;
+          }
+          throw new Error(data.error || 'failed');
+        } catch (e) {
+          if (errBox) { errBox.textContent = cardError; errBox.classList.remove('hidden'); }
+          btn.disabled = false;
+          btn.textContent = old;
+        }
+      });
+    })();
+  </script>
+)}
