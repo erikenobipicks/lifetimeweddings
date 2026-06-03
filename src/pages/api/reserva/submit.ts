@@ -237,8 +237,16 @@ export const POST: APIRoute = async ({ request }) => {
   if (booking.status === 'form_submitted') {
     return jsonResponse({ error: 'already_submitted' }, 409);
   }
-  if (booking.status !== 'sent' && booking.status !== 'viewed') {
-    // 'draft' — admin hasn't sent it yet. Couple shouldn't have the URL.
+  // Accepted: draft / sent / viewed. Draft is included so the operator
+  // can test the flow on a freshly-created booking without having to mark
+  // it as 'sent' first — the slug is random and only known to whoever
+  // received the link, so the leak risk is acceptable in exchange for the
+  // ergonomic win. Any *other* status (e.g. archived, future ones) bounces.
+  if (
+    booking.status !== 'draft' &&
+    booking.status !== 'sent' &&
+    booking.status !== 'viewed'
+  ) {
     return jsonResponse({ error: 'not_active' }, 409);
   }
 
