@@ -110,6 +110,17 @@ const couple = `${booking.coupleName1} & ${booking.coupleName2}`;
       </div>
     </fieldset>
 
+    <fieldset class="space-y-3 pt-4 border-t border-black/10">
+      <legend class="text-xs font-bold tracking-widest uppercase text-ink/60 mb-1">Opcions</legend>
+      <label class="flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" name="silent_mode" value="1" class="h-5 w-5 mt-0.5 accent-gold flex-shrink-0" />
+        <span class="text-sm">
+          <strong class="block">Mode silenciós (boda històrica)</strong>
+          <span class="text-ink/65">No enviïs email a la parella, no emetis factura a FacturaDirecta. Marca el dipòsit com a pagat igualment i deixa la reserva preparada per al contracte. Útil per a bodes que ja vas tancar fora del sistema i només vols introduir-les al registre.</span>
+        </span>
+      </label>
+    </fieldset>
+
     <div class="flex items-center gap-4 pt-4 border-t border-black/10">
       <button type="submit" class="bg-emerald-600 text-white px-6 py-3 text-xs font-bold tracking-widest uppercase hover:bg-emerald-700 transition-colors">
         Confirmar i obrir /contrato

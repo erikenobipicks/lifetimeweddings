@@ -122,13 +122,24 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
     userAgent: `admin:${user}`,
   });
   await markDepositPaid(id);
-  // Deposit is received by definition in the offline fast-track → issue the
-  // anticipo invoice (idempotent + fail-soft, no-op when unconfigured).
-  await issueDepositInvoiceForBooking(id);
-  // Re-read the booking after the markDepositPaid so the helper sees the
-  // fresh state, then send the /contrato invite. Fail-soft.
-  const fresh = await getBookingById(id);
-  if (fresh) await sendContratoInvite(fresh);
 
-  return redirect(`/admin/bookings/${id}?ok=offline_confirmed`, 303);
+  // "Silent mode" — for historical weddings that were already closed
+  // outside this system. Marks everything as paid + ready (status,
+  // deposit) but skips the side effects we'd otherwise duplicate:
+  // - FacturaDirecta would re-emit an anticipo that exists in another
+  //   accounting flow,
+  // - the couple would receive a /contrato invitation email for a
+  //   wedding that already happened.
+  const silent = form.get('silent_mode') === '1';
+  if (!silent) {
+    // Issue the anticipo invoice (idempotent + fail-soft).
+    await issueDepositInvoiceForBooking(id);
+    // Re-read the booking after markDepositPaid so the helper sees the
+    // fresh state, then send the /contrato invite. Fail-soft.
+    const fresh = await getBookingById(id);
+    if (fresh) await sendContratoInvite(fresh);
+  }
+
+  const okFlag = silent ? 'offline_silent' : 'offline_confirmed';
+  return redirect(`/admin/bookings/${id}?ok=${okFlag}`, 303);
 };

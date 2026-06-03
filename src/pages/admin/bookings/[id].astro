@@ -96,6 +96,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
       {ok === 'deposit:paid' && 'Dipòsit marcat com a rebut. La parella ja pot omplir /contrato.'}
       {ok === 'deposit:unpaid' && 'Marca de dipòsit retirada.'}
       {ok === 'offline_confirmed' && 'Booking confirmat offline. Ja podeu enviar la URL /contrato a la parella (la veieu al bloc verd més avall).'}
+      {ok === 'offline_silent' && 'Boda històrica registrada (mode silenciós). Dipòsit marcat com a pagat. No s\'ha emès factura ni s\'ha enviat email a la parella.'}
     </div>
   )}
   {err && (
