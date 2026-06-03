@@ -88,6 +88,8 @@ function rowToBooking(row: Record<string, unknown>): Booking {
     formSubmittedAt: fromIso(row.form_submitted_at),
     depositPaidAt: fromIso(row.deposit_paid_at),
     contractReadyAt: fromIso(row.contract_ready_at),
+    contractAcceptedAt: fromIso(row.contract_accepted_at),
+    contractAcceptedIp: row.contract_accepted_ip ? String(row.contract_accepted_ip) : null,
     facturadirectaInvoiceId: row.facturadirecta_invoice_id
       ? String(row.facturadirecta_invoice_id)
       : null,
@@ -511,6 +513,21 @@ export async function setFacturadirectaInvoice(
           WHERE id = ?`,
     args: [invoiceId, invoiceNumber ?? null, bookingId],
   });
+}
+
+/** Record the couple's electronic acceptance of the contract. Idempotent:
+ *  only stamps if not already accepted (first acceptance wins). Returns
+ *  true if it set the acceptance now, false if it was already accepted. */
+export async function markContractAccepted(bookingId: string, ip: string | null): Promise<boolean> {
+  await initSchema();
+  const now = nowIso();
+  const res = await db.execute({
+    sql: `UPDATE bookings
+          SET contract_accepted_at = ?, contract_accepted_ip = ?
+          WHERE id = ? AND contract_accepted_at IS NULL`,
+    args: [now, ip, bookingId],
+  });
+  return (res.rowsAffected ?? 0) > 0;
 }
 
 /** Record the FotoStudio project id the booking was pushed to. Set

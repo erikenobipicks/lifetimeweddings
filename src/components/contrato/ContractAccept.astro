@@ -1,0 +1,132 @@
+---
+// Shows the generated contract (HTML) + an electronic-acceptance step.
+// Rendered on /contrato/[slug] once the couple has submitted their contract
+// data (contractReadyAt) but hasn't accepted yet. On accept, posts to
+// /api/contrato/accept which records it + emails the PDF copy.
+
+import { useTranslations, type Lang } from '~/i18n/ui';
+
+interface Props {
+  lang: Lang;
+  slug: string;
+  /** Pre-rendered contract HTML (from the contract engine). */
+  contractHtml: string;
+}
+
+const { lang, slug, contractHtml } = Astro.props;
+const t = useTranslations(lang);
+const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
+---
+
+<section id="contracte" class="px-6 md:px-12 py-12 md:py-20 bg-cream text-ink">
+  <div class="max-w-3xl mx-auto">
+    <h2 class="font-display text-3xl md:text-4xl font-bold mb-3">{t('contrato.accept.heading')}</h2>
+    <p class="text-ink/75 leading-relaxed mb-8 max-w-2xl">{t('contrato.accept.intro')}</p>
+
+    <div id="accept-status" class="hidden mb-8" role="status" aria-live="polite"></div>
+
+    <!-- The contract itself. `contract-body` scopes typographic styles so
+         the legal HTML reads cleanly without pulling global prose CSS. -->
+    <article class="contract-body bg-white border border-ink/10 p-6 md:p-10 mb-8 max-h-[60vh] overflow-y-auto" set:html={contractHtml} />
+
+    <form id="accept-form" novalidate class="bg-white border border-ink/10 p-6 md:p-8">
+      <label class="flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" name="accepted" required class="h-5 w-5 mt-0.5 accent-gold flex-shrink-0" />
+        <span class="text-sm font-semibold">{t('contrato.accept.checkbox')} *</span>
+      </label>
+
+      {turnstileSitekey && (
+        <div class="cf-turnstile mt-5" data-sitekey={turnstileSitekey} data-theme="light" data-size="flexible"></div>
+      )}
+
+      <div class="mt-6">
+        <button
+          type="submit"
+          id="accept-submit"
+          class="inline-flex items-center justify-center bg-gold text-ink font-bold px-8 py-4 hover:bg-ink hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {t('contrato.accept.submit')}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<style>
+  .contract-body :global(h2) { font-size: 1.15rem; font-weight: 700; text-align: center; margin: 0 0 1rem; }
+  .contract-body :global(h3) { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; color: #c9a96e; margin: 1.4rem 0 0.5rem; }
+  .contract-body :global(h4) { font-size: 0.9rem; font-weight: 700; margin: 1.1rem 0 0.35rem; }
+  .contract-body :global(p) { font-size: 0.9rem; line-height: 1.6; margin: 0 0 0.6rem; }
+  .contract-body :global(ul) { margin: 0 0 0.7rem; padding-left: 1.2rem; }
+  .contract-body :global(li) { font-size: 0.9rem; line-height: 1.55; margin-bottom: 0.25rem; }
+  .contract-body :global(strong) { font-weight: 700; }
+</style>
+
+{turnstileSitekey && (
+  <script is:inline async defer src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
+)}
+
+<script
+  is:inline
+  define:vars={{
+    slug,
+    successTitle: t('contrato.accept.success.title'),
+    successBody: t('contrato.accept.success.body'),
+    errorGeneric: t('contrato.accept.error.generic'),
+    submitting: t('contrato.accept.submitting'),
+  }}
+>
+  (() => {
+    const form = document.getElementById('accept-form');
+    const status = document.getElementById('accept-status');
+    const submitBtn = document.getElementById('accept-submit');
+    if (!form || !status || !submitBtn) return;
+
+    function showStatus(kind, title, body) {
+      const colors = {
+        ok: 'bg-emerald-50 border-emerald-300 text-emerald-900',
+        err: 'bg-red-50 border-red-300 text-red-900',
+      }[kind];
+      status.className = `mb-8 p-5 border ${colors}`;
+      status.innerHTML = `<p class="font-display text-lg font-bold mb-2">${title}</p><p class="text-sm leading-relaxed">${body}</p>`;
+      status.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      if (!form.reportValidity()) return;
+
+      submitBtn.disabled = true;
+      const old = submitBtn.textContent;
+      submitBtn.textContent = submitting;
+
+      const tk = form.querySelector('input[name="cf-turnstile-response"]');
+      const payload = { slug, accepted: true };
+      if (tk && tk.value) payload.captchaToken = tk.value;
+
+      try {
+        const res = await fetch('/api/contrato/accept', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 200 && data.ok) {
+          form.style.display = 'none';
+          document.querySelector('.contract-body')?.classList.remove('max-h-[60vh]');
+          showStatus('ok', successTitle, successBody);
+          return;
+        }
+        if (res.status === 409 && data.error === 'already_accepted') {
+          window.location.assign(window.location.pathname);
+          return;
+        }
+        throw new Error(data.error || 'failed');
+      } catch (e) {
+        showStatus('err', '⚠', errorGeneric);
+        submitBtn.disabled = false;
+        submitBtn.textContent = old;
+      }
+    });
+  })();
+</script>

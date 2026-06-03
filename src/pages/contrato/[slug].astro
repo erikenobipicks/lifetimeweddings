@@ -16,15 +16,31 @@ export const prerender = false;
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { useTranslations, type Lang } from '~/i18n/ui';
 import { SITE, WHATSAPP_BASE } from '~/data/site';
-import { getBookingBySlug } from '~/lib/bookings/repository';
+import { getBookingBySlug, getFormResponseForBooking } from '~/lib/bookings/repository';
+import { contractDataFromBooking } from '~/lib/contracts/fromBooking';
+import { buildContractHtml } from '~/lib/contracts/generate';
 import ContratoForm from '~/components/contrato/ContratoForm.astro';
+import ContractAccept from '~/components/contrato/ContractAccept.astro';
 
 const slug = Astro.params.slug!;
 const booking = await getBookingBySlug(slug);
 
 const isMissingOrArchived = !booking || booking.status === 'archived';
 const isDepositPending = booking && !booking.depositPaidAt;
-const isAlreadySubmitted = booking && !!booking.contractReadyAt;
+// Contract sub-states (once the deposit is paid):
+//   - contractReadyAt NULL      → collect data (ContratoForm)
+//   - data done, not accepted   → show contract + accept (ContractAccept)
+//   - accepted                  → thank-you
+const dataSubmitted = booking && !!booking.contractReadyAt;
+const isAccepted = booking && !!booking.contractAcceptedAt;
+
+// Build the contract HTML only at the accept step. Needs the form response
+// for the day details (ceremony location/time, billing contraent).
+let contractHtml: string | null = null;
+if (booking && !isDepositPending && dataSubmitted && !isAccepted) {
+  const fr = await getFormResponseForBooking(booking.id);
+  if (fr) contractHtml = buildContractHtml(contractDataFromBooking(booking, fr)).html;
+}
 
 if (isMissingOrArchived) {
   Astro.response.status = 404;
@@ -94,15 +110,17 @@ const description = t('contrato.title');
         </a>
       </div>
     </section>
-  ) : isAlreadySubmitted ? (
+  ) : isAccepted ? (
     <section class="px-6 md:px-12 py-32 md:py-40 bg-cream text-ink text-center">
       <div class="max-w-xl mx-auto">
         <h1 class="font-display text-3xl md:text-4xl font-bold mb-6">
-          {t('contrato.gating.already_submitted.title')}
+          {t('contrato.accepted.title')}
         </h1>
-        <p class="text-ink/75 leading-relaxed">{t('contrato.gating.already_submitted.body')}</p>
+        <p class="text-ink/75 leading-relaxed">{t('contrato.accepted.body')}</p>
       </div>
     </section>
+  ) : dataSubmitted && contractHtml ? (
+    <ContractAccept lang={lang} slug={slug} contractHtml={contractHtml} />
   ) : (
     <ContratoForm lang={lang} slug={slug} />
   )}

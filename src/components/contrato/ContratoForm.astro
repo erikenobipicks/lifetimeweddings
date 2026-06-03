@@ -262,13 +262,14 @@ const consentChannels: Array<{
         const data = await res.json().catch(() => ({}));
 
         if (res.status === 200 && data.ok) {
-          form.style.display = 'none';
-          showStatus('ok', successTitle, successBody);
+          // Reload so the server renders the contract-acceptance step in
+          // place of this data form (status now has contractReadyAt set).
+          window.location.assign(window.location.pathname);
           return;
         }
         if (res.status === 409 && data.error === 'already_submitted') {
-          showStatus('err', successTitle, errorAlready);
-          form.style.display = 'none';
+          // Data already in → reload to the acceptance/thank-you state.
+          window.location.assign(window.location.pathname);
           return;
         }
         if (res.status === 409 && data.error === 'deposit_pending') {

@@ -233,6 +233,11 @@ export async function initSchema() {
   // state ("paid deposit, awaiting contract data").
   await ensureColumn('bookings', 'deposit_paid_at', 'TEXT');
   await ensureColumn('bookings', 'contract_ready_at', 'TEXT');
+  // Electronic acceptance of the (own) contract: timestamp + the IP it was
+  // accepted from. Set by /api/contrato/accept once the couple ticks
+  // "Accepto el contracte". Null until then.
+  await ensureColumn('bookings', 'contract_accepted_at', 'TEXT');
+  await ensureColumn('bookings', 'contract_accepted_ip', 'TEXT');
   // FacturaDirecta deposit-invoice reference. Set when the operator marks the
   // deposit received and the anticipo invoice is issued; doubles as the
   // re-invoicing idempotency guard. Nullable — bookings created before this
