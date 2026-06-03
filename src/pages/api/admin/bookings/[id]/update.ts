@@ -27,6 +27,26 @@ import { issueDepositInvoiceForBooking } from '~/lib/bookings/invoicing';
 import { sendContratoInvite } from '~/lib/bookings/emails';
 import type { BookingStatus, PackAddon } from '~/lib/bookings/types';
 
+// Spanish-format euro parser. See create.ts for the full rationale —
+// kept duplicated here so update.ts has zero new shared imports.
+const SPANISH_EUROS_RE = /^(?:\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:[.,]\d{1,2})?)$/;
+
+function eurosStringToCents(raw: string): number {
+  const s = raw.trim();
+  if (!SPANISH_EUROS_RE.test(s)) return NaN;
+  let normalized: string;
+  if (s.includes(',')) {
+    normalized = s.replace(/\./g, '').replace(',', '.');
+  } else if (/^\d{1,3}(?:\.\d{3})+$/.test(s)) {
+    normalized = s.replace(/\./g, '');
+  } else {
+    normalized = s;
+  }
+  const n = parseFloat(normalized);
+  if (!Number.isFinite(n) || n < 0) return NaN;
+  return Math.round(n * 100);
+}
+
 function parseLines(raw: string | null | undefined): string[] {
   if (!raw) return [];
   return raw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
@@ -35,11 +55,14 @@ function parseLines(raw: string | null | undefined): string[] {
 function parseAddons(raw: string | null | undefined): PackAddon[] {
   return parseLines(raw)
     .map((line): PackAddon | null => {
-      const m = line.match(/^(.+?)\s*\|\s*(\d+(?:[.,]\d+)?)$/);
-      if (!m) return null;
-      const euros = parseFloat(m[2].replace(',', '.'));
-      if (Number.isNaN(euros) || euros < 0) return null;
-      return { name: m[1].trim(), price_cents: Math.round(euros * 100) };
+      const idx = line.lastIndexOf('|');
+      if (idx < 0) return null;
+      const name = line.slice(0, idx).trim();
+      const priceStr = line.slice(idx + 1).trim();
+      if (!name) return null;
+      const cents = eurosStringToCents(priceStr);
+      if (Number.isNaN(cents)) return null;
+      return { name, price_cents: cents };
     })
     .filter((x): x is PackAddon => x !== null);
 }
@@ -61,8 +84,8 @@ const updateSchema = z.object({
   packIncludes: z.string().optional(),
   packExcludes: z.string().optional(),
   packAddons: z.string().optional(),
-  packPriceEuros: z.string().regex(/^\d+(?:[.,]\d+)?$/).optional(),
-  depositEuros: z.string().regex(/^\d+(?:[.,]\d+)?$/).optional(),
+  packPriceEuros: z.string().regex(SPANISH_EUROS_RE).optional(),
+  depositEuros: z.string().regex(SPANISH_EUROS_RE).optional(),
   paymentTerms: z.string().max(200).optional(),
 
   customIntro: z.string().max(2000).optional(),
@@ -162,9 +185,9 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
   if (d.packExcludes !== undefined) patch.packExcludes = parseLines(d.packExcludes);
   if (d.packAddons !== undefined) patch.packAddons = parseAddons(d.packAddons);
   if (d.packPriceEuros !== undefined)
-    patch.packPriceCents = Math.round(parseFloat(d.packPriceEuros.replace(',', '.')) * 100);
+    patch.packPriceCents = eurosStringToCents(d.packPriceEuros);
   if (d.depositEuros !== undefined)
-    patch.depositCents = Math.round(parseFloat(d.depositEuros.replace(',', '.')) * 100);
+    patch.depositCents = eurosStringToCents(d.depositEuros);
   if (d.paymentTerms !== undefined) patch.paymentTerms = d.paymentTerms.trim() || null;
 
   if (d.customIntro !== undefined) patch.customIntro = d.customIntro.trim() || null;
