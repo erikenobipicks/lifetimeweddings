@@ -38,6 +38,15 @@ const stripeOn = isStripeEnabled();
 const reference = transferReferenceFor({ coupleName1, coupleName2 });
 const depositStr = formatPrice(depositCents, lang);
 
+// Timing clarifications under the recap: 2nd-payment deadline always (the
+// plan always has a staged 2nd payment), cash timing only when part of the
+// plan is paid in cash.
+const planHasCash = !!paymentTerms && /efect|cash/i.test(paymentTerms);
+const planNotes = [
+  ...(paymentTerms ? [t('reserva.pay.note.secondPayment')] : []),
+  ...(planHasCash ? [t('reserva.pay.note.cash')] : []),
+];
+
 // "Paid" view trumps everything — once the money's in, the only thing left
 // is the contract. Stripe success redirect lands here too (the webhook
 // records the payment a beat later; we optimistically show the paid state).
@@ -93,6 +102,13 @@ const showPaid = depositPaid || payState === 'success';
               </div>
             )}
           </dl>
+          {planNotes.length > 0 && (
+            <ul class="mt-3 pt-3 border-t border-ink/10 space-y-1 text-xs text-ink/60">
+              {planNotes.map((n) => (
+                <li class="flex gap-2"><span class="text-gold">•</span><span>{n}</span></li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div class="grid gap-6 md:grid-cols-2">
