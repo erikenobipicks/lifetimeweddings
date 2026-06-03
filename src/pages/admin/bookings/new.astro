@@ -6,6 +6,7 @@
 // or back here with ?error=... preserving values.
 import AdminLayout from '~/layouts/AdminLayout.astro';
 import { videos } from '~/data/videos';
+import { PACKS, EXTRAS } from '~/data/packs';
 
 const params = Astro.url.searchParams;
 const error = params.get('error');
@@ -13,6 +14,30 @@ const error = params.get('error');
 function v(name: string): string {
   return params.get(`v_${name}`) ?? '';
 }
+
+// Parse a formatted EUR string like "1.290 €" or "545 €" to a number.
+// PACKS/EXTRAS store prices as display strings — the booking form needs
+// euros to seed the numeric inputs.
+function eurosFromPriceString(s: string): number {
+  const cleaned = s.replace(/[^\d,.-]/g, '').replace(/\.(?=\d{3}\b)/g, '').replace(',', '.');
+  const n = Number.parseFloat(cleaned);
+  return Number.isFinite(n) ? n : 0;
+}
+
+// Pre-built JSON the client script consumes. Trilingual snapshots of each
+// pack's includes + parsed numeric price so the picker can fill the form
+// according to the language the operator picked above.
+const packCatalog = PACKS.map((p) => ({
+  id: p.id,
+  name: p.name,
+  includes: p.includes,
+  priceEuros: eurosFromPriceString(p.price),
+}));
+const extrasCatalog = EXTRAS.map((x) => ({
+  id: x.id,
+  name: x.name,
+  priceEuros: eurosFromPriceString(x.price),
+}));
 ---
 
 <AdminLayout title="Nova reserva">
@@ -50,7 +75,7 @@ function v(name: string): string {
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Idioma de la pàgina *</span>
-          <select name="preferredLanguage" required class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+          <select id="preferredLanguageField" name="preferredLanguage" required class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
             {[['ca','Català'],['es','Castellano'],['en','English']].map(([code,label]) => (
               <option value={code} selected={v('preferredLanguage') === code || (!v('preferredLanguage') && code === 'ca')}>{label}</option>
             ))}
@@ -83,10 +108,22 @@ function v(name: string): string {
 
     <fieldset class="space-y-4">
       <legend class="font-display text-xl font-bold mb-3">Pack</legend>
+      <div class="bg-cream/60 border border-gold/30 p-4 md:p-5">
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Carregar des d'un pack del catàleg</span>
+          <span class="block text-[11px] text-ink/55 mb-1.5">Omple el nom, els ítems inclosos i el preu/dipòsit (30 %) segons l'idioma de la pàgina. Pots editar-ho després.</span>
+          <select id="pack-picker" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+            <option value="">— Personalitzat (no carregar) —</option>
+            {PACKS.map((p) => (
+              <option value={p.id}>{p.name.ca} · {p.price}</option>
+            ))}
+          </select>
+        </label>
+      </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <label class="block md:col-span-2">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Nom del pack *</span>
-          <input name="packName" required value={v('packName')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input id="packNameField" name="packName" required value={v('packName')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block md:col-span-2">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Descripció</span>
@@ -95,7 +132,7 @@ function v(name: string): string {
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Què inclou</span>
           <span class="block text-[11px] text-ink/50 mb-1">una línia per ítem</span>
-          <textarea name="packIncludes" rows="6" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('packIncludes')}</textarea>
+          <textarea id="packIncludesField" name="packIncludes" rows="6" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('packIncludes')}</textarea>
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Què no inclou</span>
@@ -105,15 +142,30 @@ function v(name: string): string {
         <label class="block md:col-span-2">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Add-ons</span>
           <span class="block text-[11px] text-ink/50 mb-1">una línia per ítem · format <code class="bg-cream px-1">Nom | preu_en_euros</code> · ex: <code class="bg-cream px-1">Àlbum 30x30 | 390</code></span>
-          <textarea name="packAddons" rows="4" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('packAddons')}</textarea>
+          <textarea id="packAddonsField" name="packAddons" rows="4" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('packAddons')}</textarea>
         </label>
+        <div class="block md:col-span-2 bg-cream/60 border border-gold/30 p-4 md:p-5">
+          <p class="text-xs font-bold tracking-widest uppercase text-ink/70">Extres del catàleg</p>
+          <p class="text-[11px] text-ink/55 mb-3">Marca'n els que vols incloure i s'afegiran sols a la llista d'add-ons de dalt. Pots editar el text després.</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {EXTRAS.map((x) => (
+              <label class="flex items-start gap-2 py-1.5 px-2 hover:bg-white cursor-pointer">
+                <input type="checkbox" data-extra-id={x.id} class="extra-toggle mt-1 accent-gold" />
+                <span class="flex-1 text-sm">
+                  <span class="text-ink">{x.name.ca}</span>
+                  <span class="block text-[11px] text-gold font-bold">{x.price}</span>
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Inversió total (€) *</span>
-          <input name="packPriceEuros" required inputmode="decimal" pattern="\d+([.,]\d+)?" value={v('packPriceEuros')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input id="packPriceField" name="packPriceEuros" required inputmode="decimal" pattern="\d+([.,]\d+)?" value={v('packPriceEuros')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Dipòsit (€) *</span>
-          <input name="depositEuros" required inputmode="decimal" pattern="\d+([.,]\d+)?" value={v('depositEuros')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input id="depositField" name="depositEuros" required inputmode="decimal" pattern="\d+([.,]\d+)?" value={v('depositEuros')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block md:col-span-2">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Termes de pagament</span>
@@ -182,4 +234,100 @@ function v(name: string): string {
       <a href="/admin/bookings" class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold">Cancel·lar</a>
     </div>
   </form>
+
+  <script id="pack-catalog-data" type="application/json" set:html={JSON.stringify(packCatalog)} />
+  <script id="extras-catalog-data" type="application/json" set:html={JSON.stringify(extrasCatalog)} />
 </AdminLayout>
+
+<script>
+  type Lang = 'ca' | 'es' | 'en';
+  interface PackCatalogItem {
+    id: string;
+    name: Record<Lang, string>;
+    includes: Record<Lang, string[]>;
+    priceEuros: number;
+  }
+  interface ExtraCatalogItem {
+    id: string;
+    name: Record<Lang, string>;
+    priceEuros: number;
+  }
+
+  const packs: PackCatalogItem[] = JSON.parse(
+    document.getElementById('pack-catalog-data')!.textContent || '[]',
+  );
+  const extras: ExtraCatalogItem[] = JSON.parse(
+    document.getElementById('extras-catalog-data')!.textContent || '[]',
+  );
+
+  const picker = document.getElementById('pack-picker') as HTMLSelectElement | null;
+  const langSel = document.getElementById('preferredLanguageField') as HTMLSelectElement | null;
+  const nameField = document.getElementById('packNameField') as HTMLInputElement | null;
+  const includesField = document.getElementById('packIncludesField') as HTMLTextAreaElement | null;
+  const priceField = document.getElementById('packPriceField') as HTMLInputElement | null;
+  const depositField = document.getElementById('depositField') as HTMLInputElement | null;
+  const addonsField = document.getElementById('packAddonsField') as HTMLTextAreaElement | null;
+
+  function currentLang(): Lang {
+    const v = (langSel?.value as Lang) || 'ca';
+    return v === 'es' || v === 'en' || v === 'ca' ? v : 'ca';
+  }
+
+  // Apply a pack catalog entry to the form. Overwrites Name + Includes +
+  // Price + Deposit (defaulting to 30 % rounded to whole euros, matching
+  // the FAQ payment plan we publish on /p/<token>).
+  function applyPack(packId: string) {
+    if (!packId) return;
+    const p = packs.find((x) => x.id === packId);
+    if (!p) return;
+    const lang = currentLang();
+    if (nameField) nameField.value = p.name[lang];
+    if (includesField) includesField.value = p.includes[lang].join('\n');
+    if (priceField) priceField.value = String(p.priceEuros);
+    if (depositField) depositField.value = String(Math.round(p.priceEuros * 0.3));
+  }
+
+  picker?.addEventListener('change', () => applyPack(picker.value));
+  // Re-trigger the picker when the language flips so the includes get
+  // rewritten in the new language without having to re-pick the pack.
+  langSel?.addEventListener('change', () => {
+    if (picker?.value) applyPack(picker.value);
+  });
+
+  // ─── Extras checkboxes ─────────────────────────────────────────────────
+  // Toggle appends/removes "Name | euros" lines in the add-ons textarea.
+  // Matching is done by the price-suffix part of the line so renaming the
+  // extra in the textarea after-the-fact doesn't break the remove.
+  function extraLine(x: ExtraCatalogItem, lang: Lang): string {
+    return `${x.name[lang]} | ${x.priceEuros}`;
+  }
+
+  function appendLine(textarea: HTMLTextAreaElement, line: string) {
+    const cur = textarea.value.replace(/\s+$/, '');
+    textarea.value = cur ? `${cur}\n${line}` : line;
+  }
+
+  function removeLine(textarea: HTMLTextAreaElement, predicate: (l: string) => boolean) {
+    textarea.value = textarea.value
+      .split(/\r?\n/)
+      .filter((l) => !predicate(l))
+      .join('\n');
+  }
+
+  document.querySelectorAll<HTMLInputElement>('.extra-toggle').forEach((cb) => {
+    cb.addEventListener('change', () => {
+      if (!addonsField) return;
+      const id = cb.dataset.extraId!;
+      const x = extras.find((e) => e.id === id);
+      if (!x) return;
+      const lang = currentLang();
+      if (cb.checked) {
+        appendLine(addonsField, extraLine(x, lang));
+      } else {
+        // Remove by trailing "| <priceEuros>" — tolerant to name edits.
+        const suffix = `| ${x.priceEuros}`;
+        removeLine(addonsField, (l) => l.trim().endsWith(suffix));
+      }
+    });
+  });
+</script>
