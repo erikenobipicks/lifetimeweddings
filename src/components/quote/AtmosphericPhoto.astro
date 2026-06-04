@@ -1,0 +1,65 @@
+---
+// Responsive WebP <picture> for the atmospheric photos on /p/<token>.
+//
+// Source files live in public/photos/quote-page/ and follow the
+// <slot>-<width>.webp convention; the build script (scripts/process-
+// quote-photos.mjs) emits 640 / 1080 / 1600 variants per slot. Passing
+// `slot="hero-yes"` resolves to those three files; the `sizes`
+// attribute tells the browser which width to fetch.
+//
+// `aspect` is required so the slot reserves space before the image
+// loads (no layout shift). `mode="cover"` (default) crops to fill the
+// box; `mode="contain"` letterboxes — used by the triptych so vertical
+// photos don't get awkwardly cropped on mobile.
+
+interface Props {
+  slot: string;
+  alt: string;
+  /** CSS aspect-ratio value, e.g. "16 / 9", "3 / 4". Required unless
+   *  `fill` is true (in which case the parent dictates the size). */
+  aspect?: string;
+  /** "cover" (default) or "contain". */
+  mode?: 'cover' | 'contain';
+  /** Optional CSS classes appended to the wrapper. */
+  class?: string;
+  /** `sizes` attribute — defaults to a generous full-width hint. */
+  sizes?: string;
+  /** First image on the page can drop lazy-loading for LCP. */
+  eager?: boolean;
+  /** When true, fills the parent (no aspect-ratio constraint). The parent
+   *  must already have a width + height. Used for hero backgrounds. */
+  fill?: boolean;
+}
+
+const {
+  slot,
+  alt,
+  aspect,
+  mode = 'cover',
+  class: extraClass = '',
+  sizes = '(min-width: 1280px) 1280px, 100vw',
+  eager = false,
+  fill = false,
+} = Astro.props;
+
+const base = `/photos/quote-page/${slot}`;
+const srcset = [640, 1080, 1600].map((w) => `${base}-${w}.webp ${w}w`).join(', ');
+const fallback = `${base}-1080.webp`;
+const wrapperStyle = !fill && aspect ? `aspect-ratio: ${aspect}` : undefined;
+const wrapperClass = fill
+  ? `relative w-full h-full overflow-hidden ${extraClass}`
+  : `relative w-full overflow-hidden bg-ink/10 ${extraClass}`;
+---
+
+<div class={wrapperClass} style={wrapperStyle}>
+  <img
+    src={fallback}
+    srcset={srcset}
+    sizes={sizes}
+    alt={alt}
+    loading={eager ? 'eager' : 'lazy'}
+    decoding={eager ? 'sync' : 'async'}
+    fetchpriority={eager ? 'high' : 'auto'}
+    class={`absolute inset-0 w-full h-full ${mode === 'cover' ? 'object-cover' : 'object-contain'}`}
+  />
+</div>

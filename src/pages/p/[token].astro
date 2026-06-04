@@ -11,6 +11,7 @@ import { WEDDINGS } from '~/data/weddings';
 import { recommendShowcase } from '~/lib/matcher';
 import ExternalGalleryEmbed from '~/components/quote/ExternalGalleryEmbed.astro';
 import InteractiveConfigurator from '~/components/quote/InteractiveConfigurator.astro';
+import AtmosphericPhoto from '~/components/quote/AtmosphericPhoto.astro';
 import { SITE, waLink } from '~/data/site';
 import Icon from '~/components/Icon.astro';
 import { videos } from '~/data/videos';
@@ -191,12 +192,27 @@ const flagshipVideo = overrideHit
       </Section>
     ) : (
       <>
-        <!-- Hero -->
-        <section class="relative py-20 px-6 text-center bg-ink text-white overflow-hidden">
-          <img src="/logos/logo-triangular-white.png" alt="" aria-hidden="true" class="w-24 mx-auto mb-6 opacity-95" />
-          <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('quote.hero.eyebrow')}</p>
-          <h1 class="font-display text-4xl md:text-5xl font-bold mb-4">{quote.coupleName}</h1>
-          <p class="max-w-xl mx-auto opacity-90">{t('quote.hero.body')}</p>
+        <!-- Hero. Atmospheric B&W photo as background with a heavy dark
+             overlay so the gold eyebrow + white title stay legible.
+             `eager` because this is the LCP element on the page. -->
+        <section class="relative py-24 md:py-32 px-6 text-center text-white overflow-hidden bg-ink">
+          <div class="absolute inset-0 z-0">
+            <AtmosphericPhoto
+              slot="hero-yes"
+              alt=""
+              fill
+              mode="cover"
+              eager
+              sizes="100vw"
+            />
+            <div class="absolute inset-0 bg-ink/70"></div>
+          </div>
+          <div class="relative z-10">
+            <img src="/logos/logo-triangular-white.png" alt="" aria-hidden="true" class="w-24 mx-auto mb-6 opacity-95" />
+            <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('quote.hero.eyebrow')}</p>
+            <h1 class="font-display text-4xl md:text-5xl font-bold mb-4">{quote.coupleName}</h1>
+            <p class="max-w-xl mx-auto opacity-90">{t('quote.hero.body')}</p>
+          </div>
         </section>
 
         {quote.notes && (
@@ -261,6 +277,19 @@ const flagshipVideo = overrideHit
           </div>
         </Section>
 
+        <!-- Atmospheric break: joyful crowd moment between the static
+             proposal and the interactive UI underneath. -->
+        <section class="bg-cream">
+          <AtmosphericPhoto
+            slot="moment-lifted-bride"
+            alt=""
+            aspect="3 / 2"
+            mode="cover"
+            sizes="100vw"
+            class="max-h-[60vh]"
+          />
+        </section>
+
         <!-- Interactive configurator. Replaces the static extras catalog:
              same info (packs + combos + extras) but the couple can tick
              what they want, see the total update live, and send their
@@ -292,6 +321,20 @@ const flagshipVideo = overrideHit
             </div>
           </div>
         </Section>
+
+        <!-- Cinematic atmospheric break before the flagship video. The
+             blurred-guests shot mirrors the "we pass unnoticed" pitch in
+             the FAQ above. -->
+        <section class="bg-ink">
+          <AtmosphericPhoto
+            slot="moment-couple-blur"
+            alt=""
+            aspect="3 / 2"
+            mode="cover"
+            sizes="100vw"
+            class="max-h-[70vh]"
+          />
+        </section>
 
         <!-- Flagship trailer — reused from /reserva/<slug>. Always shown,
              unconditionally, so every quote gets a glimpse of what we
@@ -346,10 +389,55 @@ const flagshipVideo = overrideHit
           </Section>
         )}
 
+        {/* Triptych — three portraits side by side (kiss, ceremony smoke,
+            bouquet+vintage car). Stacks vertically on mobile so each
+            photo still gets its moment. Aspect 2/3 = the natural portrait
+            crop without weird letterboxing. */}
+        <section class="px-4 md:px-6 py-12 md:py-16 bg-cream">
+          <div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+            <AtmosphericPhoto
+              slot="triptych-kiss"
+              alt=""
+              aspect="2 / 3"
+              mode="cover"
+              sizes="(min-width: 640px) 33vw, 100vw"
+            />
+            <AtmosphericPhoto
+              slot="triptych-smoke"
+              alt=""
+              aspect="2 / 3"
+              mode="cover"
+              sizes="(min-width: 640px) 33vw, 100vw"
+            />
+            <AtmosphericPhoto
+              slot="triptych-bouquet"
+              alt=""
+              aspect="2 / 3"
+              mode="cover"
+              sizes="(min-width: 640px) 33vw, 100vw"
+            />
+          </div>
+        </section>
+
         <!-- Softer "let's meet before deciding" block, paired with the
              generic CTA below. The two have different intents and pre-fill
              different WhatsApp messages so Ferran can triage at a glance. -->
         <VideoCallCTA lang={lang} whatsappLink={waForVideocall()} />
+
+        {/* Emotional closer — B&W motion-blur portrait, last image
+            before the generic CTA. Constrained width on desktop because
+            the source is vertical; full-bleed on mobile. */}
+        <section class="py-12 md:py-16 px-4 md:px-6 bg-cream">
+          <div class="max-w-xl mx-auto">
+            <AtmosphericPhoto
+              slot="closer-walk"
+              alt=""
+              aspect="2 / 3"
+              mode="cover"
+              sizes="(min-width: 768px) 36rem, 100vw"
+            />
+          </div>
+        </section>
 
         <!-- CTA -->
         <Section bg="ink">
