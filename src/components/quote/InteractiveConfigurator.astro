@@ -39,8 +39,10 @@ const { lang, token, initialPackIds, lastResponse, adminDiscountCents, closedAt 
 const t = useTranslations(lang);
 
 // Hydrate initial selection — prefer the last response if any, otherwise
-// fall back to what Eric proposed.
+// fall back to what Eric proposed. Packs are radio-style (single choice):
+// we only take the first id from the source list. Extras stay multi-select.
 const checkedPackIds = lastResponse ? lastResponse.packIds : initialPackIds;
+const selectedPackId = checkedPackIds[0] ?? null;
 const checkedExtraIds = lastResponse ? lastResponse.extraIds : [];
 const isClosed = !!closedAt;
 
@@ -69,7 +71,6 @@ const errorBody = t('quote.configurator.errorBody');
 const closedTitle = t('quote.configurator.closedTitle');
 const closedBody = t('quote.configurator.closedBody');
 const previousTitle = t('quote.configurator.previousTitle');
-const comboHintPrefix = t('quote.configurator.comboHint');
 const noSelection = t('quote.configurator.empty');
 ---
 
@@ -96,19 +97,21 @@ const noSelection = t('quote.configurator.empty');
     )}
 
     <form id="qc-form" data-token={token} class="space-y-8">
-      {/* Base packs */}
+      {/* Base packs — single-select radios. Picking one auto-unticks
+          any combo and vice versa (shared name="pack"). */}
       <div>
-        <p class="text-xs font-bold tracking-[0.18em] uppercase text-ink/70 mb-3">{basePacksLabel}</p>
+        <p class="text-xs font-bold tracking-[0.18em] uppercase text-ink/70 mb-1">{basePacksLabel}</p>
+        <p class="text-xs text-ink/55 mb-3">{t('quote.configurator.singleChoiceNote')}</p>
         <div class="grid sm:grid-cols-2 gap-3">
           {basePacks.map((p) => (
             <label class={`block border border-black/15 bg-white p-4 cursor-pointer hover:border-gold transition-colors has-[:checked]:border-gold has-[:checked]:bg-gold/5 ${isClosed ? 'pointer-events-none opacity-60' : ''}`}>
               <div class="flex items-start gap-3">
                 <input
-                  type="checkbox"
+                  type="radio"
                   name="pack"
                   value={p.id}
                   data-cents={p.cents}
-                  checked={checkedPackIds.includes(p.id)}
+                  checked={selectedPackId === p.id}
                   disabled={isClosed}
                   class="mt-1 accent-gold qc-input qc-pack"
                 />
@@ -125,7 +128,7 @@ const noSelection = t('quote.configurator.empty');
         </div>
       </div>
 
-      {/* Combos */}
+      {/* Combos — same radio group as base packs (mutually exclusive). */}
       <div>
         <p class="text-xs font-bold tracking-[0.18em] uppercase text-ink/70 mb-3">{combosLabel}</p>
         <div class="grid sm:grid-cols-2 gap-3">
@@ -133,12 +136,11 @@ const noSelection = t('quote.configurator.empty');
             <label class={`block border border-black/15 bg-white p-4 cursor-pointer hover:border-gold transition-colors has-[:checked]:border-gold has-[:checked]:bg-gold/5 ${isClosed ? 'pointer-events-none opacity-60' : ''}`}>
               <div class="flex items-start gap-3">
                 <input
-                  type="checkbox"
+                  type="radio"
                   name="pack"
                   value={p.id}
                   data-cents={p.cents}
-                  data-composed-of={JSON.stringify(p.composedOf ?? [])}
-                  checked={checkedPackIds.includes(p.id)}
+                  checked={selectedPackId === p.id}
                   disabled={isClosed}
                   class="mt-1 accent-gold qc-input qc-pack qc-combo"
                 />
@@ -151,9 +153,16 @@ const noSelection = t('quote.configurator.empty');
             </label>
           ))}
         </div>
-        <p id="qc-combo-hint" hidden class="mt-3 text-sm bg-gold/10 border border-gold/40 text-ink/90 p-3">
-          <span class="font-bold">{comboHintPrefix}</span> <span id="qc-combo-hint-text"></span>
-        </p>
+        {!isClosed && (
+          <button
+            type="button"
+            id="qc-clear-pack"
+            hidden
+            class="mt-3 text-xs text-ink/60 hover:text-gold underline"
+          >
+            {t('quote.configurator.clearPack')}
+          </button>
+        )}
       </div>
 
       {/* Extras */}
@@ -243,7 +252,6 @@ const noSelection = t('quote.configurator.empty');
     successBody,
     errorBody,
     noSelection,
-    comboHintPrefix,
     locale: lang === 'en' ? 'en-GB' : lang === 'es' ? 'es-ES' : 'ca-ES',
   }}
 >
@@ -252,8 +260,7 @@ const noSelection = t('quote.configurator.empty');
     if (!form) return;
     const subtotalEl = document.getElementById('qc-subtotal');
     const totalEl = document.getElementById('qc-total');
-    const comboHint = document.getElementById('qc-combo-hint');
-    const comboHintText = document.getElementById('qc-combo-hint-text');
+    const clearPackBtn = document.getElementById('qc-clear-pack');
     const submitBtn = document.getElementById('qc-submit');
     const feedback = document.getElementById('qc-feedback');
     const messageEl = document.getElementById('qc-message');
@@ -271,10 +278,10 @@ const noSelection = t('quote.configurator.empty');
 
     function recompute() {
       let sub = 0;
-      const selectedPacks = [];
+      let hasPack = false;
       form.querySelectorAll('input.qc-pack:checked').forEach((el) => {
         sub += Number(el.dataset.cents || 0);
-        selectedPacks.push(el.value);
+        hasPack = true;
       });
       form.querySelectorAll('input.qc-extra:checked').forEach((el) => {
         sub += Number(el.dataset.cents || 0);
@@ -283,40 +290,20 @@ const noSelection = t('quote.configurator.empty');
       subtotalEl.textContent = fmt(sub);
       totalEl.textContent = fmt(total);
 
-      // Combo hint: scan unchecked combos to see if their composedOf set
-      // is a subset of currently-selected base packs (and the combo
-      // itself isn't already picked). Show the largest-savings hit.
-      let bestHint = null;
-      form.querySelectorAll('input.qc-combo').forEach((el) => {
-        if (el.checked) return;
-        let parts = [];
-        try { parts = JSON.parse(el.dataset.composedOf || '[]'); } catch {}
-        if (parts.length === 0) return;
-        const allPresent = parts.every((id) => selectedPacks.includes(id));
-        if (!allPresent) return;
-        const partsTotal = parts.reduce((acc, id) => {
-          const partEl = form.querySelector('input.qc-pack[value="' + id + '"]');
-          return acc + Number(partEl?.dataset.cents || 0);
-        }, 0);
-        const comboPrice = Number(el.dataset.cents || 0);
-        const savings = partsTotal - comboPrice;
-        if (savings > 0 && (!bestHint || savings > bestHint.savings)) {
-          bestHint = { savings, label: el.closest('label')?.querySelector('p.font-bold')?.textContent ?? '' };
-        }
-      });
-      if (bestHint && comboHint && comboHintText) {
-        comboHintText.textContent =
-          bestHint.label + ' — ' + fmt(bestHint.savings) + ' ' +
-          (locale === 'en-GB' ? 'savings' : locale === 'es-ES' ? 'de ahorro' : "d'estalvi");
-        comboHint.hidden = false;
-      } else if (comboHint) {
-        comboHint.hidden = true;
-      }
+      // "Clear pack" only useful once a radio is picked — radios alone
+      // can't be unticked by clicking, so this is the escape hatch.
+      if (clearPackBtn) clearPackBtn.hidden = !hasPack;
     }
 
     form.querySelectorAll('input.qc-input').forEach((el) => {
       el.addEventListener('change', recompute);
     });
+    if (clearPackBtn) {
+      clearPackBtn.addEventListener('click', () => {
+        form.querySelectorAll('input.qc-pack').forEach((el) => { el.checked = false; });
+        recompute();
+      });
+    }
     recompute();
 
     if (submitBtn) {
