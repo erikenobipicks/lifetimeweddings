@@ -23,7 +23,9 @@ import { calculateSelectionTotals, formatEuros } from '~/lib/pricing';
 import { sendNotification, sendTelegramNotification } from '~/lib/email';
 
 const schema = z.object({
-  packIds: z.array(z.string().min(1).max(60)).max(20).default([]),
+  // Packs are single-select on the UI (mutually exclusive base + combo).
+  // We cap at 1 server-side too so a hand-rolled payload can't bypass it.
+  packIds: z.array(z.string().min(1).max(60)).max(1).default([]),
   extraIds: z.array(z.string().min(1).max(60)).max(20).default([]),
   message: z
     .string()
