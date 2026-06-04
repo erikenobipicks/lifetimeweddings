@@ -26,6 +26,7 @@ import {
 import { issueDepositInvoiceForBooking } from '~/lib/bookings/invoicing';
 import { sendContratoInvite } from '~/lib/bookings/emails';
 import { materialiseSchedulesForBooking } from '~/lib/bookings/sequences';
+import { pushBookingToSheet } from '~/lib/sheets/bookings';
 
 const DNI_REGEX = /^([0-9]{8}[A-Za-z]|[XYZxyz][0-9]{7}[A-Za-z])$/;
 const PHONE_REGEX = /^\+?[\d\s\-()]{6,20}$/;
@@ -144,6 +145,14 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
       await materialiseSchedulesForBooking(id);
     } catch (err) {
       console.error('[confirm-offline] materialise schedules failed (non-fatal)', err);
+    }
+    // Append to the master Google Sheet too. Fail-soft inside.
+    try {
+      const fresh2 = await getBookingById(id);
+      const fr = await getFormResponseForBooking(id);
+      if (fresh2) await pushBookingToSheet(fresh2, fr);
+    } catch (err) {
+      console.error('[confirm-offline] sheet push failed (non-fatal)', err);
     }
   }
   // Silent mode skips materialise on purpose — historical weddings
