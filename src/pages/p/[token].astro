@@ -9,6 +9,7 @@ import { PACKS, EXTRAS, getComposedSubpacks } from '~/data/packs';
 import { SHOWCASES } from '~/data/showcases';
 import { WEDDINGS } from '~/data/weddings';
 import { recommendShowcase } from '~/lib/matcher';
+import ExternalGalleryEmbed from '~/components/quote/ExternalGalleryEmbed.astro';
 import { SITE, waLink } from '~/data/site';
 import Icon from '~/components/Icon.astro';
 import { videos } from '~/data/videos';
@@ -300,6 +301,13 @@ const flagshipVideo = overrideHit
           coupleName={flagshipVideo.coupleName}
           venue={flagshipVideo.venue}
         />
+
+        {/* External gallery (FotoStudio etc.) — iframe with auto-fallback
+            to a "open in new tab" CTA when the host blocks embedding.
+            Independent from the showcase/wedding overrides; can coexist. */}
+        {quote.flagshipExternalGalleryUrl && (
+          <ExternalGalleryEmbed lang={lang} url={quote.flagshipExternalGalleryUrl} />
+        )}
 
         {/* Real-wedding override — takes priority over showcase. The
             link points at /bodes/<slug> (Catalan default) so the couple

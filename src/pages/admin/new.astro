@@ -27,6 +27,7 @@ if (Astro.request.method === 'POST') {
   const flagshipVideoId = String(form.get('flagship_video_id') ?? '').trim();
   const flagshipShowcaseSlug = String(form.get('flagship_showcase_slug') ?? '').trim();
   const flagshipWeddingSlug = String(form.get('flagship_wedding_slug') ?? '').trim();
+  const flagshipExternalGalleryUrl = String(form.get('flagship_external_gallery_url') ?? '').trim();
   const langRaw = String(form.get('preferred_language') ?? '').trim();
   const preferredLanguage: 'ca' | 'es' | 'en' =
     langRaw === 'es' || langRaw === 'en' ? langRaw : 'ca';
@@ -49,6 +50,7 @@ if (Astro.request.method === 'POST') {
       flagshipVideoId: flagshipVideoId || undefined,
       flagshipShowcaseSlug: flagshipShowcaseSlug || undefined,
       flagshipWeddingSlug: flagshipWeddingSlug || undefined,
+      flagshipExternalGalleryUrl: flagshipExternalGalleryUrl || undefined,
       preferredLanguage,
     });
     if (postedLeadId) {
@@ -295,6 +297,14 @@ const LABELS: Record<string, string> = {
             ))}
           </select>
           <p class="text-[0.7rem] text-ink/50 mt-1">Alternativa al \"boda real\": un tipus de boda genèric. Si deixes les dues en blanc, es dedueix del lead (si n'hi ha).</p>
+        </div>
+
+        <div class="md:col-span-2">
+          <label for="flagship_external_gallery_url" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Galeria externa (URL)</label>
+          <input id="flagship_external_gallery_url" name="flagship_external_gallery_url" type="url"
+                 placeholder="https://gallery.fotostudio.io/objectiu-fotografs/..."
+                 class="w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <p class="text-[0.7rem] text-ink/50 mt-1">Si poses una URL de galeria de FotoStudio (o similar), s'incrusta a la pàgina del pressupost. Si la galeria no es deixa embedar, surt un botó per obrir-la en una pestanya nova automàticament.</p>
         </div>
       </div>
     </details>
