@@ -28,9 +28,9 @@ const user = Astro.locals.user;
             <>
               <!-- Desktop nav: visible from md+, inline. -->
               <nav class="hidden md:flex items-center gap-4 text-xs font-bold tracking-widest uppercase">
+                <a href="/admin/leads" class="hover:text-gold">Leads</a>
                 <a href="/admin" class="hover:text-gold">Pressupostos</a>
                 <a href="/admin/bookings" class="hover:text-gold">Reserves</a>
-                <a href="/admin/leads" class="hover:text-gold">Leads</a>
                 <a href="/admin/sequences" class="hover:text-gold">Emails</a>
                 <a href="/admin/new" class="hover:text-gold">+ Nou</a>
                 <form method="POST" action="/admin/logout" class="inline">
@@ -65,9 +65,9 @@ const user = Astro.locals.user;
             id="admin-mobile-nav"
             class="hidden md:hidden flex-col gap-1 mt-3 pt-3 border-t border-white/10 text-sm font-bold tracking-widest uppercase"
           >
+            <a href="/admin/leads" class="block px-2 py-3 hover:text-gold hover:bg-white/5">Leads</a>
             <a href="/admin" class="block px-2 py-3 hover:text-gold hover:bg-white/5">Pressupostos</a>
             <a href="/admin/bookings" class="block px-2 py-3 hover:text-gold hover:bg-white/5">Reserves</a>
-            <a href="/admin/leads" class="block px-2 py-3 hover:text-gold hover:bg-white/5">Leads</a>
             <a href="/admin/sequences" class="block px-2 py-3 hover:text-gold hover:bg-white/5">Emails</a>
             <a href="/admin/new" class="block px-2 py-3 hover:text-gold hover:bg-white/5">+ Nou pressupost</a>
             <form method="POST" action="/admin/logout" class="block">
