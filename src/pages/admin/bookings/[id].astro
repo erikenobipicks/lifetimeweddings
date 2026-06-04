@@ -213,6 +213,15 @@ const ibanPlaceholder = transfer.isPlaceholder;
           <h3 class="font-display text-lg font-bold">Contracte (/contrato)</h3>
         </div>
         <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            data-resend-confirmation
+            data-booking-id={booking.id}
+            class="border border-ink/20 text-ink text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-cream transition-colors"
+            title="Tornar a enviar l'email de confirmació amb el CTA de tarjeta (útil si la configuració de Stripe ha canviat des de l'original)"
+          >
+            📧 Reenviar confirmació
+          </button>
           {booking.depositPaidAt ? (
             <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline" onsubmit="return confirm('Desmarcar el dipòsit? La pàgina /contrato deixarà de ser accessible per a la parella i les dades ja enviades es perdran.')">
               <input type="hidden" name="_action" value="deposit_unpaid" />
@@ -586,6 +595,46 @@ const ibanPlaceholder = transfer.isPlaceholder;
         setTimeout(() => (btn.textContent = old), 1500);
       } catch {
         prompt('Copia:', text);
+      }
+    });
+  });
+
+  // Resend the post-/reserva confirmation email. The email body rebuilds
+  // from the current env state, so toggling Stripe in Railway and re-sending
+  // is enough to recover a couple who was sent the original email before
+  // the card CTA was live.
+  document.querySelectorAll<HTMLButtonElement>('[data-resend-confirmation]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.bookingId;
+      if (!id) return;
+      if (!confirm("Reenviar l'email de confirmació a la parella? Es generarà amb la configuració actual (Stripe / IBAN tal com estan ara mateix).")) return;
+      const original = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Enviant…';
+      try {
+        const res = await fetch(`/api/admin/bookings/${id}/resend-confirmation`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const reason =
+            body.error === 'no_form_response' ? 'La parella encara no ha enviat les dades de /reserva.'
+            : body.error === 'wrong_status' ? `Estat del booking incompatible (${body.status}).`
+            : body.error === 'send_failed' ? "L'enviament ha fallat — mira els logs."
+            : `Error ${res.status}.`;
+          alert(reason);
+          btn.textContent = original;
+          btn.disabled = false;
+          return;
+        }
+        btn.textContent = '✓ Enviat';
+        setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 3000);
+      } catch (err) {
+        console.error(err);
+        alert('Error de xarxa. Torna-ho a provar.');
+        btn.textContent = original;
+        btn.disabled = false;
       }
     });
   });
