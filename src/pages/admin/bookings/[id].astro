@@ -10,6 +10,7 @@ import { getBookingById, getFormResponseForBooking } from '~/lib/bookings/reposi
 import type { BookingStatus } from '~/lib/bookings/types';
 import { videos } from '~/data/videos';
 import { getBankTransferDetails, isStripeTestMode } from '~/lib/payments/config';
+import { listSchedulesForBooking, listSequences } from '~/lib/bookings/sequences';
 
 const id = Astro.params.id!;
 const booking = await getBookingById(id);
@@ -24,6 +25,12 @@ const err = params.get('error');
 const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
 const publicUrl = `${siteUrl}/reserva/${booking.slug}`;
 const contratoUrl = `${siteUrl}/contrato/${booking.slug}`;
+
+// Email-sequence queue for this booking. Each row maps to a sequence
+// template via sequenceId; we join them in-memory for the table.
+const schedules = await listSchedulesForBooking(booking.id);
+const allSequences = await listSequences(true);
+const sequencesById = new Map(allSequences.map((s) => [s.id, s] as const));
 
 const STATUS_LABEL: Record<BookingStatus, string> = {
   draft: 'Draft',
@@ -446,6 +453,75 @@ const ibanPlaceholder = transfer.isPlaceholder;
       <a href="/admin/bookings" class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold">Cancel·lar</a>
     </div>
   </form>
+
+  <!-- ── Communicacions ─────────────────────────────────────────────── -->
+  <!-- Email-sequence queue for this booking. Lets Eric see what's been
+       sent / is pending, force-send something now, or cancel an upcoming
+       row. Triggered automatically when the deposit is marked paid. -->
+  <section class="mt-10 bg-white border border-black/10 p-5 md:p-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+      <div>
+        <h2 class="font-display text-xl md:text-2xl font-bold">Comunicacions</h2>
+        <p class="text-sm text-ink/65 mt-1">Cola d'emails programats per a aquesta parella. Es genera quan marques el dipòsit com a pagat.</p>
+      </div>
+      <a href="/admin/sequences" class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold whitespace-nowrap">Plantilles →</a>
+    </div>
+
+    {schedules.length === 0 ? (
+      <p class="text-sm text-ink/55 italic py-3">Cap email programat. Es generaran automàticament quan marquis el dipòsit com a pagat (i hi hagi plantilles actives a <a href="/admin/sequences" class="text-gold underline">/admin/sequences</a>).</p>
+    ) : (
+      <div class="overflow-x-auto -mx-5 md:mx-0">
+        <table class="w-full text-sm">
+          <thead class="text-[0.7rem] uppercase tracking-widest text-ink/55">
+            <tr>
+              <th class="text-left px-3 py-2">Plantilla</th>
+              <th class="text-left px-3 py-2">Programat per</th>
+              <th class="text-left px-3 py-2">Estat</th>
+              <th class="px-3 py-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {schedules.map((sch) => {
+              const seq = sequencesById.get(sch.sequenceId);
+              const isSent = sch.sentAt instanceof Date;
+              const isCancelled = sch.cancelledAt instanceof Date;
+              const isPending = !isSent && !isCancelled;
+              return (
+                <tr class="border-t border-black/5">
+                  <td class="px-3 py-2 font-mono text-xs">{seq?.slug ?? `#${sch.sequenceId}`}</td>
+                  <td class="px-3 py-2 whitespace-nowrap">{sch.scheduledFor}</td>
+                  <td class="px-3 py-2 text-xs">
+                    {isSent && <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 font-bold uppercase tracking-widest">Enviat</span>}
+                    {isCancelled && <span class="bg-ink/10 text-ink/55 px-2 py-0.5 font-bold uppercase tracking-widest">Cancel·lat</span>}
+                    {isPending && (sch.lastError
+                      ? <span class="bg-amber-100 text-amber-800 px-2 py-0.5 font-bold uppercase tracking-widest" title={sch.lastError}>Reintent</span>
+                      : <span class="bg-blue-100 text-blue-700 px-2 py-0.5 font-bold uppercase tracking-widest">Pendent</span>)}
+                  </td>
+                  <td class="px-3 py-2 text-right whitespace-nowrap">
+                    {isPending && (
+                      <>
+                        <form method="POST" action={`/api/admin/schedules/${sch.id}/fast-forward`} class="inline">
+                          <button type="submit" class="text-xs text-gold hover:underline mr-3">Enviar ja</button>
+                        </form>
+                        <form method="POST" action={`/api/admin/schedules/${sch.id}/cancel`} class="inline" onsubmit="return confirm('Cancel·lar aquest email programat?')">
+                          <button type="submit" class="text-xs text-red-600 hover:underline">Cancel·lar</button>
+                        </form>
+                      </>
+                    )}
+                    {isCancelled && (
+                      <form method="POST" action={`/api/admin/schedules/${sch.id}/reactivate`} class="inline">
+                        <button type="submit" class="text-xs text-emerald-700 hover:underline">Reactivar</button>
+                      </form>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </section>
 </AdminLayout>
 
 <script>

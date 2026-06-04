@@ -26,6 +26,7 @@ import {
 } from '~/lib/bookings/repository';
 import { issueDepositInvoiceForBooking } from '~/lib/bookings/invoicing';
 import { sendContratoInvite, sendReservaInvite } from '~/lib/bookings/emails';
+import { cancelPendingSchedules, materialiseSchedulesForBooking } from '~/lib/bookings/sequences';
 import type { BookingStatus, PackAddon } from '~/lib/bookings/types';
 
 // Spanish-format euro parser. See create.ts for the full rationale —
@@ -185,11 +186,25 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
       // sees the deposit_paid_at stamp. Fail-soft inside sendContratoInvite.
       const fresh = await getBookingById(id);
       if (fresh) await sendContratoInvite(fresh);
+      // Materialise the email-sequence queue for this booking now that the
+      // deposit-paid trigger has fired. Idempotent (UNIQUE constraint).
+      try {
+        await materialiseSchedulesForBooking(id);
+      } catch (err) {
+        console.error('[admin.deposit_paid] materialise schedules failed (non-fatal)', err);
+      }
     }
     return back('?ok=deposit:paid');
   }
   if (action === 'deposit_unpaid') {
     await unmarkDepositPaid(id);
+    // Cancel the pending follow-up emails too — the deposit-paid trigger
+    // is being rolled back. Sent rows stay (history).
+    try {
+      await cancelPendingSchedules(id);
+    } catch (err) {
+      console.error('[admin.deposit_unpaid] cancelPendingSchedules failed (non-fatal)', err);
+    }
     return back('?ok=deposit:unpaid');
   }
 

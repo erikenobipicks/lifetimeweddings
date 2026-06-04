@@ -25,6 +25,7 @@ import {
 } from '~/lib/bookings/repository';
 import { issueDepositInvoiceForBooking } from '~/lib/bookings/invoicing';
 import { sendContratoInvite } from '~/lib/bookings/emails';
+import { materialiseSchedulesForBooking } from '~/lib/bookings/sequences';
 
 export const POST: APIRoute = async ({ request }) => {
   const webhookSecret = getWebhookSecret();
@@ -75,6 +76,12 @@ export const POST: APIRoute = async ({ request }) => {
         await issueDepositInvoiceForBooking(booking.id);
         const fresh = await getBookingById(booking.id);
         if (fresh) await sendContratoInvite(fresh);
+        // Materialise follow-up emails (deposit-paid trigger). Idempotent.
+        try {
+          await materialiseSchedulesForBooking(booking.id);
+        } catch (err) {
+          console.error('[stripe-webhook] materialise schedules failed (non-fatal)', err);
+        }
         // eslint-disable-next-line no-console
         console.log('[stripe-webhook] deposit marked paid for booking', booking.id);
       }

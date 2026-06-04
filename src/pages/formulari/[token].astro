@@ -1,0 +1,93 @@
+---
+// Public form gate. Resolves a one-shot token to an email_schedule row
+// and renders the form attached to its sequence. Once submitted, the
+// data lands in `form_submissions` and the page shows a thank-you.
+//
+// Today we recognise these form_kinds: timeline, guest_list, music.
+// The concrete schemas + UIs will be added in follow-up PRs — this
+// route exists now so the cron-emitted links resolve to something
+// useful even before each form is fully designed.
+
+export const prerender = false;
+
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { getScheduleByToken } from '~/lib/bookings/sequences';
+import { getBookingById } from '~/lib/bookings/repository';
+import { db, initSchema } from '~/lib/db';
+
+const token = Astro.params.token!;
+const schedule = await getScheduleByToken(token);
+const booking = schedule ? await getBookingById(schedule.bookingId) : null;
+
+// What kind of form does this token map to? We look up the sequence row
+// inline (sequences.formKind tells us). Avoids loading every sequence in
+// memory just to read one column.
+let formKind: string | null = null;
+let alreadySubmitted = false;
+if (schedule) {
+  await initSchema();
+  const res = await db.execute({
+    sql: 'SELECT form_kind FROM email_sequences WHERE id = ?',
+    args: [schedule.sequenceId],
+  });
+  formKind = res.rows[0]?.form_kind ? String(res.rows[0].form_kind) : null;
+  if (formKind) {
+    const prev = await db.execute({
+      sql: 'SELECT id FROM form_submissions WHERE schedule_id = ? LIMIT 1',
+      args: [schedule.id],
+    });
+    alreadySubmitted = prev.rows.length > 0;
+  }
+}
+
+const lang = booking?.preferredLanguage ?? 'ca';
+const formTitles: Record<string, Record<string, string>> = {
+  timeline: { ca: 'Timeline del dia', es: 'Timeline del día', en: 'Wedding-day timeline' },
+  guest_list: { ca: 'Llista de convidats', es: 'Lista de invitados', en: 'Guest list' },
+  music: { ca: 'Música', es: 'Música', en: 'Music' },
+};
+const title = formKind ? (formTitles[formKind]?.[lang] ?? 'Formulari') : 'Formulari';
+const invalid = !schedule || !booking || !formKind;
+if (invalid) Astro.response.status = 404;
+---
+
+<BaseLayout
+  lang={lang as 'ca' | 'es' | 'en'}
+  title={`${title} · Lifetime`}
+  description={title}
+  noindex={true}
+  chromeless={true}
+>
+  <header class="px-6 md:px-12 py-5 border-b border-ink/10 bg-white">
+    <a href="/" class="inline-flex items-center gap-2">
+      <img src="/logos/logo-circle-color.png" alt="Lifetime Weddings" width="36" height="36" class="h-9 w-9" />
+      <span class="font-display text-base font-bold tracking-wide">Lifetime</span>
+    </a>
+  </header>
+
+  <section class="px-6 md:px-12 py-16 md:py-24 bg-cream text-ink">
+    <div class="max-w-2xl mx-auto">
+      {invalid ? (
+        <>
+          <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">No trobat</h1>
+          <p class="text-ink/75 leading-relaxed">Aquest enllaç ja no és vàlid. Si creus que és un error, escriu-nos.</p>
+        </>
+      ) : alreadySubmitted ? (
+        <>
+          <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">Gràcies!</h1>
+          <p class="text-ink/75 leading-relaxed">Ja hem rebut les vostres respostes. Si voleu modificar alguna cosa, escriviu-nos.</p>
+        </>
+      ) : (
+        <>
+          <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">{title}</h1>
+          <p class="text-ink/75 leading-relaxed mb-8">Aquest formulari està en preparació. T'avisarem quan estigui llest!</p>
+          <p class="text-sm text-ink/55">Token: <code class="font-mono">{token}</code> · Form kind: <code class="font-mono">{formKind}</code></p>
+        </>
+      )}
+    </div>
+  </section>
+
+  <footer class="px-6 md:px-12 py-8 bg-ink text-white/70 text-center text-xs">
+    <p>© {new Date().getFullYear()} Lifetime Weddings</p>
+  </footer>
+</BaseLayout>

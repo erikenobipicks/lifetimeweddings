@@ -1,0 +1,81 @@
+---
+// Admin: list + manage email-sequence templates.
+// All emails the system can send as follow-ups (timeline reminders,
+// pre-wedding questionnaires, post-wedding thank-yous) live here.
+import AdminLayout from '~/layouts/AdminLayout.astro';
+import { listSequences, type EmailSequence } from '~/lib/bookings/sequences';
+
+const sequences: EmailSequence[] = await listSequences(true);
+const ok = Astro.url.searchParams.get('ok');
+const error = Astro.url.searchParams.get('error');
+
+function triggerLabel(s: EmailSequence): string {
+  const d = s.triggerOffsetDays;
+  if (s.triggerKind === 'days_after_deposit') return `${d} dies després del dipòsit`;
+  if (s.triggerKind === 'days_before_wedding') return `${d} dies abans de la boda`;
+  return `${d} dies després de la boda`;
+}
+---
+
+<AdminLayout title="Email sequences">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+    <div>
+      <h1 class="font-display text-2xl sm:text-3xl font-bold">Email sequences</h1>
+      <p class="text-sm text-ink/65 mt-1">Plantilles d'emails automàtics que s'envien a les parelles segons el calendari (avui dispara: dipòsit pagat).</p>
+    </div>
+    <a href="/admin/sequences/new" class="bg-ink text-white text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-gold transition-colors whitespace-nowrap">+ Nova plantilla</a>
+  </div>
+
+  {ok === 'created' && (
+    <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">Plantilla creada.</div>
+  )}
+  {ok === 'updated' && (
+    <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">Canvis desats.</div>
+  )}
+  {ok === 'deleted' && (
+    <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">Plantilla eliminada.</div>
+  )}
+  {error && (
+    <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-900 text-sm"><strong>Error:</strong> {error}</div>
+  )}
+
+  {sequences.length === 0 ? (
+    <div class="bg-cream/60 border border-gold/20 p-8 text-center text-ink/65">
+      <p class="mb-2 font-display text-lg">Encara no hi ha plantilles.</p>
+      <p class="text-sm">Crea la primera amb el botó <em>+ Nova plantilla</em>. Quan una parella pagui el dipòsit, els emails s'enviaran segons el calendari que defineixis.</p>
+    </div>
+  ) : (
+    <div class="bg-white border border-black/10 overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-cream text-ink/60 text-[0.7rem] uppercase tracking-widest">
+          <tr>
+            <th class="text-left px-4 py-3">Slug</th>
+            <th class="text-left px-4 py-3">Quan s'envia</th>
+            <th class="text-left px-4 py-3">Assumpte (CA)</th>
+            <th class="text-left px-4 py-3">Formulari</th>
+            <th class="text-left px-4 py-3">Estat</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {sequences.map((s) => (
+            <tr class="border-t border-black/5">
+              <td class="px-4 py-3 font-mono text-xs">{s.slug}</td>
+              <td class="px-4 py-3">{triggerLabel(s)}</td>
+              <td class="px-4 py-3 max-w-md truncate">{s.subject.ca}</td>
+              <td class="px-4 py-3 text-xs">{s.formKind ?? '—'}</td>
+              <td class="px-4 py-3">
+                {s.enabled
+                  ? <span class="text-[0.65rem] bg-emerald-100 text-emerald-700 px-2 py-0.5 font-bold uppercase tracking-widest">Activa</span>
+                  : <span class="text-[0.65rem] bg-ink/10 text-ink/50 px-2 py-0.5 font-bold uppercase tracking-widest">Inactiva</span>}
+              </td>
+              <td class="px-4 py-3 text-right">
+                <a href={`/admin/sequences/${s.id}`} class="text-xs text-gold hover:underline">Editar →</a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</AdminLayout>

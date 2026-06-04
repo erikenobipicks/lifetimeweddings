@@ -1,0 +1,97 @@
+---
+import AdminLayout from '~/layouts/AdminLayout.astro';
+import { getSequenceById } from '~/lib/bookings/sequences';
+
+const id = Number(Astro.params.id);
+if (!Number.isFinite(id)) return Astro.redirect('/admin/sequences');
+
+const seq = await getSequenceById(id);
+if (!seq) return Astro.redirect('/admin/sequences');
+
+const ok = Astro.url.searchParams.get('ok');
+const error = Astro.url.searchParams.get('error');
+function v(name: string, fallback: string): string {
+  return Astro.url.searchParams.get(`v_${name}`) ?? fallback;
+}
+---
+
+<AdminLayout title={`Plantilla · ${seq.slug}`}>
+  <div class="mb-6">
+    <a href="/admin/sequences" class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold">← Tornar al llistat</a>
+    <h1 class="font-display text-2xl sm:text-3xl font-bold mt-1 font-mono">{seq.slug}</h1>
+  </div>
+
+  {ok === 'updated' && (
+    <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">Canvis desats.</div>
+  )}
+  {error && (
+    <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-800 text-sm"><strong>Error:</strong> {error}</div>
+  )}
+
+  <form method="POST" action={`/api/admin/sequences/${seq.id}/update`} class="space-y-8 bg-white border border-black/10 p-6 md:p-8 max-w-3xl">
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-3">Identificació</legend>
+      <label class="block">
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Slug intern *</span>
+        <input name="slug" required pattern="[a-z0-9-]+" maxlength="80" value={v('slug', seq.slug)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none" />
+      </label>
+      <label class="flex items-center gap-3 cursor-pointer">
+        <input type="checkbox" name="enabled" value="1" checked={seq.enabled} class="h-5 w-5 accent-gold" />
+        <span class="text-sm">Activa</span>
+      </label>
+    </fieldset>
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-3">Quan s'envia</legend>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Tipus de disparador *</span>
+          <select name="triggerKind" required class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+            <option value="days_after_deposit" selected={seq.triggerKind === 'days_after_deposit'}>Dies després del dipòsit pagat</option>
+            <option value="days_before_wedding" selected={seq.triggerKind === 'days_before_wedding'}>Dies abans de la boda</option>
+            <option value="days_after_wedding" selected={seq.triggerKind === 'days_after_wedding'}>Dies després de la boda</option>
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Dies *</span>
+          <input type="number" name="triggerOffsetDays" required min="0" max="3650" value={v('triggerOffsetDays', String(seq.triggerOffsetDays))} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block md:col-span-2">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Formulari associat</span>
+          <select name="formKind" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+            <option value="" selected={!seq.formKind}>— Cap (només informatiu) —</option>
+            <option value="timeline" selected={seq.formKind === 'timeline'}>Timeline del dia</option>
+            <option value="guest_list" selected={seq.formKind === 'guest_list'}>Llista de convidats</option>
+            <option value="music" selected={seq.formKind === 'music'}>Música</option>
+          </select>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-3">Assumpte</legend>
+      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Català *</span><input name="subjectCa" required maxlength="200" value={v('subjectCa', seq.subject.ca)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Castellà *</span><input name="subjectEs" required maxlength="200" value={v('subjectEs', seq.subject.es)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">English *</span><input name="subjectEn" required maxlength="200" value={v('subjectEn', seq.subject.en)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+    </fieldset>
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-3">Cos de l'email (HTML)</legend>
+      <p class="text-sm text-ink/65 -mt-2">Variables: <code class="bg-cream px-1">{`{coupleName1}`}</code>, <code class="bg-cream px-1">{`{coupleName2}`}</code>, <code class="bg-cream px-1">{`{weddingDate}`}</code>, <code class="bg-cream px-1">{`{venueName}`}</code>, <code class="bg-cream px-1">{`{packName}`}</code>, <code class="bg-cream px-1">{`{c1FullName}`}</code>, <code class="bg-cream px-1">{`{c2FullName}`}</code>, <code class="bg-cream px-1">{`{formUrl}`}</code>.</p>
+      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Català *</span><textarea name="bodyHtmlCa" required rows="10" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('bodyHtmlCa', seq.bodyHtml.ca)}</textarea></label>
+      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Castellà *</span><textarea name="bodyHtmlEs" required rows="10" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('bodyHtmlEs', seq.bodyHtml.es)}</textarea></label>
+      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">English *</span><textarea name="bodyHtmlEn" required rows="10" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('bodyHtmlEn', seq.bodyHtml.en)}</textarea></label>
+    </fieldset>
+
+    <div class="flex items-center gap-4 pt-4 border-t border-black/10">
+      <button type="submit" class="bg-ink text-white px-6 py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors">Desar canvis</button>
+      <a href="/admin/sequences" class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold">Cancel·lar</a>
+    </div>
+  </form>
+
+  <div class="mt-8 pt-6 border-t border-black/10">
+    <form method="POST" action={`/api/admin/sequences/${seq.id}/delete`} onsubmit="return confirm('Eliminar aquesta plantilla DEFINITIVAMENT?\n\nAixò NO esborrarà els emails ja enviats. Els enviaments pendents que utilitzin aquesta plantilla quedaran orfes (per CASCADE).')">
+      <button type="submit" class="text-xs text-red-600 font-bold hover:underline">🗑 Eliminar plantilla definitivament</button>
+    </form>
+  </div>
+</AdminLayout>
