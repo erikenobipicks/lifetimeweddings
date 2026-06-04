@@ -290,6 +290,11 @@ export async function initSchema() {
   // the lead-based recommendation (no breaking change for existing rows).
   await ensureColumn('quotes', 'flagship_showcase_slug', 'TEXT');
   await ensureColumn('quotes', 'flagship_wedding_slug', 'TEXT');
+  // Optional external gallery URL (typically a FotoStudio gallery). When
+  // set, /p/<token> shows an iframe embed of it; if the gallery refuses
+  // to be embedded (X-Frame-Options/CSP), the client script falls back
+  // to a "open in new tab" button automatically.
+  await ensureColumn('quotes', 'flagship_external_gallery_url', 'TEXT');
   // Preferred language for the couple. Drives /p/<token> localisation and
   // is pre-filled on the lead row when contact/quiz tell us via `lang`.
   // Nullable — pre-existing rows default to 'ca' at read time in the
