@@ -417,3 +417,62 @@ export async function getScheduleByToken(token: string): Promise<EmailScheduleRo
   if (res.rows.length === 0) return null;
   return mapSchedule(res.rows[0] as unknown as Record<string, unknown>);
 }
+
+/** Manually send a sequence to a booking RIGHT NOW, regardless of its
+ *  trigger date. Use case: Eric wants to push out a form questionnaire to
+ *  a couple ahead of schedule (or after — e.g. the wedding's a month
+ *  away and the timeline form is the most urgent thing pending).
+ *
+ *  Behaviour:
+ *  - If no schedule exists for (booking, sequence), create one with
+ *    scheduled_for=today and a fresh form_token (when form-kind).
+ *  - If one exists and is pending, fast-forward it to today.
+ *  - If one was sent or cancelled, reactivate it with today's date AND a
+ *    NEW form_token (so the previous link is invalidated — important so
+ *    a re-sent form gets a fresh accept window).
+ *  Returns the schedule id so the caller can immediately dispatch the
+ *  queue (`sendDueEmails`) to fire it on the spot.
+ */
+export async function manualSendSequence(bookingId: string, sequenceId: number): Promise<number> {
+  await initSchema();
+  const seq = await getSequenceById(sequenceId);
+  if (!seq) throw new Error(`Sequence ${sequenceId} not found`);
+  const today = ymd(new Date());
+  const now = toIso(new Date());
+
+  const existing = await db.execute({
+    sql: 'SELECT id, sent_at, cancelled_at FROM email_schedules WHERE booking_id = ? AND sequence_id = ?',
+    args: [bookingId, sequenceId],
+  });
+
+  if (existing.rows.length === 0) {
+    // Fresh — insert one with today's date.
+    const token = seq.formKind ? randomUUID() : null;
+    const res = await db.execute({
+      sql: `INSERT INTO email_schedules (
+        booking_id, sequence_id, scheduled_for, form_token, created_at
+      ) VALUES (?, ?, ?, ?, ?)`,
+      args: [bookingId, sequenceId, today, token, now],
+    });
+    return Number(res.lastInsertRowid ?? 0);
+  }
+
+  // One already exists. Reset it to "pending today", clear sent/cancelled
+  // markers, and refresh the token so a previously-sent form link is
+  // invalidated (the new send carries a new URL).
+  const row = existing.rows[0] as Record<string, unknown>;
+  const id = Number(row.id);
+  const wasFinalised = row.sent_at != null || row.cancelled_at != null;
+  const newToken = seq.formKind ? randomUUID() : null;
+  await db.execute({
+    sql: `UPDATE email_schedules SET
+            scheduled_for = ?,
+            sent_at = NULL,
+            cancelled_at = NULL,
+            last_error = NULL,
+            form_token = COALESCE(?, form_token)
+          WHERE id = ?`,
+    args: [today, wasFinalised ? newToken : null, id],
+  });
+  return id;
+}

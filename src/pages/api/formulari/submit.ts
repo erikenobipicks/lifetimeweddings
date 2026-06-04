@@ -15,6 +15,8 @@ import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { db, initSchema } from '~/lib/db';
 import { getScheduleByToken } from '~/lib/bookings/sequences';
+import { getBookingById } from '~/lib/bookings/repository';
+import { sendFormSubmissionNotification } from '~/lib/bookings/emails';
 
 const schema = z.object({
   token: z.string().min(8).max(80),
@@ -49,12 +51,14 @@ export const POST: APIRoute = async ({ request }) => {
   if (!schedule) return json({ error: 'not_found' }, 404);
 
   await initSchema();
-  // Look up the form_kind via the sequence.
+  // Look up the form_kind + slug via the sequence (slug is just for the
+  // internal notification subject line).
   const seqRes = await db.execute({
-    sql: 'SELECT form_kind FROM email_sequences WHERE id = ?',
+    sql: 'SELECT form_kind, slug FROM email_sequences WHERE id = ?',
     args: [schedule.sequenceId],
   });
   const formKind = seqRes.rows[0]?.form_kind ? String(seqRes.rows[0].form_kind) : null;
+  const sequenceSlug = seqRes.rows[0]?.slug ? String(seqRes.rows[0].slug) : `#${schedule.sequenceId}`;
   if (!formKind) return json({ error: 'no_form' }, 409);
 
   // One submission per schedule. If we ever want to allow edits, expose
@@ -80,5 +84,30 @@ export const POST: APIRoute = async ({ request }) => {
     ],
   });
   console.log('[formulari.submit] saved', { scheduleId: schedule.id, formKind, bookingId: schedule.bookingId });
+
+  // Fire-and-forget internal notification so Eric finds out right away.
+  // Fail-soft: the submission is already persisted; a missing/erroring
+  // Resend never blocks the 200.
+  try {
+    const booking = await getBookingById(schedule.bookingId);
+    if (booking) {
+      // Tiny preview from the submitted JSON — first 3 string fields, kept
+      // short. Helpful at-a-glance content in the email body.
+      const preview = Object.entries(data)
+        .filter(([, v]) => typeof v === 'string' && v.trim().length > 0)
+        .slice(0, 3)
+        .map(([k, v]) => `${k}: ${String(v).slice(0, 120)}`)
+        .join('\n');
+      await sendFormSubmissionNotification({
+        booking,
+        formKind,
+        sequenceSlug,
+        dataPreview: preview || undefined,
+      });
+    }
+  } catch (err) {
+    console.error('[formulari.submit] notification failed (non-fatal)', err);
+  }
+
   return json({ ok: true }, 200);
 };

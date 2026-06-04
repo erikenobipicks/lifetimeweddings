@@ -104,6 +104,10 @@ const ibanPlaceholder = transfer.isPlaceholder;
       {ok === 'deposit:unpaid' && 'Marca de dipòsit retirada.'}
       {ok === 'offline_confirmed' && 'Booking confirmat offline. Ja podeu enviar la URL /contrato a la parella (la veieu al bloc verd més avall).'}
       {ok === 'offline_silent' && 'Boda històrica registrada (mode silenciós). Dipòsit marcat com a pagat. No s\'ha emès factura ni s\'ha enviat email a la parella.'}
+      {ok === 'form:sent' && 'Formulari enviat a la parella. (Mira la cola més avall per veure l\'estat.)'}
+      {ok === 'schedule:cancelled' && 'Email programat cancel·lat.'}
+      {ok === 'schedule:sent' && 'Email forçat. Mira la cola per veure l\'estat.'}
+      {ok === 'schedule:reactivated' && 'Email reactivat.'}
     </div>
   )}
   {err && (
@@ -466,6 +470,34 @@ const ibanPlaceholder = transfer.isPlaceholder;
       </div>
       <a href="/admin/sequences" class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold whitespace-nowrap">Plantilles →</a>
     </div>
+
+    <!-- Manual send: pick any sequence with a form and fire it NOW.
+         Useful when a couple needs a questionnaire ahead of (or after)
+         its scheduled date. Only sequences with form_kind appear so we
+         don't accidentally re-send the deposit-paid invite. -->
+    {allSequences.filter((s) => s.formKind && s.enabled).length > 0 && (
+      <form
+        method="POST"
+        action={`/api/admin/bookings/${booking.id}/send-form`}
+        class="mb-6 p-4 bg-cream/60 border border-gold/30 flex flex-col sm:flex-row sm:items-end gap-3"
+      >
+        <div class="flex-1">
+          <label class="block">
+            <span class="text-[0.7rem] font-bold tracking-widest uppercase text-ink/65">Enviar formulari ara</span>
+            <span class="block text-xs text-ink/55 mt-0.5">Tria una plantilla amb formulari i l'enviem a la parella ara mateix, independentment de la data programada.</span>
+            <select name="sequenceId" required class="mt-2 w-full px-3 py-2 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none">
+              <option value="">— Trià una plantilla —</option>
+              {allSequences.filter((s) => s.formKind && s.enabled).map((s) => (
+                <option value={s.id}>{s.slug} · {s.formKind}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <button type="submit" class="bg-ink text-white text-xs font-bold tracking-widest uppercase px-5 py-2.5 hover:bg-gold transition-colors whitespace-nowrap">
+          Enviar ara
+        </button>
+      </form>
+    )}
 
     {schedules.length === 0 ? (
       <p class="text-sm text-ink/55 italic py-3">Cap email programat. Es generaran automàticament quan marquis el dipòsit com a pagat (i hi hagi plantilles actives a <a href="/admin/sequences" class="text-gold underline">/admin/sequences</a>).</p>

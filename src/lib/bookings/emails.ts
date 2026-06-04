@@ -881,3 +881,51 @@ export async function sendReservaInvite(booking: Booking): Promise<void> {
     console.error('[booking-email] reserva invite failed (non-fatal)', err);
   }
 }
+
+// ─── Form-submission notification (internal) ─────────────────────────────
+// Fires when a couple submits any follow-up form. Quick "Eric, X has
+// answered Y" so we don't have to keep refreshing admin. Includes a link
+// to the booking's admin page where the submission will surface.
+
+export async function sendFormSubmissionNotification(args: {
+  booking: Booking;
+  formKind: string;
+  sequenceSlug: string;
+  dataPreview?: string;
+}): Promise<void> {
+  const adminUrl = `${SITE_URL}/admin/bookings/${args.booking.id}`;
+  const couple = `${args.booking.coupleName1} & ${args.booking.coupleName2}`;
+  const subject = `[Formulari] ${args.formKind} · ${couple}`;
+  const html = `
+    <div style="font-family:-apple-system,sans-serif;color:#1a1a1a;line-height:1.5;max-width:560px;margin:0 auto;padding:20px">
+      <h1 style="font-size:18px;margin:0 0 16px">Nou formulari rebut</h1>
+      <table style="width:100%;border-collapse:collapse;font-size:14px">
+        <tr><td style="padding:6px 0;color:#666;width:35%">Parella</td><td style="padding:6px 0">${escapeHtml(couple)}</td></tr>
+        <tr><td style="padding:6px 0;color:#666">Tipus de formulari</td><td style="padding:6px 0"><code>${escapeHtml(args.formKind)}</code></td></tr>
+        <tr><td style="padding:6px 0;color:#666">Plantilla</td><td style="padding:6px 0"><code>${escapeHtml(args.sequenceSlug)}</code></td></tr>
+      </table>
+      ${args.dataPreview ? `<div style="margin-top:16px;padding:12px;background:#faf7f1;border-left:4px solid #c9a96e;font-size:13px;white-space:pre-line">${escapeHtml(args.dataPreview)}</div>` : ''}
+      <div style="margin-top:24px">
+        <a href="${adminUrl}" style="display:inline-block;background:#1a1a1a;color:#fff;padding:10px 20px;text-decoration:none;font-weight:600;letter-spacing:0.05em;font-size:13px">Veure a admin →</a>
+      </div>
+    </div>
+  `;
+  const text = [
+    `Nou formulari rebut`,
+    `Parella: ${couple}`,
+    `Tipus: ${args.formKind}`,
+    `Plantilla: ${args.sequenceSlug}`,
+    args.dataPreview ? `\n${args.dataPreview}` : '',
+    `\n→ ${adminUrl}`,
+  ].filter(Boolean).join('\n');
+
+  if (!resend) {
+    console.log('[booking-email] (dev) form submission alert:', { to: INTERNAL_TO, subject });
+    return;
+  }
+  try {
+    await resend.emails.send({ from: FROM_NOTIFY, to: [INTERNAL_TO], subject, html, text });
+  } catch (err) {
+    console.error('[booking-email] form-submission notification failed (non-fatal)', err);
+  }
+}
