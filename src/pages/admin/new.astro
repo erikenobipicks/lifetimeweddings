@@ -15,6 +15,8 @@ const lead = Number.isFinite(leadId) && leadId > 0 ? await getLeadById(leadId) :
 
 let error: string | null = null;
 let createdToken: string | null = null;
+let createdQuoteId: number | null = null;
+let createdQuoteEmail: string | null = null;
 let postedLeadId: number | null = null;
 
 if (Astro.request.method === 'POST') {
@@ -58,6 +60,8 @@ if (Astro.request.method === 'POST') {
       try { await linkLeadToQuote(postedLeadId, q.id); } catch { /* non-fatal */ }
     }
     createdToken = q.token;
+    createdQuoteId = q.id;
+    createdQuoteEmail = q.coupleEmail ?? null;
   }
 }
 
@@ -111,22 +115,40 @@ const LABELS: Record<string, string> = {
   {createdToken && (
     <div class="mb-8 bg-white border border-gold p-6">
       <p class="text-sm font-bold tracking-widest uppercase text-gold mb-2">✓ Creat</p>
-      <p class="mb-3 text-ink/80">Aquest és l'enllaç únic. Copia'l i envia'l a la parella:</p>
-      <div class="flex gap-2">
+      <p class="mb-3 text-ink/80">
+        {createdQuoteEmail
+          ? `Aquest és l'enllaç únic. Envia'l directament a ${createdQuoteEmail} o copia'l:`
+          : "Aquest és l'enllaç únic. Copia'l i envia'l a la parella:"}
+      </p>
+      <div class="flex flex-wrap gap-2">
         <input
           readonly
           value={`${siteUrl}/p/${createdToken}`}
-          class="flex-1 px-3 py-2 border border-black/15 bg-cream font-mono text-sm"
+          class="flex-1 min-w-[180px] px-3 py-2 border border-black/15 bg-cream font-mono text-sm"
           id="token-url"
         />
         <button
           type="button"
           data-copy={`${siteUrl}/p/${createdToken}`}
-          class="bg-ink text-white px-4 py-2 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors"
+          class="bg-ink text-white px-4 py-2 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors whitespace-nowrap"
         >
           Copiar
         </button>
+        {createdQuoteEmail && createdQuoteId && (
+          <button
+            type="button"
+            data-send-quote
+            data-quote-id={createdQuoteId}
+            data-email={createdQuoteEmail}
+            class="bg-gold text-white px-4 py-2 text-xs font-bold tracking-widest uppercase hover:brightness-110 transition whitespace-nowrap"
+          >
+            📧 Enviar
+          </button>
+        )}
       </div>
+      {createdQuoteEmail && (
+        <p class="text-[0.7rem] text-ink/50 mt-2" data-send-feedback></p>
+      )}
       <div class="mt-4 flex gap-3 text-xs">
         <a href="/admin" class="text-gold underline">← Tornar al llistat</a>
         <a href="/admin/new" class="text-gold underline">+ Crear-ne un altre</a>
@@ -352,6 +374,42 @@ const LABELS: Record<string, string> = {
         setTimeout(() => (btn.textContent = old), 1500);
       } catch {
         prompt('Copia:', btn.dataset.copy!);
+      }
+    });
+  });
+
+  // Mirrors the same data-send-quote handler on /admin/<id> so creating
+  // from a lead → email is one click without leaving the page.
+  document.querySelectorAll<HTMLButtonElement>('[data-send-quote]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const quoteId = Number(btn.dataset.quoteId);
+      const email = btn.dataset.email ?? '';
+      const feedback = document.querySelector<HTMLElement>('[data-send-feedback]');
+      if (!confirm(`Enviar l'enllaç del pressupost a ${email}?`)) return;
+      btn.disabled = true;
+      const old = btn.textContent;
+      btn.textContent = 'Enviant…';
+      try {
+        const res = await fetch('/api/admin/send-quote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ quoteId }),
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        btn.textContent = '✓ Enviat';
+        if (feedback) {
+          feedback.textContent = `Enviat a ${email} · ` + new Date().toLocaleString('ca-ES');
+          feedback.style.color = '#c9a96e';
+        }
+      } catch (err) {
+        console.error(err);
+        btn.textContent = old ?? '📧 Enviar';
+        if (feedback) {
+          feedback.textContent = 'Error enviant. Torna-ho a provar.';
+          feedback.style.color = '#b91c1c';
+        }
+      } finally {
+        setTimeout(() => { btn.disabled = false; }, 2000);
       }
     });
   });
