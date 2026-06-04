@@ -207,6 +207,73 @@ export async function initSchema() {
         user_agent TEXT
       )`,
       `CREATE INDEX IF NOT EXISTS idx_form_responses_booking ON booking_form_responses(booking_id)`,
+
+      // ── Email sequences ────────────────────────────────────────────────
+      // Catalogue of recurring/follow-up email templates Eric can manage
+      // from /admin/sequences. Each row is one "kind of email" (e.g.
+      // "Falten 6 mesos") with a trigger (offset relative to a booking
+      // milestone) + localised subject/body. Optionally points at a form
+      // (form_kind) — when present, a per-booking token gets generated so
+      // the email can link to /formulari/<token>.
+      //
+      // Schedules live in `email_schedules`: one row per booking ×
+      // sequence, materialised when the booking hits the trigger event.
+      // The cron walks `email_schedules` daily.
+      `CREATE TABLE IF NOT EXISTS email_sequences (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        slug TEXT UNIQUE NOT NULL,
+        enabled INTEGER NOT NULL DEFAULT 1 CHECK (enabled IN (0, 1)),
+        -- Trigger: 'days_after_deposit' | 'days_before_wedding' | 'days_after_wedding'.
+        trigger_kind TEXT NOT NULL
+          CHECK (trigger_kind IN ('days_after_deposit', 'days_before_wedding', 'days_after_wedding')),
+        -- Positive integer days offset. With 'days_before_wedding' the
+        -- effective date is wedding_date − offset; with the _after kinds
+        -- it's the reference date + offset.
+        trigger_offset_days INTEGER NOT NULL,
+        -- Optional form to attach. Null → informational email only.
+        -- Today: 'timeline' is planned. New kinds are added in code.
+        form_kind TEXT,
+        subject_ca TEXT NOT NULL,
+        subject_es TEXT NOT NULL,
+        subject_en TEXT NOT NULL,
+        body_html_ca TEXT NOT NULL,
+        body_html_es TEXT NOT NULL,
+        body_html_en TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_email_sequences_enabled ON email_sequences(enabled)`,
+
+      `CREATE TABLE IF NOT EXISTS email_schedules (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        booking_id TEXT NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
+        sequence_id INTEGER NOT NULL REFERENCES email_sequences(id) ON DELETE CASCADE,
+        -- Date the cron should pick it up (UTC date, YYYY-MM-DD).
+        scheduled_for TEXT NOT NULL,
+        sent_at TEXT,
+        cancelled_at TEXT,
+        last_error TEXT,
+        -- Unique per (booking, sequence) — generated when the schedule is
+        -- materialised so the email can deep-link to /formulari/<token>.
+        form_token TEXT UNIQUE,
+        created_at TEXT NOT NULL,
+        UNIQUE (booking_id, sequence_id)
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_email_schedules_due
+         ON email_schedules(scheduled_for) WHERE sent_at IS NULL AND cancelled_at IS NULL`,
+      `CREATE INDEX IF NOT EXISTS idx_email_schedules_booking ON email_schedules(booking_id)`,
+
+      `CREATE TABLE IF NOT EXISTS form_submissions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        booking_id TEXT NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
+        schedule_id INTEGER REFERENCES email_schedules(id) ON DELETE SET NULL,
+        form_kind TEXT NOT NULL,
+        data_json TEXT NOT NULL,
+        submitted_at TEXT NOT NULL,
+        ip_address TEXT,
+        user_agent TEXT
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_form_submissions_booking ON form_submissions(booking_id, form_kind)`,
     ],
     'write',
   );

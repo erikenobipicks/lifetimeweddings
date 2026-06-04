@@ -25,6 +25,7 @@ import {
 } from '~/lib/bookings/repository';
 import { issueDepositInvoiceForBooking } from '~/lib/bookings/invoicing';
 import { sendContratoInvite } from '~/lib/bookings/emails';
+import { materialiseSchedulesForBooking } from '~/lib/bookings/sequences';
 
 const DNI_REGEX = /^([0-9]{8}[A-Za-z]|[XYZxyz][0-9]{7}[A-Za-z])$/;
 const PHONE_REGEX = /^\+?[\d\s\-()]{6,20}$/;
@@ -138,7 +139,15 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
     // fresh state, then send the /contrato invite. Fail-soft.
     const fresh = await getBookingById(id);
     if (fresh) await sendContratoInvite(fresh);
+    // Materialise the follow-up email queue from the deposit-paid trigger.
+    try {
+      await materialiseSchedulesForBooking(id);
+    } catch (err) {
+      console.error('[confirm-offline] materialise schedules failed (non-fatal)', err);
+    }
   }
+  // Silent mode skips materialise on purpose — historical weddings
+  // shouldn't trigger fresh follow-up emails.
 
   const okFlag = silent ? 'offline_silent' : 'offline_confirmed';
   return redirect(`/admin/bookings/${id}?ok=${okFlag}`, 303);
