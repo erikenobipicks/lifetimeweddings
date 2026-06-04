@@ -1,0 +1,375 @@
+---
+// Interactive quote configurator shown below the static packs section
+// on /p/<token>. The couple can tick/untick base packs, combos, and
+// extras; the total updates live; a hint appears when their selection
+// matches a combo (so they can swap individual packs for the combo and
+// save). When they hit "send", a POST goes to /api/quotes/<token>/respond
+// and Eric gets pinged.
+//
+// State management:
+//   - Initial state mirrors the quote's recommended packIds (from the
+//     server-side render). If the couple has already submitted a
+//     response, we hydrate from the latest response instead.
+//   - "Quote closed" (admin set quote_closed_at) → render read-only with
+//     a soft thank-you banner. They can still see what they submitted.
+//   - "Admin discount applied" → render a "−N €" line and a thanks note.
+//
+// All copy goes through useTranslations() so the panel is fully i18n.
+
+import { PACKS, EXTRAS } from '~/data/packs';
+import { useTranslations, type Lang } from '~/i18n/ui';
+import { formatEuros, parsePriceCents } from '~/lib/pricing';
+import type { QuoteResponse } from '~/lib/quotes';
+
+interface Props {
+  lang: Lang;
+  token: string;
+  /** Pre-checked at first render: the packs Eric proposed. */
+  initialPackIds: string[];
+  /** When set, the couple has already submitted at least once — we
+   *  hydrate the inputs from this snapshot so they see "what we sent"
+   *  not "what was originally proposed". */
+  lastResponse: QuoteResponse | null;
+  /** Admin discount in cents (>0 when applied). Echoed as a subtotal line. */
+  adminDiscountCents: number;
+  /** When set, the configurator is read-only. */
+  closedAt: string | null;
+}
+const { lang, token, initialPackIds, lastResponse, adminDiscountCents, closedAt } = Astro.props;
+const t = useTranslations(lang);
+
+// Hydrate initial selection — prefer the last response if any, otherwise
+// fall back to what Eric proposed.
+const checkedPackIds = lastResponse ? lastResponse.packIds : initialPackIds;
+const checkedExtraIds = lastResponse ? lastResponse.extraIds : [];
+const isClosed = !!closedAt;
+
+// Pre-compute prices in cents so the JS doesn't have to re-parse on
+// every change. Shipped to the client via data-cents attributes.
+const packsWithCents = PACKS.map((p) => ({ ...p, cents: parsePriceCents(p.price) }));
+const extrasWithCents = EXTRAS.map((e) => ({ ...e, cents: parsePriceCents(e.price) }));
+
+const basePacks = packsWithCents.filter((p) => p.type !== 'combo');
+const comboPacks = packsWithCents.filter((p) => p.type === 'combo');
+
+const heading = t('quote.configurator.heading');
+const intro = t('quote.configurator.intro');
+const basePacksLabel = t('quote.configurator.basePacks');
+const combosLabel = t('quote.configurator.combos');
+const extrasLabel = t('quote.configurator.extras');
+const totalLabel = t('quote.configurator.total');
+const discountLabel = t('quote.configurator.discount');
+const messageLabel = t('quote.configurator.messageLabel');
+const messagePlaceholder = t('quote.configurator.messagePlaceholder');
+const submitLabel = t('quote.configurator.submit');
+const submitting = t('quote.configurator.submitting');
+const successTitle = t('quote.configurator.successTitle');
+const successBody = t('quote.configurator.successBody');
+const errorBody = t('quote.configurator.errorBody');
+const closedTitle = t('quote.configurator.closedTitle');
+const closedBody = t('quote.configurator.closedBody');
+const previousTitle = t('quote.configurator.previousTitle');
+const comboHintPrefix = t('quote.configurator.comboHint');
+const noSelection = t('quote.configurator.empty');
+---
+
+<section class="px-6 md:px-12 py-16 md:py-20 bg-white text-ink" id="quote-configurator">
+  <div class="max-w-4xl mx-auto">
+    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3 text-center">
+      {t('quote.configurator.eyebrow')}
+    </p>
+    <h2 class="font-display text-2xl md:text-3xl font-bold text-center mb-3">{heading}</h2>
+    <p class="text-center text-ink/70 mb-10 max-w-2xl mx-auto">{intro}</p>
+
+    {isClosed && (
+      <div class="mb-8 bg-cream border-l-4 border-gold p-5">
+        <p class="font-bold text-ink mb-1">{closedTitle}</p>
+        <p class="text-sm text-ink/70">{closedBody}</p>
+      </div>
+    )}
+
+    {lastResponse && !isClosed && (
+      <div class="mb-8 bg-cream/60 border border-gold/40 p-5 text-sm">
+        <p class="font-bold mb-1">{previousTitle}</p>
+        <p class="text-ink/70">{successBody}</p>
+      </div>
+    )}
+
+    <form id="qc-form" data-token={token} class="space-y-8">
+      {/* Base packs */}
+      <div>
+        <p class="text-xs font-bold tracking-[0.18em] uppercase text-ink/70 mb-3">{basePacksLabel}</p>
+        <div class="grid sm:grid-cols-2 gap-3">
+          {basePacks.map((p) => (
+            <label class={`block border border-black/15 bg-white p-4 cursor-pointer hover:border-gold transition-colors has-[:checked]:border-gold has-[:checked]:bg-gold/5 ${isClosed ? 'pointer-events-none opacity-60' : ''}`}>
+              <div class="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  name="pack"
+                  value={p.id}
+                  data-cents={p.cents}
+                  checked={checkedPackIds.includes(p.id)}
+                  disabled={isClosed}
+                  class="mt-1 accent-gold qc-input qc-pack"
+                />
+                <div class="flex-1">
+                  <p class="font-bold text-ink leading-tight">{p.name[lang]}</p>
+                  <p class="text-[0.7rem] uppercase tracking-wider text-ink/55 mt-1">
+                    {p.type === 'photo' ? t('quote.configurator.typePhoto') : p.type === 'video' ? t('quote.configurator.typeVideo') : t('quote.configurator.typeCombo')}
+                  </p>
+                </div>
+                <p class="font-display font-bold text-gold whitespace-nowrap">{p.price}</p>
+              </div>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Combos */}
+      <div>
+        <p class="text-xs font-bold tracking-[0.18em] uppercase text-ink/70 mb-3">{combosLabel}</p>
+        <div class="grid sm:grid-cols-2 gap-3">
+          {comboPacks.map((p) => (
+            <label class={`block border border-black/15 bg-white p-4 cursor-pointer hover:border-gold transition-colors has-[:checked]:border-gold has-[:checked]:bg-gold/5 ${isClosed ? 'pointer-events-none opacity-60' : ''}`}>
+              <div class="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  name="pack"
+                  value={p.id}
+                  data-cents={p.cents}
+                  data-composed-of={JSON.stringify(p.composedOf ?? [])}
+                  checked={checkedPackIds.includes(p.id)}
+                  disabled={isClosed}
+                  class="mt-1 accent-gold qc-input qc-pack qc-combo"
+                />
+                <div class="flex-1">
+                  <p class="font-bold text-ink leading-tight">{p.name[lang]}</p>
+                  <p class="text-[0.7rem] uppercase tracking-wider text-gold/80 mt-1">Combo</p>
+                </div>
+                <p class="font-display font-bold text-gold whitespace-nowrap">{p.price}</p>
+              </div>
+            </label>
+          ))}
+        </div>
+        <p id="qc-combo-hint" hidden class="mt-3 text-sm bg-gold/10 border border-gold/40 text-ink/90 p-3">
+          <span class="font-bold">{comboHintPrefix}</span> <span id="qc-combo-hint-text"></span>
+        </p>
+      </div>
+
+      {/* Extras */}
+      <div>
+        <p class="text-xs font-bold tracking-[0.18em] uppercase text-ink/70 mb-3">{extrasLabel}</p>
+        <ul class="divide-y divide-black/10 border border-black/15 bg-white">
+          {extrasWithCents.map((x) => (
+            <li>
+              <label class={`flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-cream/50 has-[:checked]:bg-gold/5 ${isClosed ? 'pointer-events-none opacity-60' : ''}`}>
+                <input
+                  type="checkbox"
+                  name="extra"
+                  value={x.id}
+                  data-cents={x.cents}
+                  checked={checkedExtraIds.includes(x.id)}
+                  disabled={isClosed}
+                  class="mt-1 accent-gold qc-input qc-extra"
+                />
+                <div class="flex-1">
+                  <p class="text-ink">{x.name[lang]}</p>
+                  {x.note && <p class="text-xs text-ink/55 mt-0.5">{x.note[lang]}</p>}
+                </div>
+                <p class="font-bold text-gold whitespace-nowrap">{x.price}</p>
+              </label>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Total */}
+      <div class="border-t border-b border-black/15 py-5 space-y-2">
+        <div class="flex justify-between text-sm">
+          <span class="text-ink/70">{t('quote.configurator.subtotal')}</span>
+          <span id="qc-subtotal" class="font-bold">0 €</span>
+        </div>
+        {adminDiscountCents > 0 && (
+          <div class="flex justify-between text-sm">
+            <span class="text-ink/70">{discountLabel}</span>
+            <span class="font-bold text-gold">−{formatEuros(adminDiscountCents)}</span>
+          </div>
+        )}
+        <div class="flex justify-between items-baseline pt-2 border-t border-black/10">
+          <span class="font-display text-xl font-bold">{totalLabel}</span>
+          <span id="qc-total" class="font-display text-3xl font-bold text-gold">0 €</span>
+        </div>
+        <p class="text-xs text-ink/55 mt-2">{t('quote.configurator.paymentNote')}</p>
+      </div>
+
+      {!isClosed && (
+        <>
+          <div>
+            <label for="qc-message" class="block text-xs font-bold tracking-[0.18em] uppercase text-ink/70 mb-2">
+              {messageLabel}
+            </label>
+            <textarea
+              id="qc-message"
+              name="message"
+              rows="3"
+              maxlength="2000"
+              placeholder={messagePlaceholder}
+              class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none resize-y bg-white"
+            ></textarea>
+          </div>
+
+          <div id="qc-feedback" hidden class="p-4 border-l-4"></div>
+
+          <button
+            type="submit"
+            id="qc-submit"
+            class="w-full bg-ink text-white py-4 text-xs font-bold tracking-[0.18em] uppercase hover:bg-gold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {submitLabel}
+          </button>
+        </>
+      )}
+    </form>
+  </div>
+</section>
+
+<script
+  is:inline
+  define:vars={{
+    adminDiscountCents,
+    submitLabel,
+    submittingLabel: submitting,
+    successTitle,
+    successBody,
+    errorBody,
+    noSelection,
+    comboHintPrefix,
+    locale: lang === 'en' ? 'en-GB' : lang === 'es' ? 'es-ES' : 'ca-ES',
+  }}
+>
+  (() => {
+    const form = document.getElementById('qc-form');
+    if (!form) return;
+    const subtotalEl = document.getElementById('qc-subtotal');
+    const totalEl = document.getElementById('qc-total');
+    const comboHint = document.getElementById('qc-combo-hint');
+    const comboHintText = document.getElementById('qc-combo-hint-text');
+    const submitBtn = document.getElementById('qc-submit');
+    const feedback = document.getElementById('qc-feedback');
+    const messageEl = document.getElementById('qc-message');
+
+    function fmt(cents) {
+      const abs = Math.abs(cents);
+      const euros = abs / 100;
+      const isRound = abs % 100 === 0;
+      const opts = isRound
+        ? { maximumFractionDigits: 0 }
+        : { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+      const sign = cents < 0 ? '−' : '';
+      return sign + new Intl.NumberFormat(locale, opts).format(euros) + ' €';
+    }
+
+    function recompute() {
+      let sub = 0;
+      const selectedPacks = [];
+      form.querySelectorAll('input.qc-pack:checked').forEach((el) => {
+        sub += Number(el.dataset.cents || 0);
+        selectedPacks.push(el.value);
+      });
+      form.querySelectorAll('input.qc-extra:checked').forEach((el) => {
+        sub += Number(el.dataset.cents || 0);
+      });
+      const total = Math.max(0, sub - (adminDiscountCents || 0));
+      subtotalEl.textContent = fmt(sub);
+      totalEl.textContent = fmt(total);
+
+      // Combo hint: scan unchecked combos to see if their composedOf set
+      // is a subset of currently-selected base packs (and the combo
+      // itself isn't already picked). Show the largest-savings hit.
+      let bestHint = null;
+      form.querySelectorAll('input.qc-combo').forEach((el) => {
+        if (el.checked) return;
+        let parts = [];
+        try { parts = JSON.parse(el.dataset.composedOf || '[]'); } catch {}
+        if (parts.length === 0) return;
+        const allPresent = parts.every((id) => selectedPacks.includes(id));
+        if (!allPresent) return;
+        const partsTotal = parts.reduce((acc, id) => {
+          const partEl = form.querySelector('input.qc-pack[value="' + id + '"]');
+          return acc + Number(partEl?.dataset.cents || 0);
+        }, 0);
+        const comboPrice = Number(el.dataset.cents || 0);
+        const savings = partsTotal - comboPrice;
+        if (savings > 0 && (!bestHint || savings > bestHint.savings)) {
+          bestHint = { savings, label: el.closest('label')?.querySelector('p.font-bold')?.textContent ?? '' };
+        }
+      });
+      if (bestHint && comboHint && comboHintText) {
+        comboHintText.textContent =
+          bestHint.label + ' — ' + fmt(bestHint.savings) + ' ' +
+          (locale === 'en-GB' ? 'savings' : locale === 'es-ES' ? 'de ahorro' : "d'estalvi");
+        comboHint.hidden = false;
+      } else if (comboHint) {
+        comboHint.hidden = true;
+      }
+    }
+
+    form.querySelectorAll('input.qc-input').forEach((el) => {
+      el.addEventListener('change', recompute);
+    });
+    recompute();
+
+    if (submitBtn) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const packIds = Array.from(form.querySelectorAll('input.qc-pack:checked')).map((el) => el.value);
+        const extraIds = Array.from(form.querySelectorAll('input.qc-extra:checked')).map((el) => el.value);
+        const message = (messageEl?.value ?? '').trim();
+
+        if (packIds.length === 0 && extraIds.length === 0) {
+          if (feedback) {
+            feedback.hidden = false;
+            feedback.style.borderColor = '#dc2626';
+            feedback.style.background = '#fef2f2';
+            feedback.style.color = '#991b1b';
+            feedback.textContent = noSelection;
+          }
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = submittingLabel;
+        if (feedback) feedback.hidden = true;
+
+        try {
+          const token = form.dataset.token;
+          const res = await fetch('/api/quotes/' + token + '/respond', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ packIds, extraIds, message: message || undefined }),
+          });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          if (feedback) {
+            feedback.hidden = false;
+            feedback.style.borderColor = '#c9a96e';
+            feedback.style.background = '#fdf9f0';
+            feedback.style.color = '#1a1a1a';
+            feedback.innerHTML = '<p class="font-bold mb-1">' + successTitle + '</p><p class="text-sm">' + successBody + '</p>';
+          }
+          submitBtn.textContent = '✓ ' + successTitle;
+        } catch (err) {
+          console.error('[quote-configurator] submit failed', err);
+          if (feedback) {
+            feedback.hidden = false;
+            feedback.style.borderColor = '#dc2626';
+            feedback.style.background = '#fef2f2';
+            feedback.style.color = '#991b1b';
+            feedback.textContent = errorBody;
+          }
+          submitBtn.textContent = submitLabel;
+          submitBtn.disabled = false;
+        }
+      });
+    }
+  })();
+</script>

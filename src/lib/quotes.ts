@@ -41,6 +41,18 @@ export interface Quote {
   /** Couple's preferred language. Drives the /p/<token> page locale.
    *  Pre-migration rows default to 'ca' via langOrDefault(). */
   preferredLanguage: Lang;
+  /** Operator-granted discount in cents (>0 when applied). Set from the
+   *  admin response review when the couple returns their configuration —
+   *  e.g. a referral gift or friends-and-family rebate. The configurator
+   *  on /p/<token> echoes this back so the couple sees the new total. */
+  adminDiscountCents: number;
+  /** Free-text reason for the discount, shown in the admin panel only.
+   *  Optional even when a discount is set. */
+  adminDiscountReason: string | null;
+  /** ISO timestamp when Eric closes the quote — the couple can still see
+   *  their last submitted configuration but cannot send a new one. Null
+   *  while the quote is still open to changes. */
+  closedAt: string | null;
 }
 
 export interface QuoteStats {
@@ -89,6 +101,9 @@ function rowToQuote(r: any): Quote {
     flagshipWeddingSlug: r.flagship_wedding_slug ? String(r.flagship_wedding_slug) : null,
     flagshipExternalGalleryUrl: r.flagship_external_gallery_url ? String(r.flagship_external_gallery_url) : null,
     preferredLanguage: langOrDefault(r.preferred_language),
+    adminDiscountCents: r.admin_discount_cents != null ? Number(r.admin_discount_cents) : 0,
+    adminDiscountReason: r.admin_discount_reason ?? null,
+    closedAt: r.quote_closed_at ?? null,
   };
 }
 
@@ -454,5 +469,126 @@ export async function linkLeadToQuote(leadId: number, quoteId: number): Promise<
   await db.execute({
     sql: 'UPDATE leads SET quote_id = ? WHERE id = ?',
     args: [quoteId, leadId],
+  });
+}
+
+// ─── Interactive quote responses ────────────────────────────────────────────
+
+export interface QuoteResponse {
+  id: number;
+  quoteId: number;
+  packIds: string[];
+  extraIds: string[];
+  message: string | null;
+  totalCents: number;
+  ipAddress: string | null;
+  userAgent: string | null;
+  createdAt: string;
+}
+
+function rowToQuoteResponse(r: any): QuoteResponse {
+  const safeArr = (raw: unknown): string[] => {
+    if (typeof raw !== 'string') return [];
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed.map(String) : [];
+    } catch { return []; }
+  };
+  return {
+    id: Number(r.id),
+    quoteId: Number(r.quote_id),
+    packIds: safeArr(r.pack_ids_json),
+    extraIds: safeArr(r.extra_ids_json),
+    message: r.message ?? null,
+    totalCents: Number(r.total_cents ?? 0),
+    ipAddress: r.ip_address ?? null,
+    userAgent: r.user_agent ?? null,
+    createdAt: r.created_at,
+  };
+}
+
+export interface CreateQuoteResponseInput {
+  quoteId: number;
+  packIds: string[];
+  extraIds: string[];
+  message?: string;
+  totalCents: number;
+  ipAddress?: string;
+  userAgent?: string;
+}
+
+export async function createQuoteResponse(input: CreateQuoteResponseInput): Promise<QuoteResponse> {
+  await initSchema();
+  const now = new Date().toISOString();
+  await db.execute({
+    sql: `INSERT INTO quote_responses
+            (quote_id, pack_ids_json, extra_ids_json, message, total_cents, ip_address, user_agent, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [
+      input.quoteId,
+      JSON.stringify(input.packIds),
+      JSON.stringify(input.extraIds),
+      input.message ?? null,
+      input.totalCents,
+      input.ipAddress ?? null,
+      input.userAgent ?? null,
+      now,
+    ],
+  });
+  const res = await db.execute({
+    sql: 'SELECT * FROM quote_responses WHERE rowid = last_insert_rowid()',
+    args: [],
+  });
+  return rowToQuoteResponse(res.rows[0]);
+}
+
+export async function listQuoteResponses(quoteId: number): Promise<QuoteResponse[]> {
+  await initSchema();
+  const res = await db.execute({
+    sql: 'SELECT * FROM quote_responses WHERE quote_id = ? ORDER BY created_at DESC',
+    args: [quoteId],
+  });
+  return res.rows.map(rowToQuoteResponse);
+}
+
+export async function getLatestQuoteResponse(quoteId: number): Promise<QuoteResponse | null> {
+  await initSchema();
+  const res = await db.execute({
+    sql: 'SELECT * FROM quote_responses WHERE quote_id = ? ORDER BY created_at DESC LIMIT 1',
+    args: [quoteId],
+  });
+  return res.rows[0] ? rowToQuoteResponse(res.rows[0]) : null;
+}
+
+/** Set or clear the operator-granted discount on a quote. Pass cents=0 to
+ *  clear; reason is ignored when cents=0. */
+export async function setAdminDiscount(
+  quoteId: number,
+  cents: number,
+  reason: string | null,
+): Promise<void> {
+  await initSchema();
+  const safeCents = Math.max(0, Math.floor(cents));
+  await db.execute({
+    sql: 'UPDATE quotes SET admin_discount_cents = ?, admin_discount_reason = ? WHERE id = ?',
+    args: [safeCents, safeCents > 0 ? (reason ?? null) : null, quoteId],
+  });
+}
+
+/** Close a quote — the couple can still view it but no more responses. */
+export async function closeQuote(quoteId: number): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: 'UPDATE quotes SET quote_closed_at = ? WHERE id = ?',
+    args: [new Date().toISOString(), quoteId],
+  });
+}
+
+/** Re-open a previously closed quote so the couple can submit again. */
+export async function reopenQuote(quoteId: number): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: 'UPDATE quotes SET quote_closed_at = NULL WHERE id = ?',
+    args: [quoteId],
   });
 }
