@@ -7,11 +7,45 @@ import { listBookings } from '~/lib/bookings/repository';
 import type { BookingStatus } from '~/lib/bookings/types';
 
 const statusFilter = (Astro.url.searchParams.get('status') ?? '') as BookingStatus | '';
+const yearFilterRaw = Astro.url.searchParams.get('year') ?? '';
+const yearFilter = /^\d{4}$/.test(yearFilterRaw) ? Number(yearFilterRaw) : null;
 const includeArchived = Astro.url.searchParams.get('archived') === '1';
 const ok = Astro.url.searchParams.get('ok');
 
 const all = await listBookings({ includeArchived });
-const bookings = statusFilter ? all.filter((b) => b.status === statusFilter) : all;
+
+// Years dropdown — derived from the live data so it stays current without
+// hand-maintained lists; we also throw next year into the mix so a quote
+// for a wedding way in the future doesn't disappear from the picker.
+const allYears = new Set<number>(all.map((b) => b.weddingDate.getFullYear()));
+allYears.add(new Date().getFullYear());
+allYears.add(new Date().getFullYear() + 1);
+const yearOptions = [...allYears].sort((a, b) => a - b);
+
+const filtered = all
+  .filter((b) => (statusFilter ? b.status === statusFilter : true))
+  .filter((b) => (yearFilter ? b.weddingDate.getFullYear() === yearFilter : true));
+
+// Sort by wedding date ascending — chronological for planning, the
+// closest-coming wedding first inside each year filter. Within a tie we
+// fall back to updatedAt desc so the most recently-touched record wins.
+const bookings = [...filtered].sort((a, b) => {
+  const d = a.weddingDate.getTime() - b.weddingDate.getTime();
+  if (d !== 0) return d;
+  return b.updatedAt.getTime() - a.updatedAt.getTime();
+});
+
+// Aggregate total quoted for the current view (post-filter). Stored as cents
+// so the formatter shows the same number we keep in the DB.
+const totalQuotedCents = bookings.reduce((acc, b) => acc + b.packPriceCents, 0);
+function formatEuros(cents: number): string {
+  const euros = cents / 100;
+  return new Intl.NumberFormat('ca-ES', {
+    style: 'currency',
+    currency: 'EUR',
+    maximumFractionDigits: euros % 1 === 0 ? 0 : 2,
+  }).format(euros);
+}
 
 const STATUS_BADGE: Record<BookingStatus, { label: string; classes: string }> = {
   draft:           { label: 'Draft',     classes: 'bg-gray-100 text-gray-700' },
@@ -68,11 +102,16 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
 
   <div class="flex flex-wrap items-center gap-2 mb-4">
     {STATUS_TABS.map((tab) => {
+      // Preserve the year filter while switching status tabs.
+      const params = new URLSearchParams();
+      if (tab.key) params.set('status', tab.key);
+      if (yearFilter) params.set('year', String(yearFilter));
+      if (includeArchived) params.set('archived', '1');
+      const qs = params.toString();
       const isActive = (tab.key === '' && !statusFilter) || tab.key === statusFilter;
-      const href = tab.key === '' ? '/admin/bookings' : `/admin/bookings?status=${tab.key}`;
       return (
         <a
-          href={href}
+          href={qs ? `/admin/bookings?${qs}` : '/admin/bookings'}
           class:list={[
             'text-xs font-bold tracking-widest uppercase px-3 py-1.5 border transition-colors',
             isActive ? 'bg-ink text-white border-ink' : 'border-black/15 text-ink/60 hover:text-gold hover:border-gold',
@@ -83,6 +122,23 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
       );
     })}
     <span class="hidden md:block flex-1"></span>
+    <form method="GET" class="contents">
+      {statusFilter && <input type="hidden" name="status" value={statusFilter} />}
+      {includeArchived && <input type="hidden" name="archived" value="1" />}
+      <label class="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-ink/60">
+        Any
+        <select
+          name="year"
+          onchange="this.form.submit()"
+          class="px-2 py-1.5 border border-black/15 bg-white text-xs focus:border-gold focus:outline-none"
+        >
+          <option value="">— Tots —</option>
+          {yearOptions.map((y) => (
+            <option value={y} selected={yearFilter === y}>{y}</option>
+          ))}
+        </select>
+      </label>
+    </form>
     <input
       type="text"
       id="search-input"
@@ -96,6 +152,13 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
       {includeArchived ? '✕ Ocultar arxivats' : '📦 Mostrar arxivats'}
     </a>
   </div>
+
+  {bookings.length > 0 && (
+    <div class="mb-4 px-4 py-3 bg-cream border border-black/10 flex flex-wrap items-baseline gap-x-6 gap-y-1 text-sm">
+      <span><strong>{bookings.length}</strong> {bookings.length === 1 ? 'reserva' : 'reserves'}{yearFilter ? ` · ${yearFilter}` : ''}</span>
+      <span><strong>Total pressupostat:</strong> <span class="text-gold font-bold">{formatEuros(totalQuotedCents)}</span></span>
+    </div>
+  )}
 
   {bookings.length === 0 ? (
     <p class="text-ink/60 text-center py-16">
@@ -111,6 +174,7 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
             <th class="text-left px-4 py-3">Parella</th>
             <th class="text-left px-4 py-3">Data boda</th>
             <th class="text-left px-4 py-3">Venue</th>
+            <th class="text-right px-4 py-3">Pressupostat</th>
             <th class="text-left px-4 py-3">Actualitzat</th>
             <th class="text-right px-4 py-3"></th>
           </tr>
@@ -138,6 +202,7 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
                   {b.venueName}
                   {b.venueCity && <span class="text-ink/50"> · {b.venueCity}</span>}
                 </td>
+                <td class="px-4 py-3 text-right font-bold text-gold whitespace-nowrap">{formatEuros(b.packPriceCents)}</td>
                 <td class="px-4 py-3 text-ink/70">{fmtRelative(b.updatedAt)}</td>
                 <td class="px-4 py-3 text-right whitespace-nowrap">
                   <button

@@ -3,6 +3,7 @@ import AdminLayout from '~/layouts/AdminLayout.astro';
 import { listQuotes, getQuoteStats } from '~/lib/quotes';
 
 const showArchived = Astro.url.searchParams.get('arxivats') === '1';
+const okFlag = Astro.url.searchParams.get('ok');
 const quotes = await listQuotes({ includeArchived: showArchived });
 const stats = await Promise.all(quotes.map((q) => getQuoteStats(q.id)));
 
@@ -33,6 +34,12 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
     <h1 class="font-display text-2xl sm:text-3xl font-bold">Pressupostos</h1>
     <a href="/admin/new" class="self-start sm:self-auto bg-ink text-white px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors whitespace-nowrap">+ Nou pressupost</a>
   </div>
+
+  {okFlag === 'deleted' && (
+    <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
+      ✓ Pressupost eliminat definitivament.
+    </div>
+  )}
 
   <div class="flex flex-wrap items-center gap-3 mb-6">
     <input
@@ -83,15 +90,30 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
                 <td class="px-4 py-3 text-right font-bold">{s.views}</td>
                 <td class="px-4 py-3 text-right">{humanSecs(s.totalTimeSeconds)}</td>
                 <td class="px-4 py-3 text-right">{s.maxScroll}%</td>
-                <td class="px-4 py-3 text-right">
+                <td class="px-4 py-3 text-right whitespace-nowrap">
                   <button
                     type="button"
                     data-copy={`${siteUrl}/p/${q.token}`}
-                    class="text-gold text-xs font-bold tracking-widest uppercase hover:underline"
+                    class="text-gold text-xs font-bold tracking-widest uppercase hover:underline mr-3"
                     title="Copiar enllaç"
                   >
                     Copiar
                   </button>
+                  <form
+                    method="POST"
+                    action={`/admin/${q.id}`}
+                    class="inline"
+                    onsubmit={`return confirm('⚠ Eliminar el pressupost de ${q.coupleName.replace(/'/g, "\\'")} DEFINITIVAMENT?\\n\\nNo es podrà recuperar.')`}
+                  >
+                    <input type="hidden" name="action" value="delete" />
+                    <button
+                      type="submit"
+                      class="text-red-600 text-xs font-bold tracking-widest uppercase hover:underline"
+                      title="Eliminar definitivament"
+                    >
+                      🗑
+                    </button>
+                  </form>
                 </td>
               </tr>
             );
