@@ -11,6 +11,7 @@ import type { BookingStatus } from '~/lib/bookings/types';
 import { videos } from '~/data/videos';
 import { getBankTransferDetails, isStripeTestMode } from '~/lib/payments/config';
 import { listSchedulesForBooking, listSequences } from '~/lib/bookings/sequences';
+import { googleCalendarAddUrl } from '~/lib/bookings/gcal';
 
 const id = Astro.params.id!;
 const booking = await getBookingById(id);
@@ -31,6 +32,15 @@ const contratoUrl = `${siteUrl}/contrato/${booking.slug}`;
 const schedules = await listSchedulesForBooking(booking.id);
 const allSequences = await listSequences(true);
 const sequencesById = new Map(allSequences.map((s) => [s.id, s] as const));
+
+// Pre-filled Google Calendar "Add event" URL for this booking. Opens
+// the operator's calendar with title/location/details/dates ready —
+// just hits Save. Uses ceremony times from the form_response when known.
+const gcalUrl = googleCalendarAddUrl({
+  booking,
+  formResponse,
+  adminUrl: `${siteUrl}/admin/bookings/${booking.id}`,
+});
 
 const STATUS_LABEL: Record<BookingStatus, string> = {
   draft: 'Draft',
@@ -168,6 +178,15 @@ const ibanPlaceholder = transfer.isPlaceholder;
             </button>
           </form>
         )}
+        <a
+          href={gcalUrl}
+          target="_blank"
+          rel="noopener"
+          class="inline-flex items-center gap-1.5 border border-blue-300 text-blue-700 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-blue-50 transition-colors"
+          title="Afegir aquesta boda al teu Google Calendar amb totes les dades pre-omplertes"
+        >
+          📅 Google Calendar
+        </a>
         <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline" onsubmit="return confirm('⚠ ELIMINAR aquesta reserva DEFINITIVAMENT?\n\nNo es podrà recuperar. També s'esborraran les dades de la parella i el contracte.\n\nFes-ho servir només per netejar proves.')">
           <input type="hidden" name="_action" value="delete" />
           <button type="submit" class="border-2 border-red-600 text-red-600 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-red-600 hover:text-white transition-colors">
