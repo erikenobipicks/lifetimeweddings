@@ -7,6 +7,7 @@ import VideoCallCTA from '~/components/reserva/VideoCallCTA.astro';
 import { getQuoteByToken, recordView, verifyQuotePassword, getLeadByQuoteId } from '~/lib/quotes';
 import { PACKS, EXTRAS, getComposedSubpacks } from '~/data/packs';
 import { SHOWCASES } from '~/data/showcases';
+import { WEDDINGS } from '~/data/weddings';
 import { recommendShowcase } from '~/lib/matcher';
 import { SITE, waLink } from '~/data/site';
 import Icon from '~/components/Icon.astro';
@@ -77,17 +78,30 @@ if (quote && !quote.archived && !expired && !needsPassword) {
 
 const packs = quote ? PACKS.filter((p) => quote.packIds.includes(p.id)) : [];
 
-// Determine showcase from lead answers (if this quote came from the quiz)
+// Featured-photography resolution. Priority order:
+//   1. Real wedding override (quote.flagshipWeddingSlug) — most personal.
+//   2. Showcase override (quote.flagshipShowcaseSlug) — themed gallery.
+//   3. Lead-based recommendation (auto from quiz answers).
 let showcaseSlug: string | null = null;
+let weddingFeatured: typeof WEDDINGS[number] | null = null;
 if (quote && !quote.archived) {
-  const lead = await getLeadByQuoteId(quote.id);
-  if (lead?.ceremonyType && lead?.location) {
-    showcaseSlug = recommendShowcase({
-      location: lead.location,
-      ceremonyType: lead.ceremonyType,
-      serviceInterest: lead.serviceInterest ?? 'both',
-      budgetRange: lead.budgetRange ?? 'mid',
-    });
+  if (quote.flagshipWeddingSlug) {
+    weddingFeatured = WEDDINGS.find((w) => w.slug === quote.flagshipWeddingSlug) ?? null;
+  }
+  if (!weddingFeatured) {
+    if (quote.flagshipShowcaseSlug) {
+      showcaseSlug = quote.flagshipShowcaseSlug;
+    } else {
+      const lead = await getLeadByQuoteId(quote.id);
+      if (lead?.ceremonyType && lead?.location) {
+        showcaseSlug = recommendShowcase({
+          location: lead.location,
+          ceremonyType: lead.ceremonyType,
+          serviceInterest: lead.serviceInterest ?? 'both',
+          budgetRange: lead.budgetRange ?? 'mid',
+        });
+      }
+    }
   }
 }
 const showcase = showcaseSlug ? SHOWCASES.find((s) => s.slug === showcaseSlug) : null;
@@ -286,6 +300,25 @@ const flagshipVideo = overrideHit
           coupleName={flagshipVideo.coupleName}
           venue={flagshipVideo.venue}
         />
+
+        {/* Real-wedding override — takes priority over showcase. The
+            link points at /bodes/<slug> (Catalan default) so the couple
+            lands on the full case-study with all the photos. */}
+        {weddingFeatured && (
+          <Section>
+            <div class="max-w-2xl mx-auto text-center">
+              <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('quote.showcase.eyebrow')}</p>
+              <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">{weddingFeatured.couple}</h2>
+              <p class="text-ink/75 mb-6">{weddingFeatured.venue} · {weddingFeatured.location}</p>
+              <a
+                href={`${lang === 'ca' ? '' : `/${lang}`}/bodas/${weddingFeatured.slug}`}
+                class="inline-block border-2 border-ink bg-ink text-white px-8 py-3 text-xs font-bold tracking-[0.15em] uppercase hover:bg-gold hover:border-gold transition-colors"
+              >
+                {t('quote.showcase.cta')}
+              </a>
+            </div>
+          </Section>
+        )}
 
         {/* Showcase link */}
         {showcase && (

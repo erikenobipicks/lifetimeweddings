@@ -285,6 +285,11 @@ export async function initSchema() {
   // boots are idempotent.
   await ensureColumn('quotes', 'flagship_video_id', 'TEXT');
   await ensureColumn('bookings', 'flagship_video_id', 'TEXT');
+  // Featured-photography overrides on the quote, mirroring flagship_video_id.
+  // Either or both can be set; when both are empty the page falls back to
+  // the lead-based recommendation (no breaking change for existing rows).
+  await ensureColumn('quotes', 'flagship_showcase_slug', 'TEXT');
+  await ensureColumn('quotes', 'flagship_wedding_slug', 'TEXT');
   // Preferred language for the couple. Drives /p/<token> localisation and
   // is pre-filled on the lead row when contact/quiz tell us via `lang`.
   // Nullable — pre-existing rows default to 'ca' at read time in the

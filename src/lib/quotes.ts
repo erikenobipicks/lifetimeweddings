@@ -25,6 +25,14 @@ export interface Quote {
   /** Optional YouTube id (from src/data/videos.ts) to feature on the
    *  public /p/<token> page. null → hard-coded default fallback. */
   flagshipVideoId: string | null;
+  /** Optional Showcase slug (from src/data/showcases.ts) to feature on the
+   *  public /p/<token> page. When set, overrides the lead-based
+   *  recommendation. Null → fall back to the auto-pick from the lead. */
+  flagshipShowcaseSlug: string | null;
+  /** Optional Wedding slug (from src/data/weddings.ts) to feature a real
+   *  wedding's gallery on the public /p/<token> page. Takes priority over
+   *  showcase when both are set — a real wedding is more personal. */
+  flagshipWeddingSlug: string | null;
   /** Couple's preferred language. Drives the /p/<token> page locale.
    *  Pre-migration rows default to 'ca' via langOrDefault(). */
   preferredLanguage: Lang;
@@ -48,6 +56,8 @@ export interface CreateQuoteInput {
   expiresAt?: string; // ISO
   createdBy?: string;
   flagshipVideoId?: string;
+  flagshipShowcaseSlug?: string;
+  flagshipWeddingSlug?: string;
   /** Defaults to 'ca' when omitted. */
   preferredLanguage?: Lang;
 }
@@ -69,6 +79,8 @@ function rowToQuote(r: any): Quote {
     createdBy: r.created_by ?? null,
     archived: !!r.archived,
     flagshipVideoId: r.flagship_video_id ?? null,
+    flagshipShowcaseSlug: r.flagship_showcase_slug ? String(r.flagship_showcase_slug) : null,
+    flagshipWeddingSlug: r.flagship_wedding_slug ? String(r.flagship_wedding_slug) : null,
     preferredLanguage: langOrDefault(r.preferred_language),
   };
 }
@@ -79,8 +91,8 @@ export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
   const now = new Date().toISOString();
   const passwordHash = input.password ? await bcrypt.hash(input.password, 10) : null;
   await db.execute({
-    sql: `INSERT INTO quotes (token, couple_name, couple_email, packs_json, notes, password_hash, expires_at, created_at, created_by, flagship_video_id, preferred_language)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    sql: `INSERT INTO quotes (token, couple_name, couple_email, packs_json, notes, password_hash, expires_at, created_at, created_by, flagship_video_id, flagship_showcase_slug, flagship_wedding_slug, preferred_language)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       token,
       input.coupleName,
@@ -92,6 +104,8 @@ export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
       now,
       input.createdBy ?? null,
       input.flagshipVideoId ?? null,
+      input.flagshipShowcaseSlug ?? null,
+      input.flagshipWeddingSlug ?? null,
       input.preferredLanguage ?? 'ca',
     ],
   });
