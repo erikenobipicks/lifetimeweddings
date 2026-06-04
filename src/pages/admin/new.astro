@@ -3,7 +3,7 @@ import AdminLayout from '~/layouts/AdminLayout.astro';
 import { createQuote, getLeadById, linkLeadToQuote } from '~/lib/quotes';
 import { PACKS, EXTRAS, getComposedSubpacks } from '~/data/packs';
 import { recommendPacks } from '~/lib/matcher';
-import { videos } from '~/data/videos';
+import { publicVideos, fullVideos } from '~/data/videos';
 import { SHOWCASES } from '~/data/showcases';
 import { WEDDINGS } from '~/data/weddings';
 
@@ -268,11 +268,22 @@ const LABELS: Record<string, string> = {
           <select id="flagship_video_id" name="flagship_video_id"
                   class="w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
             <option value="">— Per defecte (Elena i Jordi) —</option>
-            {videos.map((v) => (
-              <option value={v.youtubeId}>{v.coupleName} · {v.venue}</option>
-            ))}
+            <optgroup label="Tràilers">
+              {publicVideos.map((v) => (
+                <option value={v.youtubeId}>{v.coupleName} · {v.venue}</option>
+              ))}
+            </optgroup>
+            {fullVideos.length > 0 && (
+              <optgroup label="Bodes senceres (ocultes a YouTube)">
+                {fullVideos.map((v) => (
+                  <option value={v.youtubeId}>
+                    {v.coupleName} · {v.venue}{v.adminNote ? ` · ${v.adminNote}` : ''}
+                  </option>
+                ))}
+              </optgroup>
+            )}
           </select>
-          <p class="text-[0.7rem] text-ink/50 mt-1">El vídeo que veurà la parella a la pàgina del pressupost. Si es deixa en blanc, surt el per defecte.</p>
+          <p class="text-[0.7rem] text-ink/50 mt-1">Els tràilers són curts; les bodes senceres són la versió completa que envies un cop la parella està enganxada (després d'una videocall, per exemple). En blanc → per defecte.</p>
         </div>
 
         <div class="md:col-span-2">

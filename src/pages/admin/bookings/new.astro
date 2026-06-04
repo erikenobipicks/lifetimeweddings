@@ -5,7 +5,7 @@
 // /api/admin/bookings/create which redirects either to the new detail page
 // or back here with ?error=... preserving values.
 import AdminLayout from '~/layouts/AdminLayout.astro';
-import { videos } from '~/data/videos';
+import { publicVideos, fullVideos } from '~/data/videos';
 import { PACKS, EXTRAS, getComposedSubpacks } from '~/data/packs';
 import type { Lang } from '~/i18n/ui';
 
@@ -312,11 +312,22 @@ const extrasCatalog = EXTRAS.map((x) => ({
           <span class="block text-[11px] text-ink/50 mb-1">opcional · si es deixa buit, s'usa el vídeo per defecte (Elena i Jordi)</span>
           <select name="flagshipVideoId" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
             <option value="">— Per defecte (Elena i Jordi) —</option>
-            {videos.map((vid) => (
-              <option value={vid.youtubeId} selected={v('flagshipVideoId') === vid.youtubeId}>
-                {vid.coupleName} · {vid.venue}
-              </option>
-            ))}
+            <optgroup label="Tràilers">
+              {publicVideos.map((vid) => (
+                <option value={vid.youtubeId} selected={v('flagshipVideoId') === vid.youtubeId}>
+                  {vid.coupleName} · {vid.venue}
+                </option>
+              ))}
+            </optgroup>
+            {fullVideos.length > 0 && (
+              <optgroup label="Bodes senceres (ocultes a YouTube)">
+                {fullVideos.map((vid) => (
+                  <option value={vid.youtubeId} selected={v('flagshipVideoId') === vid.youtubeId}>
+                    {vid.coupleName} · {vid.venue}{vid.adminNote ? ` · ${vid.adminNote}` : ''}
+                  </option>
+                ))}
+              </optgroup>
+            )}
           </select>
         </label>
       </div>

@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import VideosPage from '~/components/VideosPage.astro';
-import { videos, videoThumb, videoEmbed, videoWatch } from '~/data/videos';
+import { publicVideos, videoThumb, videoEmbed, videoWatch } from '~/data/videos';
 import { useTranslations } from '~/i18n/ui';
 import { SITE } from '~/data/site';
 import { breadcrumbJsonLd, ID } from '~/lib/seo';
@@ -10,8 +10,9 @@ const lang = 'ca' as const;
 const t = useTranslations(lang);
 
 // One VideoObject per trailer. Gives Google everything it needs to show
-// the clip enriched in search and in the Videos tab.
-const videoBlocks = videos.map((v) => ({
+// the clip enriched in search and in the Videos tab. Full wedding films
+// are unlisted on YouTube and intentionally excluded from this catalog.
+const videoBlocks = publicVideos.map((v) => ({
   '@context': 'https://schema.org',
   '@type': 'VideoObject',
   name: `Tràiler de boda · ${v.coupleName}`,
