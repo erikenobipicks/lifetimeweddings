@@ -4,6 +4,8 @@ import { createQuote, getLeadById, linkLeadToQuote } from '~/lib/quotes';
 import { PACKS, EXTRAS, getComposedSubpacks } from '~/data/packs';
 import { recommendPacks } from '~/lib/matcher';
 import { videos } from '~/data/videos';
+import { SHOWCASES } from '~/data/showcases';
+import { WEDDINGS } from '~/data/weddings';
 
 // Support ?lead=<id> deep-link from Telegram/email so the form comes
 // pre-filled with the lead's name/email and the recommended packs ticked.
@@ -23,6 +25,8 @@ if (Astro.request.method === 'POST') {
   const password = String(form.get('password') ?? '').trim();
   const expiresAt = String(form.get('expires_at') ?? '').trim();
   const flagshipVideoId = String(form.get('flagship_video_id') ?? '').trim();
+  const flagshipShowcaseSlug = String(form.get('flagship_showcase_slug') ?? '').trim();
+  const flagshipWeddingSlug = String(form.get('flagship_wedding_slug') ?? '').trim();
   const langRaw = String(form.get('preferred_language') ?? '').trim();
   const preferredLanguage: 'ca' | 'es' | 'en' =
     langRaw === 'es' || langRaw === 'en' ? langRaw : 'ca';
@@ -43,6 +47,8 @@ if (Astro.request.method === 'POST') {
       expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
       createdBy: Astro.locals.user,
       flagshipVideoId: flagshipVideoId || undefined,
+      flagshipShowcaseSlug: flagshipShowcaseSlug || undefined,
+      flagshipWeddingSlug: flagshipWeddingSlug || undefined,
       preferredLanguage,
     });
     if (postedLeadId) {
@@ -265,6 +271,30 @@ const LABELS: Record<string, string> = {
             ))}
           </select>
           <p class="text-[0.7rem] text-ink/50 mt-1">El vídeo que veurà la parella a la pàgina del pressupost. Si es deixa en blanc, surt el per defecte.</p>
+        </div>
+
+        <div class="md:col-span-2">
+          <label for="flagship_wedding_slug" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Galeria de fotos destacada — Boda real</label>
+          <select id="flagship_wedding_slug" name="flagship_wedding_slug"
+                  class="w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+            <option value="">— Cap (deixar automàtic) —</option>
+            {WEDDINGS.map((w) => (
+              <option value={w.slug}>{w.couple} · {w.venue} · {w.location}</option>
+            ))}
+          </select>
+          <p class="text-[0.7rem] text-ink/50 mt-1">Si tries una boda real, la parella la veurà com a referència al pressupost. Té prioritat sobre el showcase.</p>
+        </div>
+
+        <div class="md:col-span-2">
+          <label for="flagship_showcase_slug" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Galeria de fotos destacada — Showcase temàtic</label>
+          <select id="flagship_showcase_slug" name="flagship_showcase_slug"
+                  class="w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+            <option value="">— Cap (deixar automàtic) —</option>
+            {SHOWCASES.map((s) => (
+              <option value={s.slug}>{s.title.ca}</option>
+            ))}
+          </select>
+          <p class="text-[0.7rem] text-ink/50 mt-1">Alternativa al \"boda real\": un tipus de boda genèric. Si deixes les dues en blanc, es dedueix del lead (si n'hi ha).</p>
         </div>
       </div>
     </details>
