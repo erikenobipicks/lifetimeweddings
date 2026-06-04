@@ -389,6 +389,34 @@ const flagshipVideo = overrideHit
           </Section>
         )}
 
+        <!-- Value pillars: 3 columns answering the unspoken "why pay
+             this?" right before the closing visuals + CTA. Mirrors the
+             pitch already in the home page (documental, two-brother
+             crew, fast delivery) without repeating it verbatim. -->
+        <section class="px-6 md:px-12 py-16 md:py-20 bg-white">
+          <div class="max-w-5xl mx-auto">
+            <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3 text-center">
+              {t('quote.values.eyebrow')}
+            </p>
+            <h2 class="font-display text-2xl md:text-3xl font-bold text-center mb-12 max-w-2xl mx-auto">
+              {t('quote.values.heading')}
+            </h2>
+            <div class="grid sm:grid-cols-3 gap-8 md:gap-10">
+              {[1, 2, 3].map((n) => (
+                <div class="text-center sm:text-left">
+                  <p class="font-display text-2xl text-gold mb-3">{`0${n}`}</p>
+                  <h3 class="font-bold text-ink mb-2 leading-snug">
+                    {t(`quote.values.p${n}.title` as any)}
+                  </h3>
+                  <p class="text-sm text-ink/75 leading-relaxed">
+                    {t(`quote.values.p${n}.body` as any)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Triptych — three portraits side by side (kiss, ceremony smoke,
             bouquet+vintage car). Stacks vertically on mobile so each
             photo still gets its moment. Aspect 2/3 = the natural portrait
