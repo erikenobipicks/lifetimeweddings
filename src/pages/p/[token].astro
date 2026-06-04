@@ -4,12 +4,13 @@ import Section from '~/components/Section.astro';
 import QuoteTracker from '~/components/QuoteTracker.astro';
 import VideoEmbed from '~/components/reserva/VideoEmbed.astro';
 import VideoCallCTA from '~/components/reserva/VideoCallCTA.astro';
-import { getQuoteByToken, recordView, verifyQuotePassword, getLeadByQuoteId } from '~/lib/quotes';
-import { PACKS, EXTRAS, getComposedSubpacks } from '~/data/packs';
+import { getQuoteByToken, recordView, verifyQuotePassword, getLeadByQuoteId, getLatestQuoteResponse } from '~/lib/quotes';
+import { PACKS, getComposedSubpacks } from '~/data/packs';
 import { SHOWCASES } from '~/data/showcases';
 import { WEDDINGS } from '~/data/weddings';
 import { recommendShowcase } from '~/lib/matcher';
 import ExternalGalleryEmbed from '~/components/quote/ExternalGalleryEmbed.astro';
+import InteractiveConfigurator from '~/components/quote/InteractiveConfigurator.astro';
 import { SITE, waLink } from '~/data/site';
 import Icon from '~/components/Icon.astro';
 import { videos } from '~/data/videos';
@@ -78,6 +79,13 @@ if (quote && !quote.archived && !expired && !needsPassword) {
 }
 
 const packs = quote ? PACKS.filter((p) => quote.packIds.includes(p.id)) : [];
+
+// Latest interactive configurator submission, if any. Drives the
+// "we've already received your configuration" banner + pre-checks the
+// inputs to mirror what the couple last sent us.
+const latestResponse = quote && !quote.archived && !expired && !needsPassword
+  ? await getLatestQuoteResponse(quote.id)
+  : null;
 
 // Featured-photography resolution. Priority order:
 //   1. Real wedding override (quote.flagshipWeddingSlug) — most personal.
@@ -253,25 +261,18 @@ const flagshipVideo = overrideHit
           </div>
         </Section>
 
-        <!-- Optional extras catalog. Always rendered so couples have the
-             menu at hand without asking — they confirm by replying. -->
-        <Section>
-          <div class="max-w-3xl mx-auto">
-            <h2 class="font-display text-2xl md:text-3xl font-bold text-center mb-3">{t('quote.extras.heading')}</h2>
-            <p class="text-center text-ink/70 mb-8 max-w-xl mx-auto">{t('quote.extras.body')}</p>
-            <ul class="divide-y divide-black/10 border border-black/10 bg-white">
-              {EXTRAS.map((x) => (
-                <li class="flex items-start justify-between gap-4 px-5 py-4">
-                  <div class="flex-1">
-                    <p class="font-bold text-ink">{x.name[lang]}</p>
-                    {x.note && <p class="text-xs text-ink/60 mt-1">{x.note[lang]}</p>}
-                  </div>
-                  <p class="font-display font-bold text-gold whitespace-nowrap">{x.price}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Section>
+        <!-- Interactive configurator. Replaces the static extras catalog:
+             same info (packs + combos + extras) but the couple can tick
+             what they want, see the total update live, and send their
+             configuration back to us. -->
+        <InteractiveConfigurator
+          lang={lang}
+          token={quote.token}
+          initialPackIds={quote.packIds}
+          lastResponse={latestResponse}
+          adminDiscountCents={quote.adminDiscountCents}
+          closedAt={quote.closedAt}
+        />
 
         <!-- FAQ. Mirrors the two FAQ pages in the tarifes PDF so couples get
              the most common answers without having to ask us by email. -->

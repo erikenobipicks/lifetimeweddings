@@ -274,6 +274,26 @@ export async function initSchema() {
         user_agent TEXT
       )`,
       `CREATE INDEX IF NOT EXISTS idx_form_submissions_booking ON form_submissions(booking_id, form_kind)`,
+
+      // ── Interactive quote configurator (couple-side responses) ─────────
+      // Each row captures one snapshot of what the couple selected on the
+      // public /p/<token> page when they hit "Enviar la meva configuració".
+      // We keep a history (no UPDATE) so Eric can see how the couple's
+      // thinking evolved. The latest row is what matters for the admin
+      // review panel; older rows are reference.
+      `CREATE TABLE IF NOT EXISTS quote_responses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        quote_id INTEGER NOT NULL REFERENCES quotes(id) ON DELETE CASCADE,
+        pack_ids_json TEXT NOT NULL,
+        extra_ids_json TEXT NOT NULL,
+        message TEXT,
+        total_cents INTEGER NOT NULL,
+        ip_address TEXT,
+        user_agent TEXT,
+        created_at TEXT NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_quote_responses_quote
+         ON quote_responses(quote_id, created_at DESC)`,
     ],
     'write',
   );
@@ -295,6 +315,15 @@ export async function initSchema() {
   // to be embedded (X-Frame-Options/CSP), the client script falls back
   // to a "open in new tab" button automatically.
   await ensureColumn('quotes', 'flagship_external_gallery_url', 'TEXT');
+  // ── Interactive quote configurator (admin side) ─────────────────────
+  // Eric can grant an ad-hoc discount when the couple returns their
+  // configuration (e.g. referral gift, friends-and-family). Cents +
+  // human-readable reason. Both nullable so existing quotes don't change.
+  await ensureColumn('quotes', 'admin_discount_cents', 'INTEGER');
+  await ensureColumn('quotes', 'admin_discount_reason', 'TEXT');
+  // When set, the couple can still view the quote but cannot submit
+  // further configurations. Eric closes the quote once they've agreed.
+  await ensureColumn('quotes', 'quote_closed_at', 'TEXT');
   // Preferred language for the couple. Drives /p/<token> localisation and
   // is pre-filled on the lead row when contact/quiz tell us via `lang`.
   // Nullable — pre-existing rows default to 'ca' at read time in the
