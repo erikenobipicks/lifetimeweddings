@@ -1,0 +1,530 @@
+---
+// One-pager d'embut de vendes per a Facebook / Instagram Ads.
+//
+// Objectiu únic: que la parella ompli el formulari de contacte (#contacte).
+// Una sola CTA ("Demana disponibilitat") repetida al llarg de la pàgina +
+// una CTA sticky a baix al mòbil. Sense menú de navegació: la pàgina es
+// renderitza amb `chromeless` (cap Header/Footer) des de la pàgina pare.
+//
+// El formulari replica el de /contacto (mateixos camps, validació i destí):
+// POST JSON a /api/contact → es desa el lead, s'avisa per email + Telegram,
+// auto-resposta i push al CRM Fotostudio. A més, en enviar-se correctament
+// dispara l'esdeveniment Meta Pixel `Lead` (si el pixel està configurat).
+//
+// Imatges: fotos REALS de Lifetime (public/photos/generic). Vídeo: tràiler
+// públic de YouTube carregat amb una "facade" lleugera (només al clic) per
+// no penalitzar la velocitat de càrrega — el gruix del trànsit ve de mòbil.
+
+import { SITE, waLink } from '~/data/site';
+import { publicVideos, videoThumb, videoThumbFallback, videoEmbed } from '~/data/videos';
+
+// Turnstile (anti-bot). Si no està configurat, el widget se salta i el
+// servidor també — el formulari segueix funcionant en dev/staging.
+const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
+
+// Foto del hero i galeria — índexs reals de /photos/generic/*.webp (001–033).
+const PAD = (n: number) => String(n).padStart(3, '0');
+const heroN = 5;
+const gallery = [2, 9, 14, 18, 21, 24, 28, 31];
+// srcset webp (sm 640 · md 1024 · lg 1600 aprox.) per a càrrega adaptativa.
+const srcset = (n: number) =>
+  `/photos/generic/${PAD(n)}-sm.webp 640w, /photos/generic/${PAD(n)}-md.webp 1024w, /photos/generic/${PAD(n)}-lg.webp 1600w`;
+
+// Vídeo destacat: primer tràiler públic del catàleg.
+const film = publicVideos[0];
+
+const waHref = waLink(
+  'Hola! Venim de l’anunci i voldríem saber si teniu la nostra data lliure per a la boda 💍',
+);
+
+const steps = [
+  {
+    n: '01',
+    title: 'Ens escrius',
+    body: 'Omples el formulari amb la data (encara que sigui aproximada) i el lloc. Et responem en menys de 24 h.',
+  },
+  {
+    n: '02',
+    title: 'Ens coneixem',
+    body: 'Una trobada o videotrucada sense compromís. Ens expliques com us imagineu el dia i t’ensenyem feina real.',
+  },
+  {
+    n: '03',
+    title: 'Reserveu la data',
+    body: 'Si encaixem, bloquegem el vostre dia. A partir d’aquí, ja us podeu oblidar de la part de les fotos i el vídeo.',
+  },
+];
+
+const faqs = [
+  {
+    q: 'Quant costa?',
+    a: 'Depèn d’on us caseu, quantes hores voleu cobertura i si voleu foto, vídeo o tots dos. Escriu-nos amb la data i el lloc i t’enviem un pressupost clar, sense lletra petita.',
+  },
+  {
+    q: 'Feu foto i vídeo alhora?',
+    a: 'Sí, i és on brillem. Som dos germans: un a la foto i l’altre al vídeo. Un sol equip, coordinat, que no us fa repetir res ni es trepitja. El resultat és coherent perquè el pensem junts.',
+  },
+  {
+    q: 'On treballeu?',
+    a: 'Som de Reus (Tarragona) i ens movem per tot Tarragona, Lleida i Barcelona. Si us caseu en un altre lloc, pregunta-ho: viatgem.',
+  },
+  {
+    q: 'Quan rebem les fotos i el vídeo?',
+    a: 'La galeria de fotos editades en 3–4 setmanes. El vídeo una mica més, perquè el muntem amb calma per fer-lo bé.',
+  },
+  {
+    q: 'I si encara no tenim tots els detalls tancats?',
+    a: 'No passa res. El primer pas és només veure si la data és lliure. La resta ho concretem parlant.',
+  },
+];
+---
+
+<!-- ───────────────────────── HERO ───────────────────────── -->
+<section class="relative min-h-[88vh] md:min-h-[90vh] flex items-center justify-center px-6 overflow-hidden">
+  <img
+    src={`/photos/generic/${PAD(heroN)}-lg.webp`}
+    srcset={srcset(heroN)}
+    sizes="100vw"
+    alt="Parella el dia de la seva boda fotografiada per Lifetime Weddings"
+    class="absolute inset-0 w-full h-full object-cover"
+    loading="eager"
+    fetchpriority="high"
+    decoding="async"
+    width="1600"
+    height="1067"
+  />
+  <div class="absolute inset-0 bg-ink/55"></div>
+  <div class="relative max-w-3xl mx-auto text-center text-white pt-24 pb-20">
+    <p class="text-xs font-bold tracking-[0.24em] uppercase text-gold mb-5">
+      Fotografia i vídeo de boda · Tarragona
+    </p>
+    <h1 class="font-display text-4xl md:text-6xl font-bold leading-[1.08] mb-6">
+      El vostre dia passarà volant.<br />Nosaltres el guardem perquè el pugueu reviure.
+    </h1>
+    <p class="text-white/85 text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
+      Fotos i vídeo de boda amb mirada d’autor, gens del reportatge típic. D’aquí 20 anys,
+      tornareu a sentir el dia — no a mirar fotos genèriques.
+    </p>
+    <div class="mt-9 flex flex-col sm:flex-row gap-3 justify-center items-center">
+      <a
+        href="#contacte"
+        data-cta
+        class="inline-block bg-gold text-white px-10 py-4 text-xs font-bold tracking-[0.18em] uppercase hover:brightness-110 transition"
+      >
+        Demana disponibilitat
+      </a>
+      <a
+        href={waHref}
+        target="_blank"
+        rel="noopener"
+        class="inline-block border border-white/70 text-white px-8 py-4 text-xs font-bold tracking-[0.18em] uppercase hover:bg-white hover:text-ink transition-colors"
+      >
+        Escriu-nos pel WhatsApp
+      </a>
+    </div>
+    <p class="text-white/60 text-xs mt-5">Et responem en menys de 24 h · Sense compromís</p>
+  </div>
+</section>
+
+<!-- ──────────────────── PROVA SOCIAL RÀPIDA ──────────────── -->
+<section aria-label="Confiança" class="bg-cream border-b border-black/5">
+  <div class="max-w-5xl mx-auto px-6 py-5">
+    <ul class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 md:gap-x-10 text-[0.65rem] md:text-[0.75rem] font-bold tracking-[0.16em] uppercase text-ink/70">
+      <li>+150 bodes</li>
+      <li class="text-gold/60" aria-hidden="true">·</li>
+      <li>5★ a Google</li>
+      <li class="text-gold/60" aria-hidden="true">·</li>
+      <li>Tarragona · Lleida · Barcelona</li>
+      <li class="text-gold/60" aria-hidden="true">·</li>
+      <li>Entrega en 3–4 setmanes</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ─────────────────── EL QUE SENT LA PARELLA ────────────── -->
+<section class="bg-white">
+  <div class="max-w-2xl mx-auto px-6 py-16 md:py-24 text-center">
+    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-4">Ho entenem</p>
+    <h2 class="font-display text-3xl md:text-4xl font-bold mb-8 leading-tight">
+      La por de tota parella: que el dia passi i no quedi ben recollit.
+    </h2>
+    <div class="text-ink/80 text-lg leading-relaxed space-y-4 text-left">
+      <p>
+        Que us caseu, sigui tot un no parar, i quan voleu adonar-vos-en ja s’ha acabat. Que els
+        nervis no us deixin gaudir-lo. Que les fotos us quedin… correctes, però fredes. De catàleg.
+      </p>
+      <p>
+        I que el dia que les vulgueu ensenyar als vostres fills, no hi reconegueu ni l’emoció ni a
+        vosaltres mateixos.
+      </p>
+      <p class="font-display italic text-ink text-xl">
+        Per això existim. Perquè el vostre dia és irrepetible, i mereix unes imatges que ho semblin.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────────── COM HO FEM NOSALTRES ─────────────── -->
+<section class="bg-ink text-white">
+  <div class="max-w-5xl mx-auto px-6 py-16 md:py-24">
+    <div class="max-w-2xl">
+      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-4">El nostre estil</p>
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-6 leading-tight">
+        Som dos germans amb una mirada pròpia: el Ferran i l’Eric.
+      </h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-8 md:gap-10 mt-10 text-white/80 leading-relaxed">
+      <div>
+        <h3 class="font-display text-xl text-white mb-2">Estil editorial, no de catàleg</h3>
+        <p>
+          Llum, composició i moments de veritat. Imatges que semblen tretes d’una revista, però amb
+          la vostra història a dins.
+        </p>
+      </div>
+      <div>
+        <h3 class="font-display text-xl text-white mb-2">No us fem posar</h3>
+        <p>
+          Treballem amb naturalitat, respectant el ritme del dia. Us oblidareu que hi som — i això es
+          nota a les fotos.
+        </p>
+      </div>
+      <div>
+        <h3 class="font-display text-xl text-white mb-2">Foto i vídeo, un sol equip</h3>
+        <p>
+          Un germà a la foto, l’altre al vídeo. Coordinats, sense trepitjar-nos i sense fer-vos
+          repetir res. Resultat coherent.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────── COM FUNCIONA ──────────────────── -->
+<section class="bg-cream">
+  <div class="max-w-4xl mx-auto px-6 py-16 md:py-24">
+    <h2 class="font-display text-3xl md:text-4xl font-bold text-center mb-12">Com funciona</h2>
+    <div class="grid md:grid-cols-3 gap-8">
+      {steps.map((s) => (
+        <div class="text-center md:text-left">
+          <span class="font-display text-5xl text-gold/50 leading-none">{s.n}</span>
+          <h3 class="font-display text-xl font-bold mt-3 mb-2">{s.title}</h3>
+          <p class="text-ink/75 leading-relaxed">{s.body}</p>
+        </div>
+      ))}
+    </div>
+    <div class="text-center mt-12">
+      <a
+        href="#contacte"
+        data-cta
+        class="inline-block bg-ink text-white px-10 py-4 text-xs font-bold tracking-[0.18em] uppercase hover:bg-gold transition-colors"
+      >
+        Demana disponibilitat
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────── GALERIA + VÍDEO ─────────────────── -->
+<section class="bg-white">
+  <div class="max-w-6xl mx-auto px-6 py-16 md:py-24">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-4">Feina real</p>
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-4">Mira-ho tu mateix</h2>
+      <p class="text-ink/75 leading-relaxed">
+        Res de dir-vos que som bons. Preferim que ho vegeu. Aquestes són bodes de veritat.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+      {gallery.map((n, i) => (
+        <img
+          src={`/photos/generic/${PAD(n)}-md.webp`}
+          srcset={srcset(n)}
+          sizes="(min-width: 768px) 25vw, 50vw"
+          alt={`Boda fotografiada per Lifetime Weddings · ${i + 1}`}
+          loading="lazy"
+          decoding="async"
+          width={i % 3 === 1 ? 900 : 1200}
+          height={i % 3 === 1 ? 1200 : 900}
+          class={`w-full object-cover ${i % 3 === 1 ? 'aspect-[3/4]' : 'aspect-[4/3]'}`}
+        />
+      ))}
+    </div>
+
+    {film && (
+      <div class="mt-10 md:mt-14 max-w-4xl mx-auto">
+        <p class="text-center text-xs font-bold tracking-[0.22em] uppercase text-gold mb-5">
+          El vídeo, com una pel·lícula
+        </p>
+        {/* Facade lleugera: només es carrega l'iframe de YouTube en fer clic. */}
+        <button
+          type="button"
+          data-video-facade
+          data-embed={videoEmbed(film.youtubeId)}
+          class="group relative block w-full aspect-video overflow-hidden bg-ink"
+          aria-label={`Reproduir el vídeo de la boda de ${film.coupleName}`}
+        >
+          <img
+            src={videoThumb(film.youtubeId)}
+            onerror={`this.onerror=null;this.src='${videoThumbFallback(film.youtubeId)}'`}
+            alt={`Tràiler de la boda de ${film.coupleName}`}
+            loading="lazy"
+            decoding="async"
+            width="1280"
+            height="720"
+            class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition"
+          />
+          <span class="absolute inset-0 flex items-center justify-center">
+            <span class="flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/90 group-hover:bg-white transition">
+              <svg viewBox="0 0 24 24" class="w-7 h-7 md:w-8 md:h-8 text-ink ml-1" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+            </span>
+          </span>
+          <span class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-ink/80 to-transparent p-4 text-left text-white text-sm">
+            {film.coupleName} · {film.venue}
+          </span>
+        </button>
+      </div>
+    )}
+  </div>
+</section>
+
+<!-- ───────────────────────── TESTIMONIS ──────────────────── -->
+<section class="bg-cream">
+  <div class="max-w-5xl mx-auto px-6 py-16 md:py-24">
+    <h2 class="font-display text-3xl md:text-4xl font-bold text-center mb-12">El que diuen les parelles</h2>
+    <div class="grid md:grid-cols-3 gap-6 md:gap-8">
+      <blockquote class="bg-white p-7 leading-relaxed text-ink/85">
+        <p class="font-display italic text-lg mb-4">“El vídeo ha estat espectacular, com una pel·lícula. Si algun dia necessitem fotògraf o videògraf, repetim!”</p>
+        <footer class="text-xs font-bold tracking-[0.2em] uppercase text-ink">Laura &amp; Joel</footer>
+      </blockquote>
+      <blockquote class="bg-white p-7 leading-relaxed text-ink/85">
+        <p class="font-display italic text-lg mb-4">“Creatius, professionals i ràpids. Saben plasmar a la perfecció el que volíem. El dia B… increïble, sense paraules.”</p>
+        <footer class="text-xs font-bold tracking-[0.2em] uppercase text-ink">Jose &amp; Jordina</footer>
+      </blockquote>
+      <blockquote class="bg-white p-7 leading-relaxed text-ink/85">
+        <p class="font-display italic text-lg mb-4">“Va capturar cada moment amb una sensibilitat i un estil preciosos. Ens va fer sentir molt còmodes. Un autèntic plaer.”</p>
+        <footer class="text-xs font-bold tracking-[0.2em] uppercase text-ink">Luis &amp; Craig</footer>
+      </blockquote>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────────── CTA AMB URGÈNCIA ─────────────────── -->
+<section class="bg-ink text-white">
+  <div class="max-w-2xl mx-auto px-6 py-16 md:py-20 text-center">
+    <h2 class="font-display text-3xl md:text-4xl font-bold mb-5 leading-tight">
+      Cada temporada només agafem un nombre limitat de bodes.
+    </h2>
+    <p class="text-white/80 leading-relaxed mb-8">
+      Treballem amb calma, per fer-ho bé. Les dates de cap de setmana volen, sobretot de maig a
+      octubre. Si teniu data, val la pena comprovar-ho aviat.
+    </p>
+    <a
+      href="#contacte"
+      data-cta
+      class="inline-block bg-gold text-white px-10 py-4 text-xs font-bold tracking-[0.18em] uppercase hover:brightness-110 transition"
+    >
+      Comprova si la teva data és lliure
+    </a>
+  </div>
+</section>
+
+<!-- ───────────────────────────  FAQ  ─────────────────────── -->
+<section class="bg-white">
+  <div class="max-w-2xl mx-auto px-6 py-16 md:py-24">
+    <h2 class="font-display text-3xl md:text-4xl font-bold text-center mb-10">Dubtes habituals</h2>
+    <div class="divide-y divide-black/10">
+      {faqs.map((f) => (
+        <details class="group py-5">
+          <summary class="flex items-center justify-between cursor-pointer list-none font-display text-lg font-bold">
+            {f.q}
+            <svg viewBox="0 0 24 24" class="w-5 h-5 text-gold shrink-0 transition-transform group-open:rotate-45" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </summary>
+          <p class="text-ink/75 leading-relaxed mt-3">{f.a}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── CTA FINAL + FORMULARI + UBICACIÓ ──────── -->
+<section id="contacte" class="bg-cream scroll-mt-4">
+  <div class="max-w-xl mx-auto px-6 py-16 md:py-24">
+    <div class="text-center mb-10">
+      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">Parlem de la vostra boda</p>
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-4">Demana disponibilitat</h2>
+      <p class="text-ink/75 leading-relaxed">
+        Digues-nos la data (encara que sigui aproximada) i el lloc. Et responem en menys de 24 h,
+        sense compromís.
+      </p>
+    </div>
+
+    <form class="grid gap-5 text-left" data-ads-form action="/api/contact" method="POST" novalidate>
+      <input type="hidden" name="_language" value="ca" />
+      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+
+      <div>
+        <label for="name" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">Nom *</label>
+        <input id="name" name="name" type="text" required autocomplete="name"
+               class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors" />
+      </div>
+
+      <div>
+        <label for="email" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">Correu electrònic *</label>
+        <input id="email" name="email" type="email" required autocomplete="email"
+               class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors" />
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-5">
+        <div>
+          <label for="wedding_date" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">Data de la boda</label>
+          <input id="wedding_date" name="wedding_date" type="text" placeholder="Aproximada (mes i any, o estació)"
+                 class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors" />
+        </div>
+        <div>
+          <label for="venue" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">Lloc de la celebració</label>
+          <input id="venue" name="venue" type="text"
+                 class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors" />
+        </div>
+      </div>
+
+      <div>
+        <label for="message" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">Expliqueu-nos (opcional)</label>
+        <textarea id="message" name="message" rows="3" placeholder="Estil, hora de la cerimònia, si voleu foto, vídeo o tots dos…"
+                  class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none transition-colors resize-y"></textarea>
+      </div>
+
+      <label class="flex items-start gap-2 text-sm text-ink/75">
+        <input type="checkbox" name="consent" required class="mt-1 accent-gold" />
+        <span>Accepto la <a href="/privacidad" target="_blank" rel="noopener" class="underline hover:text-gold">política de privacitat</a>.</span>
+      </label>
+
+      {turnstileSitekey && (
+        <div class="cf-turnstile flex justify-center" data-sitekey={turnstileSitekey} data-theme="light" data-size="flexible"></div>
+      )}
+
+      <div class="flex flex-col items-center gap-3">
+        <button
+          type="submit"
+          class="w-full sm:w-auto bg-gold text-white px-14 py-4 text-xs font-bold tracking-[0.18em] uppercase hover:brightness-110 transition disabled:opacity-60"
+        >
+          Demana disponibilitat
+        </button>
+        <p class="text-xs text-ink/60">Et responem en menys de 24 h (de dilluns a divendres).</p>
+      </div>
+
+      <p class="hidden text-center font-display italic text-gold text-lg" data-ads-success>
+        Rebut! Moltes gràcies per escriure’ns. Et responem molt aviat 💛
+      </p>
+      <p class="hidden text-center text-red-600" data-ads-error>
+        Hi ha hagut un error en enviar. Torna-ho a provar o escriu-nos a hola@lifetime.photo
+      </p>
+    </form>
+
+    <!-- Ubicació / contacte -->
+    <div class="mt-12 pt-8 border-t border-black/10 text-center text-sm text-ink/70 leading-relaxed">
+      <p class="font-bold text-ink">Lifetime Weddings — Ferran &amp; Eric</p>
+      <p>{SITE.address.city} ({SITE.address.region}) · Ens movem per tot Tarragona, Lleida i Barcelona</p>
+      <p class="mt-2">
+        <a href={`mailto:${SITE.email}`} class="underline hover:text-gold">{SITE.email}</a>
+        <span class="mx-2 text-gold/60" aria-hidden="true">·</span>
+        <a href={waHref} target="_blank" rel="noopener" class="underline hover:text-gold">WhatsApp {SITE.phoneDisplay}</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────── CTA STICKY (només mòbil) ─────────────── -->
+<div class="md:hidden fixed bottom-0 inset-x-0 z-40 p-3 bg-white/95 backdrop-blur border-t border-black/10" data-sticky-cta>
+  <a
+    href="#contacte"
+    data-cta
+    class="block text-center bg-gold text-white py-3.5 text-xs font-bold tracking-[0.18em] uppercase"
+  >
+    Demana disponibilitat
+  </a>
+</div>
+<!-- Espai perquè la barra sticky no tapi el final de la pàgina al mòbil -->
+<div class="md:hidden h-20" aria-hidden="true"></div>
+
+{turnstileSitekey && (
+  <script is:inline async defer src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
+)}
+
+<script>
+  // ── Vídeo facade: carrega l'iframe de YouTube només en fer clic ──
+  document.querySelectorAll<HTMLButtonElement>('[data-video-facade]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const embed = btn.getAttribute('data-embed');
+      if (!embed) return;
+      const iframe = document.createElement('iframe');
+      iframe.src = embed;
+      iframe.title = 'Vídeo de boda · Lifetime Weddings';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      iframe.className = 'absolute inset-0 w-full h-full';
+      btn.replaceWith(iframe);
+    });
+  });
+
+  // ── Amaga la CTA sticky quan el formulari és visible (ja hi és) ──
+  const sticky = document.querySelector<HTMLElement>('[data-sticky-cta]');
+  const contact = document.getElementById('contacte');
+  if (sticky && contact && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver(
+      ([e]) => sticky.classList.toggle('translate-y-full', e.isIntersecting),
+      { threshold: 0.15 },
+    );
+    sticky.classList.add('transition-transform');
+    io.observe(contact);
+  }
+
+  // ── Enviament del formulari (replica /contacto) + Meta Pixel Lead ──
+  const form = document.querySelector<HTMLFormElement>('[data-ads-form]');
+  const ok = document.querySelector<HTMLElement>('[data-ads-success]');
+  const err = document.querySelector<HTMLElement>('[data-ads-error]');
+  const submitBtn = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    ok?.classList.add('hidden');
+    err?.classList.add('hidden');
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      // JSON, no multipart (Astro security.checkOrigin rebutja multipart
+      // darrere de Cloudflare/Railway). Mateix contracte que /contacto.
+      const payload: Record<string, string> = {};
+      for (const [k, v] of new FormData(form).entries()) payload[k] = String(v);
+
+      const tkInput = form.querySelector<HTMLInputElement>('input[name="cf-turnstile-response"]');
+      if (tkInput?.value) payload.captchaToken = tkInput.value;
+      delete payload['cf-turnstile-response'];
+
+      const res = await fetch(form.action, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const detail = await res.text().catch(() => '');
+        throw new Error('HTTP ' + res.status + (detail ? ' ' + detail : ''));
+      }
+
+      // Conversió: dispara l'esdeveniment Lead del Meta Pixel si està carregat
+      // (només quan el visitant ha acceptat cookies — consent-aware).
+      if (typeof (window as any).fbq === 'function') {
+        (window as any).fbq('track', 'Lead', { content_name: 'bodadslifetime' });
+      }
+
+      ok?.classList.remove('hidden');
+      ok?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      form.reset();
+    } catch (error) {
+      console.error('[bodadslifetime] submit failed', error);
+      err?.classList.remove('hidden');
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+</script>

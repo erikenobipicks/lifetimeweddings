@@ -1,0 +1,73 @@
+---
+// Landing d'embut de vendes per a Facebook / Instagram Ads.
+//
+// `chromeless` → sense Header/Footer (cap menú de navegació; embut pur).
+// `noindex`    → no l'indexem (és una pàgina de campanya, no de SEO). Ja queda
+//                 fora del sitemap (astro.config filtra; a més, BaseLayout
+//                 emet <meta name="robots" content="noindex">).
+//
+// Meta Pixel: consent-aware, igual que GA4 a BaseLayout. Només carrega quan el
+// visitant accepta cookies via CookieBanner (mateixa clau de localStorage), i
+// el `Lead` el dispara el formulari de <BodaAdsLanding> en enviar-se bé.
+// Com que `chromeless` amaga el CookieBanner global, aquí el renderitzem
+// explícitament perquè el consentiment funcioni en aquesta pàgina.
+
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import BodaAdsLanding from '~/components/BodaAdsLanding.astro';
+import CookieBanner from '~/components/CookieBanner.astro';
+
+const pixelId = import.meta.env.PUBLIC_META_PIXEL_ID ?? '';
+---
+
+<BaseLayout
+  lang="ca"
+  title="Fotografia i vídeo de boda a Tarragona · Lifetime Weddings"
+  description="Fotos i vídeo de boda amb mirada d'autor a Tarragona, Lleida i Barcelona. Demana disponibilitat per a la teva data — et responem en menys de 24 h."
+  canonicalPath="/bodadslifetime"
+  noindex
+  chromeless
+>
+  <BodaAdsLanding />
+  <CookieBanner lang="ca" />
+</BaseLayout>
+
+{/* Meta Pixel — consent-aware. Carrega fbq i fa init + PageView només quan
+    el visitant ha acceptat cookies. El `Lead` el dispara el formulari. */}
+{pixelId && (
+  <script is:inline define:vars={{ pixelId }}>
+    (function () {
+      var KEY = 'lifetime.cookies.v1';
+      var loaded = false;
+      function loadPixel() {
+        if (loaded) return;
+        loaded = true;
+        /* Snippet base estàndard de Meta Pixel */
+        !(function (f, b, e, v, n, t, s) {
+          if (f.fbq) return;
+          n = f.fbq = function () {
+            n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+          };
+          if (!f._fbq) f._fbq = n;
+          n.push = n;
+          n.loaded = !0;
+          n.version = '2.0';
+          n.queue = [];
+          t = b.createElement(e);
+          t.async = !0;
+          t.src = v;
+          s = b.getElementsByTagName(e)[0];
+          s.parentNode.insertBefore(t, s);
+        })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+        window.fbq('init', pixelId);
+        window.fbq('track', 'PageView');
+      }
+      try {
+        var stored = JSON.parse(localStorage.getItem(KEY) || '{}');
+        if (stored.choice === 'accept') loadPixel();
+      } catch (e) {}
+      document.addEventListener('consent:change', function (e) {
+        if (e.detail && e.detail.choice === 'accept') loadPixel();
+      });
+    })();
+  </script>
+)}
