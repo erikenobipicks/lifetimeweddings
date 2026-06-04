@@ -6,6 +6,7 @@ import { recommendPacks } from '~/lib/matcher';
 import { publicVideos, fullVideos } from '~/data/videos';
 import { SHOWCASES } from '~/data/showcases';
 import { WEDDINGS } from '~/data/weddings';
+import { externalGalleries } from '~/data/external-galleries';
 
 // Support ?lead=<id> deep-link from Telegram/email so the form comes
 // pre-filled with the lead's name/email and the recommended packs ticked.
@@ -311,7 +312,21 @@ const LABELS: Record<string, string> = {
         </div>
 
         <div class="md:col-span-2">
-          <label for="flagship_external_gallery_url" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Galeria externa (URL)</label>
+          <label for="flagship_external_gallery_url" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Galeria externa</label>
+          {externalGalleries.length > 0 && (
+            <select
+              id="flagship_external_gallery_picker"
+              data-gallery-picker
+              class="w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none mb-2"
+            >
+              <option value="">— Trieu una galeria del catàleg, o enganxeu URL a sota —</option>
+              {externalGalleries.map((g) => (
+                <option value={g.url}>
+                  {g.coupleName} · {g.venue}{g.adminNote ? ` · ${g.adminNote}` : ''}
+                </option>
+              ))}
+            </select>
+          )}
           <input id="flagship_external_gallery_url" name="flagship_external_gallery_url" type="url"
                  placeholder="https://gallery.fotostudio.io/objectiu-fotografs/..."
                  class="w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
@@ -340,4 +355,15 @@ const LABELS: Record<string, string> = {
       }
     });
   });
+
+  // External-gallery picker → URL input. The hidden source of truth is the
+  // URL input (what the server reads); the picker is just a shortcut that
+  // pastes the catalogue URL when selected. Manual URLs still work.
+  const galleryPicker = document.querySelector<HTMLSelectElement>('[data-gallery-picker]');
+  const galleryUrl = document.querySelector<HTMLInputElement>('#flagship_external_gallery_url');
+  if (galleryPicker && galleryUrl) {
+    galleryPicker.addEventListener('change', () => {
+      if (galleryPicker.value) galleryUrl.value = galleryPicker.value;
+    });
+  }
 </script>
