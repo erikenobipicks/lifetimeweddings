@@ -22,7 +22,7 @@ import { SITE, WHATSAPP_BASE } from '~/data/site';
 import { resend, sendTelegramNotification } from '~/lib/email';
 import type { Booking, BookingFormResponse, Lang } from './types';
 import { formatPrice, formatExpiresShort, formatWeddingDateLong } from './format';
-import { getBankTransferDetails, transferReferenceFor } from '~/lib/payments/config';
+import { getBankTransferDetails, transferReferenceFor, isStripeEnabled } from '~/lib/payments/config';
 
 const FROM_HELLO = process.env.EMAIL_FROM_HELLO ?? 'Lifetime Weddings <hola@lifetime.photo>';
 const FROM_NOTIFY = process.env.EMAIL_FROM ?? 'Lifetime Weddings <notifications@lifetime.photo>';
@@ -43,7 +43,7 @@ interface CoupleEmail {
   signoff: string;
 }
 
-function coupleCopy(booking: Booking): CoupleEmail {
+function coupleCopy(booking: Booking, cardAvailable: boolean): CoupleEmail {
   const lang: Lang = booking.preferredLanguage;
   const n1 = booking.coupleName1;
   const n2 = booking.coupleName2;
@@ -51,13 +51,21 @@ function coupleCopy(booking: Booking): CoupleEmail {
   const venue = booking.venueName;
   const deposit = formatPrice(booking.depositCents, lang);
 
+  // The "how to pay" sentence in the email — adapts to whether Stripe is
+  // wired in this deploy so we don't promise card and then fail to deliver.
+  const payChannels = {
+    ca: cardAvailable ? 'per transferència o amb targeta' : 'per transferència bancària',
+    es: cardAvailable ? 'por transferencia o con tarjeta' : 'por transferencia bancaria',
+    en: cardAvailable ? 'by bank transfer or card' : 'by bank transfer',
+  } as const;
+
   if (lang === 'es') {
     return {
       subject: `¡Qué ilusión, ${n1}! Ya tenemos vuestros datos`,
       greeting: `Hola ${n1} y ${n2},`,
       acknowledgment: `¡Qué alegría teneros a bordo! Ya hemos recibido todos vuestros datos para la boda del ${dateLong} en ${venue}, y estamos deseando formar parte de ese día.`,
       nextSteps: [
-        `Para reservar la fecha en exclusiva solo falta el depósito de ${deposit}. Podéis hacerlo ahora mismo por transferencia o con tarjeta — aquí abajo tenéis todos los datos.`,
+        `Para reservar la fecha en exclusiva solo falta el depósito de ${deposit}. Podéis hacerlo ahora mismo ${payChannels.es} — aquí abajo tenéis todos los datos.`,
         'En cuanto lo recibamos os enviamos el contrato para firmarlo cómodamente online (nada de papeleo ni impresoras).',
         'Y con eso hecho, vuestra fecha queda bloqueada en el calendario solo para vosotros.',
       ],
@@ -71,7 +79,7 @@ function coupleCopy(booking: Booking): CoupleEmail {
       greeting: `Hi ${n1} and ${n2},`,
       acknowledgment: `What a joy to have you on board! We've received all your details for the wedding on ${dateLong} at ${venue}, and we can't wait to be part of that day.`,
       nextSteps: [
-        `To lock in your date exclusively, all that's left is the ${deposit} deposit. You can pay it right now by bank transfer or card — all the details are below.`,
+        `To lock in your date exclusively, all that's left is the ${deposit} deposit. You can pay it right now ${payChannels.en} — all the details are below.`,
         "As soon as it's in, we'll send you the contract to sign comfortably online (no paperwork, no printers).",
         'And with that done, your date is ours — blocked in the calendar just for you.',
       ],
@@ -85,7 +93,7 @@ function coupleCopy(booking: Booking): CoupleEmail {
     greeting: `Hola ${n1} i ${n2},`,
     acknowledgment: `Quina alegria tenir-vos a bord! Ja hem rebut totes les vostres dades per al casament del ${dateLong} a ${venue}, i tenim moltes ganes de formar part d'aquell dia.`,
     nextSteps: [
-      `Per reservar la data en exclusiva només falta el dipòsit de ${deposit}. El podeu fer ara mateix per transferència o amb targeta — aquí sota teniu totes les dades.`,
+      `Per reservar la data en exclusiva només falta el dipòsit de ${deposit}. El podeu fer ara mateix ${payChannels.ca} — aquí sota teniu totes les dades.`,
       "Tan bon punt el rebem, us enviem el contracte per signar-lo còmodament online (res de paperassa ni impressores).",
       'I amb això fet, la vostra data queda nostra: bloquejada al calendari només per a vosaltres.',
     ],
@@ -147,7 +155,7 @@ function paymentPlanHasCash(paymentTerms: string | null): boolean {
   return !!paymentTerms && /efect|cash/i.test(paymentTerms);
 }
 
-function renderPaymentBlock(booking: Booking): { html: string; text: string } {
+function renderPaymentBlock(booking: Booking, cardAvailable: boolean): { html: string; text: string } {
   const lang = booking.preferredLanguage;
   const L = paymentBlockCopy(lang);
   const transfer = getBankTransferDetails();
@@ -190,10 +198,12 @@ function renderPaymentBlock(booking: Booking): { html: string; text: string } {
         ${escapeHtml(L.amount)}: ${escapeHtml(deposit)}<br/>
         ${escapeHtml(L.reference)}: ${escapeHtml(reference)}
       </div>
+      ${cardAvailable ? `
       <div style="margin-top:14px;font-size:14px">
         ${escapeHtml(L.cardLine)}<br/>
         <a href="${payUrl}" style="display:inline-block;margin-top:8px;background:#1a1a1a;color:#fff;padding:10px 20px;text-decoration:none;font-weight:600;letter-spacing:0.05em;font-size:13px">${escapeHtml(L.cardCta)} · ${escapeHtml(deposit)} →</a>
       </div>
+      ` : ''}
     </div>
   `;
 
@@ -212,17 +222,20 @@ function renderPaymentBlock(booking: Booking): { html: string; text: string } {
     ...(transfer.bank ? [`  ${L.bank}: ${transfer.bank}`] : []),
     `  ${L.amount}: ${deposit}`,
     `  ${L.reference}: ${reference}`,
-    '',
-    `${L.cardLine} ${payUrl}`,
+    ...(cardAvailable ? ['', `${L.cardLine} ${payUrl}`] : []),
   ].join('\n');
 
   return { html, text };
 }
 
 function renderCoupleEmail(booking: Booking): { subject: string; html: string; text: string } {
-  const c = coupleCopy(booking);
+  // Resolve once so the prose copy and the payment block stay in sync — if
+  // we promised "card" in the lead sentence we must also surface the CTA,
+  // and vice versa.
+  const cardAvailable = isStripeEnabled();
+  const c = coupleCopy(booking, cardAvailable);
   const wa = WHATSAPP_BASE;
-  const pay = renderPaymentBlock(booking);
+  const pay = renderPaymentBlock(booking, cardAvailable);
 
   const html = `
     <div style="font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:#1a1a1a;line-height:1.6;max-width:560px;margin:0 auto;padding:24px">
