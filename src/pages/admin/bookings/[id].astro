@@ -222,6 +222,15 @@ const ibanPlaceholder = transfer.isPlaceholder;
           >
             📧 Reenviar confirmació
           </button>
+          <button
+            type="button"
+            data-push-to-sheet
+            data-booking-id={booking.id}
+            class="border border-ink/20 text-ink text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-cream transition-colors"
+            title="Pujar (o re-pujar) aquesta reserva al Google Sheet de bodes"
+          >
+            📊 Pujar al Sheet
+          </button>
           {booking.depositPaidAt ? (
             <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline" onsubmit="return confirm('Desmarcar el dipòsit? La pàgina /contrato deixarà de ser accessible per a la parella i les dades ja enviades es perdran.')">
               <input type="hidden" name="_action" value="deposit_unpaid" />
@@ -606,6 +615,44 @@ const ibanPlaceholder = transfer.isPlaceholder;
         setTimeout(() => (btn.textContent = old), 1500);
       } catch {
         prompt('Copia:', text);
+      }
+    });
+  });
+
+  // Manual re-push of the booking row to Eric's master Google Sheet —
+  // mirrors what /api/reserva/submit fires automatically. Useful when the
+  // webhook wasn't wired yet at original-submission time.
+  document.querySelectorAll<HTMLButtonElement>('[data-push-to-sheet]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.bookingId;
+      if (!id) return;
+      if (!confirm('Pujar aquesta reserva al Google Sheet? S\'afegirà una fila nova (no detecta duplicats — comprova el Sheet abans si dubtes).')) return;
+      const original = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Pujant…';
+      try {
+        const res = await fetch(`/api/admin/bookings/${id}/push-to-sheet`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const reason =
+            body.error === 'not_configured' ? 'El webhook del Sheet no està configurat (BOOKINGS_SHEET_WEBHOOK_URL / _TOKEN).'
+            : body.error === 'push_failed' ? `Push fallat: ${body.detail ?? 'desconegut'}.`
+            : `Error ${res.status}.`;
+          alert(reason);
+          btn.textContent = original;
+          btn.disabled = false;
+          return;
+        }
+        btn.textContent = '✓ Pujat';
+        setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 3000);
+      } catch (err) {
+        console.error(err);
+        alert('Error de xarxa. Torna-ho a provar.');
+        btn.textContent = original;
+        btn.disabled = false;
       }
     });
   });

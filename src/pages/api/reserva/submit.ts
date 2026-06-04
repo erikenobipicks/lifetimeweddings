@@ -35,6 +35,7 @@ import {
 } from '~/lib/bookings/emails';
 import { verifyTurnstile } from '~/lib/captcha';
 import { pushBookingToFotostudio } from '~/lib/fotostudio';
+import { pushBookingToSheet } from '~/lib/sheets/bookings';
 
 // ─── Rate limit ──────────────────────────────────────────────────────────
 // In-memory, per-process. For Railway's single-instance Node deployment
@@ -366,10 +367,13 @@ export const POST: APIRoute = async ({ request }) => {
     // await so we can capture the returned project id and persist it on
     // the booking — /contrato submit reuses it later to update the
     // project's description with the publication-consent block.
-    const [, , , fotoProjectId] = await Promise.all([
+    const [, , , , fotoProjectId] = await Promise.all([
       sendCoupleConfirmation(updated, formView),
       sendInternalAlert(updated, formView),
       sendBookingTelegram(updated, formView),
+      // Append a row to Eric's master Google Sheet. No-op when the
+      // BOOKINGS_SHEET_WEBHOOK_* env vars are unset; fail-soft otherwise.
+      pushBookingToSheet(updated, formView),
       pushBookingToFotostudio({
         coupleDisplayName: `${updated.coupleName1} & ${updated.coupleName2}`,
         primaryFullName: d.c1FullName,
