@@ -472,6 +472,16 @@ export async function linkLeadToQuote(leadId: number, quoteId: number): Promise<
   });
 }
 
+/** Hard-delete a lead. Irreversible — meant for cleanup of obvious spam /
+ *  duplicate quiz submissions / test data. The optional FK link to a
+ *  quote (`leads.quote_id`) is ON DELETE SET NULL on the quote side, so
+ *  removing the lead doesn't affect any quote that came out of it; here
+ *  we just drop the row. */
+export async function deleteLead(id: number): Promise<void> {
+  await initSchema();
+  await db.execute({ sql: 'DELETE FROM leads WHERE id = ?', args: [id] });
+}
+
 // ─── Interactive quote responses ────────────────────────────────────────────
 
 export interface QuoteResponse {

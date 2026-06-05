@@ -1,8 +1,29 @@
 ---
 import AdminLayout from '~/layouts/AdminLayout.astro';
-import { listLeads } from '~/lib/quotes';
+import { listLeads, deleteLead } from '~/lib/quotes';
+
+// Hard-delete via form POST to this same URL. Same pattern as /admin/[id]
+// (the quote detail page) so the front-end can use a plain <form> with
+// hidden inputs — no JS handler needed.
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const action = String(form.get('action') ?? '');
+  const idRaw = Number(form.get('id') ?? '');
+  if (action === 'delete' && Number.isFinite(idRaw) && idRaw > 0) {
+    try {
+      await deleteLead(idRaw);
+      return Astro.redirect('/admin/leads?ok=deleted');
+    } catch (err) {
+      console.error('[admin.leads.delete] failed', { id: idRaw, err });
+      const msg = err instanceof Error ? err.message : 'error desconegut';
+      return Astro.redirect(`/admin/leads?error=${encodeURIComponent('No s\'ha pogut eliminar: ' + msg)}`);
+    }
+  }
+}
 
 const leads = await listLeads();
+const okFlag = Astro.url.searchParams.get('ok');
+const errorMsg = Astro.url.searchParams.get('error');
 
 function fmt(iso: string | null): string {
   if (!iso) return '—';
@@ -35,6 +56,17 @@ const labels: Record<string, string> = {
   </div>
   <p id="tg-feedback" class="hidden mb-4 px-3 py-2 text-xs border"></p>
 
+  {okFlag === 'deleted' && (
+    <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
+      ✓ Lead eliminat.
+    </div>
+  )}
+  {errorMsg && (
+    <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-900 text-sm">
+      <strong>Error:</strong> {errorMsg}
+    </div>
+  )}
+
   {leads.length === 0 ? (
     <p class="text-ink/60 text-center py-16">Encara no hi ha leads del quiz.</p>
   ) : (
@@ -58,15 +90,32 @@ const labels: Record<string, string> = {
               <div><span class="text-ink/50">Rebut:</span><br/><strong>{fmt(l.createdAt)}</strong></div>
             </div>
           </div>
-          {l.quoteId ? (
-            <a href={`/admin/${l.quoteId}`} class="block text-center text-gold text-[0.7rem] font-bold tracking-widest uppercase px-4 py-3 border-t border-black/5 hover:bg-cream">
-              Veure pressupost →
-            </a>
-          ) : (
-            <a href={`/admin/new?lead=${l.id}`} class="block text-center bg-ink text-white text-[0.7rem] font-bold tracking-widest uppercase px-4 py-3 hover:bg-gold transition-colors">
-              + Pressupost
-            </a>
-          )}
+          <div class="flex border-t border-black/5">
+            {l.quoteId ? (
+              <a href={`/admin/${l.quoteId}`} class="flex-1 text-center text-gold text-[0.7rem] font-bold tracking-widest uppercase px-4 py-3 hover:bg-cream">
+                Veure pressupost →
+              </a>
+            ) : (
+              <a href={`/admin/new?lead=${l.id}`} class="flex-1 text-center bg-ink text-white text-[0.7rem] font-bold tracking-widest uppercase px-4 py-3 hover:bg-gold transition-colors">
+                + Pressupost
+              </a>
+            )}
+            <form
+              method="POST"
+              class="border-l border-black/5"
+              onsubmit={`return confirm('⚠ Eliminar el lead de ${l.coupleName.replace(/'/g, "\\'")}?\\n\\nNo es podrà recuperar.')`}
+            >
+              <input type="hidden" name="action" value="delete" />
+              <input type="hidden" name="id" value={l.id} />
+              <button
+                type="submit"
+                class="text-red-600 text-[0.7rem] font-bold tracking-widest uppercase px-4 py-3 hover:bg-red-50"
+                title="Eliminar definitivament"
+              >
+                🗑
+              </button>
+            </form>
+          </div>
         </li>
       ))}
     </ul>
@@ -106,19 +155,34 @@ const labels: Record<string, string> = {
                 {l.quoteId ? (
                   <a
                     href={`/admin/${l.quoteId}`}
-                    class="text-gold text-xs font-bold tracking-widest uppercase hover:underline"
+                    class="text-gold text-xs font-bold tracking-widest uppercase hover:underline mr-3"
                   >
                     Veure pressupost
                   </a>
                 ) : (
                   <a
                     href={`/admin/new?lead=${l.id}`}
-                    class="inline-block bg-ink text-white text-xs font-bold tracking-widest uppercase px-3 py-1.5 hover:bg-gold transition-colors"
+                    class="inline-block bg-ink text-white text-xs font-bold tracking-widest uppercase px-3 py-1.5 hover:bg-gold transition-colors mr-3"
                     title="Crea un pressupost pre-rellenat amb les dades d'aquest lead"
                   >
                     + Pressupost
                   </a>
                 )}
+                <form
+                  method="POST"
+                  class="inline"
+                  onsubmit={`return confirm('⚠ Eliminar el lead de ${l.coupleName.replace(/'/g, "\\'")}?\\n\\nNo es podrà recuperar.')`}
+                >
+                  <input type="hidden" name="action" value="delete" />
+                  <input type="hidden" name="id" value={l.id} />
+                  <button
+                    type="submit"
+                    class="text-red-600 text-xs font-bold tracking-widest uppercase hover:underline"
+                    title="Eliminar definitivament"
+                  >
+                    🗑
+                  </button>
+                </form>
               </td>
             </tr>
           ))}
