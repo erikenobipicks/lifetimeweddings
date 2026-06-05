@@ -450,13 +450,49 @@ export async function sendBookingTelegram(
 ): Promise<void> {
   const couple = `${formResponse.c1FullName} y ${formResponse.c2FullName}`;
   const adminUrl = `${SITE_URL}/admin/bookings/${booking.id}`;
+
+  // Suggested WhatsApp group name: short names + venue. Eric copies this
+  // straight into the group title when he creates it. Format kept consistent
+  // with the existing one-shot booking row in the master Sheet.
+  const groupName = `Boda ${booking.coupleName1} i ${booking.coupleName2} · ${booking.venueName}`;
+
+  // Tappable wa.me links per partner. Eric taps from the phone, opens
+  // WhatsApp, adds them to the group in two taps. Numbers come from the
+  // /reserva form (c1Phone / c2Phone) which already validated against
+  // PHONE_REGEX — we still strip non-digits defensively so a "+34 600 11 22 33"
+  // becomes 34600112233 for the wa.me URL.
+  const c1Phone = waNumber(formResponse.c1Phone);
+  const c2Phone = waNumber(formResponse.c2Phone);
+  const waBlock: string[] = [];
+  if (c1Phone) {
+    waBlock.push(`📱 ${escapeHtml(booking.coupleName1)}: <a href="https://wa.me/${c1Phone}">wa.me/${c1Phone}</a>`);
+  }
+  if (c2Phone) {
+    waBlock.push(`📱 ${escapeHtml(booking.coupleName2)}: <a href="https://wa.me/${c2Phone}">wa.me/${c2Phone}</a>`);
+  }
+
   const message = [
     '🔔 <b>Nueva reserva</b>',
     escapeHtml(couple),
     `${escapeHtml(formatExpiresShort(booking.weddingDate, 'ca'))} · ${escapeHtml(booking.venueName)}`,
     `→ <a href="${adminUrl}">${adminUrl}</a>`,
+    '',
+    '💬 <b>Grup WhatsApp suggerit:</b>',
+    `<code>${escapeHtml(groupName)}</code>`,
+    ...(waBlock.length ? ['', ...waBlock] : []),
   ].join('\n');
   await sendTelegramNotification(message);
+}
+
+/** Best-effort phone normaliser for wa.me URLs. Strips everything that
+ *  isn't a digit (so "+34 600 11 22 33" → "34600112233"). Empty / nonsense
+ *  inputs return null so we just skip the line instead of generating a
+ *  broken link. */
+function waNumber(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const digits = raw.replace(/\D+/g, '');
+  if (digits.length < 6) return null;
+  return digits;
 }
 
 // ─── /contrato post-deposit notifications ────────────────────────────────

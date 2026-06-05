@@ -4,6 +4,12 @@ import '~/styles/global.css';
 interface Props { title: string }
 const { title } = Astro.props;
 const user = Astro.locals.user;
+
+// GA4 property link — surfaced in the nav so Eric jumps to analytics in
+// one tap. Built from the env measurement id when present; falls back
+// to the GA4 home if we don't know the property.
+const gaId = (import.meta.env.PUBLIC_GA_MEASUREMENT_ID ?? '').trim();
+const analyticsHref = gaId ? `https://analytics.google.com/analytics/web/` : null;
 ---
 
 <!doctype html>
@@ -32,6 +38,11 @@ const user = Astro.locals.user;
                 <a href="/admin" class="hover:text-gold">Pressupostos</a>
                 <a href="/admin/bookings" class="hover:text-gold">Reserves</a>
                 <a href="/admin/sequences" class="hover:text-gold">Emails</a>
+                {analyticsHref && (
+                  <a href={analyticsHref} target="_blank" rel="noopener noreferrer" class="hover:text-gold text-white/60">
+                    Analytics <span aria-hidden="true">↗</span>
+                  </a>
+                )}
                 <a href="/admin/new" class="hover:text-gold">+ Nou</a>
                 <form method="POST" action="/admin/logout" class="inline">
                   <button type="submit" class="text-white/70 hover:text-gold">Sortir ({user})</button>
@@ -69,6 +80,11 @@ const user = Astro.locals.user;
             <a href="/admin" class="block px-2 py-3 hover:text-gold hover:bg-white/5">Pressupostos</a>
             <a href="/admin/bookings" class="block px-2 py-3 hover:text-gold hover:bg-white/5">Reserves</a>
             <a href="/admin/sequences" class="block px-2 py-3 hover:text-gold hover:bg-white/5">Emails</a>
+            {analyticsHref && (
+              <a href={analyticsHref} target="_blank" rel="noopener noreferrer" class="block px-2 py-3 hover:text-gold hover:bg-white/5 text-white/60">
+                Analytics ↗
+              </a>
+            )}
             <a href="/admin/new" class="block px-2 py-3 hover:text-gold hover:bg-white/5">+ Nou pressupost</a>
             <form method="POST" action="/admin/logout" class="block">
               <button
