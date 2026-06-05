@@ -166,7 +166,49 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
       <a href="/admin/bookings/new" class="text-gold underline">Crea'n una</a>.
     </p>
   ) : (
-    <div class="overflow-x-auto bg-white border border-black/10">
+    <>
+    {/* Mobile: stack as cards. Each card is a tappable surface (whole
+        thing links to the detail). Stays under md:hidden so iPad+ keeps
+        the table where the extra columns earn their space. */}
+    <ul class="md:hidden space-y-3" id="bookings-cards">
+      {bookings.map((b) => {
+        const badge = STATUS_BADGE[b.status];
+        const couple = `${b.coupleName1} & ${b.coupleName2}`;
+        return (
+          <li
+            class="bg-white border border-black/10"
+            data-search={`${couple} ${b.venueName} ${b.coupleEmailPrimary}`.toLowerCase()}
+          >
+            <a href={`/admin/bookings/${b.id}`} class="block p-4 hover:bg-cream/50">
+              <div class="flex items-start justify-between gap-3 mb-2">
+                <div class="min-w-0 flex-1">
+                  <p class="font-bold leading-tight">{couple}</p>
+                  <p class="text-[0.7rem] text-ink/55 truncate">{b.coupleEmailPrimary}</p>
+                </div>
+                <span class:list={['shrink-0 text-[0.6rem] font-bold tracking-widest uppercase px-2 py-1 rounded-sm', badge.classes]}>
+                  {badge.label}
+                </span>
+              </div>
+              <p class="text-sm mb-1"><strong>{fmtDate(b.weddingDate)}</strong></p>
+              <p class="text-xs text-ink/70">{b.venueName}{b.venueCity && ` · ${b.venueCity}`}</p>
+              <div class="mt-3 pt-3 border-t border-black/5 flex items-center justify-between text-xs">
+                <span class="text-gold font-bold">{formatEuros(b.packPriceCents)}</span>
+                <span class="text-ink/50">{fmtRelative(b.updatedAt)}</span>
+              </div>
+            </a>
+            <button
+              type="button"
+              data-copy={`${siteUrl}/reserva/${b.slug}`}
+              class="block w-full text-center text-gold text-[0.7rem] font-bold tracking-widest uppercase px-4 py-3 border-t border-black/5 hover:bg-cream"
+            >
+              Copiar enllaç
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+
+    <div class="hidden md:block overflow-x-auto bg-white border border-black/10">
       <table class="w-full text-sm" id="bookings-table">
         <thead class="bg-cream text-[0.7rem] font-bold tracking-widest uppercase">
           <tr>
@@ -221,6 +263,7 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
         </tbody>
       </table>
     </div>
+    </>
   )}
 </AdminLayout>
 
@@ -240,7 +283,7 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
   });
 
   const input = document.getElementById('search-input') as HTMLInputElement | null;
-  const rows = document.querySelectorAll<HTMLTableRowElement>('#bookings-table tbody tr');
+  const rows = document.querySelectorAll<HTMLElement>('#bookings-table tbody tr, #bookings-cards li');
   input?.addEventListener('input', () => {
     const q = input.value.toLowerCase().trim();
     rows.forEach((row) => {
