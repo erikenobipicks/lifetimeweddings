@@ -11,27 +11,93 @@
 // auto-resposta i push al CRM Fotostudio. A més, en enviar-se correctament
 // dispara l'esdeveniment Meta Pixel `Lead` (si el pixel està configurat).
 //
-// Imatges: fotos REALS de Lifetime (public/photos/generic). Vídeo: tràiler
-// públic de YouTube carregat amb una "facade" lleugera (només al clic) per
-// no penalitzar la velocitat de càrrega — el gruix del trànsit ve de mòbil.
+// Imatges: NOMÉS bodes REALS de Lifetime (no preboda/sessions de parella).
+// Font: PHOTOS (photos.generated.ts) + metadades de WEDDINGS. Galeria
+// "orientation-aware" (masonry: respecta la proporció real, res deformat),
+// amb un MÀXIM de 2 fotos per parella i repartides en round-robin perquè mai
+// surtin dues fotos de la mateixa parella de costat. Vídeo: tràilers públics
+// de YouTube carregats amb una "facade" lleugera (només al clic) per no
+// penalitzar la velocitat — el gruix del trànsit ve de mòbil.
 
 import { SITE, waLink } from '~/data/site';
 import { publicVideos, videoThumb, videoThumbFallback, videoEmbed } from '~/data/videos';
+import { PHOTOS, type Photo } from '~/data/photos.generated';
+import { WEDDINGS } from '~/data/weddings';
 
 // Turnstile (anti-bot). Si no està configurat, el widget se salta i el
 // servidor també — el formulari segueix funcionant en dev/staging.
 const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
 
-// Foto del hero i galeria — índexs reals de /photos/generic/*.webp (001–033).
-const PAD = (n: number) => String(n).padStart(3, '0');
-const heroN = 5;
-const gallery = [2, 9, 14, 18, 21, 24, 28, 31];
-// srcset webp (sm 640 · md 1024 · lg 1600 aprox.) per a càrrega adaptativa.
-const srcset = (n: number) =>
-  `/photos/generic/${PAD(n)}-sm.webp 640w, /photos/generic/${PAD(n)}-md.webp 1024w, /photos/generic/${PAD(n)}-lg.webp 1600w`;
+// Perfil de Google Business de Lifetime (mateix que el schema sameAs) — per
+// enllaçar-hi el "5★ a Google".
+const GOOGLE_REVIEWS_URL = 'https://maps.app.goo.gl/rw51XWxVHw6dYehc7';
 
-// Vídeo destacat: primer tràiler públic del catàleg.
-const film = publicVideos[0];
+// ─── Selecció de fotos de boda real ─────────────────────────────────────
+// Metadades (nom de parella + lloc) indexades pel slug de fotos.
+const META: Record<string, { couple: string; venue: string }> = Object.fromEntries(
+  WEDDINGS.filter((w) => w.photoSlug).map((w) => [w.photoSlug as string, { couple: w.couple, venue: w.venue }]),
+);
+
+// Ordre de parelles per a la galeria (varietat). Només bodes amb fotos reals.
+const ORDER = [
+  'vanesa-david',
+  'josep-eli',
+  'elena-jordi',
+  'idoya-pau',
+  'jennifer-albert',
+  'cristina-daniel',
+  'marta-adria',
+  'javi-olaya',
+  'aaron-marta',
+];
+
+const toWebp = (p: string) => p.replace(/\.jpe?g$/, '.webp');
+
+// Hero: una horitzontal forta d'una boda real.
+const heroImg =
+  (PHOTOS['vanesa-david']?.images ?? []).find((i) => i.orientation === 'landscape') ??
+  PHOTOS['vanesa-david']?.images?.[0];
+
+// Fins a 2 fotos per parella, preferint una vertical + una horitzontal per
+// donar varietat de formats. Exclou la foto del hero.
+function pickForCouple(slug: string, excludeId?: string): Photo[] {
+  const imgs = (PHOTOS[slug]?.images ?? []).filter((i) => i.id !== excludeId);
+  const portrait = imgs.find((i) => i.orientation === 'portrait');
+  const landscape = imgs.find((i) => i.orientation === 'landscape');
+  const picks: Photo[] = [];
+  if (portrait) picks.push(portrait);
+  if (landscape && landscape.id !== portrait?.id) picks.push(landscape);
+  for (const i of imgs) {
+    if (picks.length >= 2) break;
+    if (!picks.includes(i)) picks.push(i);
+  }
+  return picks.slice(0, 2);
+}
+
+const perCouple = ORDER.map((slug) => ({
+  slug,
+  imgs: pickForCouple(slug, slug === 'vanesa-david' ? heroImg?.id : undefined),
+}));
+
+// Round-robin: primera foto de cada parella, després la segona. Així mai hi
+// ha dues fotos de la mateixa parella seguides i es maximitza la varietat.
+type GalleryItem = { img: Photo; couple: string; venue: string };
+const gallery: GalleryItem[] = [];
+for (let round = 0; round < 2; round++) {
+  for (const c of perCouple) {
+    const img = c.imgs[round];
+    if (img) gallery.push({ img, couple: META[c.slug]?.couple ?? '', venue: META[c.slug]?.venue ?? '' });
+  }
+}
+const galleryItems = gallery.slice(0, 12);
+
+const caption = (g: GalleryItem) =>
+  g.venue && g.venue !== '—' ? `${g.couple} · ${g.venue}` : g.couple;
+
+// Vídeos: fins a 4 tràilers públics. El primer va destacat.
+const films = publicVideos.slice(0, 4);
+const featuredFilm = films[0];
+const otherFilms = films.slice(1);
 
 const waHref = waLink(
   'Hola! Venim de l’anunci i voldríem saber si teniu la nostra data lliure per a la boda 💍',
@@ -81,18 +147,28 @@ const faqs = [
 
 <!-- ───────────────────────── HERO ───────────────────────── -->
 <section class="relative min-h-[88vh] md:min-h-[90vh] flex items-center justify-center px-6 overflow-hidden">
-  <img
-    src={`/photos/generic/${PAD(heroN)}-lg.webp`}
-    srcset={srcset(heroN)}
-    sizes="100vw"
-    alt="Parella el dia de la seva boda fotografiada per Lifetime Weddings"
-    class="absolute inset-0 w-full h-full object-cover"
-    loading="eager"
-    fetchpriority="high"
-    decoding="async"
-    width="1600"
-    height="1067"
-  />
+  {heroImg && (
+    <picture class="absolute inset-0">
+      <source
+        type="image/webp"
+        srcset={`${toWebp(heroImg.variants.md)} 1200w, ${toWebp(heroImg.variants.lg)} 1920w`}
+        sizes="100vw"
+      />
+      <img
+        src={heroImg.variants.lg}
+        srcset={`${heroImg.variants.md} 1200w, ${heroImg.variants.lg} 1920w`}
+        sizes="100vw"
+        alt="Parella el dia de la seva boda fotografiada per Lifetime Weddings"
+        class="absolute inset-0 w-full h-full object-cover"
+        style="object-position: center 30%"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+        width={heroImg.width}
+        height={heroImg.height}
+      />
+    </picture>
+  )}
   <div class="absolute inset-0 bg-ink/55"></div>
   <div class="relative max-w-3xl mx-auto text-center text-white pt-24 pb-20">
     <p class="text-xs font-bold tracking-[0.24em] uppercase text-gold mb-5">
@@ -132,7 +208,11 @@ const faqs = [
     <ul class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 md:gap-x-10 text-[0.65rem] md:text-[0.75rem] font-bold tracking-[0.16em] uppercase text-ink/70">
       <li>+150 bodes</li>
       <li class="text-gold/60" aria-hidden="true">·</li>
-      <li>5★ a Google</li>
+      <li>
+        <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener" class="hover:text-gold transition-colors">
+          5★ a Google
+        </a>
+      </li>
       <li class="text-gold/60" aria-hidden="true">·</li>
       <li>Tarragona · Lleida · Barcelona</li>
       <li class="text-gold/60" aria-hidden="true">·</li>
@@ -228,63 +308,121 @@ const faqs = [
 <section class="bg-white">
   <div class="max-w-6xl mx-auto px-6 py-16 md:py-24">
     <div class="text-center max-w-2xl mx-auto mb-12">
-      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-4">Feina real</p>
+      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-4">Bodes reals</p>
       <h2 class="font-display text-3xl md:text-4xl font-bold mb-4">Mira-ho tu mateix</h2>
       <p class="text-ink/75 leading-relaxed">
-        Res de dir-vos que som bons. Preferim que ho vegeu. Aquestes són bodes de veritat.
+        Res de dir-vos que som bons. Preferim que ho vegeu. Totes aquestes són bodes de veritat que
+        hem fotografiat i filmat.
       </p>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-      {gallery.map((n, i) => (
-        <img
-          src={`/photos/generic/${PAD(n)}-md.webp`}
-          srcset={srcset(n)}
-          sizes="(min-width: 768px) 25vw, 50vw"
-          alt={`Boda fotografiada per Lifetime Weddings · ${i + 1}`}
-          loading="lazy"
-          decoding="async"
-          width={i % 3 === 1 ? 900 : 1200}
-          height={i % 3 === 1 ? 1200 : 900}
-          class={`w-full object-cover ${i % 3 === 1 ? 'aspect-[3/4]' : 'aspect-[4/3]'}`}
-        />
+    {/* Galeria masonry: respecta la proporció real de cada foto (res deformat). */}
+    <div class="columns-2 md:columns-3 gap-3 md:gap-4 [&>figure]:mb-3 md:[&>figure]:mb-4">
+      {galleryItems.map((g) => (
+        <figure class="relative break-inside-avoid overflow-hidden group">
+          <picture>
+            <source
+              type="image/webp"
+              srcset={`${toWebp(g.img.variants.sm)} 640w, ${toWebp(g.img.variants.md)} 1200w`}
+              sizes="(min-width: 768px) 33vw, 50vw"
+            />
+            <img
+              src={g.img.variants.md}
+              srcset={`${g.img.variants.sm} 640w, ${g.img.variants.md} 1200w`}
+              sizes="(min-width: 768px) 33vw, 50vw"
+              width={g.img.width}
+              height={g.img.height}
+              loading="lazy"
+              decoding="async"
+              alt={`Boda de ${caption(g)} · Lifetime Weddings`}
+              class="w-full h-auto object-cover"
+            />
+          </picture>
+          <figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/75 to-transparent px-3 pb-2.5 pt-10 text-left text-white text-[0.68rem] font-bold tracking-[0.14em] uppercase">
+            {caption(g)}
+          </figcaption>
+        </figure>
       ))}
     </div>
 
-    {film && (
-      <div class="mt-10 md:mt-14 max-w-4xl mx-auto">
-        <p class="text-center text-xs font-bold tracking-[0.22em] uppercase text-gold mb-5">
-          El vídeo, com una pel·lícula
+    {featuredFilm && (
+      <div class="mt-12 md:mt-16">
+        <p class="text-center text-xs font-bold tracking-[0.22em] uppercase text-gold mb-6">
+          I el vídeo, com una pel·lícula
         </p>
-        {/* Facade lleugera: només es carrega l'iframe de YouTube en fer clic. */}
-        <button
-          type="button"
-          data-video-facade
-          data-embed={videoEmbed(film.youtubeId)}
-          class="group relative block w-full aspect-video overflow-hidden bg-ink"
-          aria-label={`Reproduir el vídeo de la boda de ${film.coupleName}`}
-        >
-          <img
-            src={videoThumb(film.youtubeId)}
-            onerror={`this.onerror=null;this.src='${videoThumbFallback(film.youtubeId)}'`}
-            alt={`Tràiler de la boda de ${film.coupleName}`}
-            loading="lazy"
-            decoding="async"
-            width="1280"
-            height="720"
-            class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition"
-          />
-          <span class="absolute inset-0 flex items-center justify-center">
-            <span class="flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/90 group-hover:bg-white transition">
-              <svg viewBox="0 0 24 24" class="w-7 h-7 md:w-8 md:h-8 text-ink ml-1" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+
+        {/* Vídeo destacat (facade lleugera: l'iframe es carrega només al clic). */}
+        <div class="max-w-4xl mx-auto">
+          <button
+            type="button"
+            data-video-facade
+            data-embed={videoEmbed(featuredFilm.youtubeId)}
+            class="group relative block w-full aspect-video overflow-hidden bg-ink"
+            aria-label={`Reproduir el vídeo de la boda de ${featuredFilm.coupleName}`}
+          >
+            <img
+              src={videoThumb(featuredFilm.youtubeId)}
+              onerror={`this.onerror=null;this.src='${videoThumbFallback(featuredFilm.youtubeId)}'`}
+              alt={`Tràiler de la boda de ${featuredFilm.coupleName}`}
+              loading="lazy"
+              decoding="async"
+              width="1280"
+              height="720"
+              class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition"
+            />
+            <span class="absolute inset-0 flex items-center justify-center">
+              <span class="flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/90 group-hover:bg-white transition">
+                <svg viewBox="0 0 24 24" class="w-7 h-7 md:w-8 md:h-8 text-ink ml-1" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+              </span>
             </span>
-          </span>
-          <span class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-ink/80 to-transparent p-4 text-left text-white text-sm">
-            {film.coupleName} · {film.venue}
-          </span>
-        </button>
+            <span class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-ink/80 to-transparent p-4 text-left text-white text-sm">
+              {featuredFilm.coupleName} · {featuredFilm.venue}
+            </span>
+          </button>
+        </div>
+
+        {/* Més tràilers */}
+        {otherFilms.length > 0 && (
+          <div class="max-w-5xl mx-auto mt-4 grid grid-cols-3 gap-3 md:gap-4">
+            {otherFilms.map((f) => (
+              <button
+                type="button"
+                data-video-facade
+                data-embed={videoEmbed(f.youtubeId)}
+                class="group relative block w-full aspect-video overflow-hidden bg-ink"
+                aria-label={`Reproduir el vídeo de la boda de ${f.coupleName}`}
+              >
+                <img
+                  src={videoThumb(f.youtubeId)}
+                  onerror={`this.onerror=null;this.src='${videoThumbFallback(f.youtubeId)}'`}
+                  alt={`Tràiler de la boda de ${f.coupleName}`}
+                  loading="lazy"
+                  decoding="async"
+                  width="640"
+                  height="360"
+                  class="w-full h-full object-cover opacity-85 group-hover:opacity-100 transition"
+                />
+                <span class="absolute inset-0 flex items-center justify-center">
+                  <span class="flex items-center justify-center w-9 h-9 md:w-12 md:h-12 rounded-full bg-white/90 group-hover:bg-white transition">
+                    <svg viewBox="0 0 24 24" class="w-4 h-4 md:w-5 md:h-5 text-ink ml-0.5" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     )}
+
+    <div class="text-center mt-12 md:mt-14">
+      <a
+        href="#contacte"
+        data-cta
+        class="inline-block bg-gold text-white px-10 py-4 text-xs font-bold tracking-[0.18em] uppercase hover:brightness-110 transition"
+      >
+        Demana disponibilitat
+      </a>
+    </div>
   </div>
 </section>
 
