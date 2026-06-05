@@ -4,10 +4,18 @@
 // pre-wedding questionnaires, post-wedding thank-yous) live here.
 import AdminLayout from '~/layouts/AdminLayout.astro';
 import { listSequences, type EmailSequence } from '~/lib/bookings/sequences';
+import { DEFAULT_SEQUENCES } from '~/lib/bookings/defaultSequences';
 
 const sequences: EmailSequence[] = await listSequences(true);
 const ok = Astro.url.searchParams.get('ok');
+const seededCount = Astro.url.searchParams.get('n');
 const error = Astro.url.searchParams.get('error');
+
+// Which starter templates aren't seeded yet — drives the one-click button
+// so it only shows while there's something to add (and disappears once all
+// defaults exist).
+const existingSlugs = new Set(sequences.map((s) => s.slug));
+const missingDefaults = DEFAULT_SEQUENCES.filter((d) => !existingSlugs.has(d.slug));
 
 function triggerLabel(s: EmailSequence): string {
   const d = s.triggerOffsetDays;
@@ -23,11 +31,34 @@ function triggerLabel(s: EmailSequence): string {
       <h1 class="font-display text-2xl sm:text-3xl font-bold">Email sequences</h1>
       <p class="text-sm text-ink/65 mt-1">Plantilles d'emails automàtics que s'envien a les parelles segons el calendari (avui dispara: dipòsit pagat).</p>
     </div>
-    <a href="/admin/sequences/new" class="bg-ink text-white text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-gold transition-colors whitespace-nowrap">+ Nova plantilla</a>
+    <div class="flex flex-wrap gap-2">
+      {missingDefaults.length > 0 && (
+        <form method="POST" action="/api/admin/sequences/seed-defaults">
+          <button
+            type="submit"
+            class="border border-gold text-gold text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-gold hover:text-white transition-colors whitespace-nowrap"
+            title={`Crea ${missingDefaults.length} plantilla(es) per defecte (recordatori 2n pagament, etc.)`}
+          >
+            ✨ Crear plantilles per defecte
+          </button>
+        </form>
+      )}
+      <a href="/admin/sequences/new" class="bg-ink text-white text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-gold transition-colors whitespace-nowrap">+ Nova plantilla</a>
+    </div>
   </div>
 
   {ok === 'created' && (
     <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">Plantilla creada.</div>
+  )}
+  {ok === 'seeded' && (
+    <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
+      ✓ {seededCount ?? ''} plantilla{seededCount === '1' ? '' : 's'} per defecte creada{seededCount === '1' ? '' : 's'}. Edita-la a sota si vols ajustar el text.
+    </div>
+  )}
+  {ok === 'seed-noop' && (
+    <div class="mb-4 px-4 py-3 bg-cream border border-black/10 text-ink/70 text-sm">
+      Les plantilles per defecte ja existien — res a crear.
+    </div>
   )}
   {ok === 'updated' && (
     <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">Canvis desats.</div>
