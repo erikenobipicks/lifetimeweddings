@@ -174,6 +174,32 @@ export async function updateSequence(id: number, input: SequenceInput): Promise<
   });
 }
 
+/** Seed the studio's starter templates, skipping any whose slug already
+ *  exists. Returns the slugs that were actually inserted (so the caller
+ *  can tell "created 1" from "all already present"). Idempotent — safe to
+ *  call as many times as you like. */
+export async function seedDefaultSequences(): Promise<{ created: string[]; skipped: string[] }> {
+  await initSchema();
+  // Imported lazily to avoid a static import cycle (defaultSequences imports
+  // the SequenceInput type from this module).
+  const { DEFAULT_SEQUENCES } = await import('./defaultSequences');
+  const created: string[] = [];
+  const skipped: string[] = [];
+  for (const seq of DEFAULT_SEQUENCES) {
+    const existing = await db.execute({
+      sql: 'SELECT id FROM email_sequences WHERE slug = ?',
+      args: [seq.slug],
+    });
+    if (existing.rows.length > 0) {
+      skipped.push(seq.slug);
+      continue;
+    }
+    await createSequence(seq);
+    created.push(seq.slug);
+  }
+  return { created, skipped };
+}
+
 export async function deleteSequence(id: number): Promise<void> {
   await initSchema();
   await db.execute({ sql: 'DELETE FROM email_sequences WHERE id = ?', args: [id] });
