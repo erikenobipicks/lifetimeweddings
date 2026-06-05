@@ -30,6 +30,8 @@ export interface ChecklistItem {
 /** Order matters — the UI renders in this order. Grouped roughly by phase:
  *  pre-wedding (payment) → wedding day → post-wedding (delivery). */
 export const CHECKLIST_ITEMS: ChecklistItem[] = [
+  // Immediate post-reservation
+  { key: 'whatsapp_group_created',  label: 'Grup de WhatsApp creat',      service: 'both' },
   // Pre-wedding
   { key: 'second_payment_received', label: '2n pagament rebut',           service: 'both' },
   // Wedding day
