@@ -388,6 +388,13 @@ export async function initSchema() {
   // anything the operator wants to remember when reopening months later.
   await ensureColumn('bookings', 'internal_notes', 'TEXT');
 
+  // Per-booking checklist state. JSON object: `{ "key": "iso-timestamp" }`
+  // when checked, key absent when unchecked. Lets us add/retire checklist
+  // items in code (catalogue lives in src/data/bookingChecklist.ts) without
+  // a schema migration each time the studio's workflow evolves. NULL on
+  // pre-existing rows → treated as "nothing ticked".
+  await ensureColumn('bookings', 'checklist_state', 'TEXT');
+
   // ── Retention sweep (boot-time) ───────────────────────────────────────
   // Data-minimisation per RGPD: keep personal data only as long as needed.
   // Runs on each boot; safe to no-op when the DB is empty.
