@@ -59,7 +59,65 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
   {quotes.length === 0 ? (
     <p class="text-ink/60 text-center py-16">Encara no hi ha cap pressupost. <a href="/admin/new" class="text-gold underline">Crea'n un</a>.</p>
   ) : (
-    <div class="overflow-x-auto bg-white border border-black/10">
+    <>
+    {/* Mobile cards: tap the row to open detail. Below md: the table version
+        below takes over with the full activity columns. */}
+    <ul class="md:hidden space-y-3" id="quotes-cards">
+      {quotes.map((q, i) => {
+        const s = stats[i];
+        const t = tempLabel(s);
+        return (
+          <li
+            class:list={['bg-white border border-black/10', q.archived && 'opacity-60']}
+            data-search={`${q.coupleName} ${q.coupleEmail ?? ''}`.toLowerCase()}
+          >
+            <a href={`/admin/${q.id}`} class="block p-4 hover:bg-cream/50">
+              <div class="flex items-start justify-between gap-3 mb-2">
+                <div class="min-w-0 flex-1">
+                  <p class="font-bold leading-tight flex items-center gap-2">
+                    <span class={`text-base ${t.color}`}>{t.icon}</span>
+                    <span class="truncate">{q.coupleName}</span>
+                  </p>
+                  {q.coupleEmail && <p class="text-[0.7rem] text-ink/55 truncate ml-7">{q.coupleEmail}</p>}
+                </div>
+                {q.archived && <span class="shrink-0 text-[0.6rem] bg-ink/10 text-ink/50 px-1.5 py-0.5 rounded-sm">ARXIVAT</span>}
+              </div>
+              <div class="grid grid-cols-3 gap-2 text-[0.7rem] text-ink/60 ml-7">
+                <div><span class="text-ink/50">Visites</span><br/><strong class="text-ink">{s.views}</strong></div>
+                <div><span class="text-ink/50">Temps</span><br/><strong class="text-ink">{humanSecs(s.totalTimeSeconds)}</strong></div>
+                <div><span class="text-ink/50">Scroll</span><br/><strong class="text-ink">{s.maxScroll}%</strong></div>
+              </div>
+              <p class="text-[0.7rem] text-ink/50 mt-3 ml-7">Creat {fmt(q.createdAt)}</p>
+            </a>
+            <div class="flex border-t border-black/5">
+              <button
+                type="button"
+                data-copy={`${siteUrl}/p/${q.token}`}
+                class="flex-1 text-center text-gold text-[0.7rem] font-bold tracking-widest uppercase px-4 py-3 hover:bg-cream"
+              >
+                Copiar
+              </button>
+              <form
+                method="POST"
+                action={`/admin/${q.id}`}
+                class="flex-1 border-l border-black/5"
+                onsubmit={`return confirm('⚠ Eliminar el pressupost de ${q.coupleName.replace(/'/g, "\\'")} DEFINITIVAMENT?\\n\\nNo es podrà recuperar.')`}
+              >
+                <input type="hidden" name="action" value="delete" />
+                <button
+                  type="submit"
+                  class="w-full text-center text-red-600 text-[0.7rem] font-bold tracking-widest uppercase px-4 py-3 hover:bg-red-50"
+                >
+                  🗑 Eliminar
+                </button>
+              </form>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+
+    <div class="hidden md:block overflow-x-auto bg-white border border-black/10">
       <table class="w-full text-sm" id="quotes-table">
         <thead class="bg-cream text-[0.7rem] font-bold tracking-widest uppercase">
           <tr>
@@ -121,6 +179,7 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
         </tbody>
       </table>
     </div>
+    </>
   )}
 </AdminLayout>
 
@@ -140,9 +199,11 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
     });
   });
 
-  // Search filter
+  // Search filter — operates on both the table rows (desktop) and the
+  // card list (mobile) so the visible set stays in sync regardless of
+  // which layout the user is on.
   const input = document.getElementById('search-input') as HTMLInputElement;
-  const rows = document.querySelectorAll<HTMLTableRowElement>('#quotes-table tbody tr');
+  const rows = document.querySelectorAll<HTMLElement>('#quotes-table tbody tr, #quotes-cards li');
   input?.addEventListener('input', () => {
     const q = input.value.toLowerCase().trim();
     rows.forEach((row) => {
