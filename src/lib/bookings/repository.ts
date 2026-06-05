@@ -45,6 +45,23 @@ function safeParseJson<T>(raw: unknown, fallback: T): T {
   }
 }
 
+/** Narrow JSON parse for checklist_state — only keeps `key: string` pairs.
+ *  An empty or malformed cell normalises to {}. */
+function parseChecklistJson(raw: unknown): Record<string, string> {
+  if (typeof raw !== 'string' || raw.length === 0) return {};
+  try {
+    const v = JSON.parse(raw);
+    if (!v || typeof v !== 'object' || Array.isArray(v)) return {};
+    const out: Record<string, string> = {};
+    for (const [k, value] of Object.entries(v)) {
+      if (typeof value === 'string') out[k] = value;
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}
+
 // ─── Booking row → typed object ──────────────────────────────────────────
 function rowToBooking(row: Record<string, unknown>): Booking {
   return {
@@ -100,6 +117,7 @@ function rowToBooking(row: Record<string, unknown>): Booking {
       row.fotostudio_project_id == null
         ? null
         : Number(row.fotostudio_project_id) || null,
+    checklistState: parseChecklistJson(row.checklist_state),
   };
 }
 
@@ -644,4 +662,32 @@ export async function deleteBooking(bookingId: string): Promise<void> {
     ],
     'write',
   );
+}
+
+/** Update one checklist item for a booking. `checked=true` stamps the
+ *  current ISO timestamp; `checked=false` removes the key. Returns the
+ *  fresh full state so the caller can re-render without a second read. */
+export async function setBookingChecklistItem(
+  bookingId: string,
+  key: string,
+  checked: boolean,
+): Promise<Record<string, string>> {
+  await initSchema();
+  const current = await db.execute({
+    sql: 'SELECT checklist_state FROM bookings WHERE id = ?',
+    args: [bookingId],
+  });
+  const row = current.rows[0];
+  if (!row) throw new Error('booking_not_found');
+  const state = parseChecklistJson(row.checklist_state);
+  if (checked) {
+    state[key] = new Date().toISOString();
+  } else {
+    delete state[key];
+  }
+  await db.execute({
+    sql: 'UPDATE bookings SET checklist_state = ? WHERE id = ?',
+    args: [JSON.stringify(state), bookingId],
+  });
+  return state;
 }

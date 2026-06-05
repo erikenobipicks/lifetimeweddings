@@ -12,6 +12,7 @@ import { publicVideos, fullVideos } from '~/data/videos';
 import { getBankTransferDetails, isStripeTestMode } from '~/lib/payments/config';
 import { listSchedulesForBooking, listSequences } from '~/lib/bookings/sequences';
 import { googleCalendarAddUrl } from '~/lib/bookings/gcal';
+import { filterChecklistForPack } from '~/data/bookingChecklist';
 
 const id = Astro.params.id!;
 const booking = await getBookingById(id);
@@ -26,6 +27,16 @@ const err = params.get('error');
 const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
 const publicUrl = `${siteUrl}/reserva/${booking.slug}`;
 const contratoUrl = `${siteUrl}/contrato/${booking.slug}`;
+
+// Workflow checklist: catalogue filtered to items relevant to what's
+// been contracted (photo-only packs hide video/SDE items, etc.). The
+// "fets" counter in the section header includes deposit + contract for
+// a single Done/Total number across the whole post-booking flow.
+const visibleChecklist = filterChecklistForPack(booking.packName);
+const tickedCount =
+  (booking.depositPaidAt ? 1 : 0) +
+  (booking.contractAcceptedAt ? 1 : 0) +
+  visibleChecklist.filter((i) => booking.checklistState[i.key]).length;
 
 // Email-sequence queue for this booking. Each row maps to a sequence
 // template via sequenceId; we join them in-memory for the table.
@@ -294,6 +305,71 @@ const ibanPlaceholder = transfer.isPlaceholder;
         </div>
       )}
     </div>
+  )}
+
+  {/* Workflow checklist — shown once the booking has form-submitted (we
+      have a couple to track), filtered to the items relevant to what's
+      been contracted (photo / video / combo). The deposit + contract
+      checks are sourced from the booking columns (read-only) for a
+      single unified view of the post-booking flow. */}
+  {booking.status === 'form_submitted' && (
+    <section class="bg-white border border-black/10 p-5 md:p-6 mb-6">
+      <div class="flex items-center justify-between gap-3 mb-4">
+        <h2 class="font-display text-xl font-bold">Seguiment de la boda</h2>
+        <span class="text-[11px] font-bold tracking-widest uppercase text-ink/50">
+          {tickedCount} / {visibleChecklist.length + 2} fets
+        </span>
+      </div>
+      <ul class="space-y-2">
+        <li class="flex items-start gap-3 px-3 py-2 bg-cream/50">
+          <span class={`text-base leading-none mt-0.5 ${booking.depositPaidAt ? 'text-emerald-600' : 'text-ink/30'}`}>
+            {booking.depositPaidAt ? '✓' : '○'}
+          </span>
+          <div class="flex-1">
+            <p class="text-sm"><strong>Dipòsit rebut</strong></p>
+            {booking.depositPaidAt && (
+              <p class="text-[11px] text-ink/55 mt-0.5">{fmtDateTime(booking.depositPaidAt)}</p>
+            )}
+          </div>
+        </li>
+        <li class="flex items-start gap-3 px-3 py-2 bg-cream/50">
+          <span class={`text-base leading-none mt-0.5 ${booking.contractAcceptedAt ? 'text-emerald-600' : 'text-ink/30'}`}>
+            {booking.contractAcceptedAt ? '✓' : '○'}
+          </span>
+          <div class="flex-1">
+            <p class="text-sm"><strong>Contracte signat per la parella</strong></p>
+            {booking.contractAcceptedAt && (
+              <p class="text-[11px] text-ink/55 mt-0.5">{fmtDateTime(booking.contractAcceptedAt)}</p>
+            )}
+          </div>
+        </li>
+        {visibleChecklist.map((item) => {
+          const ts = booking.checklistState[item.key];
+          return (
+            <li class="flex items-start gap-3 px-3 py-2 hover:bg-cream/30">
+              <button
+                type="button"
+                data-checklist-toggle
+                data-booking-id={booking.id}
+                data-key={item.key}
+                aria-pressed={ts ? 'true' : 'false'}
+                class={`shrink-0 mt-0.5 w-5 h-5 border-2 flex items-center justify-center transition-colors ${ts ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-ink/30 hover:border-gold'}`}
+              >
+                <span class="text-xs font-bold leading-none">{ts ? '✓' : ''}</span>
+              </button>
+              <div class="flex-1">
+                <p class="text-sm"><strong>{item.label}</strong></p>
+                {ts && (
+                  <p class="text-[11px] text-ink/55 mt-0.5" data-checklist-ts={item.key}>
+                    {fmtDateTime(new Date(ts))}
+                  </p>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   )}
 
   {formResponse && (
@@ -695,5 +771,61 @@ const ibanPlaceholder = transfer.isPlaceholder;
         btn.disabled = false;
       }
     });
+  });
+
+  // Checklist: toggle a single item via POST and update the box without
+  // a page reload. We optimistically flip the UI immediately and revert
+  // if the server rejects.
+  document.querySelectorAll<HTMLButtonElement>('[data-checklist-toggle]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const bookingId = btn.dataset.bookingId;
+      const key = btn.dataset.key;
+      if (!bookingId || !key) return;
+      const wasChecked = btn.getAttribute('aria-pressed') === 'true';
+      const next = !wasChecked;
+
+      // Optimistic flip — box + checkmark.
+      flipBox(btn, next);
+      const tsEl = document.querySelector(`[data-checklist-ts="${key}"]`);
+
+      try {
+        const res = await fetch(`/api/admin/bookings/${bookingId}/checklist`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key, checked: next }),
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(body.error ?? `HTTP ${res.status}`);
+
+        // Server-confirmed timestamp for the ticked state (so the date
+        // line stays exact even if device clock differs).
+        const ts = body.state?.[key];
+        if (next && ts && tsEl) {
+          tsEl.textContent = new Date(ts).toLocaleString('ca-ES', {
+            timeZone: 'Europe/Madrid', dateStyle: 'short', timeStyle: 'short',
+          });
+        } else if (!next && tsEl) {
+          tsEl.textContent = '';
+        }
+      } catch (err) {
+        console.error('[checklist] toggle failed', err);
+        // Revert UI.
+        flipBox(btn, wasChecked);
+        alert("No s'ha pogut desar el canvi. Torna-ho a provar.");
+      }
+    });
+
+    function flipBox(button: HTMLButtonElement, checked: boolean) {
+      button.setAttribute('aria-pressed', checked ? 'true' : 'false');
+      const span = button.querySelector('span');
+      if (span) span.textContent = checked ? '✓' : '';
+      if (checked) {
+        button.classList.add('bg-emerald-600', 'border-emerald-600', 'text-white');
+        button.classList.remove('border-ink/30', 'hover:border-gold');
+      } else {
+        button.classList.remove('bg-emerald-600', 'border-emerald-600', 'text-white');
+        button.classList.add('border-ink/30', 'hover:border-gold');
+      }
+    }
   });
 </script>

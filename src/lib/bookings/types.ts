@@ -101,6 +101,11 @@ export interface Booking {
    *  description with the publication-consent text so the contract body
    *  reflects what the couple authorised. */
   fotostudioProjectId: number | null;
+  /** Post-booking checklist state. Map of catalogue key → ISO timestamp
+   *  when the operator ticked it; key absent means not ticked. Catalogue
+   *  lives in src/data/bookingChecklist.ts. Empty object on rows with no
+   *  ticks yet (or pre-migration rows). */
+  checklistState: Record<string, string>;
 }
 
 /** Input for creating a new booking from admin UI. Slug + id + timestamps
