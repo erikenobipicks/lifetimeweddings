@@ -242,6 +242,15 @@ const ibanPlaceholder = transfer.isPlaceholder;
           >
             📊 Pujar al Sheet
           </button>
+          <button
+            type="button"
+            data-resend-telegram
+            data-booking-id={booking.id}
+            class="border border-ink/20 text-ink text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-cream transition-colors"
+            title="Reenviar el missatge de Telegram amb el nom suggerit del grup WhatsApp i els enllaços wa.me"
+          >
+            💬 Reenviar Telegram
+          </button>
           {booking.depositPaidAt ? (
             <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline" onsubmit="return confirm('Desmarcar el dipòsit? La pàgina /contrato deixarà de ser accessible per a la parella i les dades ja enviades es perdran.')">
               <input type="hidden" name="_action" value="deposit_unpaid" />
@@ -723,6 +732,45 @@ const ibanPlaceholder = transfer.isPlaceholder;
           return;
         }
         btn.textContent = '✓ Pujat';
+        setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 3000);
+      } catch (err) {
+        console.error(err);
+        alert('Error de xarxa. Torna-ho a provar.');
+        btn.textContent = original;
+        btn.disabled = false;
+      }
+    });
+  });
+
+  // Re-fire the booking Telegram alert. Same payload as /api/reserva/
+  // submit dispatches automatically — useful for legacy bookings that
+  // pre-date the WhatsApp group block, or when the original message
+  // scrolled away in a busy chat.
+  document.querySelectorAll<HTMLButtonElement>('[data-resend-telegram]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.bookingId;
+      if (!id) return;
+      if (!confirm('Reenviar el missatge de Telegram amb el suggerit del grup WhatsApp?')) return;
+      const original = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Enviant…';
+      try {
+        const res = await fetch(`/api/admin/bookings/${id}/resend-telegram`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const reason =
+            body.error === 'no_form_response' ? 'La parella encara no ha enviat les dades de /reserva.'
+            : body.error === 'send_failed' ? "L'enviament ha fallat — mira els logs."
+            : `Error ${res.status}.`;
+          alert(reason);
+          btn.textContent = original;
+          btn.disabled = false;
+          return;
+        }
+        btn.textContent = '✓ Enviat';
         setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 3000);
       } catch (err) {
         console.error(err);
