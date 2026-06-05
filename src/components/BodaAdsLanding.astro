@@ -292,15 +292,6 @@ const faqs = [
         </div>
       ))}
     </div>
-    <div class="text-center mt-12">
-      <a
-        href="#contacte"
-        data-cta
-        class="inline-block bg-ink text-white px-10 py-4 text-xs font-bold tracking-[0.18em] uppercase hover:bg-gold transition-colors"
-      >
-        Demana disponibilitat
-      </a>
-    </div>
   </div>
 </section>
 
@@ -320,25 +311,35 @@ const faqs = [
     <div class="columns-2 md:columns-3 gap-3 md:gap-4 [&>figure]:mb-3 md:[&>figure]:mb-4">
       {galleryItems.map((g) => (
         <figure class="relative break-inside-avoid overflow-hidden group">
-          <picture>
-            <source
-              type="image/webp"
-              srcset={`${toWebp(g.img.variants.sm)} 640w, ${toWebp(g.img.variants.md)} 1200w`}
-              sizes="(min-width: 768px) 33vw, 50vw"
-            />
-            <img
-              src={g.img.variants.md}
-              srcset={`${g.img.variants.sm} 640w, ${g.img.variants.md} 1200w`}
-              sizes="(min-width: 768px) 33vw, 50vw"
-              width={g.img.width}
-              height={g.img.height}
-              loading="lazy"
-              decoding="async"
-              alt={`Boda de ${caption(g)} · Lifetime Weddings`}
-              class="w-full h-auto object-cover"
-            />
-          </picture>
-          <figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/75 to-transparent px-3 pb-2.5 pt-10 text-left text-white text-[0.68rem] font-bold tracking-[0.14em] uppercase">
+          <button
+            type="button"
+            data-lightbox
+            data-full={g.img.variants.lg}
+            data-full-webp={toWebp(g.img.variants.lg)}
+            data-cap={caption(g)}
+            class="block w-full cursor-zoom-in"
+            aria-label={`Ampliar foto de la boda de ${caption(g)}`}
+          >
+            <picture>
+              <source
+                type="image/webp"
+                srcset={`${toWebp(g.img.variants.sm)} 640w, ${toWebp(g.img.variants.md)} 1200w`}
+                sizes="(min-width: 768px) 33vw, 50vw"
+              />
+              <img
+                src={g.img.variants.md}
+                srcset={`${g.img.variants.sm} 640w, ${g.img.variants.md} 1200w`}
+                sizes="(min-width: 768px) 33vw, 50vw"
+                width={g.img.width}
+                height={g.img.height}
+                loading="lazy"
+                decoding="async"
+                alt={`Boda de ${caption(g)} · Lifetime Weddings`}
+                class="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              />
+            </picture>
+          </button>
+          <figcaption class="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/75 to-transparent px-3 pb-2.5 pt-10 text-left text-white text-[0.68rem] font-bold tracking-[0.14em] uppercase">
             {caption(g)}
           </figcaption>
         </figure>
@@ -413,16 +414,6 @@ const faqs = [
         )}
       </div>
     )}
-
-    <div class="text-center mt-12 md:mt-14">
-      <a
-        href="#contacte"
-        data-cta
-        class="inline-block bg-gold text-white px-10 py-4 text-xs font-bold tracking-[0.18em] uppercase hover:brightness-110 transition"
-      >
-        Demana disponibilitat
-      </a>
-    </div>
   </div>
 </section>
 
@@ -453,17 +444,10 @@ const faqs = [
     <h2 class="font-display text-3xl md:text-4xl font-bold mb-5 leading-tight">
       Cada temporada només agafem un nombre limitat de bodes.
     </h2>
-    <p class="text-white/80 leading-relaxed mb-8">
+    <p class="text-white/80 leading-relaxed">
       Treballem amb calma, per fer-ho bé. Les dates de cap de setmana volen, sobretot de maig a
-      octubre. Si teniu data, val la pena comprovar-ho aviat.
+      octubre. Si teniu data, val la pena comprovar-ho aviat — just aquí sota.
     </p>
-    <a
-      href="#contacte"
-      data-cta
-      class="inline-block bg-gold text-white px-10 py-4 text-xs font-bold tracking-[0.18em] uppercase hover:brightness-110 transition"
-    >
-      Comprova si la teva data és lliure
-    </a>
   </div>
 </section>
 
@@ -572,6 +556,29 @@ const faqs = [
   </div>
 </section>
 
+<!-- ──────────────── LIGHTBOX (galeria ampliable) ─────────── -->
+<div
+  data-lightbox-overlay
+  class="hidden fixed inset-0 z-50 bg-ink/95 items-center justify-center p-4"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Foto ampliada"
+>
+  <button
+    type="button"
+    data-lightbox-close
+    class="absolute top-4 right-5 text-white/80 hover:text-white text-4xl leading-none"
+    aria-label="Tancar"
+  >&times;</button>
+  <figure class="max-w-5xl w-full text-center">
+    <picture>
+      <source type="image/webp" data-lightbox-src-webp srcset="" />
+      <img data-lightbox-img src="" alt="" class="max-h-[82vh] w-auto mx-auto object-contain" />
+    </picture>
+    <figcaption data-lightbox-cap class="text-white/70 text-[0.7rem] font-bold tracking-[0.18em] uppercase mt-4"></figcaption>
+  </figure>
+</div>
+
 <!-- ──────────────── CTA STICKY (només mòbil) ─────────────── -->
 <div class="md:hidden fixed bottom-0 inset-x-0 z-40 p-3 bg-white/95 backdrop-blur border-t border-black/10" data-sticky-cta>
   <a
@@ -603,6 +610,48 @@ const faqs = [
       iframe.className = 'absolute inset-0 w-full h-full';
       btn.replaceWith(iframe);
     });
+  });
+
+  // ── Lightbox: clic a una foto de la galeria → s'amplia ──
+  const overlay = document.querySelector<HTMLElement>('[data-lightbox-overlay]');
+  const lbImg = overlay?.querySelector<HTMLImageElement>('[data-lightbox-img]');
+  const lbWebp = overlay?.querySelector<HTMLSourceElement>('[data-lightbox-src-webp]');
+  const lbCap = overlay?.querySelector<HTMLElement>('[data-lightbox-cap]');
+
+  function openLightbox(full: string, webp: string, cap: string) {
+    if (!overlay || !lbImg) return;
+    if (lbWebp) lbWebp.srcset = webp;
+    lbImg.src = full;
+    lbImg.alt = cap;
+    if (lbCap) lbCap.textContent = cap;
+    overlay.classList.remove('hidden');
+    overlay.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    if (!overlay) return;
+    overlay.classList.add('hidden');
+    overlay.classList.remove('flex');
+    if (lbImg) lbImg.src = '';
+    if (lbWebp) lbWebp.srcset = '';
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-lightbox]').forEach((btn) => {
+    btn.addEventListener('click', () =>
+      openLightbox(
+        btn.getAttribute('data-full') ?? '',
+        btn.getAttribute('data-full-webp') ?? '',
+        btn.getAttribute('data-cap') ?? '',
+      ),
+    );
+  });
+  overlay?.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target === overlay || target.hasAttribute('data-lightbox-close')) closeLightbox();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLightbox();
   });
 
   // ── Amaga la CTA sticky quan el formulari és visible (ja hi és) ──
