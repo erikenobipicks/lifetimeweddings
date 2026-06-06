@@ -324,6 +324,15 @@ export async function initSchema() {
   // When set, the couple can still view the quote but cannot submit
   // further configurations. Eric closes the quote once they've agreed.
   await ensureColumn('quotes', 'quote_closed_at', 'TEXT');
+  // ── Quote follow-up tracking ───────────────────────────────────────
+  // `sent_at`           — stamped when Eric clicks "📧 Enviar" on the
+  //                       quote (POST /api/admin/send-quote). Drives the
+  //                       7-day follow-up cron + the "send reminder"
+  //                       button gating in /admin/[id].
+  // `follow_up_sent_at` — stamped when the follow-up email goes out
+  //                       (manual button or cron). Prevents duplicates.
+  await ensureColumn('quotes', 'sent_at', 'TEXT');
+  await ensureColumn('quotes', 'follow_up_sent_at', 'TEXT');
   // Preferred language for the couple. Drives /p/<token> localisation and
   // is pre-filled on the lead row when contact/quiz tell us via `lang`.
   // Nullable — pre-existing rows default to 'ca' at read time in the

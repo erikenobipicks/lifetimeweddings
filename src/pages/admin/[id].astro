@@ -74,6 +74,20 @@ const url = `${siteUrl}/p/${quote.token}`;
 
 const packs = PACKS.filter((p) => quote.packIds.includes(p.id));
 
+// Follow-up reminder eligibility. The button is shown only when there's
+// an email + a "sent" stamp; we surface the state ("already sent" /
+// "send now" / "still early") so Eric doesn't accidentally re-fire.
+const followUpState: 'never_sent' | 'already_sent' | 'ready' | 'too_early' = (() => {
+  if (!quote.coupleEmail) return 'never_sent';
+  if (quote.followUpSentAt) return 'already_sent';
+  if (!quote.sentAt) return 'never_sent';
+  const ageDays = (Date.now() - new Date(quote.sentAt).getTime()) / (1000 * 60 * 60 * 24);
+  return ageDays >= 7 ? 'ready' : 'too_early';
+})();
+const daysSinceSent = quote.sentAt
+  ? Math.floor((Date.now() - new Date(quote.sentAt).getTime()) / (1000 * 60 * 60 * 24))
+  : null;
+
 // Pre-compute the latest response's totals so the operator sees the
 // breakdown without re-doing the math (matches what the couple saw).
 const latestTotals = latestResponse
@@ -141,12 +155,43 @@ function humanSecs(n: number): string {
           📧 Enviar
         </button>
       )}
+      {(followUpState === 'ready' || followUpState === 'too_early') && (
+        <button
+          type="button"
+          data-send-followup
+          data-quote-id={quote.id}
+          data-email={quote.coupleEmail}
+          disabled={followUpState === 'too_early'}
+          title={followUpState === 'too_early'
+            ? `Es recomanen 7 dies abans del recordatori (en falten ${7 - (daysSinceSent ?? 0)}). Pots disparar-lo igualment si vols.`
+            : `Recordatori suau · enllaç enviat fa ${daysSinceSent} dies`}
+          class:list={[
+            'px-4 py-2 text-xs font-bold tracking-widest uppercase transition border whitespace-nowrap',
+            followUpState === 'ready'
+              ? 'border-gold text-gold hover:bg-gold hover:text-white'
+              : 'border-ink/15 text-ink/40 cursor-not-allowed',
+          ]}
+        >
+          {followUpState === 'ready'
+            ? `📧 Recordatori (${daysSinceSent}d)`
+            : `📧 Recordatori (encara és aviat · ${daysSinceSent ?? 0}d)`}
+        </button>
+      )}
+      {followUpState === 'already_sent' && (
+        <span class="text-xs text-ink/55 px-3 py-2 border border-black/10 bg-cream/50 whitespace-nowrap">
+          ✓ Recordatori enviat {quote.followUpSentAt ? `· ${fmt(quote.followUpSentAt)}` : ''}
+        </span>
+      )}
     </div>
     {quote.coupleEmail && (
-      <p class="text-[0.7rem] text-ink/50 mt-2" data-send-feedback></p>
+      <>
+        <p class="text-[0.7rem] text-ink/50 mt-2" data-send-feedback></p>
+        <p class="text-[0.7rem] text-ink/50" data-followup-feedback></p>
+      </>
     )}
     <div class="mt-3 text-xs text-ink/60 flex flex-wrap gap-4">
       <span>Creat: <strong>{fmt(quote.createdAt)}</strong></span>
+      {quote.sentAt && <span>Enviat: <strong>{fmt(quote.sentAt)}</strong></span>}
       {quote.createdBy && <span>per <strong>{quote.createdBy}</strong></span>}
       {quote.expiresAt && <span>Caduca: <strong>{fmt(quote.expiresAt)}</strong></span>}
       {quote.hasPassword && <span>🔒 Protegit amb contrasenya</span>}
@@ -458,6 +503,45 @@ function humanSecs(n: number): string {
         setTimeout(() => (btn.textContent = old), 1500);
       } catch {
         prompt('Copia:', btn.dataset.copy!);
+      }
+    });
+  });
+
+  // Manual 7-day follow-up reminder. Same body as the cron path; the
+  // server stamps follow_up_sent_at on success so the cron skips this
+  // quote next tick. UI confirms before sending and surfaces ok/err.
+  document.querySelectorAll<HTMLButtonElement>('[data-send-followup]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (btn.disabled) return;
+      const quoteId = Number(btn.dataset.quoteId);
+      const email = btn.dataset.email ?? '';
+      const feedback = document.querySelector<HTMLElement>('[data-followup-feedback]');
+      if (!confirm(`Enviar el recordatori suau a ${email}?\n\nÉs un sol enviament — un cop fet no es repetirà des del cron.`)) return;
+      btn.disabled = true;
+      const old = btn.textContent;
+      btn.textContent = 'Enviant…';
+      try {
+        const res = await fetch(`/api/admin/quotes/${quoteId}/follow-up`, { method: 'POST' });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.error ?? `HTTP ${res.status}`);
+        }
+        btn.textContent = '✓ Recordatori enviat';
+        if (feedback) {
+          feedback.textContent = `Recordatori enviat a ${email} · ` + new Date().toLocaleString('ca-ES');
+          feedback.style.color = '#c9a96e';
+        }
+        // Recharge after a moment so the page state ("ja enviat" badge)
+        // reflects the new follow_up_sent_at.
+        setTimeout(() => window.location.reload(), 1200);
+      } catch (err) {
+        console.error('[followup] failed', err);
+        btn.textContent = old ?? '📧 Recordatori';
+        btn.disabled = false;
+        if (feedback) {
+          feedback.textContent = 'Error enviant el recordatori. Mira els logs.';
+          feedback.style.color = '#b91c1c';
+        }
       }
     });
   });
