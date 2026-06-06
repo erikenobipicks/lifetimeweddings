@@ -4,7 +4,7 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { getUser } from '~/lib/auth';
-import { getQuoteById } from '~/lib/quotes';
+import { getQuoteById, markQuoteSent } from '~/lib/quotes';
 import { sendNotification } from '~/lib/email';
 import { generateQuotePdf } from '~/lib/quotes/pdf';
 import { SITE } from '~/data/site';
@@ -86,6 +86,15 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     `,
     replyTo: SITE.email,
   });
+
+  // Stamp the "sent" timestamp so the 7-day follow-up clock starts.
+  // Fail-soft: a DB blip here mustn't reverse the successful email send.
+  try {
+    await markQuoteSent(quote.id);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[send-quote] markQuoteSent failed (non-fatal)', err);
+  }
 
   return json({ ok: true, sentTo: to }, 200);
 };

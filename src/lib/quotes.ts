@@ -53,6 +53,14 @@ export interface Quote {
    *  their last submitted configuration but cannot send a new one. Null
    *  while the quote is still open to changes. */
   closedAt: string | null;
+  /** ISO timestamp when Eric explicitly emailed the quote to the couple
+   *  (POST /api/admin/send-quote). Drives the follow-up cron and the
+   *  "send reminder" button. Null = link never sent by email (e.g. Eric
+   *  copied it and pasted in WhatsApp). */
+  sentAt: string | null;
+  /** ISO timestamp when the 7-day follow-up email was sent (manual or
+   *  cron). Null until it goes out; prevents duplicate reminders. */
+  followUpSentAt: string | null;
 }
 
 export interface QuoteStats {
@@ -104,6 +112,8 @@ function rowToQuote(r: any): Quote {
     adminDiscountCents: r.admin_discount_cents != null ? Number(r.admin_discount_cents) : 0,
     adminDiscountReason: r.admin_discount_reason ?? null,
     closedAt: r.quote_closed_at ?? null,
+    sentAt: r.sent_at ?? null,
+    followUpSentAt: r.follow_up_sent_at ?? null,
   };
 }
 
@@ -480,6 +490,47 @@ export async function linkLeadToQuote(leadId: number, quoteId: number): Promise<
 export async function deleteLead(id: number): Promise<void> {
   await initSchema();
   await db.execute({ sql: 'DELETE FROM leads WHERE id = ?', args: [id] });
+}
+
+// ─── Quote follow-up tracking ───────────────────────────────────────────────
+
+/** Stamp the quote as "emailed by Eric" so the follow-up clock starts.
+ *  Idempotent on re-send: we overwrite to the latest send time so the
+ *  follow-up window resets if Eric re-sends days later. */
+export async function markQuoteSent(id: number, at: Date = new Date()): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: 'UPDATE quotes SET sent_at = ? WHERE id = ?',
+    args: [at.toISOString(), id],
+  });
+}
+
+/** Stamp the follow-up email as sent so neither the cron nor the manual
+ *  button re-sends it. */
+export async function markQuoteFollowUpSent(id: number, at: Date = new Date()): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: 'UPDATE quotes SET follow_up_sent_at = ? WHERE id = ?',
+    args: [at.toISOString(), id],
+  });
+}
+
+/** Quotes ready for a follow-up email: sent >= `daysSince` ago, no
+ *  follow-up yet, not archived, and we actually have a recipient. */
+export async function listQuotesPendingFollowUp(daysSince = 7): Promise<Quote[]> {
+  await initSchema();
+  const cutoff = new Date(Date.now() - daysSince * 24 * 60 * 60 * 1000).toISOString();
+  const res = await db.execute({
+    sql: `SELECT * FROM quotes
+          WHERE archived = 0
+            AND couple_email IS NOT NULL AND couple_email <> ''
+            AND sent_at IS NOT NULL
+            AND sent_at <= ?
+            AND follow_up_sent_at IS NULL
+          ORDER BY sent_at ASC`,
+    args: [cutoff],
+  });
+  return res.rows.map(rowToQuote);
 }
 
 // ─── Interactive quote responses ────────────────────────────────────────────
