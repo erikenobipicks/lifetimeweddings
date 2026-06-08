@@ -705,7 +705,7 @@ function contratoInviteCopy(booking: Booking): ContratoInviteCopy {
       subject: `Deposit received — last details for the contract, ${n1}`,
       greeting: `Hi ${n1} and ${n2},`,
       body:
-        "We've received your deposit — your date is officially booked! All that's left is the last set of details for the contract: where each of you will get ready, ceremony type, and the photo-publication permissions. About 5 minutes.",
+        "We've received your deposit — your date is officially booked! All that's left is the last set of details for the contract: where each of you will get ready, ceremony type, and the photo-publication permissions. About 5 minutes.\n\nA heads-up: the contract itself is written in Spanish — that's a legal requirement in Spain for wedding-services agreements. If anything is unclear when you read it, just reply to this email and we'll walk you through it before you sign.",
       ctaLabel: 'Fill in the last details',
       signoff: 'Talk soon.\n\nFerran and Eric\nLifetime',
     };
@@ -724,10 +724,19 @@ export async function sendContratoInvite(booking: Booking): Promise<void> {
   const c = contratoInviteCopy(booking);
   const langPrefix = booking.preferredLanguage === 'ca' ? '' : `/${booking.preferredLanguage}`;
   const url = `${SITE.url}${langPrefix}/contrato/${booking.slug}`;
+  // Body can contain multiple paragraphs separated by blank lines (the EN
+  // variant adds a "contract is in Spanish" note as a second paragraph).
+  // Split + wrap so mail clients lay them out properly instead of cramming
+  // everything into a single <p>.
+  const bodyParagraphs = c.body
+    .split(/\n\s*\n/)
+    .map((p) => `<p style="margin:0 0 16px">${escapeHtml(p)}</p>`)
+    .join('');
+
   const html = `
     <div style="font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:#1a1a1a;line-height:1.6;max-width:560px;margin:0 auto;padding:24px">
       <p style="margin:0 0 16px">${escapeHtml(c.greeting)}</p>
-      <p style="margin:0 0 24px">${escapeHtml(c.body)}</p>
+      ${bodyParagraphs}
       <p style="margin:0 0 32px">
         <a href="${url}" style="display:inline-block;background:#1a1a1a;color:#fff;text-decoration:none;padding:14px 28px;font-weight:600;letter-spacing:0.05em">${escapeHtml(c.ctaLabel)}</a>
       </p>
