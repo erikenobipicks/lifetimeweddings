@@ -1,0 +1,25 @@
+version: 2
+updates:
+  # npm dependencies — weekly, grouped to keep PR noise low.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      # Patch/minor bumps batched into a single PR; majors stay separate so
+      # breaking changes (e.g. Astro 5 → 6) get their own focused review.
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    labels:
+      - "dependencies"
+
+  # Keep the GitHub Actions used in CI up to date too.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
