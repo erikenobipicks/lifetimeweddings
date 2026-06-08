@@ -11,6 +11,8 @@ const CANONICAL_HOST = process.env.CANONICAL_HOST;
 // \u2500\u2500 Content-Security-Policy (Report-Only) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 // Built from the third-party origins actually loaded by the site:
 //   - Turnstile (challenges.cloudflare.com): captcha script + iframe
+//   - Cloudflare Web Analytics (static.cloudflareinsights.com beacon →
+//     cloudflareinsights.com RUM endpoint)
 //   - Google Analytics / Tag Manager: gtag script + beacons
 //   - Meta Pixel (connect.facebook.net / facebook.com)
 //   - YouTube (youtube-nocookie.com / youtube.com, i.ytimg.com thumbs)
@@ -30,8 +32,8 @@ const CSP_REPORT_ONLY = [
   `img-src 'self' data: https:`,
   `font-src 'self' data:`,
   `style-src 'self' 'unsafe-inline'`,
-  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://www.youtube.com https://s.ytimg.com https://js.stripe.com`,
-  `connect-src 'self' https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://connect.facebook.net https://www.facebook.com https://places.googleapis.com https://feeds.behold.so`,
+  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://www.youtube.com https://s.ytimg.com https://js.stripe.com`,
+  `connect-src 'self' https://challenges.cloudflare.com https://cloudflareinsights.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://connect.facebook.net https://www.facebook.com https://places.googleapis.com https://feeds.behold.so`,
   `frame-src 'self' https://challenges.cloudflare.com https://www.youtube-nocookie.com https://www.youtube.com https://js.stripe.com https://hooks.stripe.com https://gallery.fotostudio.io https://www.instagram.com https://behold.so`,
   `report-uri /api/csp-report`,
   `report-to csp-endpoint`,
