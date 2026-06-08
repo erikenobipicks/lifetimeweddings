@@ -12,6 +12,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
+import { securityAlert } from '~/lib/security-alerts';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -33,6 +34,14 @@ export const POST: APIRoute = async ({ request }) => {
         /* not JSON — fall back to the truncated raw body */
       }
       console.warn('[csp-report]', summary);
+      // Heads-up to Telegram, heavily throttled (≤ 1/hour) so a chatty rule
+      // can't flood the chat. While the CSP is Report-Only this is just a
+      // signal to review; once enforcing it flags real blocked resources.
+      await securityAlert(
+        'csp',
+        `Violació(ns) de CSP detectada(es).\n${summary}\n(report-only; revisa /api/csp-report als logs)`,
+        60 * 60 * 1000,
+      );
     }
   } catch {
     /* swallow — never error back at the browser */

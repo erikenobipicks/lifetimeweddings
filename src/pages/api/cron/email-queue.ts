@@ -30,6 +30,7 @@ import { timingSafeEqual } from 'node:crypto';
 import { sendDueEmails } from '~/lib/bookings/sequences';
 import { listQuotesPendingFollowUp, markQuoteFollowUpSent } from '~/lib/quotes';
 import { sendQuoteFollowUp } from '~/lib/quotes/followup';
+import { securityAlert } from '~/lib/security-alerts';
 
 interface QuoteFollowUpResult {
   due: number;
@@ -96,6 +97,14 @@ export const POST: APIRoute = async ({ request }) => {
   const provided = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
   if (!provided || !safeEqual(provided, secret)) {
     console.warn('[cron.email-queue] unauthorized');
+    const ip =
+      request.headers.get('cf-connecting-ip') ??
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+      'unknown';
+    await securityAlert(
+      'cron-unauth',
+      `Intent no autoritzat a l'endpoint del cron (/api/cron/email-queue).\nIP: ${ip}`,
+    );
     return json({ error: 'unauthorized' }, 401);
   }
 
