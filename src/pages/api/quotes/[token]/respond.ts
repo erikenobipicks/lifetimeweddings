@@ -21,6 +21,12 @@ import {
 import { PACKS, EXTRAS } from '~/data/packs';
 import { calculateSelectionTotals, formatEuros } from '~/lib/pricing';
 import { sendNotification, sendTelegramNotification } from '~/lib/email';
+import { createRateLimiter, clientIpFrom } from '~/lib/rate-limit';
+
+// This endpoint persists a row AND fans out email + Telegram notifications,
+// so it's an amplification target. 10 submissions / hour / IP is well above
+// a couple iterating on their configuration but kills notification flooding.
+const rateLimit = createRateLimiter({ limit: 10, windowMs: 60 * 60 * 1000 });
 
 const schema = z.object({
   // Packs are single-select on the UI (mutually exclusive base + combo).
@@ -58,6 +64,10 @@ function esc(s: string | undefined | null): string {
 const SITE_URL = process.env.PUBLIC_SITE_URL ?? 'http://localhost:4321';
 
 export const POST: APIRoute = async ({ request, params }) => {
+  if (!rateLimit(clientIpFrom(request.headers))) {
+    return json({ error: 'rate_limited' }, 429);
+  }
+
   const token = String(params.token ?? '');
   if (!token) return json({ error: 'no_token' }, 400);
 
