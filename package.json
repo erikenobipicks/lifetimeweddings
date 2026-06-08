@@ -22,7 +22,7 @@
     "@libsql/client": "^0.17.2",
     "@tailwindcss/typography": "^0.5.19",
     "@types/pdfkit": "^0.17.6",
-    "astro": "^5.0.0",
+    "astro": "^6.4.4",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
     "node-html-parser": "^7.1.0",
