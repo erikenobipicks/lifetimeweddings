@@ -14,6 +14,22 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { securityAlert } from '~/lib/security-alerts';
 
+/** Pull the violation object out of whichever report shape arrived:
+ *   - legacy report-uri:        { "csp-report": { … } }            (Firefox/Safari)
+ *   - Reporting API batch:      [ { type, body: { … } }, … ]       (Chrome report-to)
+ *   - Reporting API single obj: { type, body: { … } }
+ *   - already-unwrapped object: { … } */
+function extractViolation(parsed: any): Record<string, any> | null {
+  if (!parsed || typeof parsed !== 'object') return null;
+  if (parsed['csp-report']) return parsed['csp-report'];
+  if (Array.isArray(parsed)) {
+    const first = parsed[0];
+    return first?.body ?? first ?? null;
+  }
+  if (parsed.body) return parsed.body;
+  return parsed;
+}
+
 export const POST: APIRoute = async ({ request }) => {
   try {
     const raw = await request.text();
@@ -22,12 +38,14 @@ export const POST: APIRoute = async ({ request }) => {
       const body = raw.length > 2000 ? `${raw.slice(0, 2000)}…` : raw;
       let summary = body;
       try {
-        const parsed = JSON.parse(raw);
-        const r = parsed['csp-report'] ?? (Array.isArray(parsed) ? parsed[0]?.body : parsed);
+        const r = extractViolation(JSON.parse(raw));
         if (r) {
-          const directive = r['violated-directive'] ?? r.effectiveDirective ?? '?';
-          const blocked = r['blocked-uri'] ?? r.blockedURL ?? '?';
-          const doc = r['document-uri'] ?? r.documentURL ?? '?';
+          // Field names differ between the legacy (kebab) and Reporting API
+          // (camel) shapes — accept either.
+          const directive =
+            r['violated-directive'] ?? r['effective-directive'] ?? r.effectiveDirective ?? '?';
+          const blocked = r['blocked-uri'] ?? r.blockedURL ?? r.blockedURI ?? '?';
+          const doc = r['document-uri'] ?? r.documentURL ?? r.documentURI ?? '?';
           summary = `directive=${directive} blocked=${blocked} doc=${doc}`;
         }
       } catch {
