@@ -5,11 +5,10 @@ name: Security monitoring
 #                            already have (the PR-time audit only fires on
 #                            changes, so a quiet repo could sit on a new CVE).
 #   - gitleaks             → blocks secrets from landing in git history.
-#   - semgrep (SAST)       → static analysis for insecure patterns. Runs in
-#                            report-only mode for now (continue-on-error) so it
-#                            never blocks a merge on a pre-existing finding;
-#                            flip `continue-on-error` to false once the
-#                            baseline is triaged and clean.
+#   - semgrep (SAST)       → static analysis for insecure patterns. Blocking:
+#                            the baseline scanned clean (0 findings over 204
+#                            rules / 1691 files), so any new insecure pattern
+#                            a PR introduces fails CI.
 on:
   pull_request:
   push:
@@ -52,14 +51,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   sast:
-    name: semgrep (SAST, report-only)
+    name: semgrep (SAST)
     runs-on: ubuntu-latest
     container:
       image: semgrep/semgrep
-    # Report-only for now: surfaces findings in the job log without blocking
-    # merges. Remove this line to make insecure-pattern findings fail CI once
-    # the existing codebase has been triaged.
-    continue-on-error: true
+    # Blocking: the baseline is clean (0 findings), so `--error` failing the
+    # job means a PR introduced a new insecure pattern worth looking at.
     steps:
       - uses: actions/checkout@v4
       - run: |
