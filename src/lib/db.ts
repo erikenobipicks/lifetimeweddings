@@ -76,6 +76,15 @@ export async function initSchema() {
         expires_at TEXT NOT NULL
       )`,
 
+      // Per-IP login throttle. Moved out of the in-process Map so the limit
+      // survives deploys/restarts and would hold across multiple instances.
+      // `reset_at` is the ISO timestamp at which the window (and count) lapses.
+      `CREATE TABLE IF NOT EXISTS login_attempts (
+        ip TEXT PRIMARY KEY,
+        count INTEGER NOT NULL DEFAULT 0,
+        reset_at TEXT NOT NULL
+      )`,
+
       `CREATE TABLE IF NOT EXISTS leads (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         quote_id INTEGER,
@@ -446,6 +455,12 @@ export async function initSchema() {
   await db.execute({
     sql: 'DELETE FROM events WHERE created_at < ?',
     args: [months(12)],
+  });
+  // Expired login-throttle rows — keep the table from accreting one row per
+  // distinct attacker IP forever. Safe to run every boot.
+  await db.execute({
+    sql: 'DELETE FROM login_attempts WHERE reset_at < ?',
+    args: [new Date(now).toISOString()],
   });
   await db.execute({
     sql: "DELETE FROM bookings WHERE status = 'archived' AND updated_at < ?",

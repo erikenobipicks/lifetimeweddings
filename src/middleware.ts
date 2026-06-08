@@ -68,6 +68,35 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
+  // ── CSRF defence for the admin area ─────────────────────────────────────
+  // Astro's global origin check is intentionally disabled (astro.config.mjs)
+  // because the PUBLIC forms must accept cross-edge multipart POSTs behind
+  // Cloudflare. The authenticated admin surface has no such constraint, so we
+  // re-introduce an Origin/Referer same-origin check here for any unsafe
+  // method. Browsers always send `Origin` on admin fetch()/form POSTs, and the
+  // admin UI is same-origin, so this never blocks legitimate use — but it does
+  // stop a cross-site page from driving state changes against a logged-in
+  // operator (defence-in-depth on top of the SameSite=Lax session cookie).
+  const isAdminArea = path.startsWith('/admin') || path.startsWith('/api/admin/');
+  if (isAdminArea && method !== 'GET' && method !== 'HEAD') {
+    const expectedHost = context.url.host;
+    const origin = context.request.headers.get('origin');
+    const referer = context.request.headers.get('referer');
+    let sameOrigin = false;
+    try {
+      if (origin) sameOrigin = new URL(origin).host === expectedHost;
+      else if (referer) sameOrigin = new URL(referer).host === expectedHost;
+    } catch {
+      sameOrigin = false;
+    }
+    if (!sameOrigin) {
+      return new Response(JSON.stringify({ error: 'cross_origin_forbidden' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+  }
+
   // ── Admin auth guard ────────────────────────────────────────────────────
   if (path.startsWith('/admin') && path !== '/admin/login') {
     const user = await getUser(context.cookies);
