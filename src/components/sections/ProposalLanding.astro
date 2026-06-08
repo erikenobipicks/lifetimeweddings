@@ -478,7 +478,15 @@ const jsonLd = [
 
 /** Render a copy snippet that may contain **bold** Markdown markers. */
 function renderBold(s: string): string {
-  return s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // Escape HTML metacharacters FIRST so any `<`, `>` or `&` in the source
+  // text can never break out into markup, then apply the **bold** → <strong>
+  // substitution on the now-safe string. The `**` markers survive escaping,
+  // so the transform still works. Defence-in-depth: today this is fed static
+  // copy, but escaping keeps it safe if booking/admin content ever flows in.
+  const escaped = s.replace(/[<>&]/g, (c) =>
+    ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c] as string),
+  );
+  return escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
 }
 ---
 

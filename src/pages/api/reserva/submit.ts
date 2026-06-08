@@ -206,15 +206,15 @@ export const POST: APIRoute = async ({ request }) => {
   const parsed = submitSchema.safeParse(body);
   if (!parsed.success) {
     const issues = parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message }));
-    // Log the exact failing fields (paths + the offending values) so we
-    // can diagnose from the server logs. We log the value too — these are
-    // the raw posted strings, helpful when a regex (DNI/phone/time) is the
-    // culprit. Values are truncated to avoid dumping huge payloads.
+    // Log only the failing field paths + messages + whether a value was
+    // present — NEVER the values themselves. This form carries high-PII
+    // fields (DNI/NIE, address, phone, email); dumping raw posted strings
+    // into the Railway logs would be a data-minimisation (RGPD) problem.
     const b = (body ?? {}) as Record<string, unknown>;
     const detail = issues.map((i) => {
       const v = b[i.path];
-      const vStr = v === undefined ? '∅(missing)' : JSON.stringify(v);
-      return `${i.path}=${vStr.length > 60 ? vStr.slice(0, 60) + '…' : vStr} (${i.message})`;
+      const present = v !== undefined && v !== '';
+      return `${i.path}=${present ? '<present>' : '∅(missing)'} (${i.message})`;
     });
     console.warn('[reserva.submit] validation failed:', detail.join(' | '));
     return jsonResponse({ error: 'validation', issues }, 400);
