@@ -1,7 +1,8 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
-import tailwind from '@astrojs/tailwind';
 import node from '@astrojs/node';
+// Tailwind is wired via PostCSS (postcss.config.mjs) since Astro 6 dropped
+// the @astrojs/tailwind integration.
 
 // https://astro.build/config
 export default defineConfig({
@@ -25,7 +26,6 @@ export default defineConfig({
     },
   },
   integrations: [
-    tailwind({ applyBaseStyles: true }),
     sitemap({
       i18n: {
         defaultLocale: 'ca',
