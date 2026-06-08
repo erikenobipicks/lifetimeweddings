@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { recordHeartbeat } from '~/lib/quotes';
+import { createRateLimiter, clientIpFrom } from '~/lib/rate-limit';
 
 const schema = z.object({
   token: z.string().min(4).max(32),
@@ -9,7 +10,15 @@ const schema = z.object({
   maxScroll: z.number().int().min(0).max(100),
 });
 
+// Heartbeats fire periodically per open page; allow a generous budget so
+// legitimate viewers (and NAT'd IPs) aren't blocked, while still capping a
+// script that tries to flood the events table.
+const rateLimit = createRateLimiter({ limit: 300, windowMs: 5 * 60 * 1000 });
+
 export const POST: APIRoute = async ({ request }) => {
+  if (!rateLimit(clientIpFrom(request.headers))) {
+    return new Response('Too Many Requests', { status: 429 });
+  }
   let body: unknown;
   try {
     body = await request.json();

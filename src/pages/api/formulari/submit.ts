@@ -47,6 +47,13 @@ export const POST: APIRoute = async ({ request }) => {
   if (!parsed.success) return json({ error: 'validation' }, 400);
   const { token, data } = parsed.data;
 
+  // Cap the serialized payload so an attacker can't use this open-shape
+  // endpoint (`data` is an arbitrary record) to write unbounded blobs into
+  // the DB. 20 KB is comfortably above any legitimate follow-up form.
+  if (JSON.stringify(data).length > 20_000) {
+    return json({ error: 'too_large' }, 413);
+  }
+
   const schedule = await getScheduleByToken(token);
   if (!schedule) return json({ error: 'not_found' }, 404);
 

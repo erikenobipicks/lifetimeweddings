@@ -26,6 +26,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
+import { timingSafeEqual } from 'node:crypto';
 import { sendDueEmails } from '~/lib/bookings/sequences';
 import { listQuotesPendingFollowUp, markQuoteFollowUpSent } from '~/lib/quotes';
 import { sendQuoteFollowUp } from '~/lib/quotes/followup';
@@ -77,6 +78,15 @@ function json(data: unknown, status: number): Response {
   });
 }
 
+/** Constant-time string comparison so the auth check doesn't leak the
+ *  secret one byte at a time via response timing. */
+function safeEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ab.length !== bb.length) return false;
+  return timingSafeEqual(ab, bb);
+}
+
 export const POST: APIRoute = async ({ request }) => {
   const secret = (process.env.CRON_SECRET ?? '').trim();
   if (!secret) {
@@ -84,7 +94,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
   const auth = request.headers.get('authorization') ?? '';
   const provided = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
-  if (!provided || provided !== secret) {
+  if (!provided || !safeEqual(provided, secret)) {
     console.warn('[cron.email-queue] unauthorized');
     return json({ error: 'unauthorized' }, 401);
   }

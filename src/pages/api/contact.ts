@@ -12,6 +12,12 @@ import { sendNotification, sendTelegramNotification, sendAutoReplyToLead } from 
 import { createLead } from '~/lib/quotes';
 import { verifyTurnstile, clientIp } from '~/lib/captcha';
 import { pushLeadToFotostudio } from '~/lib/fotostudio';
+import { createRateLimiter, clientIpFrom } from '~/lib/rate-limit';
+
+// Captcha + honeypot already gate this, but a per-IP cap adds a cheap layer
+// against notification flooding (each accepted lead emails Eric + Telegram +
+// an auto-reply to the lead). 10 / hour / IP is far above real-world contact.
+const rateLimit = createRateLimiter({ limit: 10, windowMs: 60 * 60 * 1000 });
 
 // Coerce "" → undefined for optional fields so we don't persist empty strings
 // and so zod's `.optional()` short-circuits length checks on blank inputs.
@@ -36,6 +42,13 @@ function esc(s: string | undefined | null): string {
 
 export const POST: APIRoute = async ({ request }) => {
   try {
+    if (!rateLimit(clientIpFrom(request.headers))) {
+      return new Response(JSON.stringify({ error: 'rate_limited' }), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     const ct = request.headers.get('content-type') ?? '';
     let raw: Record<string, string> = {};
     try {

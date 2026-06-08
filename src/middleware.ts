@@ -99,6 +99,27 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const response = await next();
 
+  // ── Baseline security headers ───────────────────────────────────────────
+  // Applied to every response. These are framework-agnostic hardening
+  // defaults; a full Content-Security-Policy is deliberately NOT set here
+  // yet (it needs report-only tuning against the YouTube / Instagram /
+  // Turnstile / Stripe / analytics embeds — tracked as a follow-up).
+  //   - nosniff:           stop MIME-type sniffing of responses.
+  //   - frame SAMEORIGIN:  block clickjacking of our pages (esp. /admin).
+  //   - Referrer-Policy:   don't leak full URLs (private /p, /reserva tokens)
+  //                        to third parties.
+  // HSTS is only emitted in production, where the site is always served over
+  // HTTPS behind Cloudflare; emitting it in dev (plain http) would be wrong.
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  if (process.env.NODE_ENV === 'production') {
+    response.headers.set(
+      'Strict-Transport-Security',
+      'max-age=31536000; includeSubDomains',
+    );
+  }
+
   // Tell Cloudflare / browsers not to cache HTML. Static assets under /_astro
   // / /images etc. keep their long-lived cache headers (set elsewhere). This
   // prevents the "deploy shipped new JS but cached HTML still loads old JS"
