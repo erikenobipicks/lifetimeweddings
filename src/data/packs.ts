@@ -253,6 +253,109 @@ export const PACKS: Pack[] = [
       ],
     },
   },
+
+  // ─── SHORT COVERAGE (ceremony + couple shoot, no prep / no reception) ─
+  // Designed for civil weddings, small town-hall ceremonies, vow renewals,
+  // and other intimate events where 2-3 hours of coverage covers everything
+  // that matters. Time window is approximate — Eric tailors it per couple
+  // in the proposal copy ("from arrival to end of aperitivo", etc.).
+  {
+    id: 'short-photo',
+    type: 'photo',
+    name: {
+      ca: 'Reportatge curt',
+      es: 'Reportaje corto',
+      en: 'Short coverage',
+    },
+    price: '500 €',
+    includes: {
+      es: [
+        'Cobertura de ~2,5 horas: ceremonia + sesión de novios + aperitivo',
+        'Sin preparativos, sin banquete',
+        'Mínimo 200 fotografías editadas en alta resolución',
+        'Galería privada online para compartir con familia y amigos',
+        'Sneak peek de 15 fotos en 48h',
+        'Entrega de la galería completa en 2 semanas',
+      ],
+      ca: [
+        'Cobertura de ~2,5 hores: cerimònia + sessió de nuvis + aperitiu',
+        'Sense preparatius, sense banquet',
+        'Mínim 200 fotografies editades en alta resolució',
+        'Galeria privada online per compartir amb família i amics',
+        'Sneak peek de 15 fotos en 48h',
+        'Entrega de la galeria completa en 2 setmanes',
+      ],
+      en: [
+        '~2.5 h coverage: ceremony + couple shoot + aperitivo',
+        'No prep, no reception',
+        'Minimum of 200 professionally edited high-resolution photographs',
+        'Private online gallery to share with family and friends',
+        'Sneak peek of 15 photos within 48 h',
+        'Full gallery delivered within 2 weeks',
+      ],
+    },
+  },
+  {
+    id: 'short-video',
+    type: 'video',
+    name: {
+      ca: 'Vídeo curt',
+      es: 'Vídeo corto',
+      en: 'Short video coverage',
+    },
+    price: '550 €',
+    includes: {
+      es: [
+        'Cobertura de ~2,5 horas: ceremonia + sesión de novios + aperitivo',
+        'Sin preparativos, sin banquete',
+        'Vídeo cinematográfico de 8-12 minutos',
+        'Audio de la ceremonia incluido',
+        'Edición sin marca de agua',
+        'Entrega online en máximo 3 meses',
+      ],
+      ca: [
+        'Cobertura de ~2,5 hores: cerimònia + sessió de nuvis + aperitiu',
+        'Sense preparatius, sense banquet',
+        'Vídeo cinematogràfic de 8-12 minuts',
+        'Àudio de la cerimònia inclòs',
+        'Edició sense marca d\'aigua',
+        'Entrega online en màxim 3 mesos',
+      ],
+      en: [
+        '~2.5 h coverage: ceremony + couple shoot + aperitivo',
+        'No prep, no reception',
+        'Cinematic highlight film of 8-12 minutes',
+        'Ceremony audio included',
+        'Edited, no watermark',
+        'Online delivery within 3 months',
+      ],
+    },
+  },
+  {
+    id: 'short-combo',
+    type: 'combo',
+    composedOf: ['short-photo', 'short-video'],
+    name: {
+      ca: 'Reportatge curt foto + vídeo',
+      es: 'Reportaje corto foto + vídeo',
+      en: 'Short coverage photo + film',
+    },
+    price: '900 €',
+    includes: {
+      es: [
+        'Foto + vídeo coordinados por dos hermanos en un solo equipo',
+        'Ventaja del bundle: ahorro de 150 € vs contratar por separado',
+      ],
+      ca: [
+        'Foto + vídeo coordinats per dos germans en un sol equip',
+        'Avantatge del bundle: estalvi de 150 € vs contractar per separat',
+      ],
+      en: [
+        'Photo + video coordinated by two brothers as one crew',
+        'Bundle advantage: save 150 € vs booking each separately',
+      ],
+    },
+  },
 ];
 
 /** Resolve the composedOf chain to the actual sub-packs, in the order
