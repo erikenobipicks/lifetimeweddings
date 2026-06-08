@@ -161,7 +161,18 @@ const flagshipVideo = overrideHit
     <link rel="preload" as="font" type="font/woff2" href={fraunceRomanUrl} crossorigin />
     <link rel="preload" as="font" type="font/woff2" href={interRomanUrl} crossorigin />
   </head>
-  <body class="bg-cream text-ink font-sans antialiased">
+  <body
+    class="bg-cream text-ink font-sans antialiased"
+    data-service-interest={quote?.serviceInterest ?? 'both'}
+  >
+    {/* Service-interest filter: photo-only couples don't see the video
+        trailer; video-only couples don't see the FotoStudio gallery
+        embed. Wrappers carry data-service so the CSS rule below picks
+        them. 'both' / 'undecided' show everything. */}
+    <style is:global>
+      body[data-service-interest="photo"] [data-service="video"] { display: none; }
+      body[data-service-interest="video"] [data-service="photo"] { display: none; }
+    </style>
     {!quote || quote.archived ? (
       <Section class="min-h-screen flex items-center justify-center">
         <div class="text-center max-w-md mx-auto">
@@ -337,21 +348,28 @@ const flagshipVideo = overrideHit
           />
         </section>
 
-        <!-- Flagship trailer — reused from /reserva/<slug>. Always shown,
-             unconditionally, so every quote gets a glimpse of what we
-             actually deliver in motion. -->
-        <VideoEmbed
-          lang={lang}
-          youtubeId={flagshipVideo.youtubeId}
-          coupleName={flagshipVideo.coupleName}
-          venue={flagshipVideo.venue}
-        />
+        <!-- Flagship trailer — reused from /reserva/<slug>. Tagged
+             data-service="video" so the photo-only filter hides it
+             (photo couples have no reason to watch a wedding film
+             demo). 'both' / 'undecided' keep it visible. -->
+        <div data-service="video">
+          <VideoEmbed
+            lang={lang}
+            youtubeId={flagshipVideo.youtubeId}
+            coupleName={flagshipVideo.coupleName}
+            venue={flagshipVideo.venue}
+          />
+        </div>
 
         {/* External gallery (FotoStudio etc.) — iframe with auto-fallback
             to a "open in new tab" CTA when the host blocks embedding.
-            Independent from the showcase/wedding overrides; can coexist. */}
+            Independent from the showcase/wedding overrides; can coexist.
+            Tagged data-service="photo" since FotoStudio is photo-only;
+            the video-only filter hides it. */}
         {quote.flagshipExternalGalleryUrl && (
-          <ExternalGalleryEmbed lang={lang} url={quote.flagshipExternalGalleryUrl} />
+          <div data-service="photo">
+            <ExternalGalleryEmbed lang={lang} url={quote.flagshipExternalGalleryUrl} />
+          </div>
         )}
 
         {/* Real-wedding override — takes priority over showcase. The
