@@ -19,7 +19,7 @@
 import { PACKS, EXTRAS } from '~/data/packs';
 import { useTranslations, type Lang } from '~/i18n/ui';
 import { formatEuros, parsePriceCents } from '~/lib/pricing';
-import type { QuoteResponse } from '~/lib/quotes';
+import type { QuoteResponse, ServiceInterest } from '~/lib/quotes';
 
 interface Props {
   lang: Lang;
@@ -34,9 +34,35 @@ interface Props {
   adminDiscountCents: number;
   /** When set, the configurator is read-only. */
   closedAt: string | null;
+  /** What the couple is asking for — drives the visibility filter on the
+   *  catalogue (photo-only hides video packs + video extras, etc.).
+   *  'both' / 'undecided' surface everything (default). */
+  serviceInterest: ServiceInterest;
 }
-const { lang, token, initialPackIds, lastResponse, adminDiscountCents, closedAt } = Astro.props;
+const { lang, token, initialPackIds, lastResponse, adminDiscountCents, closedAt, serviceInterest } = Astro.props;
 const t = useTranslations(lang);
+
+// Catalogue → service-tag map. Used both server-side (to set the data
+// attribute on each row) and client-side (the toggle below flips a class
+// on the wrapper to override the filter). Drone counts as 'both' because
+// it complements both photo and video.
+const EXTRA_SERVICE: Record<string, 'photo' | 'video' | 'both'> = {
+  'extra-videographer': 'video',
+  'extra-photographer': 'photo',
+  'extra-preboda-photo': 'photo',
+  'extra-signature-book': 'photo',
+  'extra-preboda-video': 'video',
+  'extra-sde': 'video',
+  'extra-album-30x40': 'photo',
+  'extra-album-parents': 'photo',
+  'extra-drone': 'both',
+};
+// 'undecided' renders the same surface as 'both' — distinction is only
+// kept in the DB for the operator-facing record.
+const filterMode: 'photo' | 'video' | 'all' =
+  serviceInterest === 'photo' ? 'photo'
+  : serviceInterest === 'video' ? 'video'
+  : 'all';
 
 // Hydrate initial selection — prefer the last response if any, otherwise
 // fall back to what Eric proposed. Packs are radio-style (single choice):
@@ -74,7 +100,11 @@ const previousTitle = t('quote.configurator.previousTitle');
 const noSelection = t('quote.configurator.empty');
 ---
 
-<section class="px-6 md:px-12 py-16 md:py-20 bg-white text-ink" id="quote-configurator">
+<section
+  class="px-6 md:px-12 py-16 md:py-20 bg-white text-ink"
+  id="quote-configurator"
+  data-filter={filterMode}
+>
   <div class="max-w-4xl mx-auto">
     <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3 text-center">
       {t('quote.configurator.eyebrow')}
@@ -104,7 +134,10 @@ const noSelection = t('quote.configurator.empty');
         <p class="text-xs text-ink/55 mb-3">{t('quote.configurator.singleChoiceNote')}</p>
         <div class="grid sm:grid-cols-2 gap-3">
           {basePacks.map((p) => (
-            <label class={`block border border-black/15 bg-white p-4 cursor-pointer hover:border-gold transition-colors has-[:checked]:border-gold has-[:checked]:bg-gold/5 ${isClosed ? 'pointer-events-none opacity-60' : ''}`}>
+            <label
+              data-service={p.type}
+              class={`qc-row block border border-black/15 bg-white p-4 cursor-pointer hover:border-gold transition-colors has-[:checked]:border-gold has-[:checked]:bg-gold/5 ${isClosed ? 'pointer-events-none opacity-60' : ''}`}
+            >
               <div class="flex items-start gap-3">
                 <input
                   type="radio"
@@ -129,11 +162,14 @@ const noSelection = t('quote.configurator.empty');
       </div>
 
       {/* Combos — same radio group as base packs (mutually exclusive). */}
-      <div>
+      <div class="qc-row" data-service="combo">
         <p class="text-xs font-bold tracking-[0.18em] uppercase text-ink/70 mb-3">{combosLabel}</p>
         <div class="grid sm:grid-cols-2 gap-3">
           {comboPacks.map((p) => (
-            <label class={`block border border-black/15 bg-white p-4 cursor-pointer hover:border-gold transition-colors has-[:checked]:border-gold has-[:checked]:bg-gold/5 ${isClosed ? 'pointer-events-none opacity-60' : ''}`}>
+            <label
+              data-service="combo"
+              class={`block border border-black/15 bg-white p-4 cursor-pointer hover:border-gold transition-colors has-[:checked]:border-gold has-[:checked]:bg-gold/5 ${isClosed ? 'pointer-events-none opacity-60' : ''}`}
+            >
               <div class="flex items-start gap-3">
                 <input
                   type="radio"
@@ -170,7 +206,7 @@ const noSelection = t('quote.configurator.empty');
         <p class="text-xs font-bold tracking-[0.18em] uppercase text-ink/70 mb-3">{extrasLabel}</p>
         <ul class="divide-y divide-black/10 border border-black/15 bg-white">
           {extrasWithCents.map((x) => (
-            <li>
+            <li class="qc-row" data-service={EXTRA_SERVICE[x.id] ?? 'both'}>
               <label class={`flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-cream/50 has-[:checked]:bg-gold/5 ${isClosed ? 'pointer-events-none opacity-60' : ''}`}>
                 <input
                   type="checkbox"
@@ -239,8 +275,35 @@ const noSelection = t('quote.configurator.empty');
         </>
       )}
     </form>
+
+    {filterMode !== 'all' && !isClosed && (
+      <div class="mt-8 text-center">
+        <button
+          type="button"
+          id="qc-toggle-others"
+          data-show={filterMode === 'photo' ? 'video' : 'photo'}
+          class="text-xs font-bold tracking-[0.18em] uppercase underline text-ink/60 hover:text-gold"
+        >
+          {filterMode === 'photo' ? t('quote.configurator.toggleSeeVideo') : t('quote.configurator.toggleSeePhoto')}
+        </button>
+      </div>
+    )}
   </div>
 </section>
+
+<style>
+  /* Service-interest filter: hide rows that don't match the section's
+     data-filter unless their data-service is 'both'. Toggled off by
+     adding `data-filter="all"` (the "see also other side" button). */
+  #quote-configurator[data-filter="photo"] [data-service="video"],
+  #quote-configurator[data-filter="photo"] [data-service="combo"] {
+    display: none;
+  }
+  #quote-configurator[data-filter="video"] [data-service="photo"],
+  #quote-configurator[data-filter="video"] [data-service="combo"] {
+    display: none;
+  }
+</style>
 
 <script
   is:inline
@@ -356,6 +419,18 @@ const noSelection = t('quote.configurator.empty');
           submitBtn.textContent = submitLabel;
           submitBtn.disabled = false;
         }
+      });
+    }
+
+    // "Vols veure també l'opció de [altre]?" toggle — flips data-filter
+    // to "all" so the CSS rules above stop hiding the other half, and
+    // hides the toggle itself so the panel doesn't accumulate noise.
+    const toggleBtn = document.getElementById('qc-toggle-others');
+    const section = document.getElementById('quote-configurator');
+    if (toggleBtn && section) {
+      toggleBtn.addEventListener('click', () => {
+        section.setAttribute('data-filter', 'all');
+        toggleBtn.hidden = true;
       });
     }
   })();

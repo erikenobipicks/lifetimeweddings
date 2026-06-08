@@ -627,6 +627,8 @@ export const ui = {
     'quote.configurator.previousTitle': 'Vuestra última configuración está guardada',
     'quote.configurator.singleChoiceNote': 'Elegid solo uno: un pack base o un combo. Los extras los podéis combinar libremente.',
     'quote.configurator.clearPack': 'Quitar la selección del pack',
+    'quote.configurator.toggleSeeVideo': '¿Queréis ver también la opción de vídeo? →',
+    'quote.configurator.toggleSeePhoto': '¿Queréis ver también la opción de foto? →',
     // Value pillars block (3 columns) — between showcase and triptych on /p/<token>.
     'quote.values.eyebrow': 'Qué nos diferencia',
     'quote.values.heading': 'Tres motivos por los que nuestras parejas nos eligen',
@@ -1237,6 +1239,8 @@ export const ui = {
     'quote.configurator.previousTitle': 'La vostra darrera configuració està desada',
     'quote.configurator.singleChoiceNote': 'Trieu-ne només un: un pack base o un combo. Els extres els podeu combinar lliurement.',
     'quote.configurator.clearPack': 'Treure la selecció del pack',
+    'quote.configurator.toggleSeeVideo': 'Voleu veure també l\'opció de vídeo? →',
+    'quote.configurator.toggleSeePhoto': 'Voleu veure també l\'opció de foto? →',
     // Value pillars block (3 columns) — between showcase and triptych on /p/<token>.
     'quote.values.eyebrow': 'Què ens diferencia',
     'quote.values.heading': 'Tres motius pels quals les parelles ens trien',
@@ -1847,6 +1851,8 @@ export const ui = {
     'quote.configurator.previousTitle': 'Your last configuration is saved',
     'quote.configurator.singleChoiceNote': 'Pick just one: either a base pack or a combo. Add-ons can be combined freely.',
     'quote.configurator.clearPack': 'Clear pack selection',
+    'quote.configurator.toggleSeeVideo': 'Want to see the video option as well? →',
+    'quote.configurator.toggleSeePhoto': 'Want to see the photo option as well? →',
     // Value pillars block (3 columns) — between showcase and triptych on /p/<token>.
     'quote.values.eyebrow': 'What sets us apart',
     'quote.values.heading': 'Three reasons couples pick us',

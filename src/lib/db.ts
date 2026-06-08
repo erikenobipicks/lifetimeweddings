@@ -333,6 +333,15 @@ export async function initSchema() {
   // When set, the couple can still view the quote but cannot submit
   // further configurations. Eric closes the quote once they've agreed.
   await ensureColumn('quotes', 'quote_closed_at', 'TEXT');
+  // Service interest carried over from the lead (or set manually in
+  // /admin/new). Drives the configurator filter on /p/<token>:
+  //   'photo'     — only photo packs + photo extras visible
+  //   'video'     — only video packs + video extras visible
+  //   'both'      — combos + everything else (the default)
+  //   'undecided' — same surface as 'both' but tagged so we know they
+  //                 explicitly said "still mulling it over"
+  // NULL on pre-migration rows → treated as 'both' at read time.
+  await ensureColumn('quotes', 'service_interest', 'TEXT');
   // ── Quote follow-up tracking ───────────────────────────────────────
   // `sent_at`           — stamped when Eric clicks "📧 Enviar" on the
   //                       quote (POST /api/admin/send-quote). Drives the
