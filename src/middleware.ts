@@ -8,6 +8,35 @@ import { getUser } from '~/lib/auth';
  *  Leave unset in dev/staging. Example: CANONICAL_HOST=www.lifetime.photo */
 const CANONICAL_HOST = process.env.CANONICAL_HOST;
 
+// \u2500\u2500 Content-Security-Policy (Report-Only) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Built from the third-party origins actually loaded by the site:
+//   - Turnstile (challenges.cloudflare.com): captcha script + iframe
+//   - Google Analytics / Tag Manager: gtag script + beacons
+//   - Meta Pixel (connect.facebook.net / facebook.com)
+//   - YouTube (youtube-nocookie.com / youtube.com, i.ytimg.com thumbs)
+//   - Stripe Checkout (js.stripe.com / hooks.stripe.com) \u2014 redirect + js
+//   - Behold Instagram feed (feeds.behold.so + behold.so)
+//   - FotoStudio external galleries (gallery.fotostudio.io) \u2014 iframe
+//   - Google Places (places.googleapis.com) for venue ratings
+// 'unsafe-inline' is required for now because of Astro `is:inline` +
+// `define:vars` bootstrap scripts and the gtag/Tailwind inline blocks; a
+// nonce-based tightening is a follow-up once Report-Only shows a clean run.
+const CSP_REPORT_ONLY = [
+  `default-src 'self'`,
+  `base-uri 'self'`,
+  `object-src 'none'`,
+  `frame-ancestors 'self'`,
+  `form-action 'self'`,
+  `img-src 'self' data: https:`,
+  `font-src 'self' data:`,
+  `style-src 'self' 'unsafe-inline'`,
+  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://www.youtube.com https://s.ytimg.com https://js.stripe.com`,
+  `connect-src 'self' https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://connect.facebook.net https://www.facebook.com https://places.googleapis.com https://feeds.behold.so`,
+  `frame-src 'self' https://challenges.cloudflare.com https://www.youtube-nocookie.com https://www.youtube.com https://js.stripe.com https://hooks.stripe.com https://gallery.fotostudio.io https://www.instagram.com https://behold.so`,
+  `report-uri /api/csp-report`,
+  `report-to csp-endpoint`,
+].join('; ');
+
 const DIACRITIC = new RegExp('[\u0300-\u036f]', 'g');
 
 /** Strip accents and lowercase so /post/fotógrafos and /post/fotografos
@@ -130,9 +159,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // ── Baseline security headers ───────────────────────────────────────────
   // Applied to every response. These are framework-agnostic hardening
-  // defaults; a full Content-Security-Policy is deliberately NOT set here
-  // yet (it needs report-only tuning against the YouTube / Instagram /
-  // Turnstile / Stripe / analytics embeds — tracked as a follow-up).
+  // defaults. The Content-Security-Policy below ships in *Report-Only* mode
+  // (see CSP_REPORT_ONLY) so it surfaces violations to /api/csp-report
+  // without breaking the YouTube / Instagram / Turnstile / Stripe / analytics
+  // integrations; once the reports are clean we flip it to enforcing.
   //   - nosniff:           stop MIME-type sniffing of responses.
   //   - frame SAMEORIGIN:  block clickjacking of our pages (esp. /admin).
   //   - Referrer-Policy:   don't leak full URLs (private /p, /reserva tokens)
@@ -156,6 +186,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const respCt = response.headers.get('content-type') ?? '';
   if (respCt.includes('text/html')) {
     response.headers.set('Cache-Control', 'no-store, must-revalidate');
+    // CSP only makes sense on HTML documents; skip it for JSON/asset
+    // responses. Report-Only never blocks — it just reports to the endpoint.
+    response.headers.set('Reporting-Endpoints', 'csp-endpoint="/api/csp-report"');
+    response.headers.set('Content-Security-Policy-Report-Only', CSP_REPORT_ONLY);
   }
 
   return response;
