@@ -1,0 +1,68 @@
+name: Security monitoring
+
+# Continuous security checks beyond the per-PR build/audit in ci.yml:
+#   - scheduled npm audit  → catches advisories published against deps we
+#                            already have (the PR-time audit only fires on
+#                            changes, so a quiet repo could sit on a new CVE).
+#   - gitleaks             → blocks secrets from landing in git history.
+#   - semgrep (SAST)       → static analysis for insecure patterns. Blocking:
+#                            the baseline scanned clean (0 findings over 204
+#                            rules / 1691 files), so any new insecure pattern
+#                            a PR introduces fails CI.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    # Mondays 06:00 UTC — weekly sweep independent of repo activity.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    name: npm audit (scheduled + PR)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+      - run: npm ci
+      # HIGH/CRITICAL fail the job; moderate/low are reported but don't block.
+      - run: npm audit --audit-level=high
+
+  secrets:
+    name: gitleaks (secret scan)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history so the scan covers past commits too
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  sast:
+    name: semgrep (SAST)
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+    # Blocking: the baseline is clean (0 findings), so `--error` failing the
+    # job means a PR introduced a new insecure pattern worth looking at.
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          semgrep scan \
+            --config p/security-audit \
+            --config p/secrets \
+            --config p/javascript \
+            --error \
+            --metrics off
