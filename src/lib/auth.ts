@@ -2,6 +2,7 @@ import './env';
 import bcrypt from 'bcryptjs';
 import { db, initSchema } from './db';
 import { sessionId } from './tokens';
+import { securityAlert } from './security-alerts';
 import type { AstroCookies } from 'astro';
 
 // Read env vars lazily so dotenv has had a chance to populate process.env.
@@ -82,6 +83,25 @@ export async function recordFailedLogin(ip: string): Promise<void> {
       sql: 'UPDATE login_attempts SET count = count + 1 WHERE ip = ?',
       args: [ip],
     });
+  }
+
+  // Alert exactly once, on the attempt that trips the limit (count just
+  // reached the max), so the operator hears about a brute-force in progress.
+  // Throttled per-IP inside securityAlert so a sustained attack won't spam.
+  try {
+    const after = await db.execute({
+      sql: 'SELECT count FROM login_attempts WHERE ip = ?',
+      args: [ip],
+    });
+    const count = Number(after.rows[0]?.count ?? 0);
+    if (count === LOGIN_MAX_ATTEMPTS) {
+      await securityAlert(
+        `login:${ip}`,
+        `Intents de login admin bloquejats per força bruta.\nIP: ${ip}\n${count} intents fallits en ${Math.round(LOGIN_WINDOW_MS / 60000)} min.`,
+      );
+    }
+  } catch {
+    /* fail-soft: never let alerting break the login flow */
   }
 }
 

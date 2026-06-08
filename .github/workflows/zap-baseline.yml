@@ -1,0 +1,40 @@
+name: ZAP baseline (DAST)
+
+# Passive dynamic scan of the LIVE site with OWASP ZAP. Baseline = passive
+# only (no active attacks), so it's safe to point at production: it checks
+# headers, cookies, mixed content, info leaks, outdated libs, etc.
+#
+# Runs monthly and on demand (workflow_dispatch) — NOT on every push, since
+# it hits the real site and can trip Cloudflare's bot protection. It's
+# informational: `fail_action: false` keeps a finding from blocking anything,
+# and `allow_issue_writing: false` avoids auto-filing GitHub issues. The HTML
+# report is uploaded as an artifact for review.
+on:
+  schedule:
+    # 1st of each month, 07:00 UTC.
+    - cron: "0 7 1 * *"
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "URL to scan"
+        required: false
+        default: "https://www.lifetime.photo"
+
+permissions:
+  contents: read
+
+jobs:
+  zap:
+    name: ZAP baseline scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          target: ${{ github.event.inputs.target || 'https://www.lifetime.photo' }}
+          # -a: include alpha passive rules. -I: don't fail on warnings.
+          cmd_options: "-a -I"
+          fail_action: false
+          allow_issue_writing: false
+          artifact_name: zap-baseline-report
