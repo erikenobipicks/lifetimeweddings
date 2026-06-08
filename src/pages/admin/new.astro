@@ -34,6 +34,9 @@ if (Astro.request.method === 'POST') {
   const langRaw = String(form.get('preferred_language') ?? '').trim();
   const preferredLanguage: 'ca' | 'es' | 'en' =
     langRaw === 'es' || langRaw === 'en' ? langRaw : 'ca';
+  const siRaw = String(form.get('service_interest') ?? '').trim();
+  const serviceInterest: 'photo' | 'video' | 'both' | 'undecided' =
+    siRaw === 'photo' || siRaw === 'video' || siRaw === 'undecided' ? siRaw : 'both';
   const linkLeadId = Number(form.get('lead_id') ?? '');
   postedLeadId = Number.isFinite(linkLeadId) && linkLeadId > 0 ? linkLeadId : null;
 
@@ -55,6 +58,7 @@ if (Astro.request.method === 'POST') {
       flagshipWeddingSlug: flagshipWeddingSlug || undefined,
       flagshipExternalGalleryUrl: flagshipExternalGalleryUrl || undefined,
       preferredLanguage,
+      serviceInterest,
     });
     if (postedLeadId) {
       try { await linkLeadToQuote(postedLeadId, q.id); } catch { /* non-fatal */ }
@@ -72,6 +76,13 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
 const initialName = lead?.coupleName ?? '';
 const initialEmail = lead?.email ?? '';
 const initialLanguage: 'ca' | 'es' | 'en' = lead?.preferredLanguage ?? 'ca';
+// Service interest pre-fill from the lead's quiz answer; falls back to
+// 'both' (the most permissive default — better the couple sees too many
+// options than too few).
+const initialServiceInterest: 'photo' | 'video' | 'both' | 'undecided' =
+  lead?.serviceInterest === 'photo' ? 'photo'
+  : lead?.serviceInterest === 'video' ? 'video'
+  : 'both';
 const recommendedPackIds: string[] = lead
   ? recommendPacks({
       weddingDate: lead.weddingDate ?? undefined,
@@ -172,6 +183,32 @@ const LABELS: Record<string, string> = {
       <label for="couple_email" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Email (opcional)</label>
       <input id="couple_email" name="couple_email" type="email" value={initialEmail}
              class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none" />
+    </div>
+
+    <div>
+      <p class="text-xs font-bold tracking-widest uppercase mb-2">Servei que volen</p>
+      <p class="text-[0.7rem] text-ink/55 mb-3 -mt-1">Filtra què veurà la parella al configurador interactiu del pressupost. Si dubten, deixa "encara dubten" — així veuen tot.</p>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {[
+          { v: 'photo',     label: '📸 Foto' },
+          { v: 'video',     label: '🎬 Vídeo' },
+          { v: 'both',      label: '💍 Foto + vídeo' },
+          { v: 'undecided', label: '🤔 Encara dubten' },
+        ].map((opt) => (
+          <label class="block">
+            <input
+              type="radio"
+              name="service_interest"
+              value={opt.v}
+              checked={initialServiceInterest === opt.v}
+              class="sr-only peer"
+            />
+            <span class="block text-xs font-bold tracking-widest uppercase text-center px-3 py-2 border border-black/15 cursor-pointer hover:border-gold peer-checked:bg-ink peer-checked:text-white peer-checked:border-ink transition-colors">
+              {opt.label}
+            </span>
+          </label>
+        ))}
+      </div>
     </div>
 
     <div>

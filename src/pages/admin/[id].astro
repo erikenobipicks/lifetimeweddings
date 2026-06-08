@@ -11,6 +11,8 @@ import {
   setAdminDiscount,
   closeQuote,
   reopenQuote,
+  setServiceInterest,
+  type ServiceInterest,
 } from '~/lib/quotes';
 import { PACKS, EXTRAS } from '~/data/packs';
 import { calculateSelectionTotals, formatEuros } from '~/lib/pricing';
@@ -56,6 +58,14 @@ if (Astro.request.method === 'POST') {
   if (action === 'reopen-quote') {
     await reopenQuote(id);
     return Astro.redirect(`/admin/${id}?ok=reopened`);
+  }
+  if (action === 'set-service-interest') {
+    const siRaw = String(form.get('service_interest') ?? '');
+    const si: ServiceInterest = siRaw === 'photo' || siRaw === 'video' || siRaw === 'undecided'
+      ? siRaw
+      : 'both';
+    await setServiceInterest(id, si);
+    return Astro.redirect(`/admin/${id}?ok=service-updated`);
   }
 }
 
@@ -127,7 +137,7 @@ function humanSecs(n: number): string {
   )}
   {okMsg && (
     <div class="mb-6 px-4 py-3 bg-green-50 border border-green-200 text-green-900 text-sm">
-      <strong class="font-bold">✓</strong> {okMsg === 'discount' ? 'Descompte aplicat.' : okMsg === 'discount-cleared' ? 'Descompte eliminat.' : okMsg === 'closed' ? 'Pressupost tancat.' : okMsg === 'reopened' ? 'Pressupost reobert.' : 'Fet.'}
+      <strong class="font-bold">✓</strong> {okMsg === 'discount' ? 'Descompte aplicat.' : okMsg === 'discount-cleared' ? 'Descompte eliminat.' : okMsg === 'closed' ? 'Pressupost tancat.' : okMsg === 'reopened' ? 'Pressupost reobert.' : okMsg === 'service-updated' ? 'Servei actualitzat. La parella veurà el configurador filtrat segons aquesta elecció.' : 'Fet.'}
     </div>
   )}
   <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6 sm:mb-8">
@@ -310,6 +320,37 @@ function humanSecs(n: number): string {
       )}
     </div>
   )}
+
+  {/* Service interest — what filter the configurator on /p/<token> uses.
+      Defaults to what the lead's quiz answer said; editable here if the
+      couple changes their mind. */}
+  <div class="bg-white border border-black/10 p-5 mb-8">
+    <p class="text-xs font-bold tracking-widest uppercase mb-1">Què volen</p>
+    <p class="text-[0.7rem] text-ink/55 mb-3">Filtra el configurador interactiu del pressupost. Si dubten, "encara dubten" — així veuen tot.</p>
+    <form method="POST" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <input type="hidden" name="action" value="set-service-interest" />
+      {[
+        { v: 'photo',     label: '📸 Foto' },
+        { v: 'video',     label: '🎬 Vídeo' },
+        { v: 'both',      label: '💍 Foto + vídeo' },
+        { v: 'undecided', label: '🤔 Encara dubten' },
+      ].map((opt) => (
+        <label class="block">
+          <input
+            type="radio"
+            name="service_interest"
+            value={opt.v}
+            checked={quote.serviceInterest === opt.v}
+            onchange="this.form.requestSubmit()"
+            class="sr-only peer"
+          />
+          <span class="block text-xs font-bold tracking-widest uppercase text-center px-3 py-2 border border-black/15 cursor-pointer hover:border-gold peer-checked:bg-ink peer-checked:text-white peer-checked:border-ink transition-colors">
+            {opt.label}
+          </span>
+        </label>
+      ))}
+    </form>
+  </div>
 
   {/* Discount + close controls. Visible regardless of whether a response
       came in — Eric may want to apply a referral discount up front. */}

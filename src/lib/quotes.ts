@@ -10,6 +10,14 @@ function langOrDefault(v: unknown): Lang {
   return v === 'es' || v === 'en' || v === 'ca' ? v : 'ca';
 }
 
+export type ServiceInterest = 'photo' | 'video' | 'both' | 'undecided';
+
+/** Coerce an unknown db value into a known ServiceInterest, falling back
+ *  to 'both' for rows that pre-date the column (or anything malformed). */
+function serviceInterestOrDefault(v: unknown): ServiceInterest {
+  return v === 'photo' || v === 'video' || v === 'both' || v === 'undecided' ? v : 'both';
+}
+
 export interface Quote {
   id: number;
   token: string;
@@ -53,6 +61,12 @@ export interface Quote {
    *  their last submitted configuration but cannot send a new one. Null
    *  while the quote is still open to changes. */
   closedAt: string | null;
+  /** What the couple is asking for — 'photo', 'video', 'both', or
+   *  'undecided'. Carried over from the lead at quote-creation time but
+   *  editable from /admin/[id] if the couple changes their mind. Drives
+   *  the configurator filter on /p/<token>. Default 'both' on pre-
+   *  migration rows. */
+  serviceInterest: ServiceInterest;
   /** ISO timestamp when Eric explicitly emailed the quote to the couple
    *  (POST /api/admin/send-quote). Drives the follow-up cron and the
    *  "send reminder" button. Null = link never sent by email (e.g. Eric
@@ -86,6 +100,8 @@ export interface CreateQuoteInput {
   flagshipExternalGalleryUrl?: string;
   /** Defaults to 'ca' when omitted. */
   preferredLanguage?: Lang;
+  /** Defaults to 'both' when omitted. */
+  serviceInterest?: ServiceInterest;
 }
 
 const IP_SALT = process.env.IP_HASH_SALT ?? 'lifetime-dev-salt';
@@ -114,6 +130,7 @@ function rowToQuote(r: any): Quote {
     closedAt: r.quote_closed_at ?? null,
     sentAt: r.sent_at ?? null,
     followUpSentAt: r.follow_up_sent_at ?? null,
+    serviceInterest: serviceInterestOrDefault(r.service_interest),
   };
 }
 
@@ -123,8 +140,8 @@ export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
   const now = new Date().toISOString();
   const passwordHash = input.password ? await bcrypt.hash(input.password, 10) : null;
   await db.execute({
-    sql: `INSERT INTO quotes (token, couple_name, couple_email, packs_json, notes, password_hash, expires_at, created_at, created_by, flagship_video_id, flagship_showcase_slug, flagship_wedding_slug, flagship_external_gallery_url, preferred_language)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    sql: `INSERT INTO quotes (token, couple_name, couple_email, packs_json, notes, password_hash, expires_at, created_at, created_by, flagship_video_id, flagship_showcase_slug, flagship_wedding_slug, flagship_external_gallery_url, preferred_language, service_interest)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       token,
       input.coupleName,
@@ -140,6 +157,7 @@ export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
       input.flagshipWeddingSlug ?? null,
       input.flagshipExternalGalleryUrl ?? null,
       input.preferredLanguage ?? 'ca',
+      input.serviceInterest ?? 'both',
     ],
   });
   const res = await db.execute({ sql: 'SELECT * FROM quotes WHERE token = ?', args: [token] });
@@ -651,5 +669,18 @@ export async function reopenQuote(quoteId: number): Promise<void> {
   await db.execute({
     sql: 'UPDATE quotes SET quote_closed_at = NULL WHERE id = ?',
     args: [quoteId],
+  });
+}
+
+/** Update the service-interest filter on a quote. Drives what the
+ *  configurator shows on /p/<token>. */
+export async function setServiceInterest(
+  quoteId: number,
+  value: ServiceInterest,
+): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: 'UPDATE quotes SET service_interest = ? WHERE id = ?',
+    args: [value, quoteId],
   });
 }
