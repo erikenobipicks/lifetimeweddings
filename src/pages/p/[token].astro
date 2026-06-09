@@ -235,7 +235,149 @@ const flagshipVideo = overrideHit
           </Section>
         )}
 
-        <!-- Packs -->
+        <!-- Flagship trailer first — let the couple feel the work in
+             motion before they see a number. Tagged data-service="video"
+             so photo-only couples skip it via the global filter. -->
+        <div data-service="video">
+          <VideoEmbed
+            lang={lang}
+            youtubeId={flagshipVideo.youtubeId}
+            coupleName={flagshipVideo.coupleName}
+            venue={flagshipVideo.venue}
+          />
+        </div>
+
+        <!-- Atmospheric break: joyful crowd moment between the video and
+             the gallery / showcase blocks. -->
+        <section class="bg-cream">
+          <AtmosphericPhoto
+            slot="moment-lifted-bride"
+            alt=""
+            aspect="3 / 2"
+            mode="cover"
+            sizes="100vw"
+            class="max-h-[60vh]"
+          />
+        </section>
+
+        {/* External gallery (FotoStudio etc.) — iframe with auto-fallback
+            to a "open in new tab" CTA when the host blocks embedding.
+            Tagged data-service="photo" since FotoStudio is photo-only;
+            the video-only filter hides it. */}
+        {quote.flagshipExternalGalleryUrl && (
+          <div data-service="photo">
+            <ExternalGalleryEmbed lang={lang} url={quote.flagshipExternalGalleryUrl} />
+          </div>
+        )}
+
+        {/* Real-wedding override — takes priority over showcase. The
+            link points at /bodes/<slug> (Catalan default) so the couple
+            lands on the full case-study with all the photos. */}
+        {weddingFeatured && (
+          <Section>
+            <div class="max-w-2xl mx-auto text-center">
+              <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('quote.showcase.eyebrow')}</p>
+              <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">{weddingFeatured.couple}</h2>
+              <p class="text-ink/75 mb-6">{weddingFeatured.venue} · {weddingFeatured.location}</p>
+              <a
+                href={`${lang === 'ca' ? '' : `/${lang}`}/bodas/${weddingFeatured.slug}`}
+                class="inline-block border-2 border-ink bg-ink text-white px-8 py-3 text-xs font-bold tracking-[0.15em] uppercase hover:bg-gold hover:border-gold transition-colors"
+              >
+                {t('quote.showcase.cta')}
+              </a>
+            </div>
+          </Section>
+        )}
+
+        {/* Showcase link */}
+        {showcase && (
+          <Section>
+            <div class="max-w-2xl mx-auto text-center">
+              <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('quote.showcase.eyebrow')}</p>
+              <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">{showcase.title[lang]}</h2>
+              <p class="text-ink/75 mb-6">{showcase.description[lang]}</p>
+              <a
+                href={`/showcase/${showcase.slug}`}
+                class="inline-block border-2 border-ink bg-ink text-white px-8 py-3 text-xs font-bold tracking-[0.15em] uppercase hover:bg-gold hover:border-gold transition-colors"
+              >
+                {t('quote.showcase.cta')}
+              </a>
+            </div>
+          </Section>
+        )}
+
+        <!-- Cinematic atmospheric break between the gallery / showcase
+             block above and the triptych below. -->
+        <section class="bg-ink">
+          <AtmosphericPhoto
+            slot="moment-couple-blur"
+            alt=""
+            aspect="3 / 2"
+            mode="cover"
+            sizes="100vw"
+            class="max-h-[70vh]"
+          />
+        </section>
+
+        {/* Triptych — three portraits side by side (kiss, ceremony smoke,
+            bouquet+vintage car). Stacks vertically on mobile so each
+            photo still gets its moment. */}
+        <section class="px-4 md:px-6 py-12 md:py-16 bg-cream">
+          <div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+            <AtmosphericPhoto
+              slot="triptych-kiss"
+              alt=""
+              aspect="2 / 3"
+              mode="cover"
+              sizes="(min-width: 640px) 33vw, 100vw"
+            />
+            <AtmosphericPhoto
+              slot="triptych-smoke"
+              alt=""
+              aspect="2 / 3"
+              mode="cover"
+              sizes="(min-width: 640px) 33vw, 100vw"
+            />
+            <AtmosphericPhoto
+              slot="triptych-bouquet"
+              alt=""
+              aspect="2 / 3"
+              mode="cover"
+              sizes="(min-width: 640px) 33vw, 100vw"
+            />
+          </div>
+        </section>
+
+        <!-- Value pillars: three columns answering "why us" right
+             before the price block. The couple has spent the page
+             feeling the work; this rounds off the "why" before the
+             numbers. -->
+        <section class="px-6 md:px-12 py-16 md:py-20 bg-white">
+          <div class="max-w-5xl mx-auto">
+            <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3 text-center">
+              {t('quote.values.eyebrow')}
+            </p>
+            <h2 class="font-display text-2xl md:text-3xl font-bold text-center mb-12 max-w-2xl mx-auto">
+              {t('quote.values.heading')}
+            </h2>
+            <div class="grid sm:grid-cols-3 gap-8 md:gap-10">
+              {[1, 2, 3].map((n) => (
+                <div class="text-center sm:text-left">
+                  <p class="font-display text-2xl text-gold mb-3">{`0${n}`}</p>
+                  <h3 class="font-bold text-ink mb-2 leading-snug">
+                    {t(`quote.values.p${n}.title` as any)}
+                  </h3>
+                  <p class="text-sm text-ink/75 leading-relaxed">
+                    {t(`quote.values.p${n}.body` as any)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <!-- Packs (price visible). Now placed AFTER the visual examples
+             so the couple has seen the quality before the number. -->
         <Section bg="cream">
           <div class="max-w-5xl mx-auto">
             <h2 class="font-display text-3xl font-bold text-center mb-12">{t('quote.packs.heading')}</h2>
@@ -288,19 +430,6 @@ const flagshipVideo = overrideHit
           </div>
         </Section>
 
-        <!-- Atmospheric break: joyful crowd moment between the static
-             proposal and the interactive UI underneath. -->
-        <section class="bg-cream">
-          <AtmosphericPhoto
-            slot="moment-lifted-bride"
-            alt=""
-            aspect="3 / 2"
-            mode="cover"
-            sizes="100vw"
-            class="max-h-[60vh]"
-          />
-        </section>
-
         <!-- Interactive configurator. Replaces the static extras catalog:
              same info (packs + combos + extras) but the couple can tick
              what they want, see the total update live, and send their
@@ -333,138 +462,6 @@ const flagshipVideo = overrideHit
             </div>
           </div>
         </Section>
-
-        <!-- Cinematic atmospheric break before the flagship video. The
-             blurred-guests shot mirrors the "we pass unnoticed" pitch in
-             the FAQ above. -->
-        <section class="bg-ink">
-          <AtmosphericPhoto
-            slot="moment-couple-blur"
-            alt=""
-            aspect="3 / 2"
-            mode="cover"
-            sizes="100vw"
-            class="max-h-[70vh]"
-          />
-        </section>
-
-        <!-- Flagship trailer — reused from /reserva/<slug>. Tagged
-             data-service="video" so the photo-only filter hides it
-             (photo couples have no reason to watch a wedding film
-             demo). 'both' / 'undecided' keep it visible. -->
-        <div data-service="video">
-          <VideoEmbed
-            lang={lang}
-            youtubeId={flagshipVideo.youtubeId}
-            coupleName={flagshipVideo.coupleName}
-            venue={flagshipVideo.venue}
-          />
-        </div>
-
-        {/* External gallery (FotoStudio etc.) — iframe with auto-fallback
-            to a "open in new tab" CTA when the host blocks embedding.
-            Independent from the showcase/wedding overrides; can coexist.
-            Tagged data-service="photo" since FotoStudio is photo-only;
-            the video-only filter hides it. */}
-        {quote.flagshipExternalGalleryUrl && (
-          <div data-service="photo">
-            <ExternalGalleryEmbed lang={lang} url={quote.flagshipExternalGalleryUrl} />
-          </div>
-        )}
-
-        {/* Real-wedding override — takes priority over showcase. The
-            link points at /bodes/<slug> (Catalan default) so the couple
-            lands on the full case-study with all the photos. */}
-        {weddingFeatured && (
-          <Section>
-            <div class="max-w-2xl mx-auto text-center">
-              <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('quote.showcase.eyebrow')}</p>
-              <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">{weddingFeatured.couple}</h2>
-              <p class="text-ink/75 mb-6">{weddingFeatured.venue} · {weddingFeatured.location}</p>
-              <a
-                href={`${lang === 'ca' ? '' : `/${lang}`}/bodas/${weddingFeatured.slug}`}
-                class="inline-block border-2 border-ink bg-ink text-white px-8 py-3 text-xs font-bold tracking-[0.15em] uppercase hover:bg-gold hover:border-gold transition-colors"
-              >
-                {t('quote.showcase.cta')}
-              </a>
-            </div>
-          </Section>
-        )}
-
-        {/* Showcase link */}
-        {showcase && (
-          <Section>
-            <div class="max-w-2xl mx-auto text-center">
-              <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('quote.showcase.eyebrow')}</p>
-              <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">{showcase.title[lang]}</h2>
-              <p class="text-ink/75 mb-6">{showcase.description[lang]}</p>
-              <a
-                href={`/showcase/${showcase.slug}`}
-                class="inline-block border-2 border-ink bg-ink text-white px-8 py-3 text-xs font-bold tracking-[0.15em] uppercase hover:bg-gold hover:border-gold transition-colors"
-              >
-                {t('quote.showcase.cta')}
-              </a>
-            </div>
-          </Section>
-        )}
-
-        <!-- Value pillars: 3 columns answering the unspoken "why pay
-             this?" right before the closing visuals + CTA. Mirrors the
-             pitch already in the home page (documental, two-brother
-             crew, fast delivery) without repeating it verbatim. -->
-        <section class="px-6 md:px-12 py-16 md:py-20 bg-white">
-          <div class="max-w-5xl mx-auto">
-            <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3 text-center">
-              {t('quote.values.eyebrow')}
-            </p>
-            <h2 class="font-display text-2xl md:text-3xl font-bold text-center mb-12 max-w-2xl mx-auto">
-              {t('quote.values.heading')}
-            </h2>
-            <div class="grid sm:grid-cols-3 gap-8 md:gap-10">
-              {[1, 2, 3].map((n) => (
-                <div class="text-center sm:text-left">
-                  <p class="font-display text-2xl text-gold mb-3">{`0${n}`}</p>
-                  <h3 class="font-bold text-ink mb-2 leading-snug">
-                    {t(`quote.values.p${n}.title` as any)}
-                  </h3>
-                  <p class="text-sm text-ink/75 leading-relaxed">
-                    {t(`quote.values.p${n}.body` as any)}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Triptych — three portraits side by side (kiss, ceremony smoke,
-            bouquet+vintage car). Stacks vertically on mobile so each
-            photo still gets its moment. Aspect 2/3 = the natural portrait
-            crop without weird letterboxing. */}
-        <section class="px-4 md:px-6 py-12 md:py-16 bg-cream">
-          <div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
-            <AtmosphericPhoto
-              slot="triptych-kiss"
-              alt=""
-              aspect="2 / 3"
-              mode="cover"
-              sizes="(min-width: 640px) 33vw, 100vw"
-            />
-            <AtmosphericPhoto
-              slot="triptych-smoke"
-              alt=""
-              aspect="2 / 3"
-              mode="cover"
-              sizes="(min-width: 640px) 33vw, 100vw"
-            />
-            <AtmosphericPhoto
-              slot="triptych-bouquet"
-              alt=""
-              aspect="2 / 3"
-              mode="cover"
-              sizes="(min-width: 640px) 33vw, 100vw"
-            />
-          </div>
-        </section>
 
         <!-- Softer "let's meet before deciding" block, paired with the
              generic CTA below. The two have different intents and pre-fill
