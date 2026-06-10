@@ -8,6 +8,11 @@ export const SITE = {
   emailAlt: 'lifetimeweddingsphoto@gmail.com',
   phone: '+34688946111',
   phoneDisplay: '+34 688 94 61 11',
+  /** Cal.com booking URL for the 15-min videocall. Edited here so a slug
+   *  change is a one-line update, not a hunt through templates. Empty
+   *  string disables the booking CTA across the site (we fall back to
+   *  the WhatsApp prompt as the only call-to-action). */
+  bookingUrl: 'https://cal.com/lifetime-weddings-366ynh/15min',
   address: {
     street: 'C/ Mare Molas, 26',
     city: 'Reus',
