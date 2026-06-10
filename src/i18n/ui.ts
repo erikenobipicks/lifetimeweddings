@@ -552,6 +552,9 @@ export const ui = {
     'reserva.videocall.body':
       'Si todavía no lo tenéis del todo claro, lo más fácil es que hablemos en directo. Una videollamada corta — 15 minutos, cuando os vaya bien — nos sirve para conocernos, resolver las dudas concretas que tengáis y que veáis cómo trabajamos.\n\nNo cuesta nada y no os compromete a reservar.',
     'reserva.videocall.cta': 'Hablar por WhatsApp',
+    'reserva.videocall.bookCta': 'Reservar una videollamada',
+    'reserva.videocall.orWhatsapp': 'O si lo preferís,',
+    'reserva.videocall.whatsappLink': 'escribidnos por WhatsApp.',
     'reserva.videocall.subnote': 'Os va bien cualquier tarde entre semana.',
 
     // Accessibility / global UI labels
@@ -1165,6 +1168,9 @@ export const ui = {
     'reserva.videocall.body':
       "Si encara no ho teniu del tot clar, el més fàcil és que parlem en directe. Una videocall curta — 15 minuts, quan us vagi bé — ens serveix per conèixer-nos, resoldre els dubtes concrets que tingueu i que veieu com treballem.\n\nNo costa res i no us compromet a reservar.",
     'reserva.videocall.cta': 'Parlar pel WhatsApp',
+    'reserva.videocall.bookCta': 'Reservar una videocall',
+    'reserva.videocall.orWhatsapp': 'O si ho preferiu,',
+    'reserva.videocall.whatsappLink': 'escriviu-nos pel WhatsApp.',
     'reserva.videocall.subnote': 'Us va bé qualsevol tarda entre setmana.',
 
     // Accessibility / global UI labels
@@ -1777,6 +1783,9 @@ export const ui = {
     'reserva.videocall.body':
       "If you're not fully sure yet, the easiest thing is to talk face-to-face. A short video call — 15 minutes, whenever it suits you — lets us get to know each other, answer the specific questions you have, and show you how we work.\n\nCosts nothing and doesn't commit you to booking.",
     'reserva.videocall.cta': 'Message on WhatsApp',
+    'reserva.videocall.bookCta': 'Book a video call',
+    'reserva.videocall.orWhatsapp': 'Or if you prefer,',
+    'reserva.videocall.whatsappLink': 'message us on WhatsApp.',
     'reserva.videocall.subnote': 'Any weekday afternoon works for us.',
 
     // Accessibility / global UI labels
