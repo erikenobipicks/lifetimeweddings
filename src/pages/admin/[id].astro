@@ -12,6 +12,8 @@ import {
   closeQuote,
   reopenQuote,
   setServiceInterest,
+  skipQuoteFollowUp,
+  restoreQuoteFollowUp,
   type ServiceInterest,
 } from '~/lib/quotes';
 import { PACKS, EXTRAS } from '~/data/packs';
@@ -59,6 +61,14 @@ if (Astro.request.method === 'POST') {
     await reopenQuote(id);
     return Astro.redirect(`/admin/${id}?ok=reopened`);
   }
+  if (action === 'skip-followup') {
+    await skipQuoteFollowUp(id);
+    return Astro.redirect(`/admin/${id}?ok=followup-skipped`);
+  }
+  if (action === 'restore-followup') {
+    await restoreQuoteFollowUp(id);
+    return Astro.redirect(`/admin/${id}?ok=followup-restored`);
+  }
   if (action === 'set-service-interest') {
     const siRaw = String(form.get('service_interest') ?? '');
     const si: ServiceInterest = siRaw === 'photo' || siRaw === 'video' || siRaw === 'undecided'
@@ -86,10 +96,12 @@ const packs = PACKS.filter((p) => quote.packIds.includes(p.id));
 
 // Follow-up reminder eligibility. The button is shown only when there's
 // an email + a "sent" stamp; we surface the state ("already sent" /
-// "send now" / "still early") so Eric doesn't accidentally re-fire.
-const followUpState: 'never_sent' | 'already_sent' | 'ready' | 'too_early' = (() => {
+// "send now" / "still early" / "skipped") so Eric doesn't accidentally
+// re-fire and so the cron-disabled state is visible.
+const followUpState: 'never_sent' | 'already_sent' | 'skipped' | 'ready' | 'too_early' = (() => {
   if (!quote.coupleEmail) return 'never_sent';
   if (quote.followUpSentAt) return 'already_sent';
+  if (quote.followUpSkippedAt) return 'skipped';
   if (!quote.sentAt) return 'never_sent';
   const ageDays = (Date.now() - new Date(quote.sentAt).getTime()) / (1000 * 60 * 60 * 24);
   return ageDays >= 7 ? 'ready' : 'too_early';
@@ -137,7 +149,7 @@ function humanSecs(n: number): string {
   )}
   {okMsg && (
     <div class="mb-6 px-4 py-3 bg-green-50 border border-green-200 text-green-900 text-sm">
-      <strong class="font-bold">✓</strong> {okMsg === 'discount' ? 'Descompte aplicat.' : okMsg === 'discount-cleared' ? 'Descompte eliminat.' : okMsg === 'closed' ? 'Pressupost tancat.' : okMsg === 'reopened' ? 'Pressupost reobert.' : okMsg === 'service-updated' ? 'Servei actualitzat. La parella veurà el configurador filtrat segons aquesta elecció.' : 'Fet.'}
+      <strong class="font-bold">✓</strong> {okMsg === 'discount' ? 'Descompte aplicat.' : okMsg === 'discount-cleared' ? 'Descompte eliminat.' : okMsg === 'closed' ? 'Pressupost tancat.' : okMsg === 'reopened' ? 'Pressupost reobert.' : okMsg === 'service-updated' ? 'Servei actualitzat. La parella veurà el configurador filtrat segons aquesta elecció.' : okMsg === 'followup-skipped' ? 'Recordatori desactivat — el cron ja no l\'enviarà a aquesta parella.' : okMsg === 'followup-restored' ? 'Recordatori restaurat — el cron tornarà a considerar-lo.' : 'Fet.'}
     </div>
   )}
   <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6 sm:mb-8">
@@ -166,26 +178,53 @@ function humanSecs(n: number): string {
         </button>
       )}
       {(followUpState === 'ready' || followUpState === 'too_early') && (
-        <button
-          type="button"
-          data-send-followup
-          data-quote-id={quote.id}
-          data-email={quote.coupleEmail}
-          disabled={followUpState === 'too_early'}
-          title={followUpState === 'too_early'
-            ? `Es recomanen 7 dies abans del recordatori (en falten ${7 - (daysSinceSent ?? 0)}). Pots disparar-lo igualment si vols.`
-            : `Recordatori suau · enllaç enviat fa ${daysSinceSent} dies`}
-          class:list={[
-            'px-4 py-2 text-xs font-bold tracking-widest uppercase transition border whitespace-nowrap',
-            followUpState === 'ready'
-              ? 'border-gold text-gold hover:bg-gold hover:text-white'
-              : 'border-ink/15 text-ink/40 cursor-not-allowed',
-          ]}
-        >
-          {followUpState === 'ready'
-            ? `📧 Recordatori (${daysSinceSent}d)`
-            : `📧 Recordatori (encara és aviat · ${daysSinceSent ?? 0}d)`}
-        </button>
+        <>
+          <button
+            type="button"
+            data-send-followup
+            data-quote-id={quote.id}
+            data-email={quote.coupleEmail}
+            disabled={followUpState === 'too_early'}
+            title={followUpState === 'too_early'
+              ? `Es recomanen 7 dies abans del recordatori (en falten ${7 - (daysSinceSent ?? 0)}). Pots disparar-lo igualment si vols.`
+              : `Recordatori suau · enllaç enviat fa ${daysSinceSent} dies`}
+            class:list={[
+              'px-4 py-2 text-xs font-bold tracking-widest uppercase transition border whitespace-nowrap',
+              followUpState === 'ready'
+                ? 'border-gold text-gold hover:bg-gold hover:text-white'
+                : 'border-ink/15 text-ink/40 cursor-not-allowed',
+            ]}
+          >
+            {followUpState === 'ready'
+              ? `📧 Recordatori (${daysSinceSent}d)`
+              : `📧 Recordatori (encara és aviat · ${daysSinceSent ?? 0}d)`}
+          </button>
+          <form method="POST" class="inline" onsubmit="return confirm('Saltar el recordatori automàtic per a aquesta parella?\n\nEl cron ja no els enviarà l\\'email \"checking in\". Útil si ja us han recontactat.')">
+            <input type="hidden" name="action" value="skip-followup" />
+            <button
+              type="submit"
+              class="px-4 py-2 text-xs font-bold tracking-widest uppercase transition border border-ink/15 text-ink/55 hover:border-ink/40 hover:text-ink whitespace-nowrap"
+              title="Desactivar el recordatori automàtic (útil si la parella ja ha recontactat)"
+            >
+              🔕 Saltar
+            </button>
+          </form>
+        </>
+      )}
+      {followUpState === 'skipped' && (
+        <span class="flex items-center gap-2 text-xs text-ink/55 px-3 py-2 border border-black/10 bg-cream/50 whitespace-nowrap">
+          🔕 Recordatori desactivat {quote.followUpSkippedAt ? `· ${fmt(quote.followUpSkippedAt)}` : ''}
+          <form method="POST" class="inline">
+            <input type="hidden" name="action" value="restore-followup" />
+            <button
+              type="submit"
+              class="text-gold hover:underline ml-1"
+              title="Reactivar el recordatori automàtic"
+            >
+              ↻ Restaurar
+            </button>
+          </form>
+        </span>
       )}
       {followUpState === 'already_sent' && (
         <span class="text-xs text-ink/55 px-3 py-2 border border-black/10 bg-cream/50 whitespace-nowrap">
