@@ -30,7 +30,7 @@ jobs:
     name: npm audit (scheduled + PR)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
@@ -43,7 +43,7 @@ jobs:
     name: gitleaks (secret scan)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # full history so the scan covers past commits too
       - uses: gitleaks/gitleaks-action@v2
@@ -58,7 +58,7 @@ jobs:
     # Blocking: the baseline is clean (0 findings), so `--error` failing the
     # job means a PR introduced a new insecure pattern worth looking at.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: |
           semgrep scan \
             --config p/security-audit \
