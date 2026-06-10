@@ -75,6 +75,11 @@ export interface Quote {
   /** ISO timestamp when the 7-day follow-up email was sent (manual or
    *  cron). Null until it goes out; prevents duplicate reminders. */
   followUpSentAt: string | null;
+  /** ISO timestamp when Eric explicitly disabled the 7-day follow-up
+   *  for this quote — typically because the couple already re-engaged
+   *  and another "just checking in" email would be noise. The cron
+   *  excludes rows where this is set. */
+  followUpSkippedAt: string | null;
 }
 
 export interface QuoteStats {
@@ -130,6 +135,7 @@ function rowToQuote(r: any): Quote {
     closedAt: r.quote_closed_at ?? null,
     sentAt: r.sent_at ?? null,
     followUpSentAt: r.follow_up_sent_at ?? null,
+    followUpSkippedAt: r.follow_up_skipped_at ?? null,
     serviceInterest: serviceInterestOrDefault(r.service_interest),
   };
 }
@@ -534,7 +540,8 @@ export async function markQuoteFollowUpSent(id: number, at: Date = new Date()): 
 }
 
 /** Quotes ready for a follow-up email: sent >= `daysSince` ago, no
- *  follow-up yet, not archived, and we actually have a recipient. */
+ *  follow-up yet, not archived, not explicitly skipped, and we actually
+ *  have a recipient. */
 export async function listQuotesPendingFollowUp(daysSince = 7): Promise<Quote[]> {
   await initSchema();
   const cutoff = new Date(Date.now() - daysSince * 24 * 60 * 60 * 1000).toISOString();
@@ -545,10 +552,32 @@ export async function listQuotesPendingFollowUp(daysSince = 7): Promise<Quote[]>
             AND sent_at IS NOT NULL
             AND sent_at <= ?
             AND follow_up_sent_at IS NULL
+            AND follow_up_skipped_at IS NULL
           ORDER BY sent_at ASC`,
     args: [cutoff],
   });
   return res.rows.map(rowToQuote);
+}
+
+/** Disable the 7-day follow-up for a single quote — used when the
+ *  couple has already re-engaged so an automatic "checking in" email
+ *  would be redundant. Idempotent: re-stamping just overwrites. */
+export async function skipQuoteFollowUp(id: number, at: Date = new Date()): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: 'UPDATE quotes SET follow_up_skipped_at = ? WHERE id = ?',
+    args: [at.toISOString(), id],
+  });
+}
+
+/** Reverse skipQuoteFollowUp — the quote becomes eligible for the cron
+ *  again (assuming sent_at is still in the past by the threshold). */
+export async function restoreQuoteFollowUp(id: number): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: 'UPDATE quotes SET follow_up_skipped_at = NULL WHERE id = ?',
+    args: [id],
+  });
 }
 
 // ─── Interactive quote responses ────────────────────────────────────────────

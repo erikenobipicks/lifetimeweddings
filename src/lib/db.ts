@@ -351,6 +351,11 @@ export async function initSchema() {
   //                       (manual button or cron). Prevents duplicates.
   await ensureColumn('quotes', 'sent_at', 'TEXT');
   await ensureColumn('quotes', 'follow_up_sent_at', 'TEXT');
+  // Manually skip the 7-day follow-up — set when Eric clicks "Saltar
+  // recordatori" on a quote where the couple has already re-engaged (so
+  // a "just checking in" email would be noise). The cron filter skips
+  // any row with this set; an admin action can clear it again.
+  await ensureColumn('quotes', 'follow_up_skipped_at', 'TEXT');
   // Preferred language for the couple. Drives /p/<token> localisation and
   // is pre-filled on the lead row when contact/quiz tell us via `lang`.
   // Nullable — pre-existing rows default to 'ca' at read time in the
