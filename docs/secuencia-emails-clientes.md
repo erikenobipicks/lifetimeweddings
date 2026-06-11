@@ -41,28 +41,51 @@ no como una automatización.
 
 | # | Email | Disparador | Tono dominante |
 |---|---|---|---|
-| 1 | Bienvenida | Automático, al confirmar reserva | Emocional |
-| 2 | Cómo será el proceso | Automático, +3 días tras reserva | Informativo |
-| 3 | Consejos preboda | Automático, al agendar la preboda (o ~2 semanas antes) | Informativo cercano |
-| 4 | Localización preboda | Automático con condición: solo si no hay localización elegida | Informativo |
-| 5 | Revisión de horarios | Automático, 3 meses antes de la boda | Informativo |
-| 6 | Información importante | Automático, 1 mes antes | Informativo |
-| 7 | Planning definitivo | Automático, 3 semanas antes | Informativo |
-| 8 | Fotos de inspiración | Automático, ~6 semanas antes | Informativo cercano |
-| 9 | Consejos preparativos y luz | Automático, 2–3 semanas antes | Informativo cercano |
-| 10 | Confirmación final | Automático, 7 días antes | Informativo tranquilizador |
-| 11 | Mensaje emocional previo | Automático, 1–2 días antes | Emocional |
-| 12 | Gracias al día siguiente | Automático, +1 día (revisar antes de enviar) | Emocional |
-| 13 | Estamos trabajando en ello | Automático, +7–10 días tras la boda | Informativo cálido |
+| 1 | Bienvenida | Reserva + 0 días (mismo día) | Emocional |
+| 2 | Cómo será el proceso | Reserva + 3 días | Informativo |
+| 3 | Consejos preboda | Al agendar la preboda (o sesión preboda − 14 días) | Informativo cercano |
+| 4 | Localización preboda | Agenda de preboda + 21 días, solo si no hay localización elegida | Informativo |
+| 5 | Revisión de horarios | Boda − 90 días | Informativo |
+| 6 | Información importante | Boda − 30 días | Informativo |
+| 7 | Planning definitivo | Boda − 21 días | Informativo |
+| 8 | Fotos de inspiración | Boda − 42 días | Informativo cercano |
+| 9 | Consejos preparativos y luz | Boda − 15 días | Informativo cercano |
+| 10 | Confirmación final | Boda − 7 días | Informativo tranquilizador |
+| 11 | Mensaje emocional previo | Boda − 1 día | Emocional |
+| 12 | Gracias al día siguiente | Boda + 1 día (revisar antes de enviar) | Emocional |
+| 13 | Estamos trabajando en ello | Boda + 7 días | Informativo cálido |
 | 14 | Sneak peek | Manual (al tener el avance listo) | Emocional |
 | 15 | Entrega de galería | Manual (al publicar la galería) | Emocional |
-| 16 | Cómo descargar y guardar | Automático, +2 días tras entrega de galería | Informativo |
-| 17 | Selección para el álbum | Automático, +1–2 semanas tras la galería (solo con álbum contratado) | Informativo cercano |
+| 16 | Cómo descargar y guardar | Entrega de galería + 2 días | Informativo |
+| 17 | Selección para el álbum | Entrega de galería + 10 días (solo con álbum contratado) | Informativo cercano |
 | 18 | Revisión del diseño del álbum | Manual (al tener el diseño listo) | Informativo cercano |
 | 19 | Entrega del vídeo | Manual (al publicar el vídeo) | Emocional |
-| 20 | Cierre de experiencia | Automático, +1–2 semanas tras la última entrega | Emocional |
-| 21 | Reseña de Google | Automático, +3–5 días tras el email de cierre | Cercano, sin presión |
-| 22 | Aniversario | Automático, en el primer aniversario | Emocional |
+| 20 | Cierre de experiencia | Última entrega + 10 días | Emocional |
+| 21 | Reseña de Google | Email de cierre + 4 días | Cercano, sin presión |
+| 22 | Aniversario | Boda + 365 días | Emocional |
+
+**Los dos anclajes de los emails automáticos.** Cada disparador de la tabla
+usa una de estas referencias, pensadas para trasladarse tal cual a cualquier
+herramienta de automatización:
+
+- **`reserva + X días`** — emails ligados al inicio de la relación (1 y 2).
+  Se envían igual aunque la boda quede muy lejos.
+- **`boda − X días`** — emails operativos del gran día (5–11). Dependen de
+  cuánto falta para la boda, no de cuándo se reservó.
+- **`boda + X días`** — postboda con fecha conocida (12, 13 y 22).
+- **`entrega/evento + X días`** — los que cuelgan de una entrega real o de un
+  hito intermedio (3, 4, 16, 17, 20 y 21).
+
+**Regla anticolisión.** Cuando la reserva llega con poca antelación, los dos
+anclajes pueden chocar: una pareja que reserva a 2 meses de la boda ya tiene
+"boda − 90" en el pasado, y "boda − 30" le caería a pocos días de la
+bienvenida. Dos condiciones a configurar:
+
+1. Un email `boda − X` no se envía si su fecha cae antes de `reserva + 7 días`:
+   se omite y su contenido se recoge en el siguiente hito (ver la nota 5 de
+   implementación sobre fusiones de emails).
+2. Dejar un mínimo de 4–5 días entre dos emails automáticos consecutivos; si
+   dos coinciden, se retrasa el menos urgente.
 
 **Criterio manual vs. automático:** todo lo que depende de una fecha conocida
 (la boda, la reserva) se puede automatizar con total seguridad. Todo lo que
@@ -80,7 +103,7 @@ revisarlo antes de enviar para añadir un detalle real del día.
 ## Email 1 — Bienvenida tras la reserva
 
 - **Nombre interno:** `PRE-01-bienvenida`
-- **Momento de envío:** automático, en cuanto se confirma la reserva (mismo día).
+- **Momento de envío:** automático, **reserva + 0 días** (el mismo día en que se confirma la reserva).
 - **Objetivo:** dar la bienvenida, confirmar que la fecha está reservada en firme y transmitir desde el primer minuto que están en buenas manos.
 - **Tono:** emocional.
 
@@ -118,7 +141,7 @@ revisarlo antes de enviar para añadir un detalle real del día.
 ## Email 2 — Cómo será el proceso hasta la boda
 
 - **Nombre interno:** `PRE-02-proceso`
-- **Momento de envío:** automático, 3 días después de la reserva.
+- **Momento de envío:** automático, **reserva + 3 días**.
 - **Objetivo:** explicar el recorrido completo de aquí a la boda para que sepan qué esperar y cuándo, y eliminar la incertidumbre de "¿y ahora qué?".
 - **Tono:** informativo (con cierre cálido).
 
@@ -163,7 +186,7 @@ revisarlo antes de enviar para añadir un detalle real del día.
 ## Email 3 — Consejos para la sesión preboda
 
 - **Nombre interno:** `PRE-03-consejos-preboda`
-- **Momento de envío:** automático, al confirmar la fecha de la preboda (o unas 2 semanas antes de la sesión).
+- **Momento de envío:** automático, al confirmar la fecha de la preboda (o **sesión preboda − 14 días**).
 - **Objetivo:** que lleguen a la sesión relajados, sabiendo qué ponerse y qué esperar, y desmontar el miedo a "no saber posar".
 - **Tono:** informativo cercano.
 
@@ -206,7 +229,7 @@ revisarlo antes de enviar para añadir un detalle real del día.
 ## Email 4 — Recordatorio para elegir localización de la preboda
 
 - **Nombre interno:** `PRE-04-localizacion-preboda`
-- **Momento de envío:** automático con condición: solo se envía si, pasadas 2–3 semanas desde que se agendó (o quedando unas 6 semanas para la fecha orientativa), aún no hay localización elegida.
+- **Momento de envío:** automático con condición: **agenda de la preboda + 21 días** (o **sesión preboda − 42 días** si ya hay fecha orientativa), solo si aún no hay localización elegida.
 - **Objetivo:** desbloquear la elección del lugar sin que suene a presión, ofreciendo ayuda concreta.
 - **Tono:** informativo.
 
@@ -243,7 +266,7 @@ revisarlo antes de enviar para añadir un detalle real del día.
 ## Email 5 — Revisión de horarios generales (3 meses antes)
 
 - **Nombre interno:** `PRE-05-horarios-generales`
-- **Momento de envío:** automático, 3 meses antes de {{fecha_boda}}.
+- **Momento de envío:** automático, **boda − 90 días** (3 meses antes de {{fecha_boda}}).
 - **Objetivo:** obtener el esqueleto horario del día para detectar a tiempo problemas de luz o de tiempos, cuando aún hay margen para ajustar.
 - **Tono:** informativo.
 
@@ -283,7 +306,7 @@ revisarlo antes de enviar para añadir un detalle real del día.
 ## Email 6 — Información importante de la boda (1 mes antes)
 
 - **Nombre interno:** `PRE-06-info-importante`
-- **Momento de envío:** automático, 1 mes antes de {{fecha_boda}}.
+- **Momento de envío:** automático, **boda − 30 días**.
 - **Objetivo:** recopilar mediante formulario todos los datos prácticos y humanos del día: direcciones, personas clave, sorpresas, momentos imprescindibles.
 - **Tono:** informativo.
 
@@ -327,7 +350,7 @@ revisarlo antes de enviar para añadir un detalle real del día.
 ## Email 7 — Planning definitivo del día
 
 - **Nombre interno:** `PRE-07-planning-definitivo`
-- **Momento de envío:** automático, 3 semanas antes de {{fecha_boda}}.
+- **Momento de envío:** automático, **boda − 21 días**.
 - **Objetivo:** conseguir el horario cerrado del día (o la última versión disponible) para organizar la cobertura de foto y vídeo.
 - **Tono:** informativo.
 
@@ -364,7 +387,7 @@ revisarlo antes de enviar para añadir un detalle real del día.
 ## Email 8 — Fotos de inspiración o referencias visuales
 
 - **Nombre interno:** `PRE-08-inspiracion`
-- **Momento de envío:** automático, unas 6 semanas antes de {{fecha_boda}} (antes del planning definitivo, para que dé tiempo a conversar sobre ello).
+- **Momento de envío:** automático, **boda − 42 días** (antes del planning definitivo, para que dé tiempo a conversar sobre ello).
 - **Objetivo:** conocer sus gustos visuales y alinear expectativas, dejando claro que las referencias orientan pero no se replican.
 - **Tono:** informativo cercano.
 
@@ -401,7 +424,7 @@ revisarlo antes de enviar para añadir un detalle real del día.
 ## Email 9 — Consejos para preparativos, luz, horarios y momentos importantes
 
 - **Nombre interno:** `PRE-09-consejos-gran-dia`
-- **Momento de envío:** automático, 2–3 semanas antes de {{fecha_boda}}.
+- **Momento de envío:** automático, **boda − 15 días**.
 - **Objetivo:** compartir los consejos prácticos que más mejoran el resultado final (orden en los preparativos, luz, tiempos realistas), desde la experiencia y sin imponer nada.
 - **Tono:** informativo cercano.
 
@@ -446,7 +469,7 @@ revisarlo antes de enviar para añadir un detalle real del día.
 ## Email 10 — Confirmación final (1 semana antes)
 
 - **Nombre interno:** `PRE-10-confirmacion-final`
-- **Momento de envío:** automático, 7 días antes de {{fecha_boda}}.
+- **Momento de envío:** automático, **boda − 7 días**.
 - **Objetivo:** confirmar los datos clave del día, recordar cómo localizarnos y transmitir que todo está bajo control.
 - **Tono:** informativo tranquilizador.
 
@@ -491,7 +514,7 @@ revisarlo antes de enviar para añadir un detalle real del día.
 ## Email 11 — Mensaje emocional 1–2 días antes
 
 - **Nombre interno:** `PRE-11-vispera`
-- **Momento de envío:** automático, 1–2 días antes de {{fecha_boda}} (idealmente la víspera por la mañana).
+- **Momento de envío:** automático, **boda − 1 día** (idealmente la víspera por la mañana; si se prefiere más margen, boda − 2).
 - **Objetivo:** ninguno operativo. Calmar nervios, generar ilusión y cerrar la etapa preboda con un mensaje puramente humano.
 - **Tono:** emocional. Sin ninguna petición.
 
@@ -532,7 +555,7 @@ revisarlo antes de enviar para añadir un detalle real del día.
 ## Email 12 — Gracias al día siguiente
 
 - **Nombre interno:** `POST-12-gracias`
-- **Momento de envío:** automático al día siguiente de la boda (media tarde, no temprano), pero **revisándolo antes de enviar** para añadir un detalle real del día.
+- **Momento de envío:** automático, **boda + 1 día** (media tarde, no temprano), pero **revisándolo antes de enviar** para añadir un detalle real del día.
 - **Objetivo:** agradecer la confianza, alargar la emoción del día y dejar claro que sus recuerdos ya están a salvo.
 - **Tono:** emocional.
 
@@ -567,7 +590,7 @@ revisarlo antes de enviar para añadir un detalle real del día.
 ## Email 13 — Estamos trabajando en la selección y edición
 
 - **Nombre interno:** `POST-13-en-proceso`
-- **Momento de envío:** automático, 7–10 días después de la boda.
+- **Momento de envío:** automático, **boda + 7 días** (ampliable a +10).
 - **Objetivo:** cubrir el silencio natural de las semanas de edición: explicar qué estamos haciendo, gestionar expectativas de plazos con prudencia y mantener la ilusión.
 - **Tono:** informativo cálido.
 
@@ -686,7 +709,7 @@ revisarlo antes de enviar para añadir un detalle real del día.
 ## Email 16 — Cómo descargar, compartir y guardar las fotos
 
 - **Nombre interno:** `POST-16-descargas`
-- **Momento de envío:** automático, 2 días después del email de entrega de galería.
+- **Momento de envío:** automático, **entrega de galería + 2 días**.
 - **Objetivo:** explicar lo práctico (descarga, compartir, copias de seguridad) y reducir las consultas de soporte, separándolo del momento emocional de la entrega.
 - **Tono:** informativo.
 
@@ -731,7 +754,7 @@ revisarlo antes de enviar para añadir un detalle real del día.
 ## Email 17 — Selección de fotografías para el álbum
 
 - **Nombre interno:** `POST-17-seleccion-album`
-- **Momento de envío:** automático, 1–2 semanas después de la entrega de la galería. **Solo para parejas con álbum contratado.**
+- **Momento de envío:** automático, **entrega de galería + 10 días** (orientativo: 1–2 semanas). **Solo para parejas con álbum contratado.**
 - **Objetivo:** explicar cómo funciona la selección de fotos para el álbum y ponérselo fácil, ofreciendo ayuda si la elección se les hace cuesta arriba.
 - **Tono:** informativo cercano.
 
@@ -858,7 +881,7 @@ revisarlo antes de enviar para añadir un detalle real del día.
 ## Email 20 — Cierre de experiencia y agradecimiento
 
 - **Nombre interno:** `POST-20-cierre`
-- **Momento de envío:** automático, 1–2 semanas después de la última entrega (vídeo o álbum físico, lo que llegue más tarde).
+- **Momento de envío:** automático, **última entrega + 10 días** (vídeo o álbum físico, lo que llegue más tarde).
 - **Objetivo:** cerrar formalmente la experiencia, agradecer de corazón y dejar la puerta abierta para el futuro (postboda, otras sesiones, recomendaciones).
 - **Tono:** emocional.
 
@@ -902,7 +925,7 @@ revisarlo antes de enviar para añadir un detalle real del día.
 ## Email 21 — Petición de reseña de Google
 
 - **Nombre interno:** `POST-21-resena`
-- **Momento de envío:** automático, 3–5 días después del email de cierre (con la emoción de las entregas aún fresca, pero sin mezclarlo con la despedida).
+- **Momento de envío:** automático, **email de cierre + 4 días** (con la emoción de las entregas aún fresca, pero sin mezclarlo con la despedida).
 - **Objetivo:** conseguir una reseña en Google de forma natural, sin presión y explicando honestamente por qué importa.
 - **Tono:** cercano, honesto, sin presión.
 
@@ -943,7 +966,7 @@ revisarlo antes de enviar para añadir un detalle real del día.
 ## Email 22 — Aniversario, un año después
 
 - **Nombre interno:** `POST-22-aniversario`
-- **Momento de envío:** automático, en el primer aniversario de {{fecha_boda}} (por la mañana).
+- **Momento de envío:** automático, **boda + 365 días** (el primer aniversario de {{fecha_boda}}, por la mañana).
 - **Objetivo:** felicitar el aniversario, reactivar el recuerdo y la relación, y abrir con suavidad la puerta a futuras sesiones. Sin venta agresiva.
 - **Tono:** emocional.
 
@@ -983,9 +1006,13 @@ revisarlo antes de enviar para añadir un detalle real del día.
 ## Notas finales de implementación
 
 1. **Dónde automatizar.** Toda la secuencia puede montarse en el CRM de estudio
-   (workflows de Fotostudio o equivalente) usando dos tipos de disparador:
-   fecha relativa a la boda/reserva (emails 1–13, 16–17, 20–22) y cambio de
-   estado del proyecto o envío manual (emails 14, 15, 18, 19).
+   (workflows de Fotostudio o equivalente) usando los anclajes de la tabla
+   resumen: `reserva + X` y `boda − X / boda + X` para los emails con fecha
+   conocida (1–13, 16–17, 20–22), y cambio de estado del proyecto o envío
+   manual para los que dependen de una entrega real (14, 15, 18, 19). Si la
+   herramienta solo admite un tipo de anclaje, priorizar `boda − X` para los
+   operativos (5–11) y disparar los de arranque (1 y 2) desde el alta del
+   proyecto.
 2. **Emails que se revisan a mano antes de salir aunque estén automatizados:**
    el 10 (verificar datos reales), el 12 (añadir el detalle del día) y el 20
    (personalizar la despedida). Son los tres donde una plantilla sin retocar
