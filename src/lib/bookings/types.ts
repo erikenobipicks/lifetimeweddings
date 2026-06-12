@@ -79,6 +79,10 @@ export interface Booking {
    *  proposal page. null → hard-coded default fallback. */
   flagshipVideoId: string | null;
 
+  /** Discount applied to the pack price. 0 = no discount. The effective price
+   *  shown to the couple on /reserva is packPriceCents - discountCents. */
+  discountCents: number;
+
   // State
   status: BookingStatus;
   expiresAt: Date | null;
@@ -149,6 +153,8 @@ export interface BookingCreateInput {
   internalNotes?: string;
   referenceTestimonial?: ReferenceTestimonial;
   flagshipVideoId?: string;
+
+  discountCents?: number;
 
   incentiveBody?: string;
   incentiveOriginalPriceCents?: number;

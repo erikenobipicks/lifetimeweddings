@@ -312,6 +312,8 @@ export const ui = {
     'reserva.pack.deposit': 'Depósito para reservar',
     'reserva.pack.terms': 'Pago restante',
     'reserva.pack.was': 'Antes',
+    'reserva.pack.discount': 'Descuento especial',
+    'reserva.pack.originalPrice': 'Precio regular',
 
     // Incentive ("caramelo") — optional reservation reward
     'reserva.incentive.eyebrow': 'Un detalle para vosotros',
@@ -937,6 +939,8 @@ export const ui = {
     'reserva.pack.deposit': 'Dipòsit per reservar',
     'reserva.pack.terms': 'Pagament restant',
     'reserva.pack.was': 'Abans',
+    'reserva.pack.discount': 'Descompte especial',
+    'reserva.pack.originalPrice': 'Preu regular',
 
     // Incentive ("caramel") — optional reservation reward
     'reserva.incentive.eyebrow': 'Un detall per a vosaltres',
@@ -1560,6 +1564,8 @@ export const ui = {
     'reserva.pack.deposit': 'Deposit to book',
     'reserva.pack.terms': 'Remaining payment',
     'reserva.pack.was': 'Before',
+    'reserva.pack.discount': 'Special discount',
+    'reserva.pack.originalPrice': 'Regular price',
 
     // Incentive — optional reservation reward
     'reserva.incentive.eyebrow': 'A little something for you',

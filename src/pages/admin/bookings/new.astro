@@ -290,6 +290,30 @@ const extrasCatalog = EXTRAS.map((x) => ({
           <input id="paymentTermsField" name="paymentTerms" value={v('paymentTerms')} placeholder="50% en signar, 50% un mes abans" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
 
+        <div class="block md:col-span-2 border border-gold/40 bg-gold/5 p-4">
+          <p class="text-xs font-bold tracking-widest uppercase text-ink/70 mb-3">Descompte (opcional)</p>
+          <div class="flex flex-wrap items-end gap-3">
+            <div>
+              <p class="text-[11px] font-bold tracking-wide uppercase text-ink/60 mb-1">Tipus</p>
+              <div class="flex gap-3 text-sm">
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="radio" name="discountType" value="percent" id="discountTypePct" class="accent-gold" checked={v('discountType') === 'percent'} />
+                  <span>%</span>
+                </label>
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="radio" name="discountType" value="amount" id="discountTypeAmt" class="accent-gold" checked={v('discountType') === 'amount' || !v('discountType')} />
+                  <span>€</span>
+                </label>
+              </div>
+            </div>
+            <label class="block">
+              <span class="text-[11px] font-bold tracking-wide uppercase text-ink/60">Valor</span>
+              <input id="discountValueField" name="discountValue" inputmode="decimal" placeholder="0" value={v('discountValue')} class="mt-1 w-28 px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+            </label>
+            <p id="discountPreview" class="text-sm text-gold font-semibold self-end pb-2"></p>
+          </div>
+        </div>
+
         <div class="block md:col-span-2 bg-cream/60 border border-gold/30 p-4 md:p-5">
           <p class="text-xs font-bold tracking-widest uppercase text-ink/70 mb-1">💶 Calculadora de pagament</p>
           <p class="text-[11px] text-ink/55 mb-3">Suma automàticament <strong>Inversió total + add-ons</strong>. La part en <strong>efectiu</strong> es queda fora de la factura (estalvi del 21 % sobre aquell tram). Apreta el botó <strong>↻</strong> al costat d'un camp per completar-lo amb el que falta. <em>Inserir text al pla de pagament</em> copia el desglossament al camp de dalt.</p>
@@ -738,4 +762,29 @@ const extrasCatalog = EXTRAS.map((x) => ({
     if (target) target.value = generatePaymentText();
   });
   recalcPayment();
+
+  // ── Discount live preview ────────────────────────────────────────────────
+  const discountValueInput = document.getElementById('discountValueField') as HTMLInputElement | null;
+  const discountPreviewEl = document.getElementById('discountPreview');
+  function updateDiscountPreview() {
+    const typeEl = document.querySelector<HTMLInputElement>('input[name="discountType"]:checked');
+    const type = typeEl?.value ?? 'amount';
+    const val = parseFloat((discountValueInput?.value ?? '').replace(',', '.'));
+    const packCents = Math.round(parseFloat((priceField?.value ?? '0').replace(',', '.')) * 100);
+    if (!Number.isFinite(val) || val <= 0 || packCents <= 0) {
+      if (discountPreviewEl) discountPreviewEl.textContent = '';
+      return;
+    }
+    const discountCents = type === 'percent'
+      ? Math.round(packCents * Math.min(val, 100) / 100)
+      : Math.round(val * 100);
+    const effectiveCents = packCents - discountCents;
+    if (discountPreviewEl) {
+      discountPreviewEl.textContent = `−${(discountCents / 100).toFixed(0)} € · efectiu: ${(effectiveCents / 100).toFixed(0)} €`;
+    }
+  }
+  discountValueInput?.addEventListener('input', updateDiscountPreview);
+  document.querySelectorAll<HTMLInputElement>('input[name="discountType"]').forEach((r) => r.addEventListener('change', updateDiscountPreview));
+  priceField?.addEventListener('input', updateDiscountPreview);
+  updateDiscountPreview();
 </script>

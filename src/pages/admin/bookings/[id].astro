@@ -526,6 +526,35 @@ const ibanPlaceholder = transfer.isPlaceholder;
         <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Inversió total (€)</span><input name="packPriceEuros" inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 1500, 1.500, 1500,00 o 1.500,00" value={eurosFromCents(booking.packPriceCents)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
         <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Dipòsit (€)</span><input name="depositEuros" inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 500, 500,00 o 1.500,00" value={eurosFromCents(booking.depositCents)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
         <label class="block md:col-span-2"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Termes de pagament</span><input name="paymentTerms" value={booking.paymentTerms ?? ''} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+
+        <div class="md:col-span-2 border border-gold/40 bg-gold/5 p-4">
+          <p class="text-xs font-bold tracking-widest uppercase text-ink/70 mb-3">Descompte (opcional)</p>
+          {booking.discountCents > 0 && (
+            <p class="text-[11px] text-gold font-semibold mb-2">
+              Descompte actiu: −{eurosFromCents(booking.discountCents)} € · Inversió efectiva: {eurosFromCents(booking.packPriceCents - booking.discountCents)} €
+            </p>
+          )}
+          <div class="flex flex-wrap items-end gap-3">
+            <div>
+              <p class="text-[11px] font-bold tracking-wide uppercase text-ink/60 mb-1">Tipus</p>
+              <div class="flex gap-3 text-sm">
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="radio" name="discountType" value="percent" id="discountTypePct" class="accent-gold" />
+                  <span>%</span>
+                </label>
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="radio" name="discountType" value="amount" id="discountTypeAmt" class="accent-gold" checked />
+                  <span>€</span>
+                </label>
+              </div>
+            </div>
+            <label class="block">
+              <span class="text-[11px] font-bold tracking-wide uppercase text-ink/60">Valor (0 = sense descompte)</span>
+              <input id="discountValueField" name="discountValue" inputmode="decimal" placeholder="0" value={booking.discountCents > 0 ? eurosFromCents(booking.discountCents) : ''} class="mt-1 w-28 px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+            </label>
+            <p id="discountPreview" class="text-sm text-gold font-semibold self-end pb-2"></p>
+          </div>
+        </div>
       </div>
     </fieldset>
 
@@ -897,4 +926,30 @@ const ibanPlaceholder = transfer.isPlaceholder;
       }
     }
   });
+
+  // ── Discount live preview ────────────────────────────────────────────────
+  const discountValueInput = document.getElementById('discountValueField') as HTMLInputElement | null;
+  const discountPreviewEl = document.getElementById('discountPreview');
+  const packPriceInput = document.querySelector<HTMLInputElement>('input[name="packPriceEuros"]');
+  function updateDiscountPreview() {
+    const typeEl = document.querySelector<HTMLInputElement>('input[name="discountType"]:checked');
+    const type = typeEl?.value ?? 'amount';
+    const val = parseFloat((discountValueInput?.value ?? '').replace(',', '.'));
+    const packCents = Math.round(parseFloat((packPriceInput?.value ?? '0').replace(',', '.')) * 100);
+    if (!Number.isFinite(val) || val <= 0 || packCents <= 0) {
+      if (discountPreviewEl) discountPreviewEl.textContent = '';
+      return;
+    }
+    const discountCents = type === 'percent'
+      ? Math.round(packCents * Math.min(val, 100) / 100)
+      : Math.round(val * 100);
+    const effectiveCents = packCents - discountCents;
+    if (discountPreviewEl) {
+      discountPreviewEl.textContent = `−${(discountCents / 100).toFixed(0)} € · efectiu: ${(effectiveCents / 100).toFixed(0)} €`;
+    }
+  }
+  discountValueInput?.addEventListener('input', updateDiscountPreview);
+  document.querySelectorAll<HTMLInputElement>('input[name="discountType"]').forEach((r) => r.addEventListener('change', updateDiscountPreview));
+  packPriceInput?.addEventListener('input', updateDiscountPreview);
+  updateDiscountPreview();
 </script>
