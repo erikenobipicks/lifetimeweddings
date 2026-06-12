@@ -139,72 +139,87 @@ const ibanPlaceholder = transfer.isPlaceholder;
 
   <!-- Sidebar: URL + accions ràpides -->
   <div class="bg-white border border-black/10 p-5 mb-6">
-    <div class="flex flex-col md:flex-row md:items-center gap-4">
+    <!-- Row 1: URL (full width) + copy/open -->
+    <div class="flex items-start gap-3 mb-4">
       <div class="flex-1 min-w-0">
         <p class="text-[11px] font-bold tracking-widest uppercase text-ink/50 mb-1">URL pública</p>
-        <code class="text-sm break-all text-ink/80">{publicUrl}</code>
+        <a
+          href={publicUrl}
+          target="_blank"
+          rel="noopener"
+          class="text-sm text-ink/70 underline decoration-dotted underline-offset-2 break-all hover:text-gold"
+        >{publicUrl}</a>
       </div>
-      <div class="flex flex-wrap gap-2">
+      <div class="flex gap-2 flex-shrink-0 mt-5">
         <button
           type="button"
           data-copy={publicUrl}
-          class="bg-gold text-ink text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-ink hover:text-white transition-colors"
+          class="bg-gold text-ink text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-ink hover:text-white transition-colors whitespace-nowrap"
         >Copiar</button>
         <a
           href={publicUrl}
           target="_blank"
           rel="noopener"
-          class="border border-black/15 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:border-gold hover:text-gold transition-colors"
+          class="border border-black/15 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:border-gold hover:text-gold transition-colors whitespace-nowrap"
         >Obrir →</a>
+      </div>
+    </div>
 
-        {booking.status === 'draft' && (
-          <>
-            <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline-flex items-center gap-3">
-              <input type="hidden" name="_action" value="status" />
-              <input type="hidden" name="status" value="sent" />
-              <button type="submit" class="bg-blue-600 text-white text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-blue-700 transition-colors">
-                Marcar com a enviat
-              </button>
-              <label class="inline-flex items-center gap-1.5 text-xs text-ink/70 cursor-pointer select-none">
-                <input type="checkbox" name="send_email" value="1" checked class="accent-gold" />
-                Enviar email a la parella
-              </label>
-            </form>
-            <a
-              href={`/admin/bookings/${booking.id}/confirm-offline`}
-              class="border border-emerald-300 text-emerald-700 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-emerald-50 transition-colors"
-              title="Per a bodes ja contractades fora del flux web: salta /reserva i obre /contrato directament"
-            >
-              Confirmar offline →
-            </a>
-          </>
-        )}
-
-        {booking.status !== 'archived' && (
-          <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline" onsubmit="return confirm('Arxivar aquesta reserva? La pàgina pública deixarà de servir-se però es pot recuperar.')">
+    <!-- Row 2: status actions -->
+    <div class="flex flex-wrap gap-2">
+      {booking.status === 'draft' && (
+        <>
+          <!-- Primary: mark sent AND send email -->
+          <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline">
             <input type="hidden" name="_action" value="status" />
-            <input type="hidden" name="status" value="archived" />
-            <button type="submit" class="border border-red-300 text-red-700 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-red-50 transition-colors">
-              Arxivar
+            <input type="hidden" name="status" value="sent" />
+            <input type="hidden" name="send_email" value="1" />
+            <button type="submit" class="bg-blue-600 text-white text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-blue-700 transition-colors whitespace-nowrap">
+              Marcar com a enviat + enviar email
             </button>
           </form>
-        )}
-        <a
-          href={gcalUrl}
-          target="_blank"
-          rel="noopener"
-          class="inline-flex items-center gap-1.5 border border-blue-300 text-blue-700 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-blue-50 transition-colors"
-          title="Afegir aquesta boda al teu Google Calendar amb totes les dades pre-omplertes"
-        >
-          📅 Google Calendar
-        </a>
-        <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline" onsubmit="return confirm('⚠ ELIMINAR aquesta reserva DEFINITIVAMENT?\n\nNo es podrà recuperar. També s'esborraran les dades de la parella i el contracte.\n\nFes-ho servir només per netejar proves.')">
-          <input type="hidden" name="_action" value="delete" />
-          <button type="submit" class="border-2 border-red-600 text-red-600 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-red-600 hover:text-white transition-colors">
-            Eliminar definitivament
+          <!-- Secondary: mark sent without email -->
+          <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline">
+            <input type="hidden" name="_action" value="status" />
+            <input type="hidden" name="status" value="sent" />
+            <button type="submit" class="border border-blue-400 text-blue-600 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-blue-50 transition-colors whitespace-nowrap">
+              Marcar com a enviat (sense email)
+            </button>
+          </form>
+          <a
+            href={`/admin/bookings/${booking.id}/confirm-offline`}
+            class="border border-emerald-300 text-emerald-700 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-emerald-50 transition-colors whitespace-nowrap"
+            title="Per a bodes ja contractades fora del flux web: salta /reserva i obre /contrato directament"
+          >
+            Confirmar offline →
+          </a>
+        </>
+      )}
+
+      {booking.status !== 'archived' && (
+        <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline" onsubmit="return confirm('Arxivar aquesta reserva? La pàgina pública deixarà de servir-se però es pot recuperar.')">
+          <input type="hidden" name="_action" value="status" />
+          <input type="hidden" name="status" value="archived" />
+          <button type="submit" class="border border-red-300 text-red-700 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-red-50 transition-colors whitespace-nowrap">
+            Arxivar
           </button>
         </form>
-      </div>
+      )}
+      <a
+        href={gcalUrl}
+        target="_blank"
+        rel="noopener"
+        class="inline-flex items-center gap-1.5 border border-blue-300 text-blue-700 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-blue-50 transition-colors whitespace-nowrap"
+        title="Afegir aquesta boda al teu Google Calendar amb totes les dades pre-omplertes"
+      >
+        📅 Google Calendar
+      </a>
+      <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline" onsubmit="return confirm('⚠ ELIMINAR aquesta reserva DEFINITIVAMENT?\n\nNo es podrà recuperar. També s\'esborraran les dades de la parella i el contracte.\n\nFes-ho servir només per netejar proves.')">
+        <input type="hidden" name="_action" value="delete" />
+        <button type="submit" class="border-2 border-red-600 text-red-600 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-red-600 hover:text-white transition-colors whitespace-nowrap">
+          Eliminar definitivament
+        </button>
+      </form>
     </div>
     <dl class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5 pt-5 border-t border-black/10 text-xs">
       <div><dt class="text-ink/50 mb-1">Creat</dt><dd>{fmtDateTime(booking.createdAt)}</dd></div>
