@@ -49,6 +49,14 @@ function eurosStringToCents(raw: string): number {
   return Math.round(n * 100);
 }
 
+function computeDiscountCents(type: string, value: string, packCents: number): number {
+  const v = parseFloat(value.trim().replace(',', '.'));
+  if (!Number.isFinite(v) || v <= 0) return 0;
+  if (type === 'percent') return Math.round(packCents * Math.min(v, 100) / 100);
+  if (type === 'amount') return Math.round(v * 100);
+  return 0;
+}
+
 function parseLines(raw: string | null | undefined): string[] {
   if (!raw) return [];
   return raw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
@@ -101,6 +109,9 @@ const updateSchema = z.object({
   testimonialContext: z.string().max(120).optional(),
 
   flagshipVideoId: z.string().max(40).optional(),
+
+  discountType: z.enum(['percent', 'amount']).optional().or(z.literal('')),
+  discountValue: z.string().optional(),
 
   incentiveBody: z.string().max(1000).optional(),
   incentiveOriginalPriceEuros: z.string().regex(SPANISH_EUROS_RE).optional().or(z.literal('')),
@@ -272,6 +283,18 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
         context: (d.testimonialContext ?? '').trim() || undefined,
       };
     // partial input → ignore (don't half-update)
+  }
+
+  // Discount: recalculate whenever either field is present in the form.
+  if (d.discountType !== undefined || d.discountValue !== undefined) {
+    const effectivePriceCents = d.packPriceEuros !== undefined
+      ? (patch.packPriceCents ?? 0)
+      : booking.packPriceCents;
+    patch.discountCents = computeDiscountCents(
+      d.discountType ?? '',
+      d.discountValue ?? '',
+      effectivePriceCents,
+    );
   }
 
   // Incentive ("caramel"): each field clears with an empty value.

@@ -22,6 +22,8 @@ interface Props {
   priceCents: number;
   depositCents: number;
   paymentTerms: string | null;
+  /** Real discount in cents — reduces the effective price shown to the couple. */
+  discountCents?: number;
   incentiveBody?: string | null;
   incentiveOriginalPriceCents?: number | null;
   incentiveDeadline?: Date | null;
@@ -37,20 +39,32 @@ const {
   priceCents,
   depositCents,
   paymentTerms,
+  discountCents = 0,
   incentiveBody,
   incentiveOriginalPriceCents,
   incentiveDeadline,
 } = Astro.props;
 const t = useTranslations(lang);
 
+// Effective price is what the couple actually pays.
+const effectivePriceCents = Math.max(0, priceCents - discountCents);
+const hasDiscount = discountCents > 0;
+
 const showIncentive = !!incentiveBody;
+// Legacy manual strikethrough (incentiveOriginalPriceCents) still works if no
+// real discount is set — keeps backward compatibility.
 const showStrikethrough =
-  showIncentive &&
-  typeof incentiveOriginalPriceCents === 'number' &&
-  incentiveOriginalPriceCents > priceCents;
-const savingsAmount =
-  showStrikethrough && typeof incentiveOriginalPriceCents === 'number'
-    ? incentiveOriginalPriceCents - priceCents
+  hasDiscount ||
+  (showIncentive &&
+    typeof incentiveOriginalPriceCents === 'number' &&
+    incentiveOriginalPriceCents > effectivePriceCents);
+const strikethroughPrice = hasDiscount
+  ? priceCents
+  : (incentiveOriginalPriceCents ?? 0);
+const savingsAmount = hasDiscount
+  ? discountCents
+  : showStrikethrough && typeof incentiveOriginalPriceCents === 'number'
+    ? incentiveOriginalPriceCents - effectivePriceCents
     : 0;
 const deadlineStr = incentiveDeadline
   ? incentiveDeadline.toLocaleDateString(lang === 'ca' ? 'ca-ES' : lang === 'es' ? 'es-ES' : 'en-GB', {
@@ -152,15 +166,22 @@ const deadlineStr = incentiveDeadline
             <p class="text-xs font-semibold tracking-[0.15em] uppercase text-ink/50 mb-2">
               {t('reserva.pack.invest')}
             </p>
-            {showStrikethrough && typeof incentiveOriginalPriceCents === 'number' && (
+            {showStrikethrough && (
               <p class="text-sm text-ink/40 line-through mb-1">
-                <span class="text-[10px] uppercase tracking-wide mr-1">{t('reserva.pack.was')}</span>
-                {formatPrice(incentiveOriginalPriceCents, lang)}
+                <span class="text-[10px] uppercase tracking-wide mr-1">
+                  {hasDiscount ? t('reserva.pack.originalPrice') : t('reserva.pack.was')}
+                </span>
+                {formatPrice(strikethroughPrice, lang)}
               </p>
             )}
             <p class="font-display text-4xl md:text-5xl font-bold text-ink">
-              {formatPrice(priceCents, lang)}
+              {formatPrice(effectivePriceCents, lang)}
             </p>
+            {hasDiscount && (
+              <p class="text-sm font-semibold text-gold mt-1">
+                {t('reserva.pack.discount')} −{formatPrice(discountCents, lang)}
+              </p>
+            )}
           </div>
           <dl class="space-y-3 text-sm border-t border-ink/10 pt-6">
             <div class="flex justify-between gap-4">

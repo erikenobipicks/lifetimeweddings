@@ -71,6 +71,14 @@ function parseAddons(raw: string | null | undefined): PackAddon[] {
     .filter((x): x is PackAddon => x !== null);
 }
 
+function computeDiscountCents(type: string, value: string, packCents: number): number {
+  const v = parseFloat(value.trim().replace(',', '.'));
+  if (!Number.isFinite(v) || v <= 0) return 0;
+  if (type === 'percent') return Math.round(packCents * Math.min(v, 100) / 100);
+  if (type === 'amount') return Math.round(v * 100);
+  return 0;
+}
+
 function parseTestimonial(
   quote: string | null | undefined,
   author: string | null | undefined,
@@ -120,6 +128,11 @@ const formSchema = z.object({
   testimonialQuote: z.string().max(2000).optional(),
   testimonialAuthor: z.string().max(120).optional(),
   testimonialContext: z.string().max(120).optional(),
+
+  // Discount: type ('percent' or 'amount') + numeric value. Server computes
+  // discount_cents. Empty / missing = no discount.
+  discountType: z.enum(['percent', 'amount']).optional().or(z.literal('')),
+  discountValue: z.string().optional(),
 
   // Reservation incentive ("caramel"). All optional. Original price is a
   // euro string like the pack price; empty string means "not set".
@@ -193,6 +206,8 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     internalNotes: d.internalNotes?.trim() || undefined,
     referenceTestimonial: parseTestimonial(d.testimonialQuote, d.testimonialAuthor, d.testimonialContext),
     flagshipVideoId: d.flagshipVideoId?.trim() || undefined,
+
+    discountCents: computeDiscountCents(d.discountType || '', d.discountValue || '', eurosStringToCents(d.packPriceEuros)),
 
     incentiveBody: d.incentiveBody?.trim() || undefined,
     incentiveOriginalPriceCents:

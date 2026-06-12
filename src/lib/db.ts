@@ -403,6 +403,9 @@ export async function initSchema() {
   await ensureColumn('bookings', 'incentive_body', 'TEXT');
   await ensureColumn('bookings', 'incentive_original_price_cents', 'INTEGER');
   await ensureColumn('bookings', 'incentive_deadline', 'TEXT');
+  // Absolute discount in cents applied to the pack price. 0 = no discount.
+  // The effective price shown to the couple is pack_price_cents - discount_cents.
+  await ensureColumn('bookings', 'discount_cents', 'INTEGER NOT NULL DEFAULT 0');
   await ensureColumn('booking_form_responses', 'language_between', 'TEXT');
   await ensureColumn('booking_form_responses', 'ceremony_location_text', 'TEXT');
   await ensureColumn('booking_form_responses', 'reception_location_text', 'TEXT');

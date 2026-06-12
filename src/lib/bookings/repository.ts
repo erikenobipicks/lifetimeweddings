@@ -96,6 +96,8 @@ function rowToBooking(row: Record<string, unknown>): Booking {
     ),
     flagshipVideoId: row.flagship_video_id ? String(row.flagship_video_id) : null,
 
+    discountCents: Number(row.discount_cents ?? 0),
+
     incentiveBody: row.incentive_body ? String(row.incentive_body) : null,
     incentiveOriginalPriceCents:
       row.incentive_original_price_cents == null
@@ -204,6 +206,7 @@ export async function createBooking(input: BookingCreateInput): Promise<Booking>
       pack_name, pack_description, pack_includes, pack_excludes, pack_addons,
       pack_price_cents, deposit_cents, payment_terms,
       custom_intro, internal_notes, reference_testimonial, flagship_video_id,
+      discount_cents,
       incentive_body, incentive_original_price_cents, incentive_deadline,
       status, expires_at,
       created_at, updated_at
@@ -214,6 +217,7 @@ export async function createBooking(input: BookingCreateInput): Promise<Booking>
       ?, ?, ?, ?, ?,
       ?, ?, ?,
       ?, ?, ?, ?,
+      ?,
       ?, ?, ?,
       'draft', ?,
       ?, ?
@@ -232,6 +236,7 @@ export async function createBooking(input: BookingCreateInput): Promise<Booking>
       input.internalNotes ?? null,
       input.referenceTestimonial ? JSON.stringify(input.referenceTestimonial) : null,
       input.flagshipVideoId ?? null,
+      input.discountCents ?? 0,
       input.incentiveBody ?? null,
       input.incentiveOriginalPriceCents ?? null,
       toIso(input.incentiveDeadline ?? null),
@@ -322,6 +327,7 @@ export type BookingUpdate = Partial<{
   internalNotes: string | null;
   referenceTestimonial: ReferenceTestimonial | null;
   flagshipVideoId: string | null;
+  discountCents: number;
   incentiveBody: string | null;
   incentiveOriginalPriceCents: number | null;
   incentiveDeadline: Date | null;
@@ -350,6 +356,7 @@ const COLUMN_FOR: Record<keyof BookingUpdate, string> = {
   internalNotes: 'internal_notes',
   referenceTestimonial: 'reference_testimonial',
   flagshipVideoId: 'flagship_video_id',
+  discountCents: 'discount_cents',
   incentiveBody: 'incentive_body',
   incentiveOriginalPriceCents: 'incentive_original_price_cents',
   incentiveDeadline: 'incentive_deadline',
