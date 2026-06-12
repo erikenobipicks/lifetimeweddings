@@ -7,13 +7,16 @@
 import AdminLayout from '~/layouts/AdminLayout.astro';
 import { publicVideos, fullVideos } from '~/data/videos';
 import { PACKS, EXTRAS, getComposedSubpacks } from '~/data/packs';
+import { getQuoteById, getLeadByQuoteId, listQuoteResponses } from '~/lib/quotes';
 import type { Lang } from '~/i18n/ui';
 
 const params = Astro.url.searchParams;
 const error = params.get('error');
 // Preserved values from a failed submit: keys prefixed v_<fieldname>.
+// Falls back to the ?quote= prefill (built below) so a failed resubmit
+// never loses what the operator already corrected.
 function v(name: string): string {
-  return params.get(`v_${name}`) ?? '';
+  return params.get(`v_${name}`) ?? prefill[name] ?? '';
 }
 
 // Parse a formatted EUR string like "1.290 €" or "545 €" to a number.
@@ -57,6 +60,72 @@ function expandedIncludes(pack: typeof PACKS[number]): Record<Lang, string[]> {
   return out;
 }
 
+// Support ?quote=<id> deep-link from the quote detail page (/admin/[id])
+// so the booking form comes pre-filled: couple data from the quote, wedding
+// details from the linked lead, and the pack/extras from the couple's own
+// configurator response when they submitted one (latest response wins over
+// the quote's pack list — it's what they actually picked).
+const quoteIdParam = Number(params.get('quote'));
+const sourceQuote =
+  Number.isFinite(quoteIdParam) && quoteIdParam > 0 ? await getQuoteById(quoteIdParam) : null;
+const sourceLead = sourceQuote ? await getLeadByQuoteId(sourceQuote.id) : null;
+const sourceResponses = sourceQuote ? await listQuoteResponses(sourceQuote.id) : [];
+
+const prefill: Record<string, string> = {};
+if (sourceQuote) {
+  // Quotes store the couple as a single string ("Laura i Marc") — split on
+  // the usual connectors; if it doesn't split, everything lands on Nom 1
+  // and the operator fills Nom 2 (it's a required field anyway).
+  const [n1, n2] = sourceQuote.coupleName.split(/\s+(?:i|y|e|and|&|\+)\s+/i);
+  prefill.coupleName1 = (n1 ?? '').trim();
+  prefill.coupleName2 = (n2 ?? '').trim();
+  if (sourceQuote.coupleEmail) prefill.coupleEmailPrimary = sourceQuote.coupleEmail;
+  prefill.preferredLanguage = sourceQuote.preferredLanguage;
+  if (sourceQuote.flagshipVideoId) prefill.flagshipVideoId = sourceQuote.flagshipVideoId;
+  if (sourceLead?.phone) prefill.couplePhonePrimary = sourceLead.phone;
+  if (sourceLead?.weddingDate && /^\d{4}-\d{2}-\d{2}$/.test(sourceLead.weddingDate)) {
+    prefill.weddingDate = sourceLead.weddingDate;
+  }
+  if (sourceLead?.venueName) prefill.venueName = sourceLead.venueName;
+
+  const noteLines = [`Creat des del pressupost #${sourceQuote.id} · /p/${sourceQuote.token}`];
+  if (sourceQuote.adminDiscountCents > 0) {
+    const eur = (sourceQuote.adminDiscountCents / 100).toFixed(0);
+    noteLines.push(
+      `Descompte aplicat al pressupost: ${eur} €${sourceQuote.adminDiscountReason ? ` (${sourceQuote.adminDiscountReason})` : ''}`,
+    );
+  }
+  if (sourceQuote.notes) noteLines.push(sourceQuote.notes);
+  prefill.internalNotes = noteLines.join('\n');
+
+  const latestResponse = [...sourceResponses].sort((a, b) =>
+    b.createdAt.localeCompare(a.createdAt),
+  )[0];
+  const chosenPackIds = latestResponse?.packIds?.length
+    ? latestResponse.packIds
+    : sourceQuote.packIds;
+  const lang = sourceQuote.preferredLanguage;
+  // Only auto-fill the pack when the choice is unambiguous; with several
+  // packs on the table the operator decides which one becomes the proposal.
+  if (chosenPackIds.length === 1) {
+    const p = PACKS.find((x) => x.id === chosenPackIds[0]);
+    if (p) {
+      const priceEuros = eurosFromPriceString(p.price);
+      prefill.packName = p.name[lang];
+      prefill.packIncludes = expandedIncludes(p)[lang].join('\n');
+      prefill.packPriceEuros = String(priceEuros);
+      prefill.depositEuros = String(Math.round(priceEuros * 0.3));
+    }
+  }
+  if (latestResponse?.extraIds?.length) {
+    prefill.packAddons = latestResponse.extraIds
+      .map((xid) => EXTRAS.find((x) => x.id === xid))
+      .filter((x): x is (typeof EXTRAS)[number] => Boolean(x))
+      .map((x) => `${x.name[lang]} | ${eurosFromPriceString(x.price)}`)
+      .join('\n');
+  }
+}
+
 // Pre-built JSON the client script consumes. Trilingual snapshots of each
 // pack's includes + parsed numeric price so the picker can fill the form
 // according to the language the operator picked above.
@@ -82,6 +151,17 @@ const extrasCatalog = EXTRAS.map((x) => ({
   {error && (
     <div class="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-800 text-sm">
       <strong class="font-bold">Error:</strong> {error}
+    </div>
+  )}
+
+  {sourceQuote && (
+    <div class="mb-6 px-4 py-3 bg-cream border border-gold/40 text-sm">
+      Formulari precarregat des del pressupost
+      <a href={`/admin/${sourceQuote.id}`} class="text-gold underline font-bold">#{sourceQuote.id} · {sourceQuote.coupleName}</a>.
+      {sourceResponses.length > 0
+        ? ' El pack i els extres venen de la configuració que la parella va enviar des de /p.'
+        : ' La parella no ha enviat cap configuració — revisa el pack manualment.'}
+      Comprova noms, data, venue i preus abans de crear.
     </div>
   )}
 

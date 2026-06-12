@@ -231,6 +231,13 @@ function humanSecs(n: number): string {
           ✓ Recordatori enviat {quote.followUpSentAt ? `· ${fmt(quote.followUpSentAt)}` : ''}
         </span>
       )}
+      <a
+        href={`/admin/bookings/new?quote=${quote.id}`}
+        title="Obre el formulari de nova reserva amb les dades d'aquesta parella precarregades"
+        class="border border-ink text-ink px-4 py-2 text-xs font-bold tracking-widest uppercase hover:bg-ink hover:text-white transition whitespace-nowrap"
+      >
+        → Crear reserva
+      </a>
     </div>
     {quote.coupleEmail && (
       <>
