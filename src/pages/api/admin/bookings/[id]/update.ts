@@ -102,6 +102,10 @@ const updateSchema = z.object({
 
   flagshipVideoId: z.string().max(40).optional(),
 
+  incentiveBody: z.string().max(1000).optional(),
+  incentiveOriginalPriceEuros: z.string().regex(SPANISH_EUROS_RE).optional().or(z.literal('')),
+  incentiveDeadline: z.string().optional(),
+
   expiresAt: z.string().optional(),
 });
 
@@ -268,6 +272,19 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
         context: (d.testimonialContext ?? '').trim() || undefined,
       };
     // partial input → ignore (don't half-update)
+  }
+
+  // Incentive ("caramel"): each field clears with an empty value.
+  if (d.incentiveBody !== undefined) patch.incentiveBody = d.incentiveBody.trim() || null;
+  if (d.incentiveOriginalPriceEuros !== undefined) {
+    patch.incentiveOriginalPriceCents =
+      d.incentiveOriginalPriceEuros.length > 0
+        ? eurosStringToCents(d.incentiveOriginalPriceEuros)
+        : null;
+  }
+  if (d.incentiveDeadline !== undefined) {
+    patch.incentiveDeadline =
+      d.incentiveDeadline.length > 0 ? new Date(`${d.incentiveDeadline}T23:59:59Z`) : null;
   }
 
   if (d.expiresAt !== undefined) {

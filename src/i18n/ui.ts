@@ -311,6 +311,14 @@ export const ui = {
     'reserva.pack.invest': 'Inversión total',
     'reserva.pack.deposit': 'Depósito para reservar',
     'reserva.pack.terms': 'Pago restante',
+    'reserva.pack.was': 'Antes',
+
+    // Incentive ("caramelo") — optional reservation reward
+    'reserva.incentive.eyebrow': 'Un detalle para vosotros',
+    'reserva.incentive.heading': 'Si reserváis con nosotros',
+    'reserva.incentive.deadline': 'Válido si reserváis antes del {date}',
+    'reserva.incentive.save': 'Ahorráis {amount}',
+    'reserva.incentive.cta': 'Reservar nuestra fecha',
 
     // Steps
     'reserva.steps.heading': 'Si todo os encaja, así funciona:',
@@ -928,6 +936,14 @@ export const ui = {
     'reserva.pack.invest': 'Inversió total',
     'reserva.pack.deposit': 'Dipòsit per reservar',
     'reserva.pack.terms': 'Pagament restant',
+    'reserva.pack.was': 'Abans',
+
+    // Incentive ("caramel") — optional reservation reward
+    'reserva.incentive.eyebrow': 'Un detall per a vosaltres',
+    'reserva.incentive.heading': 'Si reserveu amb nosaltres',
+    'reserva.incentive.deadline': 'Vàlid si reserveu abans del {date}',
+    'reserva.incentive.save': 'Estalvieu {amount}',
+    'reserva.incentive.cta': 'Reservar la nostra data',
 
     // Steps
     'reserva.steps.heading': 'Si tot us encaixa, així funciona:',
@@ -1543,6 +1559,14 @@ export const ui = {
     'reserva.pack.invest': 'Total investment',
     'reserva.pack.deposit': 'Deposit to book',
     'reserva.pack.terms': 'Remaining payment',
+    'reserva.pack.was': 'Before',
+
+    // Incentive — optional reservation reward
+    'reserva.incentive.eyebrow': 'A little something for you',
+    'reserva.incentive.heading': 'If you book with us',
+    'reserva.incentive.deadline': 'Valid if you book before {date}',
+    'reserva.incentive.save': 'You save {amount}',
+    'reserva.incentive.cta': 'Book our date',
 
     // Steps
     'reserva.steps.heading': "If it all fits, here's how it works:",

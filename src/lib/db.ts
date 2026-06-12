@@ -394,6 +394,15 @@ export async function initSchema() {
   // with the couple's publication-consent choices. Nullable: bookings made
   // before this migration / when FotoStudio is unconfigured stay null.
   await ensureColumn('bookings', 'fotostudio_project_id', 'INTEGER');
+  // Booking incentive ("caramel"): an optional reservation reward shown on
+  // the public /reserva page to nudge the couple to book before they've
+  // confirmed. incentive_body is free text (the gift/discount in the
+  // operator's words); incentive_original_price_cents, when > pack price,
+  // renders the old price struck through so the discount is visible;
+  // incentive_deadline is an optional urgency date. All nullable.
+  await ensureColumn('bookings', 'incentive_body', 'TEXT');
+  await ensureColumn('bookings', 'incentive_original_price_cents', 'INTEGER');
+  await ensureColumn('bookings', 'incentive_deadline', 'TEXT');
   await ensureColumn('booking_form_responses', 'language_between', 'TEXT');
   await ensureColumn('booking_form_responses', 'ceremony_location_text', 'TEXT');
   await ensureColumn('booking_form_responses', 'reception_location_text', 'TEXT');

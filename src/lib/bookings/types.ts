@@ -61,6 +61,20 @@ export interface Booking {
    *  and NEVER included in any email to the couple. */
   internalNotes: string | null;
   referenceTestimonial: ReferenceTestimonial | null;
+
+  // Reservation incentive ("caramel") — an optional reward shown on the
+  // public proposal to motivate booking. All three are independent and
+  // optional; the callout renders when incentiveBody is set.
+  /** The gift/discount described in the operator's own words. Presence of
+   *  this string is what makes the incentive block appear on /reserva. */
+  incentiveBody: string | null;
+  /** Optional pre-discount price in cents. When set AND greater than
+   *  packPriceCents, the proposal shows it struck through above the current
+   *  price so the discount is visible. Null → no strikethrough. */
+  incentiveOriginalPriceCents: number | null;
+  /** Optional urgency date — "valid if you book before {date}". Null → the
+   *  incentive shows without a deadline. */
+  incentiveDeadline: Date | null;
   /** Optional YouTube id (from src/data/videos.ts) to feature on the
    *  proposal page. null → hard-coded default fallback. */
   flagshipVideoId: string | null;
@@ -135,6 +149,10 @@ export interface BookingCreateInput {
   internalNotes?: string;
   referenceTestimonial?: ReferenceTestimonial;
   flagshipVideoId?: string;
+
+  incentiveBody?: string;
+  incentiveOriginalPriceCents?: number;
+  incentiveDeadline?: Date;
 
   expiresAt?: Date;
 }

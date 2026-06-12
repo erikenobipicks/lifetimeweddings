@@ -121,6 +121,20 @@ const formSchema = z.object({
   testimonialAuthor: z.string().max(120).optional(),
   testimonialContext: z.string().max(120).optional(),
 
+  // Reservation incentive ("caramel"). All optional. Original price is a
+  // euro string like the pack price; empty string means "not set".
+  incentiveBody: z.string().max(1000).optional(),
+  incentiveOriginalPriceEuros: z
+    .string()
+    .regex(SPANISH_EUROS_RE, 'Format: 1500, 1.500, 1500,00 o 1.500,00')
+    .optional()
+    .or(z.literal('')),
+  incentiveDeadline: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Format: YYYY-MM-DD')
+    .optional()
+    .or(z.literal('')),
+
   // YouTube id chosen from the admin dropdown. Format is loose on purpose
   // — empty string means "use default", any other value is treated as a
   // YouTube id (validated against the catalog at render time, not here).
@@ -179,6 +193,16 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     internalNotes: d.internalNotes?.trim() || undefined,
     referenceTestimonial: parseTestimonial(d.testimonialQuote, d.testimonialAuthor, d.testimonialContext),
     flagshipVideoId: d.flagshipVideoId?.trim() || undefined,
+
+    incentiveBody: d.incentiveBody?.trim() || undefined,
+    incentiveOriginalPriceCents:
+      d.incentiveOriginalPriceEuros && d.incentiveOriginalPriceEuros.length > 0
+        ? eurosStringToCents(d.incentiveOriginalPriceEuros)
+        : undefined,
+    incentiveDeadline:
+      d.incentiveDeadline && d.incentiveDeadline.length > 0
+        ? new Date(`${d.incentiveDeadline}T23:59:59Z`)
+        : undefined,
 
     expiresAt: d.expiresAt && d.expiresAt.length > 0
       ? new Date(`${d.expiresAt}T23:59:59Z`)

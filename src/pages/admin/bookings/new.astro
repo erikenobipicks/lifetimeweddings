@@ -413,6 +413,28 @@ const extrasCatalog = EXTRAS.map((x) => ({
       </div>
     </fieldset>
 
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-1">Caramel / Incentiu</legend>
+      <p class="text-[11px] text-ink/50 -mt-2 mb-3">opcional · apareix a la proposta per motivar la parella a confirmar. Si queda buit, no es mostra res.</p>
+      <label class="block">
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Missatge del caramel</span>
+        <span class="block text-[11px] text-ink/50 mb-1">Ex: "Us regalareu una sessió preboda a la llum daurada del delta de l'Ebre, sense cost addicional."</span>
+        <textarea name="incentiveBody" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{v('incentiveBody')}</textarea>
+      </label>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Preu original (€) — per tatxar</span>
+          <span class="block text-[11px] text-ink/50 mb-1">opcional · si és més gran que la inversió, es mostra tatxat</span>
+          <input name="incentiveOriginalPriceEuros" inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 3500 o 3.500,00" value={v('incentiveOriginalPriceEuros')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Data límit de l'oferta</span>
+          <span class="block text-[11px] text-ink/50 mb-1">opcional · "vàlid si reserveu abans del…"</span>
+          <input type="date" name="incentiveDeadline" value={v('incentiveDeadline')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+      </div>
+    </fieldset>
+
     <fieldset>
       <legend class="font-display text-xl font-bold mb-3">Vigència</legend>
       <label class="block max-w-sm">

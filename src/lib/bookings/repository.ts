@@ -96,6 +96,13 @@ function rowToBooking(row: Record<string, unknown>): Booking {
     ),
     flagshipVideoId: row.flagship_video_id ? String(row.flagship_video_id) : null,
 
+    incentiveBody: row.incentive_body ? String(row.incentive_body) : null,
+    incentiveOriginalPriceCents:
+      row.incentive_original_price_cents == null
+        ? null
+        : Number(row.incentive_original_price_cents) || null,
+    incentiveDeadline: fromIso(row.incentive_deadline),
+
     status: String(row.status) as BookingStatus,
     expiresAt: fromIso(row.expires_at),
 
@@ -197,6 +204,7 @@ export async function createBooking(input: BookingCreateInput): Promise<Booking>
       pack_name, pack_description, pack_includes, pack_excludes, pack_addons,
       pack_price_cents, deposit_cents, payment_terms,
       custom_intro, internal_notes, reference_testimonial, flagship_video_id,
+      incentive_body, incentive_original_price_cents, incentive_deadline,
       status, expires_at,
       created_at, updated_at
     ) VALUES (
@@ -206,6 +214,7 @@ export async function createBooking(input: BookingCreateInput): Promise<Booking>
       ?, ?, ?, ?, ?,
       ?, ?, ?,
       ?, ?, ?, ?,
+      ?, ?, ?,
       'draft', ?,
       ?, ?
     )`,
@@ -223,6 +232,9 @@ export async function createBooking(input: BookingCreateInput): Promise<Booking>
       input.internalNotes ?? null,
       input.referenceTestimonial ? JSON.stringify(input.referenceTestimonial) : null,
       input.flagshipVideoId ?? null,
+      input.incentiveBody ?? null,
+      input.incentiveOriginalPriceCents ?? null,
+      toIso(input.incentiveDeadline ?? null),
       toIso(input.expiresAt ?? null),
       now, now,
     ],
@@ -310,6 +322,9 @@ export type BookingUpdate = Partial<{
   internalNotes: string | null;
   referenceTestimonial: ReferenceTestimonial | null;
   flagshipVideoId: string | null;
+  incentiveBody: string | null;
+  incentiveOriginalPriceCents: number | null;
+  incentiveDeadline: Date | null;
   expiresAt: Date | null;
 }>;
 
@@ -335,6 +350,9 @@ const COLUMN_FOR: Record<keyof BookingUpdate, string> = {
   internalNotes: 'internal_notes',
   referenceTestimonial: 'reference_testimonial',
   flagshipVideoId: 'flagship_video_id',
+  incentiveBody: 'incentive_body',
+  incentiveOriginalPriceCents: 'incentive_original_price_cents',
+  incentiveDeadline: 'incentive_deadline',
   expiresAt: 'expires_at',
 };
 
@@ -344,7 +362,11 @@ const JSON_FIELDS: Set<keyof BookingUpdate> = new Set([
   'packAddons',
   'referenceTestimonial',
 ]);
-const DATE_FIELDS: Set<keyof BookingUpdate> = new Set(['weddingDate', 'expiresAt']);
+const DATE_FIELDS: Set<keyof BookingUpdate> = new Set([
+  'weddingDate',
+  'expiresAt',
+  'incentiveDeadline',
+]);
 
 export async function updateBooking(id: string, patch: BookingUpdate): Promise<void> {
   await initSchema();
