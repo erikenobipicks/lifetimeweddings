@@ -977,6 +977,22 @@ export async function sendFormSubmissionNotification(args: {
     `\n→ ${adminUrl}`,
   ].filter(Boolean).join('\n');
 
+  // Telegram ping too, so Eric finds out on his phone the moment a couple
+  // submits any follow-up form. Fail-soft + independent of email/Resend.
+  try {
+    const tgMessage = [
+      '✅ <b>Formulari rebut</b>',
+      escapeHtml(FORM_KIND_LABELS[args.formKind] ?? args.formKind),
+      `${escapeHtml(couple)} · ${escapeHtml(formatExpiresShort(args.booking.weddingDate, 'ca'))} · ${escapeHtml(args.booking.venueName)}`,
+      ...(args.dataPreview ? ['', escapeHtml(args.dataPreview)] : []),
+      '',
+      `→ <a href="${adminUrl}">Veure les respostes a admin</a>`,
+    ].join('\n');
+    await sendTelegramNotification(tgMessage);
+  } catch (err) {
+    console.error('[booking-email] form-submission Telegram failed (non-fatal)', err);
+  }
+
   if (!resend) {
     console.log('[booking-email] (dev) form submission alert:', { to: INTERNAL_TO, subject });
     return;
@@ -987,3 +1003,12 @@ export async function sendFormSubmissionNotification(args: {
     console.error('[booking-email] form-submission notification failed (non-fatal)', err);
   }
 }
+
+/** Friendly labels for the follow-up form kinds, used in notifications. */
+const FORM_KIND_LABELS: Record<string, string> = {
+  wedding_details: 'Informació de la boda',
+  inspiration: 'Inspiració i música',
+  timeline: 'Timeline del dia',
+  guest_list: 'Llista de convidats',
+  music: 'Música',
+};
