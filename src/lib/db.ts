@@ -439,6 +439,11 @@ export async function initSchema() {
   // pre-existing rows → treated as "nothing ticked".
   await ensureColumn('bookings', 'checklist_state', 'TEXT');
 
+  // Timestamp of the pre-wedding Telegram digest (details + supplier
+  // instagrams), fired ~2 days before the wedding (or manually). NULL =
+  // not sent yet; the cron sweep uses it as the once-only guard.
+  await ensureColumn('bookings', 'prewedding_telegram_sent_at', 'TEXT');
+
   // ── Retention sweep (boot-time) ───────────────────────────────────────
   // Data-minimisation per RGPD: keep personal data only as long as needed.
   // Runs on each boot; safe to no-op when the DB is empty.

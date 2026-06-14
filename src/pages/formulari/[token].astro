@@ -102,7 +102,7 @@ const TX = {
     instaCouple: 'El vostre Instagram',
     instaCoupleHint: 'Per etiquetar-vos. Si en teniu dos, poseu-los tots dos.',
     instaProviders: 'Instagrams dels proveïdors per etiquetar',
-    instaProvidersHint: 'Un per línia (floristeria, catering, vestit, planner…). Així els podem etiquetar a les publicacions.',
+    instaProvidersHint: 'Un per línia, amb el format "Categoria: @compte" (ex: Flors: @florspertu). Així els podem etiquetar a les publicacions.',
     anythingElse: 'Qualsevol altra cosa',
     anythingElseHint: 'El que vulgueu que sapiguem i no encaixi a dalt.',
     choose: '— Trieu —',
@@ -155,7 +155,7 @@ const TX = {
     instaCouple: 'Vuestro Instagram',
     instaCoupleHint: 'Para etiquetaros. Si tenéis dos, ponedlos los dos.',
     instaProviders: 'Instagrams de los proveedores para etiquetar',
-    instaProvidersHint: 'Uno por línea (floristería, catering, vestido, planner…). Así los etiquetamos en las publicaciones.',
+    instaProvidersHint: 'Uno por línea, con el formato "Categoría: @cuenta" (ej: Flores: @florespara). Así los etiquetamos en las publicaciones.',
     anythingElse: 'Cualquier otra cosa',
     anythingElseHint: 'Lo que queráis que sepamos y no encaje arriba.',
     choose: '— Elegid —',
@@ -208,7 +208,7 @@ const TX = {
     instaCouple: 'Your Instagram',
     instaCoupleHint: 'So we can tag you. If you have two, add both.',
     instaProviders: 'Suppliers\' Instagram handles to tag',
-    instaProvidersHint: 'One per line (florist, catering, dress, planner…). So we can tag them in the posts.',
+    instaProvidersHint: 'One per line, as "Category: @handle" (e.g. Flowers: @flowerco). So we can tag them in the posts.',
     anythingElse: 'Anything else',
     anythingElseHint: 'Whatever you want us to know that doesn\'t fit above.',
     choose: '— Choose —',
@@ -430,7 +430,7 @@ const TX = {
                 <label class="block">
                   <span class="text-sm font-bold text-ink/80">{TX.instaProviders}</span>
                   <span class="block text-xs text-ink/55 mb-1">{TX.instaProvidersHint}</span>
-                  <textarea name="insta_providers" rows="4" placeholder="@floristeria&#10;@catering&#10;@vestit" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none font-mono text-sm"></textarea>
+                  <textarea name="insta_providers" rows="4" placeholder="Flors: @floristeria&#10;Catering: @catering&#10;DJ: @dj" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none font-mono text-sm"></textarea>
                 </label>
               </div>
             </fieldset>
