@@ -52,92 +52,167 @@ const invalid = !schedule || !booking || !formKind;
 if (invalid) Astro.response.status = 404;
 
 const isWeddingDetails = formKind === 'wedding_details';
+const name1 = booking?.coupleName1 ?? '';
+const name2 = booking?.coupleName2 ?? '';
+const venueName = booking?.venueName ?? '';
 
 // ─── i18n strings for the wedding_details questionnaire ──────────────────
-const T = {
+const TX = {
   ca: {
-    intro: 'Aquestes dades ens ajuden a preparar bé el vostre dia. Es replena en uns 10 minuts i no cal que ho tingueu tot tancat: ompliu el que sapigueu i la resta ja ho anirem afinant.',
-    practicalH: 'Coses pràctiques',
-    humanH: 'Persones i moments',
-    prepAddress1: 'Adreça dels preparatius (parella 1)',
-    prepAddress2: 'Adreça dels preparatius (parella 2)',
-    prepHint: 'On us prepareu el matí de la boda. Si és el mateix lloc, indiqueu-ho.',
-    dayContactName: 'Persona de contacte el dia (nom)',
-    dayContactNameHint: 'Algú a qui puguem trucar el mateix dia si fa falta (testimoni, familiar, planner...).',
-    dayContactPhone: 'Telèfon de contacte el dia',
+    intro: 'Aquestes dades ens ajuden a preparar bé el vostre dia. Es replena en uns 10 minuts: ompliu el que sapigueu i la resta ja l\'anirem afinant. Gairebé tot és opcional.',
+    prepFor: 'Preparatius de',
+    address: 'Adreça dels preparatius',
+    maps: 'Enllaç d\'ubicació (Google Maps)',
+    mapsHint: 'Obriu Google Maps, premeu "Compartir" i enganxeu aquí l\'enllaç.',
+    parents: 'Els pares estan junts o separats?',
+    parentsHint: 'Ens ajuda a planificar les fotos de família.',
+    pJunts: 'Junts', pSeparats: 'Separats', pHoComento: 'Prefereixo comentar-ho a part',
+    father: 'Nom del pare', mother: 'Nom de la mare', siblings: 'Germans/es (noms)',
+    secCeremony: 'Cerimònia',
+    ceremonyPlace: 'Lloc de la cerimònia',
+    ceremonyPlaceHint: 'Ho tenim apuntat així — canvieu-ho si cal.',
+    ceremonyTime: 'Hora de la cerimònia',
+    ceremonyType: 'Tipus de cerimònia',
+    tReligiosa: 'Religiosa', tCivil: 'Civil', tSimbolica: 'Simbòlica / altra',
+    officiantName: 'Qui oficia la cerimònia',
+    officiantNameHint: 'Mossèn, jutge, mestre de cerimònies… el nom si el sabeu.',
+    officiantRelation: 'Quina relació té amb vosaltres?',
+    rAmics: 'Amic o família', rContractat: 'Professional contractat', rAltres: 'Altres',
+    secMusic: 'Música i proveïdors',
+    liveMusic: 'Hi haurà música en directe en algun moment?',
+    lmSi: 'Sí', lmNo: 'No', lmNoSabem: 'Encara no ho sabem',
+    liveMusicDetails: 'Quan i quin tipus de música en directe',
     otherProviders: 'Altres proveïdors',
-    otherProvidersHint: 'Planner, catering, floristeria, música, espai... Nom i telèfon si els teniu.',
+    otherProvidersHint: 'Planner, catering, floristeria, espai… nom i telèfon si els teniu.',
+    dayContactName: 'Persona de contacte el dia (nom)',
+    dayContactNameHint: 'Algú a qui puguem trucar aquell dia (testimoni, familiar, planner…).',
+    dayContactPhone: 'Telèfon de contacte el dia',
+    secPeople: 'Persones i moments',
     keyPeople: 'Persones clau',
-    keyPeopleHint: 'Aquella àvia que no es perd detall, el grup d\'amics de tota la vida... A qui no podem perdre de vista?',
+    keyPeopleHint: 'Aquella àvia que no es perd detall, el grup d\'amics de tota la vida… A qui no podem perdre de vista?',
     surprises: 'Sorpreses preparades',
     surprisesHint: 'Som tombes. Però necessitem saber-ho per ser al lloc just en el moment just.',
     specialMoments: 'Moments o detalls especials',
     specialMomentsHint: 'Alguna cosa que us faci especial il·lusió que quedi recollida.',
     sensitiveInfo: 'Alguna cosa delicada',
-    sensitiveInfoHint: 'Una absència important, algú que prefereix no sortir a les fotos... Ens ajuda a fer les coses amb tacte.',
+    sensitiveInfoHint: 'Una absència important, algú que prefereix no sortir a les fotos… Ens ajuda a fer les coses amb tacte.',
+    secInsta: 'Instagram i publicació',
+    instaConsent: 'Ens doneu permís per publicar fotos/vídeos vostres a Instagram?',
+    cSi: 'Sí', cNo: 'No, preferim que no',
+    instaCouple: 'El vostre Instagram',
+    instaCoupleHint: 'Per etiquetar-vos. Si en teniu dos, poseu-los tots dos.',
+    instaProviders: 'Instagrams dels proveïdors per etiquetar',
+    instaProvidersHint: 'Un per línia (floristeria, catering, vestit, planner…). Així els podem etiquetar a les publicacions.',
     anythingElse: 'Qualsevol altra cosa',
     anythingElseHint: 'El que vulgueu que sapiguem i no encaixi a dalt.',
-    submit: 'Enviar respostes',
-    sending: 'Enviant…',
-    optional: 'opcional',
+    choose: '— Trieu —',
+    submit: 'Enviar respostes', sending: 'Enviant…', optional: 'opcional',
     thanksH: 'Gràcies!',
     thanksP: 'Ja hem rebut les vostres respostes. Si voleu afegir o canviar res, escriviu-nos sense problema.',
     errorMsg: 'No s\'ha pogut enviar. Reviseu la connexió i torneu-ho a provar.',
   },
   es: {
-    intro: 'Estos datos nos ayudan a preparar bien vuestro día. Se rellena en unos 10 minutos y no hace falta tenerlo todo cerrado: rellenad lo que sepáis y el resto lo iremos afinando.',
-    practicalH: 'Cosas prácticas',
-    humanH: 'Personas y momentos',
-    prepAddress1: 'Dirección de los preparativos (pareja 1)',
-    prepAddress2: 'Dirección de los preparativos (pareja 2)',
-    prepHint: 'Dónde os preparáis la mañana de la boda. Si es el mismo sitio, indicadlo.',
-    dayContactName: 'Persona de contacto el día (nombre)',
-    dayContactNameHint: 'Alguien a quien podamos llamar ese mismo día si hace falta (testigo, familiar, planner...).',
-    dayContactPhone: 'Teléfono de contacto el día',
+    intro: 'Estos datos nos ayudan a preparar bien vuestro día. Se rellena en unos 10 minutos: rellenad lo que sepáis y el resto lo iremos afinando. Casi todo es opcional.',
+    prepFor: 'Preparativos de',
+    address: 'Dirección de los preparativos',
+    maps: 'Enlace de ubicación (Google Maps)',
+    mapsHint: 'Abrid Google Maps, pulsad "Compartir" y pegad aquí el enlace.',
+    parents: '¿Los padres están juntos o separados?',
+    parentsHint: 'Nos ayuda a planificar las fotos de familia.',
+    pJunts: 'Juntos', pSeparats: 'Separados', pHoComento: 'Prefiero comentarlo aparte',
+    father: 'Nombre del padre', mother: 'Nombre de la madre', siblings: 'Hermanos/as (nombres)',
+    secCeremony: 'Ceremonia',
+    ceremonyPlace: 'Lugar de la ceremonia',
+    ceremonyPlaceHint: 'Lo tenemos apuntado así — cambiadlo si hace falta.',
+    ceremonyTime: 'Hora de la ceremonia',
+    ceremonyType: 'Tipo de ceremonia',
+    tReligiosa: 'Religiosa', tCivil: 'Civil', tSimbolica: 'Simbólica / otra',
+    officiantName: 'Quién oficia la ceremonia',
+    officiantNameHint: 'Cura, juez, maestro de ceremonias… el nombre si lo sabéis.',
+    officiantRelation: '¿Qué relación tiene con vosotros?',
+    rAmics: 'Amigo o familia', rContractat: 'Profesional contratado', rAltres: 'Otros',
+    secMusic: 'Música y proveedores',
+    liveMusic: '¿Habrá música en directo en algún momento?',
+    lmSi: 'Sí', lmNo: 'No', lmNoSabem: 'Aún no lo sabemos',
+    liveMusicDetails: 'Cuándo y qué tipo de música en directo',
     otherProviders: 'Otros proveedores',
-    otherProvidersHint: 'Planner, catering, floristería, música, espacio... Nombre y teléfono si los tenéis.',
+    otherProvidersHint: 'Planner, catering, floristería, espacio… nombre y teléfono si los tenéis.',
+    dayContactName: 'Persona de contacto el día (nombre)',
+    dayContactNameHint: 'Alguien a quien podamos llamar ese día (testigo, familiar, planner…).',
+    dayContactPhone: 'Teléfono de contacto el día',
+    secPeople: 'Personas y momentos',
     keyPeople: 'Personas clave',
-    keyPeopleHint: 'Esa abuela que no se pierde detalle, el grupo de amigos de toda la vida... ¿A quién no podemos perder de vista?',
+    keyPeopleHint: 'Esa abuela que no se pierde detalle, el grupo de amigos de toda la vida… ¿A quién no podemos perder de vista?',
     surprises: 'Sorpresas preparadas',
     surprisesHint: 'Somos tumbas. Pero necesitamos saberlo para estar en el sitio justo en el momento justo.',
     specialMoments: 'Momentos o detalles especiales',
     specialMomentsHint: 'Algo que os haga especial ilusión que quede recogido.',
     sensitiveInfo: 'Algo delicado',
-    sensitiveInfoHint: 'Una ausencia importante, alguien que prefiere no salir en las fotos... Nos ayuda a hacer las cosas con tacto.',
+    sensitiveInfoHint: 'Una ausencia importante, alguien que prefiere no salir en las fotos… Nos ayuda a hacer las cosas con tacto.',
+    secInsta: 'Instagram y publicación',
+    instaConsent: '¿Nos dais permiso para publicar fotos/vídeos vuestros en Instagram?',
+    cSi: 'Sí', cNo: 'No, preferimos que no',
+    instaCouple: 'Vuestro Instagram',
+    instaCoupleHint: 'Para etiquetaros. Si tenéis dos, ponedlos los dos.',
+    instaProviders: 'Instagrams de los proveedores para etiquetar',
+    instaProvidersHint: 'Uno por línea (floristería, catering, vestido, planner…). Así los etiquetamos en las publicaciones.',
     anythingElse: 'Cualquier otra cosa',
     anythingElseHint: 'Lo que queráis que sepamos y no encaje arriba.',
-    submit: 'Enviar respuestas',
-    sending: 'Enviando…',
-    optional: 'opcional',
+    choose: '— Elegid —',
+    submit: 'Enviar respuestas', sending: 'Enviando…', optional: 'opcional',
     thanksH: '¡Gracias!',
     thanksP: 'Ya hemos recibido vuestras respuestas. Si queréis añadir o cambiar algo, escribidnos sin problema.',
     errorMsg: 'No se ha podido enviar. Revisad la conexión e intentadlo de nuevo.',
   },
   en: {
-    intro: 'These details help us prepare your day properly. It takes about 10 minutes and nothing has to be final: fill in what you know and we\'ll refine the rest together.',
-    practicalH: 'Practical things',
-    humanH: 'People and moments',
-    prepAddress1: 'Getting-ready address (partner 1)',
-    prepAddress2: 'Getting-ready address (partner 2)',
-    prepHint: 'Where you get ready on the wedding morning. If it\'s the same place, just say so.',
-    dayContactName: 'Day-of contact person (name)',
-    dayContactNameHint: 'Someone we can call on the day if needed (witness, family member, planner...).',
-    dayContactPhone: 'Day-of contact phone',
+    intro: 'These details help us prepare your day properly. It takes about 10 minutes: fill in what you know and we\'ll refine the rest. Almost everything is optional.',
+    prepFor: 'Getting ready —',
+    address: 'Getting-ready address',
+    maps: 'Location link (Google Maps)',
+    mapsHint: 'Open Google Maps, tap "Share" and paste the link here.',
+    parents: 'Are the parents together or separated?',
+    parentsHint: 'Helps us plan the family photos.',
+    pJunts: 'Together', pSeparats: 'Separated', pHoComento: 'I\'d rather discuss it separately',
+    father: 'Father\'s name', mother: 'Mother\'s name', siblings: 'Siblings (names)',
+    secCeremony: 'Ceremony',
+    ceremonyPlace: 'Ceremony location',
+    ceremonyPlaceHint: 'This is what we have on file — change it if needed.',
+    ceremonyTime: 'Ceremony time',
+    ceremonyType: 'Ceremony type',
+    tReligiosa: 'Religious', tCivil: 'Civil', tSimbolica: 'Symbolic / other',
+    officiantName: 'Who officiates the ceremony',
+    officiantNameHint: 'Priest, registrar, master of ceremonies… the name if you know it.',
+    officiantRelation: 'What\'s their relationship to you?',
+    rAmics: 'Friend or family', rContractat: 'Hired professional', rAltres: 'Other',
+    secMusic: 'Music & suppliers',
+    liveMusic: 'Will there be live music at any point?',
+    lmSi: 'Yes', lmNo: 'No', lmNoSabem: 'Not sure yet',
+    liveMusicDetails: 'When and what kind of live music',
     otherProviders: 'Other suppliers',
-    otherProvidersHint: 'Planner, catering, florist, music, venue... Name and phone if you have them.',
+    otherProvidersHint: 'Planner, catering, florist, venue… name and phone if you have them.',
+    dayContactName: 'Day-of contact person (name)',
+    dayContactNameHint: 'Someone we can call on the day (witness, family member, planner…).',
+    dayContactPhone: 'Day-of contact phone',
+    secPeople: 'People & moments',
     keyPeople: 'Key people',
-    keyPeopleHint: 'That grandmother who never misses a thing, the lifelong friend group... Who should we keep an eye on?',
+    keyPeopleHint: 'That grandmother who never misses a thing, the lifelong friend group… Who should we keep an eye on?',
     surprises: 'Planned surprises',
     surprisesHint: 'Our lips are sealed. But we need to know so we\'re in the right place at the right moment.',
     specialMoments: 'Special moments or details',
     specialMomentsHint: 'Something you\'d love us to capture.',
     sensitiveInfo: 'Anything sensitive',
-    sensitiveInfoHint: 'An important absence, someone who prefers not to be photographed... It helps us act with tact.',
+    sensitiveInfoHint: 'An important absence, someone who prefers not to be photographed… It helps us act with tact.',
+    secInsta: 'Instagram & publishing',
+    instaConsent: 'Do you give us permission to publish your photos/videos on Instagram?',
+    cSi: 'Yes', cNo: 'No, we\'d rather not',
+    instaCouple: 'Your Instagram',
+    instaCoupleHint: 'So we can tag you. If you have two, add both.',
+    instaProviders: 'Suppliers\' Instagram handles to tag',
+    instaProvidersHint: 'One per line (florist, catering, dress, planner…). So we can tag them in the posts.',
     anythingElse: 'Anything else',
     anythingElseHint: 'Whatever you want us to know that doesn\'t fit above.',
-    submit: 'Send answers',
-    sending: 'Sending…',
-    optional: 'optional',
+    choose: '— Choose —',
+    submit: 'Send answers', sending: 'Sending…', optional: 'optional',
     thanksH: 'Thank you!',
     thanksP: 'We\'ve received your answers. If you want to add or change anything, just drop us a line.',
     errorMsg: 'Couldn\'t send. Check your connection and try again.',
@@ -168,97 +243,220 @@ const T = {
         </>
       ) : alreadySubmitted ? (
         <>
-          <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">{isWeddingDetails ? T.thanksH : 'Gràcies!'}</h1>
-          <p class="text-ink/75 leading-relaxed">{isWeddingDetails ? T.thanksP : 'Ja hem rebut les vostres respostes. Si voleu modificar alguna cosa, escriviu-nos.'}</p>
+          <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">{isWeddingDetails ? TX.thanksH : 'Gràcies!'}</h1>
+          <p class="text-ink/75 leading-relaxed">{isWeddingDetails ? TX.thanksP : 'Ja hem rebut les vostres respostes. Si voleu modificar alguna cosa, escriviu-nos.'}</p>
         </>
       ) : isWeddingDetails ? (
         <>
           <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">{title}</h1>
-          <p class="text-ink/75 leading-relaxed mb-10">{T.intro}</p>
+          <p class="text-ink/75 leading-relaxed mb-10">{TX.intro}</p>
 
-          <form id="wd-form" data-token={token} class="space-y-10">
-            <!-- Pràctica -->
+          <form id="wd-form" data-token={token} class="space-y-12">
+            {[{ n: 1, name: name1 }, { n: 2, name: name2 }].map(({ n, name }) => (
+              <fieldset class="space-y-5">
+                <legend class="font-display text-xl font-bold mb-2">{TX.prepFor} {name}</legend>
+
+                <label class="block">
+                  <span class="text-sm font-bold text-ink/80">{TX.address}</span>
+                  <input name={`prep${n}_address`} type="text" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+                </label>
+
+                <label class="block">
+                  <span class="text-sm font-bold text-ink/80">{TX.maps} <span class="font-normal text-ink/45">· {TX.optional}</span></span>
+                  <span class="block text-xs text-ink/55 mb-1">{TX.mapsHint}</span>
+                  <input name={`prep${n}_maps`} type="url" inputmode="url" placeholder="https://maps.app.goo.gl/…" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+                </label>
+
+                <label class="block">
+                  <span class="text-sm font-bold text-ink/80">{TX.parents}</span>
+                  <span class="block text-xs text-ink/55 mb-1">{TX.parentsHint}</span>
+                  <select name={`prep${n}_parents`} class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none">
+                    <option value="">{TX.choose}</option>
+                    <option value="junts">{TX.pJunts}</option>
+                    <option value="separats">{TX.pSeparats}</option>
+                    <option value="ho_comento">{TX.pHoComento}</option>
+                  </select>
+                </label>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <label class="block">
+                    <span class="text-sm font-bold text-ink/80">{TX.father}</span>
+                    <input name={`prep${n}_father`} type="text" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+                  </label>
+                  <label class="block">
+                    <span class="text-sm font-bold text-ink/80">{TX.mother}</span>
+                    <input name={`prep${n}_mother`} type="text" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+                  </label>
+                  <label class="block">
+                    <span class="text-sm font-bold text-ink/80">{TX.siblings}</span>
+                    <input name={`prep${n}_siblings`} type="text" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+                  </label>
+                </div>
+              </fieldset>
+            ))}
+
+            <!-- Cerimònia -->
             <fieldset class="space-y-5">
-              <legend class="font-display text-xl font-bold mb-2">{T.practicalH}</legend>
-
-              <label class="block">
-                <span class="text-sm font-bold text-ink/80">{T.prepAddress1}</span>
-                <span class="block text-xs text-ink/55 mb-1">{T.prepHint}</span>
-                <input name="prepAddress1" type="text" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
-              </label>
-
-              <label class="block">
-                <span class="text-sm font-bold text-ink/80">{T.prepAddress2}</span>
-                <input name="prepAddress2" type="text" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
-              </label>
+              <legend class="font-display text-xl font-bold mb-2">{TX.secCeremony}</legend>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <label class="block">
-                  <span class="text-sm font-bold text-ink/80">{T.dayContactName}</span>
-                  <span class="block text-xs text-ink/55 mb-1">{T.dayContactNameHint}</span>
-                  <input name="dayContactName" type="text" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+                  <span class="text-sm font-bold text-ink/80">{TX.ceremonyPlace}</span>
+                  <span class="block text-xs text-ink/55 mb-1">{TX.ceremonyPlaceHint}</span>
+                  <input name="ceremony_place" type="text" value={venueName} class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
                 </label>
                 <label class="block">
-                  <span class="text-sm font-bold text-ink/80">{T.dayContactPhone}</span>
-                  <input name="dayContactPhone" type="tel" class="mt-1 sm:mt-[26px] w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+                  <span class="text-sm font-bold text-ink/80">{TX.ceremonyTime}</span>
+                  <input name="ceremony_time" type="time" class="mt-1 sm:mt-[22px] w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
                 </label>
               </div>
 
               <label class="block">
-                <span class="text-sm font-bold text-ink/80">{T.otherProviders}</span>
-                <span class="block text-xs text-ink/55 mb-1">{T.otherProvidersHint}</span>
-                <textarea name="otherProviders" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
+                <span class="text-sm font-bold text-ink/80">{TX.ceremonyType}</span>
+                <select name="ceremony_type" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none">
+                  <option value="">{TX.choose}</option>
+                  <option value="religiosa">{TX.tReligiosa}</option>
+                  <option value="civil">{TX.tCivil}</option>
+                  <option value="simbolica">{TX.tSimbolica}</option>
+                </select>
               </label>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label class="block">
+                  <span class="text-sm font-bold text-ink/80">{TX.officiantName}</span>
+                  <span class="block text-xs text-ink/55 mb-1">{TX.officiantNameHint}</span>
+                  <input name="ceremony_officiant_name" type="text" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+                </label>
+                <label class="block">
+                  <span class="text-sm font-bold text-ink/80">{TX.officiantRelation}</span>
+                  <select name="ceremony_officiant_relation" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none">
+                    <option value="">{TX.choose}</option>
+                    <option value="amics_familia">{TX.rAmics}</option>
+                    <option value="contractat">{TX.rContractat}</option>
+                    <option value="altres">{TX.rAltres}</option>
+                  </select>
+                </label>
+              </div>
+            </fieldset>
+
+            <!-- Música i proveïdors -->
+            <fieldset class="space-y-5">
+              <legend class="font-display text-xl font-bold mb-2">{TX.secMusic}</legend>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TX.liveMusic}</span>
+                <select id="live_music" name="live_music" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none">
+                  <option value="">{TX.choose}</option>
+                  <option value="si">{TX.lmSi}</option>
+                  <option value="no">{TX.lmNo}</option>
+                  <option value="no_ho_sabem">{TX.lmNoSabem}</option>
+                </select>
+              </label>
+
+              <div id="lm-details-wrap" data-cond hidden>
+                <label class="block">
+                  <span class="text-sm font-bold text-ink/80">{TX.liveMusicDetails}</span>
+                  <textarea name="live_music_details" rows="2" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
+                </label>
+              </div>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TX.otherProviders}</span>
+                <span class="block text-xs text-ink/55 mb-1">{TX.otherProvidersHint}</span>
+                <textarea name="other_providers" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
+              </label>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label class="block">
+                  <span class="text-sm font-bold text-ink/80">{TX.dayContactName}</span>
+                  <span class="block text-xs text-ink/55 mb-1">{TX.dayContactNameHint}</span>
+                  <input name="day_contact_name" type="text" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+                </label>
+                <label class="block">
+                  <span class="text-sm font-bold text-ink/80">{TX.dayContactPhone}</span>
+                  <input name="day_contact_phone" type="tel" class="mt-1 sm:mt-[26px] w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+                </label>
+              </div>
             </fieldset>
 
             <!-- Persones i moments -->
             <fieldset class="space-y-5">
-              <legend class="font-display text-xl font-bold mb-2">{T.humanH}</legend>
+              <legend class="font-display text-xl font-bold mb-2">{TX.secPeople}</legend>
 
               <label class="block">
-                <span class="text-sm font-bold text-ink/80">{T.keyPeople}</span>
-                <span class="block text-xs text-ink/55 mb-1">{T.keyPeopleHint}</span>
-                <textarea name="keyPeople" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
+                <span class="text-sm font-bold text-ink/80">{TX.keyPeople}</span>
+                <span class="block text-xs text-ink/55 mb-1">{TX.keyPeopleHint}</span>
+                <textarea name="key_people" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
               </label>
 
               <label class="block">
-                <span class="text-sm font-bold text-ink/80">{T.surprises}</span>
-                <span class="block text-xs text-ink/55 mb-1">{T.surprisesHint}</span>
-                <textarea name="surprises" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
+                <span class="text-sm font-bold text-ink/80">{TX.surprises}</span>
+                <span class="block text-xs text-ink/55 mb-1">{TX.surprisesHint}</span>
+                <textarea name="surprises" rows="2" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
               </label>
 
               <label class="block">
-                <span class="text-sm font-bold text-ink/80">{T.specialMoments}</span>
-                <span class="block text-xs text-ink/55 mb-1">{T.specialMomentsHint}</span>
-                <textarea name="specialMoments" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
+                <span class="text-sm font-bold text-ink/80">{TX.specialMoments}</span>
+                <span class="block text-xs text-ink/55 mb-1">{TX.specialMomentsHint}</span>
+                <textarea name="special_moments" rows="2" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
               </label>
 
               <label class="block">
-                <span class="text-sm font-bold text-ink/80">{T.sensitiveInfo}</span>
-                <span class="block text-xs text-ink/55 mb-1">{T.sensitiveInfoHint}</span>
-                <textarea name="sensitiveInfo" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
-              </label>
-
-              <label class="block">
-                <span class="text-sm font-bold text-ink/80">{T.anythingElse} <span class="font-normal text-ink/45">· {T.optional}</span></span>
-                <span class="block text-xs text-ink/55 mb-1">{T.anythingElseHint}</span>
-                <textarea name="anythingElse" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
+                <span class="text-sm font-bold text-ink/80">{TX.sensitiveInfo} <span class="font-normal text-ink/45">· {TX.optional}</span></span>
+                <span class="block text-xs text-ink/55 mb-1">{TX.sensitiveInfoHint}</span>
+                <textarea name="sensitive_info" rows="2" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
               </label>
             </fieldset>
 
-            <p id="wd-error" class="hidden text-sm text-red-600">{T.errorMsg}</p>
+            <!-- Instagram -->
+            <fieldset class="space-y-5">
+              <legend class="font-display text-xl font-bold mb-2">{TX.secInsta}</legend>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TX.instaConsent}</span>
+                <select id="insta_consent" name="insta_consent" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none">
+                  <option value="">{TX.choose}</option>
+                  <option value="si">{TX.cSi}</option>
+                  <option value="no">{TX.cNo}</option>
+                </select>
+              </label>
+
+              <div id="insta-fields-wrap" data-cond hidden class="space-y-5">
+                <label class="block">
+                  <span class="text-sm font-bold text-ink/80">{TX.instaCouple}</span>
+                  <span class="block text-xs text-ink/55 mb-1">{TX.instaCoupleHint}</span>
+                  <input name="insta_couple" type="text" placeholder="@…" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+                </label>
+                <label class="block">
+                  <span class="text-sm font-bold text-ink/80">{TX.instaProviders}</span>
+                  <span class="block text-xs text-ink/55 mb-1">{TX.instaProvidersHint}</span>
+                  <textarea name="insta_providers" rows="4" placeholder="@floristeria&#10;@catering&#10;@vestit" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none font-mono text-sm"></textarea>
+                </label>
+              </div>
+            </fieldset>
+
+            <!-- Altres -->
+            <fieldset>
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TX.anythingElse} <span class="font-normal text-ink/45">· {TX.optional}</span></span>
+                <span class="block text-xs text-ink/55 mb-1">{TX.anythingElseHint}</span>
+                <textarea name="anything_else" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
+              </label>
+            </fieldset>
+
+            <p id="wd-error" class="hidden text-sm text-red-600">{TX.errorMsg}</p>
 
             <button
               type="submit"
               id="wd-submit"
               class="bg-ink text-white text-sm font-bold tracking-widest uppercase px-8 py-3 hover:bg-gold transition-colors"
-              data-sending={T.sending}
-            >{T.submit}</button>
+              data-sending={TX.sending}
+            >{TX.submit}</button>
           </form>
 
           <div id="wd-thanks" class="hidden">
-            <h2 class="font-display text-3xl md:text-4xl font-bold mb-3">{T.thanksH}</h2>
-            <p class="text-ink/75 leading-relaxed">{T.thanksP}</p>
+            <h2 class="font-display text-3xl md:text-4xl font-bold mb-3">{TX.thanksH}</h2>
+            <p class="text-ink/75 leading-relaxed">{TX.thanksP}</p>
           </div>
         </>
       ) : (
@@ -285,19 +483,38 @@ const T = {
     const token = form.dataset.token!;
     const defaultLabel = submitBtn.textContent;
 
+    // Conditional reveals: show a wrapped block when its driver select has
+    // the matching value. Hidden blocks are skipped on submit so stale
+    // values never get stored.
+    function bindReveal(selectId: string, wrapId: string, showValues: string[]) {
+      const sel = document.getElementById(selectId) as HTMLSelectElement | null;
+      const wrap = document.getElementById(wrapId) as HTMLElement | null;
+      if (!sel || !wrap) return;
+      const sync = () => {
+        if (showValues.includes(sel.value)) wrap.removeAttribute('hidden');
+        else wrap.setAttribute('hidden', '');
+      };
+      sel.addEventListener('change', sync);
+      sync();
+    }
+    bindReveal('live_music', 'lm-details-wrap', ['si']);
+    bindReveal('insta_consent', 'insta-fields-wrap', ['si']);
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       errorEl.classList.add('hidden');
       submitBtn.disabled = true;
       submitBtn.textContent = submitBtn.dataset.sending ?? 'Sending…';
 
-      // Collect non-empty fields only — keeps the stored JSON tidy.
+      // Collect non-empty fields, skipping any inside a hidden conditional
+      // block so we don't persist values the couple can't see.
       const data: Record<string, string> = {};
-      const fd = new FormData(form);
-      for (const [k, v] of fd.entries()) {
-        const val = String(v).trim();
-        if (val) data[k] = val;
-      }
+      const fields = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>('input[name], textarea[name], select[name]');
+      fields.forEach((el) => {
+        if (el.closest('[data-cond][hidden]')) return;
+        const val = el.value.trim();
+        if (val) data[el.name] = val;
+      });
 
       try {
         const res = await fetch('/api/formulari/submit', {
