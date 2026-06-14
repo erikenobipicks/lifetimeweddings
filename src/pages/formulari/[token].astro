@@ -3,10 +3,8 @@
 // and renders the form attached to its sequence. Once submitted, the
 // data lands in `form_submissions` and the page shows a thank-you.
 //
-// Today we recognise these form_kinds: timeline, guest_list, music.
-// The concrete schemas + UIs will be added in follow-up PRs — this
-// route exists now so the cron-emitted links resolve to something
-// useful even before each form is fully designed.
+// Today we recognise these form_kinds: wedding_details (fully built),
+// timeline, guest_list, music (placeholders until each is designed).
 
 export const prerender = false;
 
@@ -40,8 +38,11 @@ if (schedule) {
   }
 }
 
-const lang = booking?.preferredLanguage ?? 'ca';
-const formTitles: Record<string, Record<string, string>> = {
+type L = 'ca' | 'es' | 'en';
+const lang: L = (booking?.preferredLanguage as L) ?? 'ca';
+
+const formTitles: Record<string, Record<L, string>> = {
+  wedding_details: { ca: 'Informació de la boda', es: 'Información de la boda', en: 'Wedding details' },
   timeline: { ca: 'Timeline del dia', es: 'Timeline del día', en: 'Wedding-day timeline' },
   guest_list: { ca: 'Llista de convidats', es: 'Lista de invitados', en: 'Guest list' },
   music: { ca: 'Música', es: 'Música', en: 'Music' },
@@ -49,10 +50,103 @@ const formTitles: Record<string, Record<string, string>> = {
 const title = formKind ? (formTitles[formKind]?.[lang] ?? 'Formulari') : 'Formulari';
 const invalid = !schedule || !booking || !formKind;
 if (invalid) Astro.response.status = 404;
+
+const isWeddingDetails = formKind === 'wedding_details';
+
+// ─── i18n strings for the wedding_details questionnaire ──────────────────
+const T = {
+  ca: {
+    intro: 'Aquestes dades ens ajuden a preparar bé el vostre dia. Es replena en uns 10 minuts i no cal que ho tingueu tot tancat: ompliu el que sapigueu i la resta ja ho anirem afinant.',
+    practicalH: 'Coses pràctiques',
+    humanH: 'Persones i moments',
+    prepAddress1: 'Adreça dels preparatius (parella 1)',
+    prepAddress2: 'Adreça dels preparatius (parella 2)',
+    prepHint: 'On us prepareu el matí de la boda. Si és el mateix lloc, indiqueu-ho.',
+    dayContactName: 'Persona de contacte el dia (nom)',
+    dayContactNameHint: 'Algú a qui puguem trucar el mateix dia si fa falta (testimoni, familiar, planner...).',
+    dayContactPhone: 'Telèfon de contacte el dia',
+    otherProviders: 'Altres proveïdors',
+    otherProvidersHint: 'Planner, catering, floristeria, música, espai... Nom i telèfon si els teniu.',
+    keyPeople: 'Persones clau',
+    keyPeopleHint: 'Aquella àvia que no es perd detall, el grup d\'amics de tota la vida... A qui no podem perdre de vista?',
+    surprises: 'Sorpreses preparades',
+    surprisesHint: 'Som tombes. Però necessitem saber-ho per ser al lloc just en el moment just.',
+    specialMoments: 'Moments o detalls especials',
+    specialMomentsHint: 'Alguna cosa que us faci especial il·lusió que quedi recollida.',
+    sensitiveInfo: 'Alguna cosa delicada',
+    sensitiveInfoHint: 'Una absència important, algú que prefereix no sortir a les fotos... Ens ajuda a fer les coses amb tacte.',
+    anythingElse: 'Qualsevol altra cosa',
+    anythingElseHint: 'El que vulgueu que sapiguem i no encaixi a dalt.',
+    submit: 'Enviar respostes',
+    sending: 'Enviant…',
+    optional: 'opcional',
+    thanksH: 'Gràcies!',
+    thanksP: 'Ja hem rebut les vostres respostes. Si voleu afegir o canviar res, escriviu-nos sense problema.',
+    errorMsg: 'No s\'ha pogut enviar. Reviseu la connexió i torneu-ho a provar.',
+  },
+  es: {
+    intro: 'Estos datos nos ayudan a preparar bien vuestro día. Se rellena en unos 10 minutos y no hace falta tenerlo todo cerrado: rellenad lo que sepáis y el resto lo iremos afinando.',
+    practicalH: 'Cosas prácticas',
+    humanH: 'Personas y momentos',
+    prepAddress1: 'Dirección de los preparativos (pareja 1)',
+    prepAddress2: 'Dirección de los preparativos (pareja 2)',
+    prepHint: 'Dónde os preparáis la mañana de la boda. Si es el mismo sitio, indicadlo.',
+    dayContactName: 'Persona de contacto el día (nombre)',
+    dayContactNameHint: 'Alguien a quien podamos llamar ese mismo día si hace falta (testigo, familiar, planner...).',
+    dayContactPhone: 'Teléfono de contacto el día',
+    otherProviders: 'Otros proveedores',
+    otherProvidersHint: 'Planner, catering, floristería, música, espacio... Nombre y teléfono si los tenéis.',
+    keyPeople: 'Personas clave',
+    keyPeopleHint: 'Esa abuela que no se pierde detalle, el grupo de amigos de toda la vida... ¿A quién no podemos perder de vista?',
+    surprises: 'Sorpresas preparadas',
+    surprisesHint: 'Somos tumbas. Pero necesitamos saberlo para estar en el sitio justo en el momento justo.',
+    specialMoments: 'Momentos o detalles especiales',
+    specialMomentsHint: 'Algo que os haga especial ilusión que quede recogido.',
+    sensitiveInfo: 'Algo delicado',
+    sensitiveInfoHint: 'Una ausencia importante, alguien que prefiere no salir en las fotos... Nos ayuda a hacer las cosas con tacto.',
+    anythingElse: 'Cualquier otra cosa',
+    anythingElseHint: 'Lo que queráis que sepamos y no encaje arriba.',
+    submit: 'Enviar respuestas',
+    sending: 'Enviando…',
+    optional: 'opcional',
+    thanksH: '¡Gracias!',
+    thanksP: 'Ya hemos recibido vuestras respuestas. Si queréis añadir o cambiar algo, escribidnos sin problema.',
+    errorMsg: 'No se ha podido enviar. Revisad la conexión e intentadlo de nuevo.',
+  },
+  en: {
+    intro: 'These details help us prepare your day properly. It takes about 10 minutes and nothing has to be final: fill in what you know and we\'ll refine the rest together.',
+    practicalH: 'Practical things',
+    humanH: 'People and moments',
+    prepAddress1: 'Getting-ready address (partner 1)',
+    prepAddress2: 'Getting-ready address (partner 2)',
+    prepHint: 'Where you get ready on the wedding morning. If it\'s the same place, just say so.',
+    dayContactName: 'Day-of contact person (name)',
+    dayContactNameHint: 'Someone we can call on the day if needed (witness, family member, planner...).',
+    dayContactPhone: 'Day-of contact phone',
+    otherProviders: 'Other suppliers',
+    otherProvidersHint: 'Planner, catering, florist, music, venue... Name and phone if you have them.',
+    keyPeople: 'Key people',
+    keyPeopleHint: 'That grandmother who never misses a thing, the lifelong friend group... Who should we keep an eye on?',
+    surprises: 'Planned surprises',
+    surprisesHint: 'Our lips are sealed. But we need to know so we\'re in the right place at the right moment.',
+    specialMoments: 'Special moments or details',
+    specialMomentsHint: 'Something you\'d love us to capture.',
+    sensitiveInfo: 'Anything sensitive',
+    sensitiveInfoHint: 'An important absence, someone who prefers not to be photographed... It helps us act with tact.',
+    anythingElse: 'Anything else',
+    anythingElseHint: 'Whatever you want us to know that doesn\'t fit above.',
+    submit: 'Send answers',
+    sending: 'Sending…',
+    optional: 'optional',
+    thanksH: 'Thank you!',
+    thanksP: 'We\'ve received your answers. If you want to add or change anything, just drop us a line.',
+    errorMsg: 'Couldn\'t send. Check your connection and try again.',
+  },
+}[lang];
 ---
 
 <BaseLayout
-  lang={lang as 'ca' | 'es' | 'en'}
+  lang={lang}
   title={`${title} · Lifetime`}
   description={title}
   noindex={true}
@@ -74,8 +168,98 @@ if (invalid) Astro.response.status = 404;
         </>
       ) : alreadySubmitted ? (
         <>
-          <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">Gràcies!</h1>
-          <p class="text-ink/75 leading-relaxed">Ja hem rebut les vostres respostes. Si voleu modificar alguna cosa, escriviu-nos.</p>
+          <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">{isWeddingDetails ? T.thanksH : 'Gràcies!'}</h1>
+          <p class="text-ink/75 leading-relaxed">{isWeddingDetails ? T.thanksP : 'Ja hem rebut les vostres respostes. Si voleu modificar alguna cosa, escriviu-nos.'}</p>
+        </>
+      ) : isWeddingDetails ? (
+        <>
+          <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">{title}</h1>
+          <p class="text-ink/75 leading-relaxed mb-10">{T.intro}</p>
+
+          <form id="wd-form" data-token={token} class="space-y-10">
+            <!-- Pràctica -->
+            <fieldset class="space-y-5">
+              <legend class="font-display text-xl font-bold mb-2">{T.practicalH}</legend>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{T.prepAddress1}</span>
+                <span class="block text-xs text-ink/55 mb-1">{T.prepHint}</span>
+                <input name="prepAddress1" type="text" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{T.prepAddress2}</span>
+                <input name="prepAddress2" type="text" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label class="block">
+                  <span class="text-sm font-bold text-ink/80">{T.dayContactName}</span>
+                  <span class="block text-xs text-ink/55 mb-1">{T.dayContactNameHint}</span>
+                  <input name="dayContactName" type="text" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+                </label>
+                <label class="block">
+                  <span class="text-sm font-bold text-ink/80">{T.dayContactPhone}</span>
+                  <input name="dayContactPhone" type="tel" class="mt-1 sm:mt-[26px] w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+                </label>
+              </div>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{T.otherProviders}</span>
+                <span class="block text-xs text-ink/55 mb-1">{T.otherProvidersHint}</span>
+                <textarea name="otherProviders" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
+              </label>
+            </fieldset>
+
+            <!-- Persones i moments -->
+            <fieldset class="space-y-5">
+              <legend class="font-display text-xl font-bold mb-2">{T.humanH}</legend>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{T.keyPeople}</span>
+                <span class="block text-xs text-ink/55 mb-1">{T.keyPeopleHint}</span>
+                <textarea name="keyPeople" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{T.surprises}</span>
+                <span class="block text-xs text-ink/55 mb-1">{T.surprisesHint}</span>
+                <textarea name="surprises" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{T.specialMoments}</span>
+                <span class="block text-xs text-ink/55 mb-1">{T.specialMomentsHint}</span>
+                <textarea name="specialMoments" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{T.sensitiveInfo}</span>
+                <span class="block text-xs text-ink/55 mb-1">{T.sensitiveInfoHint}</span>
+                <textarea name="sensitiveInfo" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{T.anythingElse} <span class="font-normal text-ink/45">· {T.optional}</span></span>
+                <span class="block text-xs text-ink/55 mb-1">{T.anythingElseHint}</span>
+                <textarea name="anythingElse" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
+              </label>
+            </fieldset>
+
+            <p id="wd-error" class="hidden text-sm text-red-600">{T.errorMsg}</p>
+
+            <button
+              type="submit"
+              id="wd-submit"
+              class="bg-ink text-white text-sm font-bold tracking-widest uppercase px-8 py-3 hover:bg-gold transition-colors"
+              data-sending={T.sending}
+            >{T.submit}</button>
+          </form>
+
+          <div id="wd-thanks" class="hidden">
+            <h2 class="font-display text-3xl md:text-4xl font-bold mb-3">{T.thanksH}</h2>
+            <p class="text-ink/75 leading-relaxed">{T.thanksP}</p>
+          </div>
         </>
       ) : (
         <>
@@ -91,3 +275,46 @@ if (invalid) Astro.response.status = 404;
     <p>© {new Date().getFullYear()} Lifetime Weddings</p>
   </footer>
 </BaseLayout>
+
+<script>
+  const form = document.getElementById('wd-form') as HTMLFormElement | null;
+  if (form) {
+    const submitBtn = document.getElementById('wd-submit') as HTMLButtonElement;
+    const errorEl = document.getElementById('wd-error') as HTMLElement;
+    const thanksEl = document.getElementById('wd-thanks') as HTMLElement;
+    const token = form.dataset.token!;
+    const defaultLabel = submitBtn.textContent;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorEl.classList.add('hidden');
+      submitBtn.disabled = true;
+      submitBtn.textContent = submitBtn.dataset.sending ?? 'Sending…';
+
+      // Collect non-empty fields only — keeps the stored JSON tidy.
+      const data: Record<string, string> = {};
+      const fd = new FormData(form);
+      for (const [k, v] of fd.entries()) {
+        const val = String(v).trim();
+        if (val) data[k] = val;
+      }
+
+      try {
+        const res = await fetch('/api/formulari/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, data }),
+        });
+        if (!res.ok) throw new Error(`status ${res.status}`);
+        form.classList.add('hidden');
+        thanksEl.classList.remove('hidden');
+        thanksEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (err) {
+        console.error('[wd-form] submit failed', err);
+        errorEl.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitBtn.textContent = defaultLabel;
+      }
+    });
+  }
+</script>
