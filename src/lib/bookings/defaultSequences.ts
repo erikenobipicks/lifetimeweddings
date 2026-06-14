@@ -102,5 +102,48 @@ export const PRE_WEDDING_INFO: SequenceInput = {
   },
 };
 
+/** The 60-days-before-wedding inspiration + music form. Carries a form
+ *  (formKind: 'inspiration') so each schedule gets a one-shot
+ *  /formulari/<token> link where the couple shares their playlist, a
+ *  special song, a Pinterest board and a video that inspires them. */
+export const INSPIRATION_FORM: SequenceInput = {
+  slug: 'formulari-inspiracio-60d',
+  enabled: true,
+  triggerKind: 'days_before_wedding',
+  triggerOffsetDays: 60,
+  formKind: 'inspiration',
+  subject: {
+    ca: 'Dos mesos: parlem de música i inspiració 🎶',
+    es: 'Dos meses: hablemos de música e inspiración 🎶',
+    en: 'Two months to go: let\'s talk music & inspiration 🎶',
+  },
+  bodyHtml: {
+    ca: `
+<p>Hola {coupleName1} i {coupleName2},</p>
+<p>Falten un parell de mesos i ens encantaria conèixer millor el vostre gust: la música que us mou i les imatges que us inspiren. Ens ajuda moltíssim a fer un reportatge que soni i es vegi com vosaltres.</p>
+<p>És un formulari curtet (5 minuts):</p>
+<p style="margin:24px 0;"><a href="{formUrl}" style="background:#c8a45c;color:#1a1a1a;padding:12px 24px;text-decoration:none;font-weight:bold;display:inline-block;">Compartir la nostra inspiració →</a></p>
+<p>Us demanem la vostra playlist, una cançó especial, un Pinterest amb fotos que us agradin i algun vídeo que us inspiri. No cal res perfecte: amb el que tingueu ja ens feu un gran favor.</p>
+<p>Una abraçada,<br/>Ferran i Eric<br/>Lifetime</p>
+    `.trim(),
+    es: `
+<p>Hola {coupleName1} y {coupleName2},</p>
+<p>Faltan un par de meses y nos encantaría conocer mejor vuestro gusto: la música que os mueve y las imágenes que os inspiran. Nos ayuda muchísimo a hacer un reportaje que suene y se vea como vosotros.</p>
+<p>Es un formulario cortito (5 minutos):</p>
+<p style="margin:24px 0;"><a href="{formUrl}" style="background:#c8a45c;color:#1a1a1a;padding:12px 24px;text-decoration:none;font-weight:bold;display:inline-block;">Compartir nuestra inspiración →</a></p>
+<p>Os pedimos vuestra playlist, una canción especial, un Pinterest con fotos que os gusten y algún vídeo que os inspire. No hace falta nada perfecto: con lo que tengáis ya nos hacéis un gran favor.</p>
+<p>Un abrazo,<br/>Ferran y Eric<br/>Lifetime</p>
+    `.trim(),
+    en: `
+<p>Hi {coupleName1} and {coupleName2},</p>
+<p>A couple of months to go, and we'd love to get to know your taste better: the music that moves you and the images that inspire you. It helps us enormously to craft a film and photos that sound and look like you.</p>
+<p>It's a short form (5 minutes):</p>
+<p style="margin:24px 0;"><a href="{formUrl}" style="background:#c8a45c;color:#1a1a1a;padding:12px 24px;text-decoration:none;font-weight:bold;display:inline-block;">Share our inspiration →</a></p>
+<p>We ask for your playlist, a special song, a Pinterest board with photos you like, and a video that inspires you. Nothing needs to be perfect — whatever you have already helps us a lot.</p>
+<p>A hug,<br/>Ferran and Eric<br/>Lifetime</p>
+    `.trim(),
+  },
+};
+
 /** All starter templates. Add new defaults here. */
-export const DEFAULT_SEQUENCES: SequenceInput[] = [SECOND_PAYMENT_REMINDER, PRE_WEDDING_INFO];
+export const DEFAULT_SEQUENCES: SequenceInput[] = [SECOND_PAYMENT_REMINDER, PRE_WEDDING_INFO, INSPIRATION_FORM];

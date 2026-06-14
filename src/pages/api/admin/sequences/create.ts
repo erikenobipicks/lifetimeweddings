@@ -28,8 +28,8 @@ export const POST: APIRoute = async ({ request, redirect }) => {
     return redirect(`/admin/sequences/new?${params}`, 303);
   }
   const d = parsed.data;
-  const formKind = d.formKind && ['timeline', 'guest_list', 'music', 'wedding_details'].includes(d.formKind)
-    ? (d.formKind as 'timeline' | 'guest_list' | 'music' | 'wedding_details')
+  const formKind = d.formKind && ['timeline', 'guest_list', 'music', 'wedding_details', 'inspiration'].includes(d.formKind)
+    ? (d.formKind as 'timeline' | 'guest_list' | 'music' | 'wedding_details' | 'inspiration')
     : null;
   await createSequence({
     slug: d.slug,

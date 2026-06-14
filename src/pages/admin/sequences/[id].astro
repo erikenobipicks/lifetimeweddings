@@ -61,6 +61,7 @@ function v(name: string, fallback: string): string {
           <select name="formKind" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
             <option value="" selected={!seq.formKind}>— Cap (només informatiu) —</option>
             <option value="wedding_details" selected={seq.formKind === 'wedding_details'}>Informació de la boda (preparatius, persones clau...)</option>
+            <option value="inspiration" selected={seq.formKind === 'inspiration'}>Inspiració i música (playlist, Pinterest, vídeo...)</option>
             <option value="timeline" selected={seq.formKind === 'timeline'}>Timeline del dia</option>
             <option value="guest_list" selected={seq.formKind === 'guest_list'}>Llista de convidats</option>
             <option value="music" selected={seq.formKind === 'music'}>Música</option>

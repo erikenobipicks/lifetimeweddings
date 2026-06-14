@@ -8,7 +8,7 @@
 // (e.g. 'religiosa'), localised to a label at render time — keeps stored
 // data language-agnostic across ca/es/en couples.
 
-import { db, initSchema } from '../db';
+import { getLatestFormSubmission, type FormSubmissionData } from './formSubmissions';
 
 /** Canonical option codes → Catalan labels (admin view). The public form
  *  carries its own localised labels but posts these same codes. */
@@ -109,37 +109,12 @@ export function wdOptionLabel(optionSet: keyof typeof WD_OPTION_LABELS, code: st
   return WD_OPTION_LABELS[optionSet]?.[code] ?? code;
 }
 
-export interface WeddingDetailsSubmission {
-  data: Record<string, string>;
-  submittedAt: Date;
-}
+export type WeddingDetailsSubmission = FormSubmissionData;
 
 /** Latest wedding_details submission for a booking, or null. Used by the
- *  admin booking-detail view to surface the couple's answers (the public
- *  endpoint only allows one per token, but a manual re-send creates a new
- *  schedule → a newer submission can exist; we show the most recent). */
-export async function getLatestWeddingDetailsSubmission(
+ *  admin booking-detail view to surface the couple's answers. */
+export function getLatestWeddingDetailsSubmission(
   bookingId: string,
 ): Promise<WeddingDetailsSubmission | null> {
-  await initSchema();
-  const res = await db.execute({
-    sql: `SELECT data_json, submitted_at FROM form_submissions
-          WHERE booking_id = ? AND form_kind = 'wedding_details'
-          ORDER BY submitted_at DESC LIMIT 1`,
-    args: [bookingId],
-  });
-  const row = res.rows[0];
-  if (!row) return null;
-  const data: Record<string, string> = {};
-  try {
-    const parsed = JSON.parse(String(row.data_json));
-    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-      for (const [k, v] of Object.entries(parsed)) {
-        if (typeof v === 'string' && v.trim()) data[k] = v;
-      }
-    }
-  } catch {
-    /* malformed JSON → treat as empty */
-  }
-  return { data, submittedAt: new Date(String(row.submitted_at)) };
+  return getLatestFormSubmission(bookingId, 'wedding_details');
 }

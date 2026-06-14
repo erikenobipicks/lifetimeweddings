@@ -16,6 +16,7 @@ import {
   weddingDetailsAdminGroups,
   wdOptionLabel,
 } from '~/lib/bookings/weddingDetailsForm';
+import { getLatestInspirationSubmission, INSPIRATION_ADMIN_FIELDS } from '~/lib/bookings/inspirationForm';
 import { googleCalendarAddUrl } from '~/lib/bookings/gcal';
 import { filterChecklistForPack } from '~/data/bookingChecklist';
 
@@ -69,6 +70,17 @@ const wdGroups = weddingDetails
     })).filter((g) => g.rows.length > 0)
   : [];
 const wdInstaProviders = weddingDetails?.data['insta_providers'] ?? '';
+
+// Inspiration form ("inspiration") answers: playlist, special song,
+// Pinterest, video, notes. Rendered with clickable links.
+const inspiration = await getLatestInspirationSubmission(booking.id);
+const inspirationRows = inspiration
+  ? INSPIRATION_ADMIN_FIELDS.filter((f) => inspiration.data[f.key]).map((f) => ({
+      label: f.label,
+      value: inspiration.data[f.key],
+      asLink: f.asLink === true && /^https?:\/\//i.test(inspiration.data[f.key]),
+    }))
+  : [];
 
 // Pre-filled Google Calendar "Add event" URL for this booking. Opens
 // the operator's calendar with title/location/details/dates ready —
@@ -717,6 +729,30 @@ const ibanPlaceholder = transfer.isPlaceholder;
           </div>
         ))}
       </div>
+    </section>
+  )}
+
+  <!-- ── Respostes del formulari d'inspiració ───────────────────────── -->
+  {inspiration && (
+    <section class="mt-10 bg-white border border-black/10 p-5 md:p-8">
+      <div class="mb-5">
+        <h2 class="font-display text-xl md:text-2xl font-bold">Inspiració i música</h2>
+        <p class="text-sm text-ink/65 mt-1">Respostes del formulari d'inspiració · enviat {fmtDateTime(inspiration.submittedAt)}</p>
+      </div>
+      {inspirationRows.length === 0 ? (
+        <p class="text-sm text-ink/55 italic">La parella ho ha enviat sense omplir cap camp.</p>
+      ) : (
+        <dl class="grid grid-cols-1 gap-y-3 text-sm">
+          {inspirationRows.map((r) => (
+            <div class="flex flex-col">
+              <dt class="text-ink/50 text-xs">{r.label}</dt>
+              {r.asLink
+                ? <dd><a href={r.value} target="_blank" rel="noopener" class="text-gold underline break-all">{r.value}</a></dd>
+                : <dd class="whitespace-pre-line break-words">{r.value}</dd>}
+            </div>
+          ))}
+        </dl>
+      )}
     </section>
   )}
 
