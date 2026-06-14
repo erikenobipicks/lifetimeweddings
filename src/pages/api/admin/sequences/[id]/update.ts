@@ -31,8 +31,8 @@ export const POST: APIRoute = async ({ request, params, redirect }) => {
     return redirect(`/admin/sequences/${id}?${qs}`, 303);
   }
   const d = parsed.data;
-  const formKind = d.formKind && ['timeline', 'guest_list', 'music'].includes(d.formKind)
-    ? (d.formKind as 'timeline' | 'guest_list' | 'music')
+  const formKind = d.formKind && ['timeline', 'guest_list', 'music', 'wedding_details'].includes(d.formKind)
+    ? (d.formKind as 'timeline' | 'guest_list' | 'music' | 'wedding_details')
     : null;
   await updateSequence(id, {
     slug: d.slug,

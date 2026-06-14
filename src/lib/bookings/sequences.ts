@@ -23,7 +23,7 @@ const FROM_HELLO = process.env.EMAIL_FROM_HELLO ?? 'Lifetime Weddings <hola@life
 const SITE_URL = process.env.PUBLIC_SITE_URL ?? SITE.url;
 
 export type TriggerKind = 'days_after_deposit' | 'days_before_wedding' | 'days_after_wedding';
-export type FormKind = 'timeline' | 'guest_list' | 'music'; // expand as Eric adds forms
+export type FormKind = 'timeline' | 'guest_list' | 'music' | 'wedding_details'; // expand as Eric adds forms
 
 export interface EmailSequence {
   id: number;
@@ -350,7 +350,9 @@ export async function sendDueEmails(opts: SendDueOptions = {}): Promise<SendDueR
 
       const lang = booking.preferredLanguage;
       const formUrl = sch.formToken ? `${SITE_URL}/formulari/${sch.formToken}` : null;
-      const subject = seq.subject[lang];
+      // Run the subject through the same substitution as the body so {variables}
+      // resolve there too (e.g. {coupleName1}); plain subjects pass untouched.
+      const subject = substituteVariables(seq.subject[lang] || seq.subject.ca, { booking, fr, formUrl });
       const html = substituteVariables(seq.bodyHtml[lang] || seq.bodyHtml.ca, { booking, fr, formUrl });
 
       // Recipients: primary + c1Email + c2Email (deduped).
