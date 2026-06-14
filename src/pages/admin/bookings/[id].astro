@@ -11,6 +11,11 @@ import type { BookingStatus } from '~/lib/bookings/types';
 import { publicVideos, fullVideos } from '~/data/videos';
 import { getBankTransferDetails, isStripeTestMode } from '~/lib/payments/config';
 import { listSchedulesForBooking, listSequences } from '~/lib/bookings/sequences';
+import {
+  getLatestWeddingDetailsSubmission,
+  weddingDetailsAdminGroups,
+  wdOptionLabel,
+} from '~/lib/bookings/weddingDetailsForm';
 import { googleCalendarAddUrl } from '~/lib/bookings/gcal';
 import { filterChecklistForPack } from '~/data/bookingChecklist';
 
@@ -43,6 +48,27 @@ const tickedCount =
 const schedules = await listSchedulesForBooking(booking.id);
 const allSequences = await listSequences(true);
 const sequencesById = new Map(allSequences.map((s) => [s.id, s] as const));
+
+// Pre-wedding questionnaire ("wedding_details") answers, if the couple has
+// submitted them. Rendered grouped below so Eric can read the prep
+// addresses, key people, supplier instagrams (copy-paste), etc.
+const weddingDetails = await getLatestWeddingDetailsSubmission(booking.id);
+const wdGroups = weddingDetails
+  ? weddingDetailsAdminGroups(booking.coupleName1, booking.coupleName2).map((g) => ({
+      title: g.title,
+      rows: g.fields
+        .filter((f) => weddingDetails.data[f.key])
+        .map((f) => ({
+          key: f.key,
+          label: f.label,
+          asLink: f.asLink === true,
+          value: f.optionSet
+            ? wdOptionLabel(f.optionSet, weddingDetails.data[f.key])
+            : weddingDetails.data[f.key],
+        })),
+    })).filter((g) => g.rows.length > 0)
+  : [];
+const wdInstaProviders = weddingDetails?.data['insta_providers'] ?? '';
 
 // Pre-filled Google Calendar "Add event" URL for this booking. Opens
 // the operator's calendar with title/location/details/dates ready —
@@ -655,6 +681,43 @@ const ibanPlaceholder = transfer.isPlaceholder;
       <a href="/admin/bookings" class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold">Cancel·lar</a>
     </div>
   </form>
+
+  <!-- ── Respostes del formulari pre-boda ───────────────────────────── -->
+  {weddingDetails && (
+    <section class="mt-10 bg-white border border-black/10 p-5 md:p-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+        <div>
+          <h2 class="font-display text-xl md:text-2xl font-bold">Informació de la boda</h2>
+          <p class="text-sm text-ink/65 mt-1">Respostes del formulari pre-boda · enviat {fmtDateTime(weddingDetails.submittedAt)}</p>
+        </div>
+        {wdInstaProviders && (
+          <button
+            type="button"
+            data-copy={wdInstaProviders}
+            class="bg-gold text-ink text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-ink hover:text-white transition-colors whitespace-nowrap self-start"
+          >Copiar Instagrams proveïdors</button>
+        )}
+      </div>
+
+      <div class="space-y-6">
+        {wdGroups.map((g) => (
+          <div>
+            <h3 class="text-[0.7rem] font-bold tracking-widest uppercase text-ink/55 border-b border-black/10 pb-1 mb-2">{g.title}</h3>
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm">
+              {g.rows.map((r) => (
+                <div class="flex flex-col">
+                  <dt class="text-ink/50 text-xs">{r.label}</dt>
+                  {r.asLink
+                    ? <dd><a href={r.value} target="_blank" rel="noopener" class="text-gold underline break-all">{r.value}</a></dd>
+                    : <dd class="whitespace-pre-line break-words">{r.value}</dd>}
+                </div>
+              ))}
+            </dl>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
 
   <!-- ── Communicacions ─────────────────────────────────────────────── -->
   <!-- Email-sequence queue for this booking. Lets Eric see what's been
