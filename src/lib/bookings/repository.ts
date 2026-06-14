@@ -127,6 +127,7 @@ function rowToBooking(row: Record<string, unknown>): Booking {
         ? null
         : Number(row.fotostudio_project_id) || null,
     checklistState: parseChecklistJson(row.checklist_state),
+    preweddingTelegramSentAt: fromIso(row.prewedding_telegram_sent_at),
   };
 }
 
@@ -277,6 +278,39 @@ export async function listBookings(opts: { includeArchived?: boolean } = {}): Pr
     : "SELECT * FROM bookings WHERE status != 'archived' ORDER BY created_at DESC";
   const res = await db.execute(sql);
   return res.rows.map((r) => rowToBooking(r as unknown as Record<string, unknown>));
+}
+
+/** Non-archived bookings whose wedding falls within the next `withinDays`
+ *  days (inclusive of today) and that haven't had the pre-wedding Telegram
+ *  digest sent yet. Drives the cron sweep that fires ~2 days before each
+ *  wedding. `todayYmd` is the cron's notion of "today" (UTC YYYY-MM-DD). */
+export async function listBookingsForPreweddingDigest(
+  todayYmd: string,
+  withinDays: number,
+): Promise<Booking[]> {
+  await initSchema();
+  const until = new Date(`${todayYmd}T00:00:00Z`);
+  until.setUTCDate(until.getUTCDate() + withinDays);
+  const untilYmd = until.toISOString().slice(0, 10);
+  const res = await db.execute({
+    sql: `SELECT * FROM bookings
+          WHERE status != 'archived'
+            AND prewedding_telegram_sent_at IS NULL
+            AND substr(wedding_date, 1, 10) >= ?
+            AND substr(wedding_date, 1, 10) <= ?
+          ORDER BY wedding_date ASC`,
+    args: [todayYmd, untilYmd],
+  });
+  return res.rows.map((r) => rowToBooking(r as unknown as Record<string, unknown>));
+}
+
+/** Stamp the pre-wedding Telegram digest as sent (once-only guard). */
+export async function markPreweddingTelegramSent(bookingId: string): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: 'UPDATE bookings SET prewedding_telegram_sent_at = ? WHERE id = ?',
+    args: [nowIso(), bookingId],
+  });
 }
 
 /** Mark a booking as viewed (idempotent). Sets first_viewed_at the first

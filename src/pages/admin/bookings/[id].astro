@@ -155,6 +155,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
       {ok === 'schedule:cancelled' && 'Email programat cancel·lat.'}
       {ok === 'schedule:sent' && 'Email forçat. Mira la cola per veure l\'estat.'}
       {ok === 'schedule:reactivated' && 'Email reactivat.'}
+      {ok?.startsWith('tg:') && `Detalls enviats a Telegram (${ok.split(':')[1]} missatge${ok.split(':')[1] === '1' ? '' : 's'}).`}
     </div>
   )}
   {err && (
@@ -759,6 +760,29 @@ const ibanPlaceholder = transfer.isPlaceholder;
         </button>
       </form>
     )}
+
+    <!-- Manual pre-wedding Telegram digest: details + supplier instagrams.
+         Normally fires automatically ~2 days before the wedding; this lets
+         Eric push it on demand (and re-confirms it won't double via the
+         once-only stamp). -->
+    <form
+      method="POST"
+      action={`/api/admin/bookings/${booking.id}/send-prewedding-telegram`}
+      class="mb-6 p-4 bg-cream/60 border border-gold/30 flex flex-col sm:flex-row sm:items-center gap-3"
+    >
+      <div class="flex-1">
+        <p class="text-[0.7rem] font-bold tracking-widest uppercase text-ink/65">Detalls a Telegram ara</p>
+        <p class="text-xs text-ink/55 mt-0.5">
+          T'envia al Telegram els detalls del dia + un missatge amb tots els Instagrams per copiar.
+          {booking.preweddingTelegramSentAt
+            ? ` Ja enviat automàticament el ${fmtDateTime(booking.preweddingTelegramSentAt)}.`
+            : ' Si no, s\'envia sol uns 2 dies abans de la boda.'}
+        </p>
+      </div>
+      <button type="submit" class="bg-ink text-white text-xs font-bold tracking-widest uppercase px-5 py-2.5 hover:bg-gold transition-colors whitespace-nowrap">
+        Enviar a Telegram
+      </button>
+    </form>
 
     {schedules.length === 0 ? (
       <p class="text-sm text-ink/55 italic py-3">Cap email programat. Es generaran automàticament quan marquis el dipòsit com a pagat (i hi hagi plantilles actives a <a href="/admin/sequences" class="text-gold underline">/admin/sequences</a>).</p>

@@ -124,6 +124,9 @@ export interface Booking {
    *  lives in src/data/bookingChecklist.ts. Empty object on rows with no
    *  ticks yet (or pre-migration rows). */
   checklistState: Record<string, string>;
+  /** When the pre-wedding Telegram digest (details + supplier instagrams)
+   *  was sent, ~2 days before the wedding or manually. NULL = not sent. */
+  preweddingTelegramSentAt: Date | null;
 }
 
 /** Input for creating a new booking from admin UI. Slug + id + timestamps

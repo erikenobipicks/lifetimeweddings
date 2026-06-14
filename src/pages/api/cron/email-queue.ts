@@ -28,9 +28,49 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { timingSafeEqual } from 'node:crypto';
 import { sendDueEmails } from '~/lib/bookings/sequences';
+import {
+  listBookingsForPreweddingDigest,
+  markPreweddingTelegramSent,
+} from '~/lib/bookings/repository';
+import { sendPreweddingDigest } from '~/lib/bookings/preweddingDigest';
 import { listQuotesPendingFollowUp, markQuoteFollowUpSent } from '~/lib/quotes';
 import { sendQuoteFollowUp } from '~/lib/quotes/followup';
 import { securityAlert } from '~/lib/security-alerts';
+
+interface PreweddingDigestSweepResult {
+  due: number;
+  sent: number;
+  failed: number;
+}
+
+/** Fire the internal pre-wedding Telegram digest for weddings happening
+ *  within the next 2 days that haven't had it yet. The window (rather than
+ *  an exact "wedding − 2" match) means a missed cron day still catches the
+ *  wedding; the prewedding_telegram_sent_at stamp keeps it once-only. */
+async function tickPreweddingDigests(): Promise<PreweddingDigestSweepResult> {
+  const todayYmd = new Date().toISOString().slice(0, 10);
+  const due = await listBookingsForPreweddingDigest(todayYmd, 2);
+  let sent = 0;
+  let failed = 0;
+  for (const booking of due) {
+    try {
+      const result = await sendPreweddingDigest(booking.id);
+      if (!result.ok) {
+        failed += 1;
+        continue;
+      }
+      // Stamp first so a retry within the same day can't double-send even
+      // if a later step throws.
+      await markPreweddingTelegramSent(booking.id);
+      sent += 1;
+    } catch (err) {
+      failed += 1;
+      // eslint-disable-next-line no-console
+      console.error('[cron.email-queue] prewedding digest failed', { bookingId: booking.id, err });
+    }
+  }
+  return { due: due.length, sent, failed };
+}
 
 interface QuoteFollowUpResult {
   due: number;
@@ -110,6 +150,10 @@ export const POST: APIRoute = async ({ request }) => {
 
   const bookingResult = await sendDueEmails();
   const quoteResult = await tickQuoteFollowUps();
-  console.log('[cron.email-queue] tick', { bookingResult, quoteResult });
-  return json({ ok: true, bookings: bookingResult, quoteFollowUps: quoteResult }, 200);
+  const preweddingResult = await tickPreweddingDigests();
+  console.log('[cron.email-queue] tick', { bookingResult, quoteResult, preweddingResult });
+  return json(
+    { ok: true, bookings: bookingResult, quoteFollowUps: quoteResult, preweddingDigests: preweddingResult },
+    200,
+  );
 };
