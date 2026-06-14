@@ -15,6 +15,7 @@ import { SITE } from '~/data/site';
 import { sendTelegramNotification } from '~/lib/email';
 import { getBookingById } from './repository';
 import { getLatestWeddingDetailsSubmission, wdOptionLabel } from './weddingDetailsForm';
+import { getLatestInspirationSubmission } from './inspirationForm';
 
 const SITE_URL = process.env.PUBLIC_SITE_URL ?? SITE.url;
 
@@ -58,6 +59,8 @@ export async function sendPreweddingDigest(bookingId: string): Promise<Preweddin
 
   const submission = await getLatestWeddingDetailsSubmission(bookingId);
   const d = submission?.data ?? {};
+  const inspiration = await getLatestInspirationSubmission(bookingId);
+  const insp = inspiration?.data ?? {};
   const n1 = booking.coupleName1;
   const n2 = booking.coupleName2;
   const adminUrl = `${SITE_URL}/admin/bookings/${booking.id}`;
@@ -104,6 +107,19 @@ export async function sendPreweddingDigest(bookingId: string): Promise<Preweddin
   if (d.special_moments) lines.push(`⭐ Moments: ${esc(d.special_moments)}`);
   if (d.sensitive_info) lines.push(`⚠️ Delicat: ${esc(d.sensitive_info)}`);
   if (d.anything_else) lines.push(`📝 Altres: ${esc(d.anything_else)}`);
+
+  // Music & inspiration (from the separate inspiration form).
+  const inspLines: string[] = [];
+  if (insp.couple_playlist) inspLines.push(`🎧 Playlist: ${esc(insp.couple_playlist)}`);
+  if (insp.special_song) inspLines.push(`🎵 Cançó especial: ${esc(insp.special_song)}`);
+  if (insp.pinterest) inspLines.push(`📌 Pinterest: ${esc(insp.pinterest)}`);
+  if (insp.inspiration_video) inspLines.push(`🎬 Vídeo: ${esc(insp.inspiration_video)}`);
+  if (insp.inspiration_notes) inspLines.push(`📝 Notes inspiració: ${esc(insp.inspiration_notes)}`);
+  if (inspLines.length > 0) {
+    lines.push('');
+    lines.push('<b>Música i inspiració</b>');
+    lines.push(...inspLines);
+  }
 
   if (!submission) {
     lines.push('');
