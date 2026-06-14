@@ -43,6 +43,7 @@ const lang: L = (booking?.preferredLanguage as L) ?? 'ca';
 
 const formTitles: Record<string, Record<L, string>> = {
   wedding_details: { ca: 'Informació de la boda', es: 'Información de la boda', en: 'Wedding details' },
+  inspiration: { ca: 'Inspiració i música', es: 'Inspiración y música', en: 'Inspiration & music' },
   timeline: { ca: 'Timeline del dia', es: 'Timeline del día', en: 'Wedding-day timeline' },
   guest_list: { ca: 'Llista de convidats', es: 'Lista de invitados', en: 'Guest list' },
   music: { ca: 'Música', es: 'Música', en: 'Music' },
@@ -52,9 +53,71 @@ const invalid = !schedule || !booking || !formKind;
 if (invalid) Astro.response.status = 404;
 
 const isWeddingDetails = formKind === 'wedding_details';
+const isInspiration = formKind === 'inspiration';
 const name1 = booking?.coupleName1 ?? '';
 const name2 = booking?.coupleName2 ?? '';
 const venueName = booking?.venueName ?? '';
+
+// ─── i18n strings for the inspiration form ───────────────────────────────
+const TI = {
+  ca: {
+    intro: 'Ens encantaria conèixer el vostre gust per fer un reportatge que soni i es vegi com vosaltres. No cal res perfecte — amb el que tingueu ja ens ajudeu molt. 5 minuts.',
+    secMusic: 'Música',
+    playlist: 'La vostra playlist',
+    playlistHint: 'Enllaç a Spotify, YouTube Music, Apple Music… si en teniu una d\'especial per a vosaltres.',
+    specialSong: 'Una cançó especial',
+    specialSongHint: 'La vostra cançó. Escriviu el nom (i artista) o enganxeu un enllaç de YouTube/Spotify.',
+    secVisual: 'Inspiració visual',
+    pinterest: 'Un Pinterest d\'idees',
+    pinterestHint: 'Enllaç a un tauler amb fotos que us agraden (nostres o d\'altres fotògrafs).',
+    video: 'Un videoclip que us inspiri',
+    videoHint: 'Enllaç (YouTube, Vimeo…) d\'una cançó o qualsevol vídeo que us transmeti el que busqueu.',
+    notes: 'Alguna cosa més',
+    notesHint: 'El que vulgueu compartir sobre el to, l\'estil o l\'ambient que us imagineu.',
+    submit: 'Enviar', sending: 'Enviant…', optional: 'opcional',
+    thanksH: 'Gràcies!',
+    thanksP: 'Ja tenim la vostra inspiració. Ens hi posarem! Si voleu afegir res més, escriviu-nos.',
+    errorMsg: 'No s\'ha pogut enviar. Reviseu la connexió i torneu-ho a provar.',
+  },
+  es: {
+    intro: 'Nos encantaría conocer vuestro gusto para hacer un reportaje que suene y se vea como vosotros. No hace falta nada perfecto — con lo que tengáis ya nos ayudáis mucho. 5 minutos.',
+    secMusic: 'Música',
+    playlist: 'Vuestra playlist',
+    playlistHint: 'Enlace a Spotify, YouTube Music, Apple Music… si tenéis una especial para vosotros.',
+    specialSong: 'Una canción especial',
+    specialSongHint: 'Vuestra canción. Escribid el nombre (y artista) o pegad un enlace de YouTube/Spotify.',
+    secVisual: 'Inspiración visual',
+    pinterest: 'Un Pinterest de ideas',
+    pinterestHint: 'Enlace a un tablero con fotos que os gusten (nuestras o de otros fotógrafos).',
+    video: 'Un videoclip que os inspire',
+    videoHint: 'Enlace (YouTube, Vimeo…) de una canción o cualquier vídeo que os transmita lo que buscáis.',
+    notes: 'Algo más',
+    notesHint: 'Lo que queráis compartir sobre el tono, el estilo o el ambiente que imagináis.',
+    submit: 'Enviar', sending: 'Enviando…', optional: 'opcional',
+    thanksH: '¡Gracias!',
+    thanksP: 'Ya tenemos vuestra inspiración. ¡Nos ponemos! Si queréis añadir algo más, escribidnos.',
+    errorMsg: 'No se ha podido enviar. Revisad la conexión e intentadlo de nuevo.',
+  },
+  en: {
+    intro: 'We\'d love to get to know your taste so your film and photos sound and look like you. Nothing needs to be perfect — whatever you have already helps. 5 minutes.',
+    secMusic: 'Music',
+    playlist: 'Your playlist',
+    playlistHint: 'Link to Spotify, YouTube Music, Apple Music… if you have one that\'s special to you.',
+    specialSong: 'A special song',
+    specialSongHint: 'Your song. Write the title (and artist) or paste a YouTube/Spotify link.',
+    secVisual: 'Visual inspiration',
+    pinterest: 'A Pinterest board of ideas',
+    pinterestHint: 'Link to a board with photos you like (ours or other photographers\').',
+    video: 'A video that inspires you',
+    videoHint: 'Link (YouTube, Vimeo…) to a song or any video that captures what you\'re after.',
+    notes: 'Anything else',
+    notesHint: 'Whatever you\'d like to share about the tone, style or mood you picture.',
+    submit: 'Send', sending: 'Sending…', optional: 'optional',
+    thanksH: 'Thank you!',
+    thanksP: 'We\'ve got your inspiration. We\'re on it! If you want to add anything, just write us.',
+    errorMsg: 'Couldn\'t send. Check your connection and try again.',
+  },
+}[lang];
 
 // ─── i18n strings for the wedding_details questionnaire ──────────────────
 const TX = {
@@ -243,8 +306,8 @@ const TX = {
         </>
       ) : alreadySubmitted ? (
         <>
-          <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">{isWeddingDetails ? TX.thanksH : 'Gràcies!'}</h1>
-          <p class="text-ink/75 leading-relaxed">{isWeddingDetails ? TX.thanksP : 'Ja hem rebut les vostres respostes. Si voleu modificar alguna cosa, escriviu-nos.'}</p>
+          <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">{isWeddingDetails ? TX.thanksH : isInspiration ? TI.thanksH : 'Gràcies!'}</h1>
+          <p class="text-ink/75 leading-relaxed">{isWeddingDetails ? TX.thanksP : isInspiration ? TI.thanksP : 'Ja hem rebut les vostres respostes. Si voleu modificar alguna cosa, escriviu-nos.'}</p>
         </>
       ) : isWeddingDetails ? (
         <>
@@ -457,6 +520,67 @@ const TX = {
           <div id="wd-thanks" class="hidden">
             <h2 class="font-display text-3xl md:text-4xl font-bold mb-3">{TX.thanksH}</h2>
             <p class="text-ink/75 leading-relaxed">{TX.thanksP}</p>
+          </div>
+        </>
+      ) : isInspiration ? (
+        <>
+          <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">{title}</h1>
+          <p class="text-ink/75 leading-relaxed mb-10">{TI.intro}</p>
+
+          <form id="wd-form" data-token={token} class="space-y-12">
+            <!-- Música -->
+            <fieldset class="space-y-5">
+              <legend class="font-display text-xl font-bold mb-2">{TI.secMusic}</legend>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.playlist} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <span class="block text-xs text-ink/55 mb-1">{TI.playlistHint}</span>
+                <input name="couple_playlist" type="url" inputmode="url" placeholder="https://open.spotify.com/playlist/…" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.specialSong}</span>
+                <span class="block text-xs text-ink/55 mb-1">{TI.specialSongHint}</span>
+                <input name="special_song" type="text" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+            </fieldset>
+
+            <!-- Inspiració visual -->
+            <fieldset class="space-y-5">
+              <legend class="font-display text-xl font-bold mb-2">{TI.secVisual}</legend>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.pinterest} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <span class="block text-xs text-ink/55 mb-1">{TI.pinterestHint}</span>
+                <input name="pinterest" type="url" inputmode="url" placeholder="https://pinterest.com/…" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.video} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <span class="block text-xs text-ink/55 mb-1">{TI.videoHint}</span>
+                <input name="inspiration_video" type="url" inputmode="url" placeholder="https://youtube.com/…" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.notes} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <span class="block text-xs text-ink/55 mb-1">{TI.notesHint}</span>
+                <textarea name="inspiration_notes" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
+              </label>
+            </fieldset>
+
+            <p id="wd-error" class="hidden text-sm text-red-600">{TI.errorMsg}</p>
+
+            <button
+              type="submit"
+              id="wd-submit"
+              class="bg-ink text-white text-sm font-bold tracking-widest uppercase px-8 py-3 hover:bg-gold transition-colors"
+              data-sending={TI.sending}
+            >{TI.submit}</button>
+          </form>
+
+          <div id="wd-thanks" class="hidden">
+            <h2 class="font-display text-3xl md:text-4xl font-bold mb-3">{TI.thanksH}</h2>
+            <p class="text-ink/75 leading-relaxed">{TI.thanksP}</p>
           </div>
         </>
       ) : (

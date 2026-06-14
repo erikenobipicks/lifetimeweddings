@@ -23,7 +23,7 @@ const FROM_HELLO = process.env.EMAIL_FROM_HELLO ?? 'Lifetime Weddings <hola@life
 const SITE_URL = process.env.PUBLIC_SITE_URL ?? SITE.url;
 
 export type TriggerKind = 'days_after_deposit' | 'days_before_wedding' | 'days_after_wedding';
-export type FormKind = 'timeline' | 'guest_list' | 'music' | 'wedding_details'; // expand as Eric adds forms
+export type FormKind = 'timeline' | 'guest_list' | 'music' | 'wedding_details' | 'inspiration'; // expand as Eric adds forms
 
 export interface EmailSequence {
   id: number;
