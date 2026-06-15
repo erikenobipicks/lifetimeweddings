@@ -30,6 +30,22 @@ function extractViolation(parsed: any): Record<string, any> | null {
   return parsed;
 }
 
+/** Violations we never want to alert on: they come from the visitor's own
+ *  browser, not from anything the site loads, so they're not actionable and
+ *  would otherwise spam the security channel.
+ *   - Browser extensions injecting CSS/JS (chrome/moz/safari-extension://)
+ *   - Chrome's built-in "Translate this page" pulling styles/scripts from
+ *     gstatic.com/_/translate_http and translate.google(apis).com
+ *  Still logged (so they're visible in the logs); just no Telegram ping. */
+function isNonActionable(blocked: string): boolean {
+  const b = blocked.toLowerCase();
+  if (/^(chrome|moz|safari|safari-web|ms-browser)-extension:/.test(b)) return true;
+  if (b.includes('gstatic.com/_/translate')) return true;
+  if (b.includes('translate.googleapis.com')) return true;
+  if (b.includes('translate.google.com')) return true;
+  return false;
+}
+
 export const POST: APIRoute = async ({ request }) => {
   try {
     const raw = await request.text();
@@ -37,6 +53,7 @@ export const POST: APIRoute = async ({ request }) => {
       // Truncate so a flood of large reports can't bloat the logs.
       const body = raw.length > 2000 ? `${raw.slice(0, 2000)}…` : raw;
       let summary = body;
+      let blocked = '?';
       try {
         const r = extractViolation(JSON.parse(raw));
         if (r) {
@@ -44,22 +61,29 @@ export const POST: APIRoute = async ({ request }) => {
           // (camel) shapes — accept either.
           const directive =
             r['violated-directive'] ?? r['effective-directive'] ?? r.effectiveDirective ?? '?';
-          const blocked = r['blocked-uri'] ?? r.blockedURL ?? r.blockedURI ?? '?';
+          blocked = r['blocked-uri'] ?? r.blockedURL ?? r.blockedURI ?? '?';
           const doc = r['document-uri'] ?? r.documentURL ?? r.documentURI ?? '?';
           summary = `directive=${directive} blocked=${blocked} doc=${doc}`;
         }
       } catch {
         /* not JSON — fall back to the truncated raw body */
       }
-      console.warn('[csp-report]', summary);
-      // Heads-up to Telegram, heavily throttled (≤ 1/hour) so a chatty rule
-      // can't flood the chat. While the CSP is Report-Only this is just a
-      // signal to review; once enforcing it flags real blocked resources.
-      await securityAlert(
-        'csp',
-        `Violació(ns) de CSP detectada(es).\n${summary}\n(report-only; revisa /api/csp-report als logs)`,
-        60 * 60 * 1000,
-      );
+
+      if (isNonActionable(blocked)) {
+        // Browser-injected noise (extensions, in-page Google Translate).
+        // Keep a log line for visibility but don't ping the security channel.
+        console.warn('[csp-report] (ignored: browser-injected)', summary);
+      } else {
+        console.warn('[csp-report]', summary);
+        // Heads-up to Telegram, heavily throttled (≤ 1/hour) so a chatty rule
+        // can't flood the chat. While the CSP is Report-Only this is just a
+        // signal to review; once enforcing it flags real blocked resources.
+        await securityAlert(
+          'csp',
+          `Violació(ns) de CSP detectada(es).\n${summary}\n(report-only; revisa /api/csp-report als logs)`,
+          60 * 60 * 1000,
+        );
+      }
     }
   } catch {
     /* swallow — never error back at the browser */
