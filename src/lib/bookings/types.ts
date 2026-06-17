@@ -119,6 +119,16 @@ export interface Booking {
    *  description with the publication-consent text so the contract body
    *  reflects what the couple authorised. */
   fotostudioProjectId: number | null;
+
+  /** Cancellation (Fase B). cancelledAt set → the booking is cancelled.
+   *  cancellationSignedAt/Ip set once the couple e-signs the cancellation
+   *  agreement. retainedCents = amount kept (paga i senyal), snapshotted. */
+  cancelledAt: Date | null;
+  cancellationReason: string | null;
+  cancellationRetainedCents: number | null;
+  cancellationSignedAt: Date | null;
+  cancellationSignedIp: string | null;
+
   /** Post-booking checklist state. Map of catalogue key → ISO timestamp
    *  when the operator ticked it; key absent means not ticked. Catalogue
    *  lives in src/data/bookingChecklist.ts. Empty object on rows with no
