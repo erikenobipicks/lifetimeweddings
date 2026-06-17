@@ -12,6 +12,11 @@ const yearFilter = /^\d{4}$/.test(yearFilterRaw) ? Number(yearFilterRaw) : null;
 const includeArchived = Astro.url.searchParams.get('archived') === '1';
 const ok = Astro.url.searchParams.get('ok');
 
+type SortKey = 'date_asc' | 'date_desc' | 'recent';
+const sortRaw = Astro.url.searchParams.get('sort') ?? '';
+const sortKey: SortKey =
+  sortRaw === 'date_desc' || sortRaw === 'recent' ? sortRaw : 'date_asc';
+
 const all = await listBookings({ includeArchived });
 
 // Years dropdown — derived from the live data so it stays current without
@@ -26,12 +31,14 @@ const filtered = all
   .filter((b) => (statusFilter ? b.status === statusFilter : true))
   .filter((b) => (yearFilter ? b.weddingDate.getFullYear() === yearFilter : true));
 
-// Sort by wedding date ascending — chronological for planning, the
-// closest-coming wedding first inside each year filter. Within a tie we
-// fall back to updatedAt desc so the most recently-touched record wins.
+// Sort according to the chosen key. Default 'date_asc' = chronological, the
+// closest-coming wedding first (best for planning). Ties fall back to
+// updatedAt desc so the most recently-touched record wins.
 const bookings = [...filtered].sort((a, b) => {
+  if (sortKey === 'recent') return b.updatedAt.getTime() - a.updatedAt.getTime();
   const d = a.weddingDate.getTime() - b.weddingDate.getTime();
-  if (d !== 0) return d;
+  const dir = sortKey === 'date_desc' ? -d : d;
+  if (dir !== 0) return dir;
   return b.updatedAt.getTime() - a.updatedAt.getTime();
 });
 
@@ -55,9 +62,15 @@ const STATUS_BADGE: Record<BookingStatus, { label: string; classes: string }> = 
   archived:        { label: 'Arxivat',   classes: 'bg-gray-200 text-gray-500' },
 };
 
-function fmtDate(d: Date | null): string {
-  if (!d) return '—';
-  return d.toLocaleDateString('ca-ES', { timeZone: 'Europe/Madrid', year: 'numeric', month: 'short', day: 'numeric' });
+/** Compact one-line wedding date with weekday, e.g. "ds. 14 març 2026".
+ *  Weekday matters for wedding planning, and keeping it on one line stops the
+ *  column from wrapping into a tall 4-line cell. */
+function fmtWedding(d: Date | null): { weekday: string; date: string } {
+  if (!d) return { weekday: '', date: '—' };
+  const opts = { timeZone: 'Europe/Madrid' } as const;
+  const weekday = d.toLocaleDateString('ca-ES', { ...opts, weekday: 'short' }).replace('.', '');
+  const date = d.toLocaleDateString('ca-ES', { ...opts, day: 'numeric', month: 'short', year: 'numeric' });
+  return { weekday, date };
 }
 function fmtRelative(d: Date | null): string {
   if (!d) return '—';
@@ -115,6 +128,7 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
       if (tab.key) params.set('status', tab.key);
       if (yearFilter) params.set('year', String(yearFilter));
       if (includeArchived) params.set('archived', '1');
+      if (sortKey !== 'date_asc') params.set('sort', sortKey);
       const qs = params.toString();
       const isActive = (tab.key === '' && !statusFilter) || tab.key === statusFilter;
       return (
@@ -133,6 +147,18 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
     <form method="GET" class="contents">
       {statusFilter && <input type="hidden" name="status" value={statusFilter} />}
       {includeArchived && <input type="hidden" name="archived" value="1" />}
+      <label class="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-ink/70">
+        Ordenar
+        <select
+          name="sort"
+          onchange="this.form.submit()"
+          class="px-2 py-1.5 border border-black/15 bg-white text-xs focus:border-gold focus:outline-none"
+        >
+          <option value="date_asc" selected={sortKey === 'date_asc'}>Data ↑ (properes)</option>
+          <option value="date_desc" selected={sortKey === 'date_desc'}>Data ↓ (llunyanes)</option>
+          <option value="recent" selected={sortKey === 'recent'}>Actualització</option>
+        </select>
+      </label>
       <label class="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-ink/70">
         Any
         <select
@@ -153,12 +179,22 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
       placeholder="Cercar per nom o venue..."
       class="w-full md:w-64 px-3 py-2 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none"
     />
-    <a
-      href={includeArchived ? '/admin/bookings' : '/admin/bookings?archived=1'}
-      class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold transition-colors whitespace-nowrap"
-    >
-      {includeArchived ? '✕ Ocultar arxivats' : '📦 Mostrar arxivats'}
-    </a>
+    {(() => {
+      const params = new URLSearchParams();
+      if (statusFilter) params.set('status', statusFilter);
+      if (yearFilter) params.set('year', String(yearFilter));
+      if (sortKey !== 'date_asc') params.set('sort', sortKey);
+      if (!includeArchived) params.set('archived', '1');
+      const qs = params.toString();
+      return (
+        <a
+          href={qs ? `/admin/bookings?${qs}` : '/admin/bookings'}
+          class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold transition-colors whitespace-nowrap"
+        >
+          {includeArchived ? '✕ Ocultar arxivats' : '📦 Mostrar arxivats'}
+        </a>
+      );
+    })()}
   </div>
 
   {bookings.length > 0 && (
@@ -197,7 +233,10 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
                   {badge.label}
                 </span>
               </div>
-              <p class="text-sm mb-1"><strong>{fmtDate(b.weddingDate)}</strong></p>
+              <p class="text-sm mb-1">
+                <strong>{fmtWedding(b.weddingDate).date}</strong>
+                {fmtWedding(b.weddingDate).weekday && <span class="text-ink/60"> · {fmtWedding(b.weddingDate).weekday}</span>}
+              </p>
               <p class="text-xs text-ink/70">{b.venueName}{b.venueCity && ` · ${b.venueCity}`}</p>
               <div class="mt-3 pt-3 border-t border-black/5 flex items-center justify-between text-xs">
                 <span class="text-gold font-bold">{formatEuros(b.packPriceCents)}</span>
@@ -247,7 +286,12 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
                   <a href={`/admin/bookings/${b.id}`} class="font-bold hover:text-gold">{couple}</a>
                   <div class="text-xs text-ink/70">{b.coupleEmailPrimary} · {b.preferredLanguage.toUpperCase()}</div>
                 </td>
-                <td class="px-4 py-3 text-ink/70">{fmtDate(b.weddingDate)}</td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="font-semibold text-ink">{fmtWedding(b.weddingDate).date}</div>
+                  {fmtWedding(b.weddingDate).weekday && (
+                    <div class="text-[0.7rem] uppercase tracking-wider text-ink/60">{fmtWedding(b.weddingDate).weekday}</div>
+                  )}
+                </td>
                 <td class="px-4 py-3 text-ink/70">
                   {b.venueName}
                   {b.venueCity && <span class="text-ink/70"> · {b.venueCity}</span>}
