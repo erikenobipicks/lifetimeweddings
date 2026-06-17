@@ -646,6 +646,72 @@ export async function unmarkDepositPaid(bookingId: string): Promise<void> {
   });
 }
 
+// ─── Payments ledger (operator bookkeeping) ──────────────────────────────────
+export interface BookingPayment {
+  id: string;
+  bookingId: string;
+  amountCents: number;
+  /** YYYY-MM-DD, or null if not specified. */
+  paidOn: string | null;
+  method: string | null;
+  note: string | null;
+  createdAt: Date;
+}
+
+export interface PaymentCreateInput {
+  bookingId: string;
+  amountCents: number;
+  paidOn?: string | null;
+  method?: string | null;
+  note?: string | null;
+}
+
+export async function listPayments(bookingId: string): Promise<BookingPayment[]> {
+  await initSchema();
+  const res = await db.execute({
+    sql: `SELECT * FROM booking_payments WHERE booking_id = ?
+          ORDER BY COALESCE(paid_on, created_at) ASC, created_at ASC`,
+    args: [bookingId],
+  });
+  return res.rows.map((row) => ({
+    id: String(row.id),
+    bookingId: String(row.booking_id),
+    amountCents: Number(row.amount_cents),
+    paidOn: row.paid_on ? String(row.paid_on) : null,
+    method: row.method ? String(row.method) : null,
+    note: row.note ? String(row.note) : null,
+    createdAt: fromIso(row.created_at) ?? new Date(),
+  }));
+}
+
+export async function addPayment(input: PaymentCreateInput): Promise<string> {
+  await initSchema();
+  const id = randomUUID();
+  await db.execute({
+    sql: `INSERT INTO booking_payments (id, booking_id, amount_cents, paid_on, method, note, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    args: [
+      id,
+      input.bookingId,
+      input.amountCents,
+      input.paidOn ?? null,
+      input.method ?? null,
+      input.note ?? null,
+      nowIso(),
+    ],
+  });
+  return id;
+}
+
+/** Delete a payment, scoped by booking so a stray id can't touch another row. */
+export async function deletePayment(paymentId: string, bookingId: string): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: `DELETE FROM booking_payments WHERE id = ? AND booking_id = ?`,
+    args: [paymentId, bookingId],
+  });
+}
+
 export interface ContractDataInput {
   bookingId: string;
   languageBetween?: string | null;

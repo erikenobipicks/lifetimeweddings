@@ -217,6 +217,22 @@ export async function initSchema() {
       )`,
       `CREATE INDEX IF NOT EXISTS idx_form_responses_booking ON booking_form_responses(booking_id)`,
 
+      // ── Payments ledger (operator bookkeeping) ─────────────────────────
+      // Manual record of money received per booking ("pagaments a compte").
+      // The pending balance is computed as effective price (pack − discount)
+      // minus the sum of these rows. Independent from the Stripe deposit /
+      // FacturaDirecta flow on the public /reserva page.
+      `CREATE TABLE IF NOT EXISTS booking_payments (
+        id TEXT PRIMARY KEY,
+        booking_id TEXT NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
+        amount_cents INTEGER NOT NULL,
+        paid_on TEXT,
+        method TEXT,
+        note TEXT,
+        created_at TEXT NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_booking_payments_booking ON booking_payments(booking_id)`,
+
       // ── Email sequences ────────────────────────────────────────────────
       // Catalogue of recurring/follow-up email templates Eric can manage
       // from /admin/sequences. Each row is one "kind of email" (e.g.

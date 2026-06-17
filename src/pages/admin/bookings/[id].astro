@@ -6,7 +6,7 @@
 //     _action=update.
 //   - Bottom: form_response display if the couple already submitted.
 import AdminLayout from '~/layouts/AdminLayout.astro';
-import { getBookingById, getFormResponseForBooking } from '~/lib/bookings/repository';
+import { getBookingById, getFormResponseForBooking, listPayments } from '~/lib/bookings/repository';
 import type { BookingStatus } from '~/lib/bookings/types';
 import { publicVideos, fullVideos } from '~/data/videos';
 import { getBankTransferDetails, isStripeTestMode } from '~/lib/payments/config';
@@ -25,6 +25,16 @@ const booking = await getBookingById(id);
 if (!booking) return new Response('Not found', { status: 404 });
 
 const formResponse = await getFormResponseForBooking(booking.id);
+
+// Payments ledger + pending balance. Total to settle = effective price
+// (pack − discount). Pending can go negative if overpaid.
+const payments = await listPayments(booking.id);
+const totalCents = booking.packPriceCents - booking.discountCents;
+const paidCents = payments.reduce((acc, p) => acc + p.amountCents, 0);
+const pendingCents = totalCents - paidCents;
+const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madrid' });
+const fmtEur = (cents: number): string =>
+  new Intl.NumberFormat('ca-ES', { style: 'currency', currency: 'EUR' }).format(cents / 100);
 
 const params = Astro.url.searchParams;
 const ok = params.get('ok');
@@ -161,6 +171,8 @@ const ibanPlaceholder = transfer.isPlaceholder;
       {ok?.startsWith('status:') && `Estat actualitzat a ${ok.split(':')[1]}.`}
       {ok === 'deposit:paid' && 'Dipòsit marcat com a rebut. La parella ja pot omplir /contrato.'}
       {ok === 'deposit:unpaid' && 'Marca de dipòsit retirada.'}
+      {ok === 'payment:added' && 'Pagament registrat.'}
+      {ok === 'payment:deleted' && 'Pagament eliminat.'}
       {ok === 'offline_confirmed' && 'Booking confirmat offline. Ja podeu enviar la URL /contrato a la parella (la veieu al bloc verd més avall).'}
       {ok === 'offline_silent' && 'Boda històrica registrada (mode silenciós). Dipòsit marcat com a pagat. No s\'ha emès factura ni s\'ha enviat email a la parella.'}
       {ok === 'form:sent' && 'Formulari enviat a la parella. (Mira la cola més avall per veure l\'estat.)'}
@@ -369,6 +381,108 @@ const ibanPlaceholder = transfer.isPlaceholder;
       )}
     </div>
   )}
+
+  {/* Pressupost i pagaments — operator bookkeeping. Total = inversió
+      efectiva (preu − descompte); el pendent = total − suma de pagaments. */}
+  <div id="pagaments" class="bg-white border border-black/10 p-5 md:p-6 mb-6 scroll-mt-24">
+    <h2 class="font-display text-lg font-bold mb-4">Pressupost i pagaments</h2>
+
+    <div class="grid grid-cols-3 gap-3 mb-5">
+      <div class="bg-cream border border-black/10 p-3">
+        <div class="text-[0.65rem] uppercase tracking-wider text-ink/70 mb-1">Total</div>
+        <div class="text-lg font-bold whitespace-nowrap">{fmtEur(totalCents)}</div>
+        {booking.discountCents > 0 && (
+          <div class="text-[0.65rem] text-ink/60 mt-0.5">preu −{fmtEur(booking.discountCents)} dte.</div>
+        )}
+      </div>
+      <div class="bg-cream border border-black/10 p-3">
+        <div class="text-[0.65rem] uppercase tracking-wider text-ink/70 mb-1">Pagat</div>
+        <div class="text-lg font-bold whitespace-nowrap text-emerald-700">{fmtEur(paidCents)}</div>
+        <div class="text-[0.65rem] text-ink/60 mt-0.5">{payments.length} {payments.length === 1 ? 'pagament' : 'pagaments'}</div>
+      </div>
+      <div class:list={[
+        'border p-3',
+        pendingCents > 0 ? 'bg-amber-50 border-amber-200' : pendingCents < 0 ? 'bg-red-50 border-red-200' : 'bg-emerald-50 border-emerald-200',
+      ]}>
+        <div class="text-[0.65rem] uppercase tracking-wider text-ink/70 mb-1">
+          {pendingCents < 0 ? 'Excés' : 'Pendent'}
+        </div>
+        <div class:list={[
+          'text-lg font-bold whitespace-nowrap',
+          pendingCents > 0 ? 'text-amber-800' : pendingCents < 0 ? 'text-red-700' : 'text-emerald-700',
+        ]}>{fmtEur(Math.abs(pendingCents))}</div>
+        {pendingCents === 0 && totalCents > 0 && <div class="text-[0.65rem] text-emerald-700 mt-0.5">✓ Liquidat</div>}
+      </div>
+    </div>
+
+    {totalCents === 0 && (
+      <p class="text-xs text-ink/70 mb-4">
+        Encara no has posat l’<strong>Inversió total</strong>. Edita-la al bloc d’edició de més avall perquè el pendent quadri.
+      </p>
+    )}
+
+    {payments.length > 0 && (
+      <div class="overflow-x-auto border border-black/10 mb-4">
+        <table class="w-full text-sm">
+          <thead class="bg-cream text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">
+            <tr>
+              <th class="text-left px-3 py-2">Data</th>
+              <th class="text-left px-3 py-2">Mètode</th>
+              <th class="text-left px-3 py-2">Nota</th>
+              <th class="text-right px-3 py-2">Import</th>
+              <th class="px-3 py-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {payments.map((p) => (
+              <tr class="border-t border-black/5">
+                <td class="px-3 py-2 whitespace-nowrap">{p.paidOn ?? '—'}</td>
+                <td class="px-3 py-2">{p.method ?? '—'}</td>
+                <td class="px-3 py-2 text-ink/70">{p.note ?? ''}</td>
+                <td class="px-3 py-2 text-right font-semibold whitespace-nowrap">{fmtEur(p.amountCents)}</td>
+                <td class="px-3 py-2 text-right">
+                  <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} onsubmit="return confirm('Eliminar aquest pagament?')">
+                    <input type="hidden" name="_action" value="payment_delete" />
+                    <input type="hidden" name="paymentId" value={p.id} />
+                    <button type="submit" class="text-red-600 text-xs font-bold hover:underline" title="Eliminar">✕</button>
+                  </form>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+
+    <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="flex flex-wrap items-end gap-3">
+      <input type="hidden" name="_action" value="payment_add" />
+      <label class="block">
+        <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Import (€)</span>
+        <input name="amountEuros" inputmode="decimal" required placeholder="0" class="mt-1 w-28 px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+      </label>
+      <label class="block">
+        <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Data</span>
+        <input type="date" name="paidOn" value={todayIso} class="mt-1 px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+      </label>
+      <label class="block">
+        <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Mètode</span>
+        <select name="method" class="mt-1 px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+          <option>Transferència</option>
+          <option>Targeta</option>
+          <option>Efectiu</option>
+          <option>Bizum</option>
+          <option>Altre</option>
+        </select>
+      </label>
+      <label class="block flex-1 min-w-[140px]">
+        <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Nota (opcional)</span>
+        <input name="note" maxlength="200" placeholder="p. ex. paga i senyal" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+      </label>
+      <button type="submit" class="bg-gold text-ink font-bold px-5 py-2.5 text-xs tracking-widest uppercase hover:bg-ink hover:text-white transition-colors">
+        + Afegir pagament
+      </button>
+    </form>
+  </div>
 
   {/* Workflow checklist — shown once the booking has form-submitted (we
       have a couple to track), filtered to the items relevant to what's
