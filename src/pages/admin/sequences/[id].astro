@@ -17,7 +17,7 @@ function v(name: string, fallback: string): string {
 
 <AdminLayout title={`Plantilla · ${seq.slug}`}>
   <div class="mb-6">
-    <a href="/admin/sequences" class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold">← Tornar al llistat</a>
+    <a href="/admin/sequences" class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold">← Tornar al llistat</a>
     <h1 class="font-display text-2xl sm:text-3xl font-bold mt-1 font-mono">{seq.slug}</h1>
   </div>
 
@@ -32,7 +32,7 @@ function v(name: string, fallback: string): string {
     <fieldset class="space-y-4">
       <legend class="font-display text-xl font-bold mb-3">Identificació</legend>
       <label class="block">
-        <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Slug intern *</span>
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Slug intern *</span>
         <input name="slug" required pattern="[a-z0-9-]+" maxlength="80" value={v('slug', seq.slug)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none" />
       </label>
       <label class="flex items-center gap-3 cursor-pointer">
@@ -45,7 +45,7 @@ function v(name: string, fallback: string): string {
       <legend class="font-display text-xl font-bold mb-3">Quan s'envia</legend>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <label class="block">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Tipus de disparador *</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Tipus de disparador *</span>
           <select name="triggerKind" required class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
             <option value="days_after_deposit" selected={seq.triggerKind === 'days_after_deposit'}>Dies després del dipòsit pagat</option>
             <option value="days_before_wedding" selected={seq.triggerKind === 'days_before_wedding'}>Dies abans de la boda</option>
@@ -53,11 +53,11 @@ function v(name: string, fallback: string): string {
           </select>
         </label>
         <label class="block">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Dies *</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Dies *</span>
           <input type="number" name="triggerOffsetDays" required min="0" max="3650" value={v('triggerOffsetDays', String(seq.triggerOffsetDays))} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block md:col-span-2">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Formulari associat</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Formulari associat</span>
           <select name="formKind" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
             <option value="" selected={!seq.formKind}>— Cap (només informatiu) —</option>
             <option value="wedding_details" selected={seq.formKind === 'wedding_details'}>Informació de la boda (preparatius, persones clau...)</option>
@@ -72,22 +72,22 @@ function v(name: string, fallback: string): string {
 
     <fieldset class="space-y-4">
       <legend class="font-display text-xl font-bold mb-3">Assumpte</legend>
-      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Català *</span><input name="subjectCa" required maxlength="200" value={v('subjectCa', seq.subject.ca)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
-      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Castellà *</span><input name="subjectEs" required maxlength="200" value={v('subjectEs', seq.subject.es)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
-      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">English *</span><input name="subjectEn" required maxlength="200" value={v('subjectEn', seq.subject.en)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Català *</span><input name="subjectCa" required maxlength="200" value={v('subjectCa', seq.subject.ca)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Castellà *</span><input name="subjectEs" required maxlength="200" value={v('subjectEs', seq.subject.es)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">English *</span><input name="subjectEn" required maxlength="200" value={v('subjectEn', seq.subject.en)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
     </fieldset>
 
     <fieldset class="space-y-4">
       <legend class="font-display text-xl font-bold mb-3">Cos de l'email (HTML)</legend>
       <p class="text-sm text-ink/65 -mt-2">Variables: <code class="bg-cream px-1">{`{coupleName1}`}</code>, <code class="bg-cream px-1">{`{coupleName2}`}</code>, <code class="bg-cream px-1">{`{weddingDate}`}</code>, <code class="bg-cream px-1">{`{venueName}`}</code>, <code class="bg-cream px-1">{`{packName}`}</code>, <code class="bg-cream px-1">{`{c1FullName}`}</code>, <code class="bg-cream px-1">{`{c2FullName}`}</code>, <code class="bg-cream px-1">{`{formUrl}`}</code>.</p>
-      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Català *</span><textarea name="bodyHtmlCa" required rows="10" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('bodyHtmlCa', seq.bodyHtml.ca)}</textarea></label>
-      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">Castellà *</span><textarea name="bodyHtmlEs" required rows="10" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('bodyHtmlEs', seq.bodyHtml.es)}</textarea></label>
-      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/60">English *</span><textarea name="bodyHtmlEn" required rows="10" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('bodyHtmlEn', seq.bodyHtml.en)}</textarea></label>
+      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Català *</span><textarea name="bodyHtmlCa" required rows="10" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('bodyHtmlCa', seq.bodyHtml.ca)}</textarea></label>
+      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Castellà *</span><textarea name="bodyHtmlEs" required rows="10" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('bodyHtmlEs', seq.bodyHtml.es)}</textarea></label>
+      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">English *</span><textarea name="bodyHtmlEn" required rows="10" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('bodyHtmlEn', seq.bodyHtml.en)}</textarea></label>
     </fieldset>
 
     <div class="flex items-center gap-4 pt-4 border-t border-black/10">
-      <button type="submit" class="bg-ink text-white px-6 py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors">Desar canvis</button>
-      <a href="/admin/sequences" class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold">Cancel·lar</a>
+      <button type="submit" class="bg-ink text-white px-6 py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">Desar canvis</button>
+      <a href="/admin/sequences" class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold">Cancel·lar</a>
     </div>
   </form>
 

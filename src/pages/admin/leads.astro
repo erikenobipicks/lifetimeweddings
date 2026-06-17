@@ -43,7 +43,7 @@ const labels: Record<string, string> = {
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
     <h1 class="font-display text-2xl sm:text-3xl font-bold">Leads (quiz)</h1>
     <div class="flex items-center gap-3 text-xs">
-      <span class="text-ink/60">{leads.length} leads</span>
+      <span class="text-ink/70">{leads.length} leads</span>
       <button
         type="button"
         data-test-telegram
@@ -68,7 +68,7 @@ const labels: Record<string, string> = {
   )}
 
   {leads.length === 0 ? (
-    <p class="text-ink/60 text-center py-16">Encara no hi ha leads del quiz.</p>
+    <p class="text-ink/70 text-center py-16">Encara no hi ha leads del quiz.</p>
   ) : (
     <>
     {/* Mobile cards. The primary action ("+ Pressupost" or "Veure
@@ -79,15 +79,15 @@ const labels: Record<string, string> = {
         <li class="bg-white border border-black/10">
           <div class="p-4">
             <p class="font-bold leading-tight">{l.coupleName}</p>
-            <p class="text-[0.7rem] text-ink/55 truncate">{l.email}</p>
-            {l.phone && <p class="text-[0.7rem] text-ink/55">{l.phone}</p>}
+            <p class="text-[0.7rem] text-ink/70 truncate">{l.email}</p>
+            {l.phone && <p class="text-[0.7rem] text-ink/70">{l.phone}</p>}
             <div class="grid grid-cols-2 gap-x-3 gap-y-2 text-[0.7rem] mt-3">
-              {l.serviceInterest && <div><span class="text-ink/50">Servei:</span><br/><strong>{labels[l.serviceInterest] ?? l.serviceInterest}</strong></div>}
-              {l.ceremonyType && <div><span class="text-ink/50">Cerimònia:</span><br/><strong>{labels[l.ceremonyType] ?? l.ceremonyType}</strong></div>}
-              {l.location && <div><span class="text-ink/50">Lloc:</span><br/><strong>{labels[l.location] ?? l.location}</strong>{l.venueName && <span class="block text-ink/60">{l.venueName}</span>}</div>}
-              {l.budgetRange && <div><span class="text-ink/50">Pressupost:</span><br/><strong>{labels[l.budgetRange] ?? l.budgetRange}</strong></div>}
-              {l.weddingDate && <div><span class="text-ink/50">Data boda:</span><br/><strong>{l.weddingDate}</strong></div>}
-              <div><span class="text-ink/50">Rebut:</span><br/><strong>{fmt(l.createdAt)}</strong></div>
+              {l.serviceInterest && <div><span class="text-ink/70">Servei:</span><br/><strong>{labels[l.serviceInterest] ?? l.serviceInterest}</strong></div>}
+              {l.ceremonyType && <div><span class="text-ink/70">Cerimònia:</span><br/><strong>{labels[l.ceremonyType] ?? l.ceremonyType}</strong></div>}
+              {l.location && <div><span class="text-ink/70">Lloc:</span><br/><strong>{labels[l.location] ?? l.location}</strong>{l.venueName && <span class="block text-ink/70">{l.venueName}</span>}</div>}
+              {l.budgetRange && <div><span class="text-ink/70">Pressupost:</span><br/><strong>{labels[l.budgetRange] ?? l.budgetRange}</strong></div>}
+              {l.weddingDate && <div><span class="text-ink/70">Data boda:</span><br/><strong>{l.weddingDate}</strong></div>}
+              <div><span class="text-ink/70">Rebut:</span><br/><strong>{fmt(l.createdAt)}</strong></div>
             </div>
           </div>
           <div class="flex border-t border-black/5">
@@ -96,7 +96,7 @@ const labels: Record<string, string> = {
                 Veure pressupost →
               </a>
             ) : (
-              <a href={`/admin/new?lead=${l.id}`} class="flex-1 text-center bg-ink text-white text-[0.7rem] font-bold tracking-widest uppercase px-4 py-3 hover:bg-gold transition-colors">
+              <a href={`/admin/new?lead=${l.id}`} class="flex-1 text-center bg-ink text-white text-[0.7rem] font-bold tracking-widest uppercase px-4 py-3 hover:bg-gold hover:text-ink transition-colors">
                 + Pressupost
               </a>
             )}
@@ -139,14 +139,14 @@ const labels: Record<string, string> = {
             <tr class="border-t border-black/5 hover:bg-cream/50">
               <td class="px-4 py-3">
                 <span class="font-bold">{l.coupleName}</span>
-                <div class="text-xs text-ink/60">{l.email}</div>
-                {l.phone && <div class="text-xs text-ink/60">{l.phone}</div>}
+                <div class="text-xs text-ink/70">{l.email}</div>
+                {l.phone && <div class="text-xs text-ink/70">{l.phone}</div>}
               </td>
               <td class="px-4 py-3">{labels[l.serviceInterest ?? ''] ?? l.serviceInterest}</td>
               <td class="px-4 py-3">{labels[l.ceremonyType ?? ''] ?? l.ceremonyType}</td>
               <td class="px-4 py-3">
                 {labels[l.location ?? ''] ?? l.location}
-                {l.venueName && <div class="text-xs text-ink/60">{l.venueName}</div>}
+                {l.venueName && <div class="text-xs text-ink/70">{l.venueName}</div>}
               </td>
               <td class="px-4 py-3">{labels[l.budgetRange ?? ''] ?? l.budgetRange}</td>
               <td class="px-4 py-3 text-ink/70">{l.weddingDate ?? '—'}</td>
@@ -162,7 +162,7 @@ const labels: Record<string, string> = {
                 ) : (
                   <a
                     href={`/admin/new?lead=${l.id}`}
-                    class="inline-block bg-ink text-white text-xs font-bold tracking-widest uppercase px-3 py-1.5 hover:bg-gold transition-colors mr-3"
+                    class="inline-block bg-ink text-white text-xs font-bold tracking-widest uppercase px-3 py-1.5 hover:bg-gold hover:text-ink transition-colors mr-3"
                     title="Crea un pressupost pre-rellenat amb les dades d'aquest lead"
                   >
                     + Pressupost

@@ -156,23 +156,23 @@ function humanSecs(n: number): string {
     <div class="min-w-0">
       <p class="text-xs font-bold tracking-widest uppercase text-gold mb-1">Pressupost</p>
       <h1 class="font-display text-2xl sm:text-3xl font-bold break-words">{quote.coupleName}</h1>
-      {quote.coupleEmail && <p class="text-ink/60 break-all">{quote.coupleEmail}</p>}
+      {quote.coupleEmail && <p class="text-ink/70 break-all">{quote.coupleEmail}</p>}
     </div>
-    <a href="/admin" class="text-xs text-ink/60 hover:text-gold whitespace-nowrap">← Tornar</a>
+    <a href="/admin" class="text-xs text-ink/70 hover:text-gold whitespace-nowrap">← Tornar</a>
   </div>
 
   <div class="bg-white border border-black/10 p-5 mb-8">
     <p class="text-xs font-bold tracking-widest uppercase mb-2">Enllaç</p>
     <div class="flex flex-wrap gap-2">
       <input readonly value={url} class="flex-1 min-w-[180px] px-3 py-2 border border-black/15 bg-cream font-mono text-sm" />
-      <button type="button" data-copy={url} class="bg-ink text-white px-4 py-2 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors whitespace-nowrap">Copiar</button>
+      <button type="button" data-copy={url} class="bg-ink text-white px-4 py-2 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors whitespace-nowrap">Copiar</button>
       {quote.coupleEmail && (
         <button
           type="button"
           data-send-quote
           data-quote-id={quote.id}
           data-email={quote.coupleEmail}
-          class="bg-gold text-white px-4 py-2 text-xs font-bold tracking-widest uppercase hover:brightness-110 transition"
+          class="bg-gold text-ink px-4 py-2 text-xs font-bold tracking-widest uppercase hover:brightness-110 transition"
         >
           📧 Enviar
         </button>
@@ -191,7 +191,7 @@ function humanSecs(n: number): string {
             class:list={[
               'px-4 py-2 text-xs font-bold tracking-widest uppercase transition border whitespace-nowrap',
               followUpState === 'ready'
-                ? 'border-gold text-gold hover:bg-gold hover:text-white'
+                ? 'border-gold text-gold hover:bg-gold hover:text-ink'
                 : 'border-ink/15 text-ink/40 cursor-not-allowed',
             ]}
           >
@@ -203,7 +203,7 @@ function humanSecs(n: number): string {
             <input type="hidden" name="action" value="skip-followup" />
             <button
               type="submit"
-              class="px-4 py-2 text-xs font-bold tracking-widest uppercase transition border border-ink/15 text-ink/55 hover:border-ink/40 hover:text-ink whitespace-nowrap"
+              class="px-4 py-2 text-xs font-bold tracking-widest uppercase transition border border-ink/15 text-ink/70 hover:border-ink/40 hover:text-ink whitespace-nowrap"
               title="Desactivar el recordatori automàtic (útil si la parella ja ha recontactat)"
             >
               🔕 Saltar
@@ -212,7 +212,7 @@ function humanSecs(n: number): string {
         </>
       )}
       {followUpState === 'skipped' && (
-        <span class="flex items-center gap-2 text-xs text-ink/55 px-3 py-2 border border-black/10 bg-cream/50 whitespace-nowrap">
+        <span class="flex items-center gap-2 text-xs text-ink/70 px-3 py-2 border border-black/10 bg-cream/50 whitespace-nowrap">
           🔕 Recordatori desactivat {quote.followUpSkippedAt ? `· ${fmt(quote.followUpSkippedAt)}` : ''}
           <form method="POST" class="inline">
             <input type="hidden" name="action" value="restore-followup" />
@@ -227,7 +227,7 @@ function humanSecs(n: number): string {
         </span>
       )}
       {followUpState === 'already_sent' && (
-        <span class="text-xs text-ink/55 px-3 py-2 border border-black/10 bg-cream/50 whitespace-nowrap">
+        <span class="text-xs text-ink/70 px-3 py-2 border border-black/10 bg-cream/50 whitespace-nowrap">
           ✓ Recordatori enviat {quote.followUpSentAt ? `· ${fmt(quote.followUpSentAt)}` : ''}
         </span>
       )}
@@ -241,11 +241,11 @@ function humanSecs(n: number): string {
     </div>
     {quote.coupleEmail && (
       <>
-        <p class="text-[0.7rem] text-ink/50 mt-2" data-send-feedback></p>
-        <p class="text-[0.7rem] text-ink/50" data-followup-feedback></p>
+        <p class="text-[0.7rem] text-ink/70 mt-2" data-send-feedback></p>
+        <p class="text-[0.7rem] text-ink/70" data-followup-feedback></p>
       </>
     )}
-    <div class="mt-3 text-xs text-ink/60 flex flex-wrap gap-4">
+    <div class="mt-3 text-xs text-ink/70 flex flex-wrap gap-4">
       <span>Creat: <strong>{fmt(quote.createdAt)}</strong></span>
       {quote.sentAt && <span>Enviat: <strong>{fmt(quote.sentAt)}</strong></span>}
       {quote.createdBy && <span>per <strong>{quote.createdBy}</strong></span>}
@@ -256,19 +256,19 @@ function humanSecs(n: number): string {
 
   <div class="grid md:grid-cols-4 gap-4 mb-8">
     <div class="bg-white p-5 border border-black/10 text-center">
-      <p class="text-xs font-bold tracking-widest uppercase text-ink/60">Visites</p>
+      <p class="text-xs font-bold tracking-widest uppercase text-ink/70">Visites</p>
       <p class="font-display text-4xl font-bold">{stats.views}</p>
     </div>
     <div class="bg-white p-5 border border-black/10 text-center">
-      <p class="text-xs font-bold tracking-widest uppercase text-ink/60">Visitants únics</p>
+      <p class="text-xs font-bold tracking-widest uppercase text-ink/70">Visitants únics</p>
       <p class="font-display text-4xl font-bold">{stats.uniqueVisitors}</p>
     </div>
     <div class="bg-white p-5 border border-black/10 text-center">
-      <p class="text-xs font-bold tracking-widest uppercase text-ink/60">Temps màx.</p>
+      <p class="text-xs font-bold tracking-widest uppercase text-ink/70">Temps màx.</p>
       <p class="font-display text-4xl font-bold">{humanSecs(stats.totalTimeSeconds)}</p>
     </div>
     <div class="bg-white p-5 border border-black/10 text-center">
-      <p class="text-xs font-bold tracking-widest uppercase text-ink/60">Scroll màx.</p>
+      <p class="text-xs font-bold tracking-widest uppercase text-ink/70">Scroll màx.</p>
       <p class="font-display text-4xl font-bold">{stats.maxScroll}%</p>
     </div>
   </div>
@@ -293,19 +293,19 @@ function humanSecs(n: number): string {
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div>
           <p class="text-xs font-bold tracking-widest uppercase text-gold mb-1">Resposta del client</p>
-          <p class="text-xs text-ink/60">Última configuració rebuda · {fmt(latestResponse.createdAt)}{responses.length > 1 && ` · ${responses.length} respostes en total`}</p>
+          <p class="text-xs text-ink/70">Última configuració rebuda · {fmt(latestResponse.createdAt)}{responses.length > 1 && ` · ${responses.length} respostes en total`}</p>
         </div>
         <div class="text-right">
-          <p class="text-xs text-ink/55 uppercase tracking-widest">Total que veuen ells</p>
+          <p class="text-xs text-ink/70 uppercase tracking-widest">Total que veuen ells</p>
           <p class="font-display text-3xl font-bold text-gold">{formatEuros(latestTotals.totalCents)}</p>
         </div>
       </div>
 
       <div class="grid sm:grid-cols-2 gap-4 mb-4">
         <div>
-          <p class="text-[0.7rem] font-bold uppercase tracking-widest text-ink/60 mb-2">Packs triats</p>
+          <p class="text-[0.7rem] font-bold uppercase tracking-widest text-ink/70 mb-2">Packs triats</p>
           {latestResponse.packIds.length === 0 ? (
-            <p class="text-sm text-ink/55 italic">— cap —</p>
+            <p class="text-sm text-ink/70 italic">— cap —</p>
           ) : (
             <ul class="text-sm space-y-1">
               {latestResponse.packIds.map((pid) => (
@@ -318,9 +318,9 @@ function humanSecs(n: number): string {
           )}
         </div>
         <div>
-          <p class="text-[0.7rem] font-bold uppercase tracking-widest text-ink/60 mb-2">Extres triats</p>
+          <p class="text-[0.7rem] font-bold uppercase tracking-widest text-ink/70 mb-2">Extres triats</p>
           {latestResponse.extraIds.length === 0 ? (
-            <p class="text-sm text-ink/55 italic">— cap —</p>
+            <p class="text-sm text-ink/70 italic">— cap —</p>
           ) : (
             <ul class="text-sm space-y-1">
               {latestResponse.extraIds.map((xid) => (
@@ -336,28 +336,28 @@ function humanSecs(n: number): string {
 
       {latestResponse.message && (
         <div class="mb-4 p-3 bg-cream border-l-4 border-gold">
-          <p class="text-[0.7rem] font-bold uppercase tracking-widest text-ink/60 mb-1">Missatge de la parella</p>
+          <p class="text-[0.7rem] font-bold uppercase tracking-widest text-ink/70 mb-1">Missatge de la parella</p>
           <p class="text-sm text-ink/85 whitespace-pre-wrap">{latestResponse.message}</p>
         </div>
       )}
 
-      <div class="text-xs text-ink/60 space-y-0.5 mb-1">
-        <p><span class="text-ink/50">Subtotal (packs):</span> <strong>{formatEuros(latestTotals.packsCents)}</strong></p>
-        <p><span class="text-ink/50">Subtotal (extres):</span> <strong>{formatEuros(latestTotals.extrasCents)}</strong></p>
+      <div class="text-xs text-ink/70 space-y-0.5 mb-1">
+        <p><span class="text-ink/70">Subtotal (packs):</span> <strong>{formatEuros(latestTotals.packsCents)}</strong></p>
+        <p><span class="text-ink/70">Subtotal (extres):</span> <strong>{formatEuros(latestTotals.extrasCents)}</strong></p>
         {quote.adminDiscountCents > 0 && (
-          <p><span class="text-ink/50">Descompte aplicat:</span> <strong class="text-gold">−{formatEuros(quote.adminDiscountCents)}</strong></p>
+          <p><span class="text-ink/70">Descompte aplicat:</span> <strong class="text-gold">−{formatEuros(quote.adminDiscountCents)}</strong></p>
         )}
       </div>
 
       {responses.length > 1 && (
         <details class="mt-4 pt-3 border-t border-black/10">
-          <summary class="text-xs text-ink/60 cursor-pointer hover:text-gold select-none">
+          <summary class="text-xs text-ink/70 cursor-pointer hover:text-gold select-none">
             Veure les {responses.length - 1} respostes anteriors
           </summary>
           <ul class="mt-3 space-y-2 text-xs">
             {responses.slice(1).map((r) => (
               <li class="flex justify-between gap-3 border-b border-black/5 pb-2">
-                <span class="text-ink/60">{fmt(r.createdAt)} · {r.packIds.length} pack(s) · {r.extraIds.length} extra(s)</span>
+                <span class="text-ink/70">{fmt(r.createdAt)} · {r.packIds.length} pack(s) · {r.extraIds.length} extra(s)</span>
                 <span class="text-gold font-bold">{formatEuros(r.totalCents)}</span>
               </li>
             ))}
@@ -372,7 +372,7 @@ function humanSecs(n: number): string {
       couple changes their mind. */}
   <div class="bg-white border border-black/10 p-5 mb-8">
     <p class="text-xs font-bold tracking-widest uppercase mb-1">Què volen</p>
-    <p class="text-[0.7rem] text-ink/55 mb-3">Filtra el configurador interactiu del pressupost. Si dubten, "encara dubten" — així veuen tot.</p>
+    <p class="text-[0.7rem] text-ink/70 mb-3">Filtra el configurador interactiu del pressupost. Si dubten, "encara dubten" — així veuen tot.</p>
     <form method="POST" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
       <input type="hidden" name="action" value="set-service-interest" />
       {[
@@ -419,7 +419,7 @@ function humanSecs(n: number): string {
     <form method="POST" class="grid sm:grid-cols-[180px_1fr_auto] gap-3 items-end">
       <input type="hidden" name="action" value="set-discount" />
       <div>
-        <label for="discount_euros" class="block text-[0.7rem] font-bold uppercase tracking-widest text-ink/60 mb-1">Descompte (€)</label>
+        <label for="discount_euros" class="block text-[0.7rem] font-bold uppercase tracking-widest text-ink/70 mb-1">Descompte (€)</label>
         <input
           id="discount_euros"
           name="discount_euros"
@@ -431,7 +431,7 @@ function humanSecs(n: number): string {
         />
       </div>
       <div>
-        <label for="discount_reason" class="block text-[0.7rem] font-bold uppercase tracking-widest text-ink/60 mb-1">Motiu (opcional, només per a tu)</label>
+        <label for="discount_reason" class="block text-[0.7rem] font-bold uppercase tracking-widest text-ink/70 mb-1">Motiu (opcional, només per a tu)</label>
         <input
           id="discount_reason"
           name="discount_reason"
@@ -443,7 +443,7 @@ function humanSecs(n: number): string {
       </div>
       <button
         type="submit"
-        class="bg-gold text-white px-4 py-2 text-xs font-bold tracking-widest uppercase hover:brightness-110 whitespace-nowrap"
+        class="bg-gold text-ink px-4 py-2 text-xs font-bold tracking-widest uppercase hover:brightness-110 whitespace-nowrap"
       >
         Aplicar
       </button>
@@ -452,20 +452,20 @@ function humanSecs(n: number): string {
     <div class="mt-5 pt-4 border-t border-black/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <p class="text-sm">
         {quote.closedAt ? (
-          <span><span class="font-bold text-ink">Pressupost tancat</span> · <span class="text-ink/60">{fmt(quote.closedAt)}</span></span>
+          <span><span class="font-bold text-ink">Pressupost tancat</span> · <span class="text-ink/70">{fmt(quote.closedAt)}</span></span>
         ) : (
-          <span class="text-ink/60">Pressupost obert — la parella encara pot enviar configuracions.</span>
+          <span class="text-ink/70">Pressupost obert — la parella encara pot enviar configuracions.</span>
         )}
       </p>
       {quote.closedAt ? (
         <form method="POST">
           <input type="hidden" name="action" value="reopen-quote" />
-          <button type="submit" class="text-xs bg-ink text-white px-4 py-2 font-bold tracking-widest uppercase hover:bg-gold transition-colors">↻ Reobrir</button>
+          <button type="submit" class="text-xs bg-ink text-white px-4 py-2 font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">↻ Reobrir</button>
         </form>
       ) : (
         <form method="POST" onsubmit="return confirm('Tancar el pressupost?\n\nLa parella encara veurà la pàgina i la seva última configuració, però no podrà enviar-ne de noves.')">
           <input type="hidden" name="action" value="close-quote" />
-          <button type="submit" class="text-xs bg-ink text-white px-4 py-2 font-bold tracking-widest uppercase hover:bg-gold transition-colors">🔒 Tancar pressupost</button>
+          <button type="submit" class="text-xs bg-ink text-white px-4 py-2 font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">🔒 Tancar pressupost</button>
         </form>
       )}
     </div>
@@ -476,22 +476,22 @@ function humanSecs(n: number): string {
       <p class="text-xs font-bold tracking-widest uppercase mb-3">Respostes del quiz</p>
       <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
         {lead.weddingDate && (
-          <div><span class="text-ink/60">Data boda:</span> <strong>{lead.weddingDate}</strong></div>
+          <div><span class="text-ink/70">Data boda:</span> <strong>{lead.weddingDate}</strong></div>
         )}
         {lead.location && (
-          <div><span class="text-ink/60">Lloc:</span> <strong>{lead.location}</strong></div>
+          <div><span class="text-ink/70">Lloc:</span> <strong>{lead.location}</strong></div>
         )}
         {lead.ceremonyType && (
-          <div><span class="text-ink/60">Cerimònia:</span> <strong>{lead.ceremonyType}</strong></div>
+          <div><span class="text-ink/70">Cerimònia:</span> <strong>{lead.ceremonyType}</strong></div>
         )}
         {lead.serviceInterest && (
-          <div><span class="text-ink/60">Servei:</span> <strong>{lead.serviceInterest}</strong></div>
+          <div><span class="text-ink/70">Servei:</span> <strong>{lead.serviceInterest}</strong></div>
         )}
         {lead.budgetRange && (
-          <div><span class="text-ink/60">Pressupost:</span> <strong>{lead.budgetRange}</strong></div>
+          <div><span class="text-ink/70">Pressupost:</span> <strong>{lead.budgetRange}</strong></div>
         )}
         {lead.phone && (
-          <div><span class="text-ink/60">Telèfon:</span> <strong>{lead.phone}</strong></div>
+          <div><span class="text-ink/70">Telèfon:</span> <strong>{lead.phone}</strong></div>
         )}
       </div>
     </div>
@@ -500,7 +500,7 @@ function humanSecs(n: number): string {
   <div class="bg-white border border-black/10 mb-8">
     <p class="px-5 py-3 text-xs font-bold tracking-widest uppercase border-b border-black/10">Historial d'esdeveniments</p>
     {events.length === 0 ? (
-      <p class="p-5 text-ink/60 text-sm">Encara no hi ha activitat.</p>
+      <p class="p-5 text-ink/70 text-sm">Encara no hi ha activitat.</p>
     ) : (
       <table class="w-full text-sm">
         <thead class="text-[0.7rem] font-bold tracking-widest uppercase bg-cream/50">
@@ -525,7 +525,7 @@ function humanSecs(n: number): string {
               </td>
               <td class="px-4 py-2 text-right">{humanSecs(e.timeOnPage)}</td>
               <td class="px-4 py-2 text-right">{e.maxScroll}%</td>
-              <td class="px-4 py-2 text-xs text-ink/50 truncate max-w-xs" title={e.userAgent ?? ''}>{e.userAgent ?? '—'}</td>
+              <td class="px-4 py-2 text-xs text-ink/70 truncate max-w-xs" title={e.userAgent ?? ''}>{e.userAgent ?? '—'}</td>
             </tr>
           ))}
         </tbody>
@@ -536,7 +536,7 @@ function humanSecs(n: number): string {
   <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-black/10 pt-6">
     <form method="POST" onsubmit="return confirm('Arxivar aquest pressupost? No es veurà al llistat però es pot recuperar.')">
       <input type="hidden" name="action" value="archive" />
-      <button type="submit" class="text-xs text-ink/60 hover:text-gold underline">📦 Arxivar</button>
+      <button type="submit" class="text-xs text-ink/70 hover:text-gold underline">📦 Arxivar</button>
     </form>
     <form method="POST" onsubmit="return confirm('⚠ ELIMINAR aquest pressupost DEFINITIVAMENT?\n\nNo es podrà recuperar.\nFes-ho servir només per netejar proves.')">
       <input type="hidden" name="action" value="delete" />

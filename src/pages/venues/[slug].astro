@@ -228,7 +228,7 @@ const waLink = `${WHATSAPP_BASE}&text=${waMessage}`;
       <ul class="space-y-4">
         {venue.whatItOffersBullets.map((b) => (
           <li class="flex gap-3">
-            <span class="text-gold font-bold flex-shrink-0 mt-1">·</span>
+            <span class="text-gold-deep font-bold flex-shrink-0 mt-1">·</span>
             <span class="text-ink/85 leading-relaxed">{b}</span>
           </li>
         ))}
@@ -282,7 +282,7 @@ const waLink = `${WHATSAPP_BASE}&text=${waMessage}`;
       <ol class="space-y-5 mb-10">
         {venue.whyChoosePoints.map((p, i) => (
           <li class="flex gap-4">
-            <span class="font-display text-2xl text-gold font-bold flex-shrink-0">
+            <span class="font-display text-2xl text-gold-deep font-bold flex-shrink-0">
               {i + 1}.
             </span>
             <span class="text-ink/85 leading-relaxed pt-1">{p}</span>
@@ -295,7 +295,7 @@ const waLink = `${WHATSAPP_BASE}&text=${waMessage}`;
           href={waLink}
           target="_blank"
           rel="noopener"
-          class="inline-block bg-ink text-white border-2 border-ink px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-gold hover:border-gold transition-colors"
+          class="inline-block bg-ink text-white border-2 border-ink px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-gold hover:text-ink hover:border-gold transition-colors"
         >
           Parlem pel WhatsApp
         </a>

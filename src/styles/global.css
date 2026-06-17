@@ -39,6 +39,13 @@
   --gold: 201 169 110;
   --cream: 249 245 240;
   --ink: 26 26 26;
+
+  /* Accessible gold for small TEXT on light backgrounds (eyebrows, section
+     labels, links on cream/white). The brand gold (--gold) only reaches
+     ~2.1:1 as text on cream — below WCAG AA. This darker, same-hue gold
+     (#7d6944) hits 4.87:1 on cream / 5.28:1 on white while reading as the
+     same warm gold. Use --gold (light) for gold text on DARK backgrounds. */
+  --gold-deep: 125 105 68;
 }
 
 @layer base {

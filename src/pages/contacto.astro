@@ -31,7 +31,7 @@ const jsonLd = [
       <p class="text-ink/75 leading-relaxed">
         {t('contact.sub.pre')}
         {' '}
-        <a href={waHref} target="_blank" rel="noopener" class="text-gold underline underline-offset-2 hover:text-ink">{t('contact.sub.wa')}</a>{t('contact.sub.post')}
+        <a href={waHref} target="_blank" rel="noopener" class="text-gold-deep underline underline-offset-2 hover:text-ink">{t('contact.sub.wa')}</a>{t('contact.sub.post')}
       </p>
     </div>
   </Section>
@@ -44,17 +44,17 @@ const jsonLd = [
       <p class="text-ink/75 leading-relaxed mb-8 text-center">{t('contact.where.desc')}</p>
       <dl class="grid sm:grid-cols-2 gap-6 max-w-xl mx-auto text-sm">
         <div>
-          <dt class="text-xs font-bold tracking-[0.18em] uppercase text-ink/60 mb-1">{t('contact.where.address')}</dt>
+          <dt class="text-xs font-bold tracking-[0.18em] uppercase text-ink/70 mb-1">{t('contact.where.address')}</dt>
           <dd class="text-ink/80">{SITE.address.street} · {SITE.address.city} ({SITE.address.region})</dd>
         </div>
         <div>
-          <dt class="text-xs font-bold tracking-[0.18em] uppercase text-ink/60 mb-1">{t('contact.where.hours')}</dt>
+          <dt class="text-xs font-bold tracking-[0.18em] uppercase text-ink/70 mb-1">{t('contact.where.hours')}</dt>
           <dd class="text-ink/80">{t('contact.where.hours.value')}</dd>
         </div>
         <div class="sm:col-span-2 flex flex-wrap gap-3 justify-center text-sm pt-2">
-          <a href={`mailto:${SITE.email}`} class="text-gold hover:underline">{SITE.email}</a>
+          <a href={`mailto:${SITE.email}`} class="text-gold-deep hover:underline">{SITE.email}</a>
           <span class="text-ink/30">·</span>
-          <a href={`tel:${SITE.phone}`} class="text-gold hover:underline">{SITE.phoneDisplay}</a>
+          <a href={`tel:${SITE.phone}`} class="text-gold-deep hover:underline">{SITE.phoneDisplay}</a>
         </div>
       </dl>
     </div>

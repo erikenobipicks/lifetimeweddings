@@ -88,7 +88,7 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
     <h1 class="font-display text-2xl sm:text-3xl font-bold">Reserves</h1>
     <a
       href="/admin/bookings/new"
-      class="self-start sm:self-auto bg-ink text-white px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors whitespace-nowrap"
+      class="self-start sm:self-auto bg-ink text-white px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors whitespace-nowrap"
     >
       + Nova reserva
     </a>
@@ -114,7 +114,7 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
           href={qs ? `/admin/bookings?${qs}` : '/admin/bookings'}
           class:list={[
             'text-xs font-bold tracking-widest uppercase px-3 py-1.5 border transition-colors',
-            isActive ? 'bg-ink text-white border-ink' : 'border-black/15 text-ink/60 hover:text-gold hover:border-gold',
+            isActive ? 'bg-ink text-white border-ink' : 'border-black/15 text-ink/70 hover:text-gold hover:border-gold',
           ]}
         >
           {tab.label}
@@ -125,7 +125,7 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
     <form method="GET" class="contents">
       {statusFilter && <input type="hidden" name="status" value={statusFilter} />}
       {includeArchived && <input type="hidden" name="archived" value="1" />}
-      <label class="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-ink/60">
+      <label class="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-ink/70">
         Any
         <select
           name="year"
@@ -147,7 +147,7 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
     />
     <a
       href={includeArchived ? '/admin/bookings' : '/admin/bookings?archived=1'}
-      class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold transition-colors whitespace-nowrap"
+      class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold transition-colors whitespace-nowrap"
     >
       {includeArchived ? '✕ Ocultar arxivats' : '📦 Mostrar arxivats'}
     </a>
@@ -161,7 +161,7 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
   )}
 
   {bookings.length === 0 ? (
-    <p class="text-ink/60 text-center py-16">
+    <p class="text-ink/70 text-center py-16">
       Cap reserva en aquesta vista.
       <a href="/admin/bookings/new" class="text-gold underline">Crea'n una</a>.
     </p>
@@ -183,7 +183,7 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
               <div class="flex items-start justify-between gap-3 mb-2">
                 <div class="min-w-0 flex-1">
                   <p class="font-bold leading-tight">{couple}</p>
-                  <p class="text-[0.7rem] text-ink/55 truncate">{b.coupleEmailPrimary}</p>
+                  <p class="text-[0.7rem] text-ink/70 truncate">{b.coupleEmailPrimary}</p>
                 </div>
                 <span class:list={['shrink-0 text-[0.6rem] font-bold tracking-widest uppercase px-2 py-1 rounded-sm', badge.classes]}>
                   {badge.label}
@@ -193,7 +193,7 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
               <p class="text-xs text-ink/70">{b.venueName}{b.venueCity && ` · ${b.venueCity}`}</p>
               <div class="mt-3 pt-3 border-t border-black/5 flex items-center justify-between text-xs">
                 <span class="text-gold font-bold">{formatEuros(b.packPriceCents)}</span>
-                <span class="text-ink/50">{fmtRelative(b.updatedAt)}</span>
+                <span class="text-ink/70">{fmtRelative(b.updatedAt)}</span>
               </div>
             </a>
             <button
@@ -237,12 +237,12 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
                 </td>
                 <td class="px-4 py-3">
                   <a href={`/admin/bookings/${b.id}`} class="font-bold hover:text-gold">{couple}</a>
-                  <div class="text-xs text-ink/60">{b.coupleEmailPrimary} · {b.preferredLanguage.toUpperCase()}</div>
+                  <div class="text-xs text-ink/70">{b.coupleEmailPrimary} · {b.preferredLanguage.toUpperCase()}</div>
                 </td>
                 <td class="px-4 py-3 text-ink/70">{fmtDate(b.weddingDate)}</td>
                 <td class="px-4 py-3 text-ink/70">
                   {b.venueName}
-                  {b.venueCity && <span class="text-ink/50"> · {b.venueCity}</span>}
+                  {b.venueCity && <span class="text-ink/70"> · {b.venueCity}</span>}
                 </td>
                 <td class="px-4 py-3 text-right font-bold text-gold whitespace-nowrap">{formatEuros(b.packPriceCents)}</td>
                 <td class="px-4 py-3 text-ink/70">{fmtRelative(b.updatedAt)}</td>
@@ -253,7 +253,7 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
                     class="text-gold text-xs font-bold tracking-widest uppercase hover:underline mr-3"
                     title="Copiar enllaç"
                   >Copiar</button>
-                  <a href={`/admin/bookings/${b.id}`} class="text-ink/60 text-xs font-bold tracking-widest uppercase hover:text-gold">
+                  <a href={`/admin/bookings/${b.id}`} class="text-ink/70 text-xs font-bold tracking-widest uppercase hover:text-gold">
                     Veure →
                   </a>
                 </td>

@@ -6,7 +6,9 @@
  * the site, so the primary CTA is consistent everywhere.
  *
  * Variants:
- *   primary  → solid gold, white text (default; e.g. header CTA)
+ *   primary  → solid gold with dark (ink) text (default; e.g. header CTA).
+ *              Ink-on-gold is 7.78:1 (WCAG AA); white-on-gold was only
+ *              2.24:1, so the label is dark while the brand gold is kept.
  *   light    → white fill on dark backgrounds, fills gold on hover (hero CTA)
  *   ghost    → transparent with white outline on dark backgrounds
  *   outline  → ink outline on light backgrounds
@@ -42,9 +44,9 @@ const base =
   'inline-block text-center uppercase font-medium transition-colors';
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-gold text-white hover:brightness-110',
+  primary: 'bg-gold text-ink hover:brightness-110',
   light:
-    'bg-white text-ink border-2 border-white hover:bg-gold hover:border-gold hover:text-white',
+    'bg-white text-ink border-2 border-white hover:bg-gold hover:border-gold hover:text-ink',
   ghost: 'border-2 border-white/70 text-white hover:bg-white/10',
   outline: 'border-2 border-ink text-ink hover:bg-ink hover:text-white',
 };

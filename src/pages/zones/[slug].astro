@@ -170,7 +170,7 @@ const waLink = `${WHATSAPP_BASE}&text=${waMessage}`;
       <ol class="space-y-6">
         {zone.whyLocalPoints.map((p, i) => (
           <li class="flex gap-4">
-            <span class="font-display text-2xl text-gold font-bold flex-shrink-0">
+            <span class="font-display text-2xl text-gold-deep font-bold flex-shrink-0">
               {i + 1}.
             </span>
             <div class="flex-1">
@@ -221,7 +221,7 @@ const waLink = `${WHATSAPP_BASE}&text=${waMessage}`;
                   {wedding.couple}
                 </p>
                 {wedding.venue !== '—' && (
-                  <p class="text-xs text-ink/60 mt-1">{wedding.venue}</p>
+                  <p class="text-xs text-ink/70 mt-1">{wedding.venue}</p>
                 )}
               </div>
             </a>
@@ -271,7 +271,7 @@ const waLink = `${WHATSAPP_BASE}&text=${waMessage}`;
                 <p class="font-display text-base font-bold leading-tight group-hover:text-gold transition-colors">
                   {venue.name}
                 </p>
-                <p class="mt-2 text-xs font-bold tracking-[0.14em] uppercase text-gold">
+                <p class="mt-2 text-xs font-bold tracking-[0.14em] uppercase text-gold-deep">
                   Veure landing →
                 </p>
               </div>
@@ -297,7 +297,7 @@ const waLink = `${WHATSAPP_BASE}&text=${waMessage}`;
       <ul class="grid grid-cols-2 gap-x-6 gap-y-2 mb-8">
         {zone.coverageList.map((place) => (
           <li class="flex items-start gap-2 text-ink/85">
-            <span class="text-gold mt-0.5">·</span>
+            <span class="text-gold-deep mt-0.5">·</span>
             <span>{place}</span>
           </li>
         ))}

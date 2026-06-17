@@ -53,15 +53,15 @@ const fmtDate = (iso: string | null): string =>
               <div class="w-full aspect-[4/3] bg-cream/60"></div>
             )}
             <div class="p-6">
-              <p class="text-[0.7rem] font-bold tracking-[0.18em] uppercase text-gold mb-2">
+              <p class="text-[0.7rem] font-bold tracking-[0.18em] uppercase text-gold-deep mb-2">
                 {BLOG_CATEGORIES[p.category][lang]}
-                {p.readingTime ? <span class="text-ink/50"> · {p.readingTime} {labels.read}</span> : null}
+                {p.readingTime ? <span class="text-ink/70"> · {p.readingTime} {labels.read}</span> : null}
               </p>
               <h3 class="font-display text-lg font-bold leading-tight mb-3 group-hover:text-gold transition-colors">
                 {p.title}
               </h3>
               {p.publishedAt && (
-                <p class="text-xs text-ink/60">{fmtDate(p.publishedAt)}</p>
+                <p class="text-xs text-ink/70">{fmtDate(p.publishedAt)}</p>
               )}
             </div>
           </a>

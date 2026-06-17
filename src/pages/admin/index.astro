@@ -32,7 +32,7 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
 <AdminLayout title="Pressupostos">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
     <h1 class="font-display text-2xl sm:text-3xl font-bold">Pressupostos</h1>
-    <a href="/admin/new" class="self-start sm:self-auto bg-ink text-white px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors whitespace-nowrap">+ Nou pressupost</a>
+    <a href="/admin/new" class="self-start sm:self-auto bg-ink text-white px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors whitespace-nowrap">+ Nou pressupost</a>
   </div>
 
   {okFlag === 'deleted' && (
@@ -50,14 +50,14 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
     />
     <a
       href={showArchived ? '/admin' : '/admin?arxivats=1'}
-      class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold transition-colors whitespace-nowrap"
+      class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold transition-colors whitespace-nowrap"
     >
       {showArchived ? '✕ Ocultar arxivats' : '📦 Mostrar arxivats'}
     </a>
   </div>
 
   {quotes.length === 0 ? (
-    <p class="text-ink/60 text-center py-16">Encara no hi ha cap pressupost. <a href="/admin/new" class="text-gold underline">Crea'n un</a>.</p>
+    <p class="text-ink/70 text-center py-16">Encara no hi ha cap pressupost. <a href="/admin/new" class="text-gold underline">Crea'n un</a>.</p>
   ) : (
     <>
     {/* Mobile cards: tap the row to open detail. Below md: the table version
@@ -78,16 +78,16 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
                     <span class={`text-base ${t.color}`}>{t.icon}</span>
                     <span class="truncate">{q.coupleName}</span>
                   </p>
-                  {q.coupleEmail && <p class="text-[0.7rem] text-ink/55 truncate ml-7">{q.coupleEmail}</p>}
+                  {q.coupleEmail && <p class="text-[0.7rem] text-ink/70 truncate ml-7">{q.coupleEmail}</p>}
                 </div>
-                {q.archived && <span class="shrink-0 text-[0.6rem] bg-ink/10 text-ink/50 px-1.5 py-0.5 rounded-sm">ARXIVAT</span>}
+                {q.archived && <span class="shrink-0 text-[0.6rem] bg-ink/10 text-ink/70 px-1.5 py-0.5 rounded-sm">ARXIVAT</span>}
               </div>
-              <div class="grid grid-cols-3 gap-2 text-[0.7rem] text-ink/60 ml-7">
-                <div><span class="text-ink/50">Visites</span><br/><strong class="text-ink">{s.views}</strong></div>
-                <div><span class="text-ink/50">Temps</span><br/><strong class="text-ink">{humanSecs(s.totalTimeSeconds)}</strong></div>
-                <div><span class="text-ink/50">Scroll</span><br/><strong class="text-ink">{s.maxScroll}%</strong></div>
+              <div class="grid grid-cols-3 gap-2 text-[0.7rem] text-ink/70 ml-7">
+                <div><span class="text-ink/70">Visites</span><br/><strong class="text-ink">{s.views}</strong></div>
+                <div><span class="text-ink/70">Temps</span><br/><strong class="text-ink">{humanSecs(s.totalTimeSeconds)}</strong></div>
+                <div><span class="text-ink/70">Scroll</span><br/><strong class="text-ink">{s.maxScroll}%</strong></div>
               </div>
-              <p class="text-[0.7rem] text-ink/50 mt-3 ml-7">Creat {fmt(q.createdAt)}</p>
+              <p class="text-[0.7rem] text-ink/70 mt-3 ml-7">Creat {fmt(q.createdAt)}</p>
             </a>
             <div class="flex border-t border-black/5">
               <button
@@ -140,8 +140,8 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
                 <td class={`px-4 py-3 text-lg ${t.color}`}>{t.icon}</td>
                 <td class="px-4 py-3">
                   <a href={`/admin/${q.id}`} class="font-bold hover:text-gold">{q.coupleName}</a>
-                  {q.coupleEmail && <div class="text-xs text-ink/60">{q.coupleEmail}</div>}
-                  {q.archived && <span class="text-[0.65rem] bg-ink/10 text-ink/50 px-1.5 py-0.5 ml-1">ARXIVAT</span>}
+                  {q.coupleEmail && <div class="text-xs text-ink/70">{q.coupleEmail}</div>}
+                  {q.archived && <span class="text-[0.65rem] bg-ink/10 text-ink/70 px-1.5 py-0.5 ml-1">ARXIVAT</span>}
                 </td>
                 <td class="px-4 py-3 text-ink/70">{fmt(q.createdAt)}</td>
                 <td class="px-4 py-3 text-ink/70">{fmt(s.firstViewAt)}</td>
