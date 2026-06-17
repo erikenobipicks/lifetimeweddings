@@ -23,7 +23,7 @@ const ariaLabel =
 <div class="relative" data-language-switcher>
   <button
     type="button"
-    class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold transition-colors flex items-center gap-1"
+    class="min-h-11 px-2 -mx-2 text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold transition-colors inline-flex items-center gap-1"
     aria-haspopup="true"
     aria-expanded="false"
     aria-controls="lang-menu"
@@ -48,7 +48,7 @@ const ariaLabel =
           href={localePath(l, path)}
           hreflang={l}
           class:list={[
-            'block px-4 py-2 text-xs tracking-widest uppercase font-bold transition-colors',
+            'flex items-center min-h-[44px] px-4 text-xs tracking-widest uppercase font-bold transition-colors',
             l === current ? 'text-gold-deep bg-cream' : 'text-ink hover:bg-cream',
           ]}
         >

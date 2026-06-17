@@ -69,7 +69,7 @@ const nav = [
       <LanguageSwitcher current={lang} path={path} />
       <button
         type="button"
-        class="lg:hidden flex flex-col gap-1.5 p-1"
+        class="lg:hidden -mr-2 w-11 h-11 flex flex-col items-center justify-center gap-1.5"
         aria-label={t('a11y.openMenu')}
         data-mobile-toggle
         aria-controls="mobile-menu"
@@ -93,7 +93,7 @@ const nav = [
         <li>
           <a
             href={item.href}
-            class="block py-3 text-sm font-bold tracking-widest uppercase text-ink hover:text-gold"
+            class="flex items-center min-h-[44px] text-sm font-bold tracking-widest uppercase text-ink hover:text-gold"
             data-mobile-link
           >
             {item.label}
