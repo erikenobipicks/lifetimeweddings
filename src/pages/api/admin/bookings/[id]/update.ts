@@ -93,6 +93,11 @@ const updateSchema = z.object({
   couplePhonePrimary: z.string().max(40).optional(),
   preferredLanguage: z.enum(['ca', 'es', 'en']).optional(),
 
+  source: z.string().max(120).optional(),
+  kind: z.enum(['own', 'collab', 'external']).optional(),
+  collaboratorName: z.string().max(120).optional(),
+  serviceType: z.enum(['photo', 'video', 'combo']).optional().or(z.literal('')),
+
   weddingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   venueName: z.string().min(1).max(120).optional(),
   venueCity: z.string().max(80).optional(),
@@ -327,6 +332,10 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
   if (d.couplePhonePrimary !== undefined)
     patch.couplePhonePrimary = d.couplePhonePrimary.trim() || null;
   if (d.preferredLanguage !== undefined) patch.preferredLanguage = d.preferredLanguage;
+  if (d.source !== undefined) patch.source = d.source.trim() || null;
+  if (d.kind !== undefined) patch.kind = d.kind;
+  if (d.collaboratorName !== undefined) patch.collaboratorName = d.collaboratorName.trim() || null;
+  if (d.serviceType !== undefined) patch.serviceType = d.serviceType ? d.serviceType : null;
 
   if (d.weddingDate !== undefined) patch.weddingDate = new Date(`${d.weddingDate}T00:00:00Z`);
   if (d.venueName !== undefined) patch.venueName = d.venueName.trim();

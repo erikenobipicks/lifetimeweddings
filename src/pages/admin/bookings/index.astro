@@ -4,7 +4,34 @@
 // Search: client-side filter on couple/venue text.
 import AdminLayout from '~/layouts/AdminLayout.astro';
 import { listBookings } from '~/lib/bookings/repository';
-import type { BookingStatus } from '~/lib/bookings/types';
+import type { Booking, BookingStatus } from '~/lib/bookings/types';
+import { inferServiceType } from '~/lib/contracts/generate';
+
+const SERVICE_LABEL: Record<string, string> = {
+  photo: 'Foto',
+  video: 'Vídeo',
+  combo: 'Foto+vídeo',
+};
+function serviceLabelFor(b: Booking): string {
+  const t = b.serviceType ?? inferServiceType(b.packName, b.packIncludes);
+  return SERVICE_LABEL[t] ?? t;
+}
+/** Ownership chip text + classes. null → own (LifeTime), no chip needed. */
+function ownership(b: Booking): { label: string; classes: string } | null {
+  if (b.kind === 'external') {
+    return {
+      label: b.collaboratorName ? `Per a ${b.collaboratorName}` : 'Per a un altre estudi',
+      classes: 'bg-purple-100 text-purple-800',
+    };
+  }
+  if (b.kind === 'collab') {
+    return {
+      label: b.collaboratorName ? `LW + ${b.collaboratorName}` : 'LW + col·laborador',
+      classes: 'bg-sky-100 text-sky-800',
+    };
+  }
+  return null;
+}
 
 const statusFilter = (Astro.url.searchParams.get('status') ?? '') as BookingStatus | '';
 const yearFilterRaw = Astro.url.searchParams.get('year') ?? '';
@@ -228,6 +255,12 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
                 <div class="min-w-0 flex-1">
                   <p class="font-bold leading-tight">{couple}</p>
                   <p class="text-[0.7rem] text-ink/70 truncate">{b.coupleEmailPrimary}</p>
+                  <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                    <span class="text-[0.6rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded-sm bg-cream border border-gold/30 text-ink/70">{serviceLabelFor(b)}</span>
+                    {ownership(b) && (
+                      <span class:list={['text-[0.6rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded-sm', ownership(b)!.classes]}>{ownership(b)!.label}</span>
+                    )}
+                  </div>
                 </div>
                 <span class:list={['shrink-0 text-[0.6rem] font-bold tracking-widest uppercase px-2 py-1 rounded-sm', badge.classes]}>
                   {badge.label}
@@ -285,6 +318,13 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
                 <td class="px-4 py-3">
                   <a href={`/admin/bookings/${b.id}`} class="font-bold hover:text-gold">{couple}</a>
                   <div class="text-xs text-ink/70">{b.coupleEmailPrimary} · {b.preferredLanguage.toUpperCase()}</div>
+                  <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                    <span class="text-[0.6rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded-sm bg-cream border border-gold/30 text-ink/70">{serviceLabelFor(b)}</span>
+                    {ownership(b) && (
+                      <span class:list={['text-[0.6rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded-sm', ownership(b)!.classes]}>{ownership(b)!.label}</span>
+                    )}
+                    {b.source && <span class="text-[0.6rem] text-ink/50">· {b.source}</span>}
+                  </div>
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
                   <div class="font-semibold text-ink">{fmtWedding(b.weddingDate).date}</div>

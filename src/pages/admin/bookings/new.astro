@@ -196,6 +196,34 @@ const extrasCatalog = EXTRAS.map((x) => ({
           </select>
         </label>
       </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Procedència</span>
+          <input name="source" value={v('source')} placeholder="Instagram, recomanació de…, orgànic" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Tipus de servei</span>
+          <select name="serviceType" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+            <option value="">— Auto (del pack) —</option>
+            {[['photo','Només foto'],['video','Només vídeo'],['combo','Foto + vídeo']].map(([code,label]) => (
+              <option value={code} selected={v('serviceType') === code}>{label}</option>
+            ))}
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Propietat</span>
+          <select name="kind" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+            {[['own','LifeTime Weddings'],['collab','LifeTime + col·laborador'],['external','Per a un altre estudi (sense mailing)']].map(([code,label]) => (
+              <option value={code} selected={v('kind') === code || (!v('kind') && code === 'own')}>{label}</option>
+            ))}
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom (col·laborador / estudi)</span>
+          <input name="collaboratorName" value={v('collaboratorName')} placeholder="només si col·laboració o per a un altre estudi" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        </label>
+      </div>
     </fieldset>
 
     <fieldset class="space-y-4">

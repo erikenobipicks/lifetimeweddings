@@ -105,6 +105,11 @@ const formSchema = z.object({
   couplePhonePrimary: z.string().max(40).optional(),
   preferredLanguage: z.enum(['ca', 'es', 'en']).default('ca'),
 
+  source: z.string().max(120).optional(),
+  kind: z.enum(['own', 'collab', 'external']).optional(),
+  collaboratorName: z.string().max(120).optional(),
+  serviceType: z.enum(['photo', 'video', 'combo']).optional().or(z.literal('')),
+
   weddingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Format: YYYY-MM-DD'),
   venueName: z.string().min(1).max(120),
   venueCity: z.string().max(80).optional(),
@@ -187,6 +192,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     coupleEmailPrimary: d.coupleEmailPrimary.trim(),
     couplePhonePrimary: d.couplePhonePrimary?.trim() || undefined,
     preferredLanguage: d.preferredLanguage,
+    source: d.source?.trim() || null,
+    kind: d.kind ?? 'own',
+    collaboratorName: d.collaboratorName?.trim() || null,
+    serviceType: d.serviceType ? d.serviceType : null,
 
     weddingDate: new Date(`${d.weddingDate}T00:00:00Z`),
     venueName: d.venueName.trim(),

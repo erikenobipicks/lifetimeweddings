@@ -239,6 +239,9 @@ export async function materialiseSchedulesForBooking(bookingId: string): Promise
   await initSchema();
   const booking = await getBookingById(bookingId);
   if (!booking) return { created: 0 };
+  // White-label bookings for another studio don't get LifeTime's automated
+  // mailing flow — we only track their date + billing.
+  if (booking.kind === 'external') return { created: 0 };
   const sequences = await listSequences(false); // enabled only
   const now = toIso(new Date());
   const today = ymd(new Date());
