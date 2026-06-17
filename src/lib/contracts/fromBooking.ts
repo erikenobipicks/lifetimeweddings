@@ -50,6 +50,11 @@ export function contractDataFromBooking(
 
   const shootPlace = fr.ceremonyLocationText?.trim() || booking.venueName;
 
+  // Price on the contract is what the couple actually pays: pack minus any
+  // discount applied on the booking. Mirrors the effective price shown on
+  // the public /reserva page (PackDetail) and the admin payment calculator.
+  const effectivePriceCents = Math.max(0, booking.packPriceCents - booking.discountCents);
+
   return {
     lang: booking.preferredLanguage,
     packName: booking.packName,
@@ -66,7 +71,7 @@ export function contractDataFromBooking(
     shootDateLong: formatWeddingDateLong(weddingDate, booking.preferredLanguage),
     shootTime,
     shootPlace,
-    shootPrice: formatPrice(booking.packPriceCents, booking.preferredLanguage),
+    shootPrice: formatPrice(effectivePriceCents, booking.preferredLanguage),
     paymentPlan: booking.paymentTerms,
     photographerName: PHOTOGRAPHER_NAME,
   };
