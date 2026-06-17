@@ -27,6 +27,18 @@
   /* Fraunces SOFT axis: 0 (default) → 100 (max softness).
      50 = warmer than default without feeling gimmicky. */
   --fraunces-soft: 50;
+
+  /* ── Brand colors — single source of truth ──────────────────────
+     Stored as space-separated RGB channels (not hex) so Tailwind can
+     inject opacity via `rgb(var(--x) / <alpha-value>)`. This keeps
+     utilities like `bg-gold/5`, `text-gold/30`, `border-gold/40`
+     working while the actual values live in one place.
+     Mirror any change here in the static `theme-color` meta tag in
+     BaseLayout.astro (HTML attributes can't read CSS vars).
+       --gold:  #c9a96e   --cream: #f9f5f0   --ink: #1a1a1a          */
+  --gold: 201 169 110;
+  --cream: 249 245 240;
+  --ink: 26 26 26;
 }
 
 @layer base {
@@ -89,7 +101,7 @@
 
   /* Focus */
   :focus-visible {
-    outline: 2px solid theme('colors.gold');
+    outline: 2px solid rgb(var(--gold));
     outline-offset: 2px;
   }
 }

@@ -1,0 +1,67 @@
+---
+/**
+ * Shared call-to-action button. Renders an `<a>` when `href` is provided,
+ * otherwise a `<button>`. Centralises the brand button look (uppercase,
+ * letter-spacing, gold accent) that was previously copy-pasted inline across
+ * the site, so the primary CTA is consistent everywhere.
+ *
+ * Variants:
+ *   primary  → solid gold, white text (default; e.g. header CTA)
+ *   light    → white fill on dark backgrounds, fills gold on hover (hero CTA)
+ *   ghost    → transparent with white outline on dark backgrounds
+ *   outline  → ink outline on light backgrounds
+ *
+ * Sizes:
+ *   sm → compact (header)
+ *   md → default
+ *   lg → prominent, responsive (hero)
+ *
+ * Any extra attributes (target, rel, type, data-*, aria-*) pass through.
+ * `class` is appended so callers can tweak layout (margins, width) per use.
+ */
+type Variant = 'primary' | 'light' | 'ghost' | 'outline';
+type Size = 'sm' | 'md' | 'lg';
+
+interface Props {
+  href?: string;
+  variant?: Variant;
+  size?: Size;
+  class?: string;
+  [key: string]: unknown;
+}
+
+const {
+  href,
+  variant = 'primary',
+  size = 'md',
+  class: extraClass = '',
+  ...rest
+} = Astro.props;
+
+const base =
+  'inline-block text-center uppercase font-medium transition-colors';
+
+const variants: Record<Variant, string> = {
+  primary: 'bg-gold text-white hover:brightness-110',
+  light:
+    'bg-white text-ink border-2 border-white hover:bg-gold hover:border-gold hover:text-white',
+  ghost: 'border-2 border-white/70 text-white hover:bg-white/10',
+  outline: 'border-2 border-ink text-ink hover:bg-ink hover:text-white',
+};
+
+const sizes: Record<Size, string> = {
+  sm: 'px-5 py-2 text-[0.7rem] tracking-[0.15em] font-bold',
+  md: 'px-8 py-3.5 text-[0.8rem] tracking-[0.14em]',
+  lg: 'px-8 md:px-12 py-3.5 md:py-4 text-[0.8rem] md:text-[0.9rem] tracking-[0.14em]',
+};
+
+const cls = [base, variants[variant], sizes[size], extraClass]
+  .filter(Boolean)
+  .join(' ');
+
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag class={cls} {...(href ? { href } : { type: 'button' })} {...rest}>
+  <slot />
+</Tag>

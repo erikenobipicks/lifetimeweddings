@@ -32,6 +32,8 @@ const seeTestimonialOf = (author: string) =>
     : lang === 'en'
       ? `See testimonial from ${author}`
       : `Veure testimoni de ${author}`;
+const ratingLabel =
+  lang === 'es' ? '5 de 5 estrellas' : lang === 'en' ? '5 out of 5 stars' : '5 de 5 estrelles';
 ---
 
 <Section id="testimonials" bg="cream">
@@ -66,8 +68,10 @@ const seeTestimonialOf = (author: string) =>
         {slides.map((tes, i) => (
           <button
             type="button"
+            role="tab"
             data-testi-dot
             data-index={i}
+            aria-selected={i === 0 ? 'true' : 'false'}
             aria-label={seeTestimonialOf(tes.author)}
             class={`w-1.5 h-1.5 rounded-full transition-colors ${i === 0 ? 'bg-gold' : 'bg-black/20 hover:bg-black/40'}`}
           />
@@ -76,8 +80,8 @@ const seeTestimonialOf = (author: string) =>
     </div>
 
     <p class="mt-12 md:mt-16 text-[0.7rem] md:text-xs tracking-[0.18em] uppercase text-ink/60">
-      ★★★★★
-      <span class="mx-2">·</span>
+      <span role="img" aria-label={ratingLabel}>★★★★★</span>
+      <span class="mx-2" aria-hidden="true">·</span>
       <a href="https://www.google.com/search?q=lifetime+weddings+reus" target="_blank" rel="noopener" class="hover:text-gold transition-colors">Google</a>
       <span class="mx-2">·</span>
       <a href={SITE.social.instagram} target="_blank" rel="noopener" class="hover:text-gold transition-colors">Instagram</a>
@@ -95,6 +99,7 @@ const seeTestimonialOf = (author: string) =>
       dots.forEach((d, i) => {
         d.classList.toggle('bg-gold', i === idx);
         d.classList.toggle('bg-black/20', i !== idx);
+        d.setAttribute('aria-selected', i === idx ? 'true' : 'false');
       });
     });
   });
