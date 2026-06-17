@@ -1,12 +1,22 @@
 import { defineMiddleware } from 'astro:middleware';
 import { getCollection } from 'astro:content';
 import { getUser } from '~/lib/auth';
+import { SITE } from '~/data/site';
 
-/** Canonical host for production. When set, any request coming in on a
- *  different host (e.g. the Railway-generated .up.railway.app subdomain or an
- *  apex/www mismatch) is 301-redirected to this host, preserving path + query.
- *  Leave unset in dev/staging. Example: CANONICAL_HOST=www.lifetime.photo */
+/** Explicit canonical-host override. When set, ANY request on a different host
+ *  (e.g. the Railway-generated .up.railway.app subdomain) is 301-redirected to
+ *  this host, preserving path + query. Leave unset in dev/staging.
+ *  Example: CANONICAL_HOST=www.lifetime.photo */
 const CANONICAL_HOST = process.env.CANONICAL_HOST;
+
+/** Production host derived from the single source of truth (SITE.url), e.g.
+ *  `www.lifetime.photo`, plus its apex (`lifetime.photo`). Even without
+ *  CANONICAL_HOST set, we 301 the bare apex → www so the served host matches
+ *  the canonical / sitemap / OG / hreflang URLs (which all use SITE.url = www)
+ *  and Google doesn't index www and non-www as duplicates. Scoped to this
+ *  exact apex so staging / *.up.railway.app hosts are left untouched. */
+const SITE_HOST = new URL(SITE.url).host;
+const SITE_APEX = SITE_HOST.replace(/^www\./, '');
 
 // \u2500\u2500 Content-Security-Policy (Report-Only) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 // Built from the third-party origins actually loaded by the site:
@@ -91,10 +101,18 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // ── Canonical host redirect (SEO + link hygiene) ────────────────────────
   // Skip for /api/* — a 301 on POST strips the body in most browsers and
   // breaks form submissions. APIs should work on whatever host they land on.
-  if (CANONICAL_HOST && !isApi) {
+  if (!isApi) {
     const incomingHost = context.url.host;
-    if (incomingHost && incomingHost !== CANONICAL_HOST) {
-      const target = new URL(context.url.pathname + context.url.search, `https://${CANONICAL_HOST}`);
+    const pathAndQuery = context.url.pathname + context.url.search;
+    if (CANONICAL_HOST) {
+      // Explicit override: force every host onto CANONICAL_HOST.
+      if (incomingHost && incomingHost !== CANONICAL_HOST) {
+        const target = new URL(pathAndQuery, `https://${CANONICAL_HOST}`);
+        return context.redirect(target.toString(), 301);
+      }
+    } else if (incomingHost === SITE_APEX) {
+      // Default (no env needed): bare apex → www, matching SITE.url.
+      const target = new URL(pathAndQuery, SITE.url);
       return context.redirect(target.toString(), 301);
     }
   }
