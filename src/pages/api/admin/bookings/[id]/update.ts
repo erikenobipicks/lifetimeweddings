@@ -18,9 +18,11 @@ import { getUser } from '~/lib/auth';
 import {
   addBookingChange,
   addPayment,
+  cancelBooking,
   deleteBooking,
   deletePayment,
   getBookingById,
+  uncancelBooking,
   markDepositPaid,
   setBookingStatus,
   unmarkDepositPaid,
@@ -280,6 +282,29 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
       note,
     });
     return back('?ok=change:saved#addendum');
+  }
+
+  // ── Cancellation (Fase B) ────────────────────────────────────────────────
+  if (action === 'cancel_booking') {
+    const reason = String(form.get('reason') ?? '').trim().slice(0, 1000) || null;
+    const retainedRaw = String(form.get('retainedEuros') ?? '').trim();
+    let retainedCents = booking.depositCents;
+    if (retainedRaw) {
+      const c = eurosStringToCents(retainedRaw);
+      if (!Number.isNaN(c)) retainedCents = c;
+    }
+    await cancelBooking(id, { reason, retainedCents });
+    // Stop the scheduled follow-up emails for a cancelled wedding. Fail-soft.
+    try {
+      await cancelPendingSchedules(id);
+    } catch (err) {
+      console.error('[admin.cancel_booking] cancelPendingSchedules failed (non-fatal)', err);
+    }
+    return back('?ok=cancelled#cancellacio');
+  }
+  if (action === 'uncancel_booking') {
+    await uncancelBooking(id);
+    return back('?ok=uncancelled#cancellacio');
   }
 
   // Default: content update.

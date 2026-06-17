@@ -126,6 +126,12 @@ function rowToBooking(row: Record<string, unknown>): Booking {
       row.fotostudio_project_id == null
         ? null
         : Number(row.fotostudio_project_id) || null,
+    cancelledAt: fromIso(row.cancelled_at),
+    cancellationReason: row.cancellation_reason ? String(row.cancellation_reason) : null,
+    cancellationRetainedCents:
+      row.cancellation_retained_cents != null ? Number(row.cancellation_retained_cents) : null,
+    cancellationSignedAt: fromIso(row.cancellation_signed_at),
+    cancellationSignedIp: row.cancellation_signed_ip ? String(row.cancellation_signed_ip) : null,
     checklistState: parseChecklistJson(row.checklist_state),
     preweddingTelegramSentAt: fromIso(row.prewedding_telegram_sent_at),
   };
@@ -785,6 +791,47 @@ export async function getBookingChange(id: string, bookingId: string): Promise<B
   });
   const row = res.rows[0];
   return row ? hydrateChange(row as Record<string, unknown>) : null;
+}
+
+// ─── Cancellation (Fase B) ───────────────────────────────────────────────────
+export async function cancelBooking(
+  id: string,
+  opts: { reason?: string | null; retainedCents?: number | null } = {},
+): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: `UPDATE bookings
+          SET cancelled_at = ?, cancellation_reason = ?, cancellation_retained_cents = ?
+          WHERE id = ?`,
+    args: [nowIso(), opts.reason ?? null, opts.retainedCents ?? null, id],
+  });
+}
+
+/** Undo a cancellation (operator mistake). Clears all cancellation fields. */
+export async function uncancelBooking(id: string): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: `UPDATE bookings
+          SET cancelled_at = NULL, cancellation_reason = NULL,
+              cancellation_retained_cents = NULL,
+              cancellation_signed_at = NULL, cancellation_signed_ip = NULL
+          WHERE id = ?`,
+    args: [id],
+  });
+}
+
+/** Record the couple's e-signature of the cancellation agreement. Idempotent:
+ *  returns true only the first time (so the caller can email a copy once). */
+export async function markCancellationSigned(id: string, ip: string | null): Promise<boolean> {
+  await initSchema();
+  const existing = await getBookingById(id);
+  if (!existing || !existing.cancelledAt) return false;
+  if (existing.cancellationSignedAt) return false;
+  await db.execute({
+    sql: `UPDATE bookings SET cancellation_signed_at = ?, cancellation_signed_ip = ? WHERE id = ?`,
+    args: [nowIso(), ip ?? null, id],
+  });
+  return true;
 }
 
 export interface ContractDataInput {

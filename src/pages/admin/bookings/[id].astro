@@ -176,6 +176,8 @@ const ibanPlaceholder = transfer.isPlaceholder;
       {ok === 'payment:added' && 'Pagament registrat.'}
       {ok === 'payment:deleted' && 'Pagament eliminat.'}
       {ok === 'change:saved' && 'Canvi desat. Pots descarregar l\'addendum a baix.'}
+      {ok === 'cancelled' && 'Boda cancel·lada. Envia l\'enllaç de firma a la parella.'}
+      {ok === 'uncancelled' && 'Cancel·lació desfeta.'}
       {ok === 'offline_confirmed' && 'Booking confirmat offline. Ja podeu enviar la URL /contrato a la parella (la veieu al bloc verd més avall).'}
       {ok === 'offline_silent' && 'Boda històrica registrada (mode silenciós). Dipòsit marcat com a pagat. No s\'ha emès factura ni s\'ha enviat email a la parella.'}
       {ok === 'form:sent' && 'Formulari enviat a la parella. (Mira la cola més avall per veure l\'estat.)'}
@@ -547,6 +549,72 @@ const ibanPlaceholder = transfer.isPlaceholder;
       </div>
     ) : (
       <p class="text-sm text-ink/60 italic">Cap canvi registrat encara.</p>
+    )}
+  </div>
+
+  {/* Cancel·lació (Fase B) — cancelar la boda i enviar l'acord de
+      cancel·lació a la parella perquè el signi online. */}
+  <div id="cancellacio" class:list={[
+    'border p-5 md:p-6 mb-6 scroll-mt-24',
+    booking.cancelledAt ? 'bg-red-50 border-red-200' : 'bg-white border-black/10',
+  ]}>
+    <h2 class="font-display text-lg font-bold mb-1">Cancel·lació</h2>
+
+    {!booking.cancelledAt ? (
+      <>
+        <p class="text-sm text-ink/70 mb-4">
+          Marca la boda com a cancel·lada i genera l’acord de cancel·lació perquè la parella el signi online.
+          Es cancel·laran els emails programats.
+        </p>
+        <form
+          method="POST"
+          action={`/api/admin/bookings/${booking.id}/update`}
+          class="space-y-3"
+          onsubmit="return confirm('Segur que vols cancel·lar aquesta boda? Es cancel·laran els emails programats.')"
+        >
+          <input type="hidden" name="_action" value="cancel_booking" />
+          <div class="flex flex-wrap gap-3">
+            <label class="block flex-1 min-w-[200px]">
+              <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Motiu (opcional)</span>
+              <input name="reason" maxlength="1000" placeholder="p. ex. la parella ajorna sense data" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+            </label>
+            <label class="block">
+              <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Import retingut (€)</span>
+              <input name="retainedEuros" inputmode="decimal" value={eurosFromCents(booking.depositCents)} class="mt-1 w-32 px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+            </label>
+          </div>
+          <button type="submit" class="bg-red-600 text-white font-bold px-5 py-2.5 text-xs tracking-widest uppercase hover:bg-red-700 transition-colors">
+            Cancel·lar boda
+          </button>
+        </form>
+      </>
+    ) : (
+      <>
+        <p class="text-sm font-bold text-red-700 mb-1">⚠ Boda cancel·lada · {fmtDateTime(booking.cancelledAt)}</p>
+        {booking.cancellationReason && <p class="text-sm text-ink/80 mb-1"><strong>Motiu:</strong> {booking.cancellationReason}</p>}
+        <p class="text-sm text-ink/80 mb-3"><strong>Import retingut:</strong> {fmtEur(booking.cancellationRetainedCents ?? booking.depositCents)}</p>
+
+        <div class="bg-white border border-black/10 p-4 mb-3">
+          <p class="text-[11px] font-bold tracking-widest uppercase text-ink/70 mb-1">Enllaç de firma per a la parella</p>
+          <code class="text-sm break-all text-ink/80">{siteUrl}/cancellacio/{booking.slug}</code>
+          <div class="flex flex-wrap gap-2 mt-3">
+            <button type="button" data-copy={`${siteUrl}/cancellacio/${booking.slug}`} class="bg-gold text-ink text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-ink hover:text-white transition-colors">Copiar enllaç</button>
+            <a href={`/api/admin/bookings/${booking.id}/cancellation`} target="_blank" rel="noopener" class="border border-black/15 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:border-gold hover:text-gold transition-colors">Descarregar PDF</a>
+          </div>
+        </div>
+
+        <p class="text-sm mb-3">
+          <strong>Estat de la firma:</strong>{' '}
+          {booking.cancellationSignedAt
+            ? <span class="text-emerald-700 font-semibold">✓ Signat · {fmtDateTime(booking.cancellationSignedAt)}</span>
+            : <span class="text-amber-700 font-semibold">Pendent de firma</span>}
+        </p>
+
+        <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} onsubmit="return confirm('Desfer la cancel·lació?')">
+          <input type="hidden" name="_action" value="uncancel_booking" />
+          <button type="submit" class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-ink underline">Desfer cancel·lació</button>
+        </form>
+      </>
     )}
   </div>
 

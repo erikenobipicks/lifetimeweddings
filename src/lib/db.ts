@@ -437,6 +437,15 @@ export async function initSchema() {
   // Absolute discount in cents applied to the pack price. 0 = no discount.
   // The effective price shown to the couple is pack_price_cents - discount_cents.
   await ensureColumn('bookings', 'discount_cents', 'INTEGER NOT NULL DEFAULT 0');
+  // Cancellation (Fase B). cancelled_at acts as the "is cancelled" flag; the
+  // couple e-signs the cancellation agreement at /cancellacio/[slug], which
+  // stamps cancellation_signed_at/ip. retained_cents snapshots the amount kept
+  // (paga i senyal) so the document is stable even if the price changes later.
+  await ensureColumn('bookings', 'cancelled_at', 'TEXT');
+  await ensureColumn('bookings', 'cancellation_reason', 'TEXT');
+  await ensureColumn('bookings', 'cancellation_retained_cents', 'INTEGER');
+  await ensureColumn('bookings', 'cancellation_signed_at', 'TEXT');
+  await ensureColumn('bookings', 'cancellation_signed_ip', 'TEXT');
   await ensureColumn('booking_form_responses', 'language_between', 'TEXT');
   await ensureColumn('booking_form_responses', 'ceremony_location_text', 'TEXT');
   await ensureColumn('booking_form_responses', 'reception_location_text', 'TEXT');
