@@ -86,12 +86,20 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
 <AdminLayout title="Reserves">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
     <h1 class="font-display text-2xl sm:text-3xl font-bold">Reserves</h1>
-    <a
-      href="/admin/bookings/new"
-      class="self-start sm:self-auto bg-ink text-white px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors whitespace-nowrap"
-    >
-      + Nova reserva
-    </a>
+    <div class="flex items-center gap-2 self-start sm:self-auto">
+      <a
+        href="/admin/bookings/import"
+        class="border border-ink/20 text-ink px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-cream transition-colors whitespace-nowrap"
+      >
+        Importar CSV
+      </a>
+      <a
+        href="/admin/bookings/new"
+        class="bg-ink text-white px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors whitespace-nowrap"
+      >
+        + Nova reserva
+      </a>
+    </div>
   </div>
 
   {ok === 'created' && (

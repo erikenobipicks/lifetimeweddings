@@ -1,0 +1,204 @@
+---
+export const prerender = false;
+
+import AdminLayout from '~/layouts/AdminLayout.astro';
+import { buildPreview, MIN_WEDDING_YEAR, type ImportPreview, type MappedWedding } from '~/lib/bookings/csvImport';
+import { createBooking, createFormResponse, listBookings } from '~/lib/bookings/repository';
+
+// Imports closed weddings from the "Contracte Bodes" Google Forms CSV.
+// Two steps, both POST to this same page:
+//   1) action=preview → parse + show what would be imported (date >= cutoff,
+//      duplicates flagged). The raw CSV is carried in a hidden field.
+//   2) action=import  → insert the eligible, non-duplicate rows.
+// Each wedding becomes a booking (pack/economics left as placeholders, to be
+// filled later) + a form_response with the contract data; status ends as
+// 'form_submitted' (createFormResponse handles that transition).
+
+type Mode = 'upload' | 'preview' | 'done';
+let mode: Mode = 'upload';
+let error: string | null = null;
+let preview: ImportPreview | null = null;
+let csvText = '';
+let dupKeys = new Set<string>();
+let result: { imported: number; skippedDup: number; failed: number; errors: string[] } | null = null;
+
+async function loadDupKeys(): Promise<Set<string>> {
+  const existing = await listBookings({ includeArchived: true });
+  return new Set(
+    existing.map(
+      (b) => `${b.coupleEmailPrimary.toLowerCase()}|${b.weddingDate.toISOString().slice(0, 10)}`,
+    ),
+  );
+}
+
+const PLACEHOLDER_PACK = 'Importat (pendent dades econòmiques)';
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const action = String(form.get('action') ?? '');
+
+  if (action === 'preview') {
+    const file = form.get('csv');
+    if (!(file instanceof File) || file.size === 0) {
+      error = 'Cap fitxer rebut. Tria el CSV exportat del formulari.';
+    } else {
+      csvText = await file.text();
+      preview = buildPreview(csvText);
+      if (!preview.headerValid) {
+        error =
+          'Aquest CSV no sembla l’export del formulari "Contracte Bodes" (capçaleres no coincideixen). Revisa el fitxer.';
+        preview = null;
+      } else {
+        dupKeys = await loadDupKeys();
+        mode = 'preview';
+      }
+    }
+  } else if (action === 'import') {
+    csvText = String(form.get('csvText') ?? '');
+    preview = buildPreview(csvText);
+    dupKeys = await loadDupKeys();
+    let imported = 0;
+    let skippedDup = 0;
+    let failed = 0;
+    const errors: string[] = [];
+    for (const w of preview.eligible) {
+      if (dupKeys.has(w.dedupKey)) {
+        skippedDup++;
+        continue;
+      }
+      try {
+        const booking = await createBooking({
+          coupleName1: w.coupleName1,
+          coupleName2: w.coupleName2,
+          coupleEmailPrimary: w.coupleEmailPrimary,
+          couplePhonePrimary: w.couplePhonePrimary ?? undefined,
+          preferredLanguage: w.preferredLanguage,
+          weddingDate: w.weddingDate,
+          venueName: w.venueName,
+          venueCity: w.venueCity ?? undefined,
+          packName: PLACEHOLDER_PACK,
+          packPriceCents: 0,
+          depositCents: 0,
+          internalNotes: w.internalNotes,
+        });
+        await createFormResponse({
+          bookingId: booking.id,
+          c1FullName: w.coupleName1,
+          c1Dni: w.c1Dni,
+          c1Address: w.homeAddress,
+          c1Email: w.coupleEmailPrimary,
+          c1Phone: w.c1Phone,
+          c2FullName: w.coupleName2,
+          c2Dni: w.c2Dni,
+          c2Address: w.homeAddress,
+          c2Email: w.coupleEmailPrimary,
+          c2Phone: w.c2Phone,
+          billingAddressSame: true,
+          weddingDateConfirmed: true,
+          venueConfirmed: true,
+          ceremonyTime: w.ceremonyTime,
+          guestCountEstimate: w.guests,
+          preferredLanguage: w.preferredLanguage,
+          howDidYouFindUs: w.howFound,
+          importantNotes: w.importantNotes,
+        });
+        // Avoid double-insert if the same couple+date appears twice in the file.
+        dupKeys.add(w.dedupKey);
+        imported++;
+      } catch (e) {
+        failed++;
+        errors.push(`${w.coupleName1} & ${w.coupleName2} (${w.weddingDateIso}): ${e instanceof Error ? e.message : String(e)}`);
+      }
+    }
+    result = { imported, skippedDup, failed, errors };
+    mode = 'done';
+  }
+}
+
+const fmtPair = (w: MappedWedding) => `${w.coupleName1}${w.coupleName2 ? ' & ' + w.coupleName2 : ''}`;
+---
+
+<AdminLayout title="Importar bodes (CSV)">
+  <div class="max-w-4xl mx-auto">
+    <nav class="text-xs text-ink/70 mb-4"><a href="/admin/bookings" class="hover:text-gold">← Reserves</a></nav>
+    <h1 class="font-display text-2xl font-bold mb-2">Importar bodes tancades (CSV)</h1>
+    <p class="text-sm text-ink/70 mb-6">
+      Puja l’export del formulari <strong>“Contracte Bodes”</strong>. Només s’importen les bodes amb
+      data <strong>≥ {MIN_WEDDING_YEAR}</strong>. Les dades econòmiques (pack/preu/dipòsit) queden
+      pendents per omplir després.
+    </p>
+
+    {error && <p class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm">{error}</p>}
+
+    {mode === 'upload' && (
+      <form method="POST" enctype="multipart/form-data" class="bg-white border border-black/10 p-6">
+        <input type="hidden" name="action" value="preview" />
+        <label class="block text-sm font-semibold mb-2" for="csv">Fitxer CSV</label>
+        <input id="csv" type="file" name="csv" accept=".csv,text/csv" required class="block w-full text-sm mb-4" />
+        <button type="submit" class="bg-gold text-ink font-bold px-6 py-3 text-xs tracking-[0.15em] uppercase hover:bg-ink hover:text-white transition-colors">
+          Previsualitzar
+        </button>
+      </form>
+    )}
+
+    {mode === 'preview' && preview && (
+      <div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5 text-center">
+          <div class="bg-cream border border-gold/40 p-3"><div class="text-2xl font-bold">{preview.eligible.length}</div><div class="text-[0.7rem] uppercase tracking-wider text-ink/70">≥ {MIN_WEDDING_YEAR}</div></div>
+          <div class="bg-white border border-black/10 p-3"><div class="text-2xl font-bold">{preview.eligible.filter((w) => dupKeys.has(w.dedupKey)).length}</div><div class="text-[0.7rem] uppercase tracking-wider text-ink/70">ja existents</div></div>
+          <div class="bg-white border border-black/10 p-3"><div class="text-2xl font-bold">{preview.skippedOld}</div><div class="text-[0.7rem] uppercase tracking-wider text-ink/70">anteriors (fora)</div></div>
+          <div class="bg-white border border-black/10 p-3"><div class="text-2xl font-bold">{preview.totalRows}</div><div class="text-[0.7rem] uppercase tracking-wider text-ink/70">total al fitxer</div></div>
+        </div>
+
+        <div class="overflow-x-auto border border-black/10 mb-5">
+          <table class="w-full text-sm">
+            <thead class="bg-cream text-[0.7rem] uppercase tracking-wider text-ink/70">
+              <tr><th class="text-left p-2">Data</th><th class="text-left p-2">Parella</th><th class="text-left p-2">Idioma</th><th class="text-left p-2">Lloc</th><th class="text-left p-2">Estat</th></tr>
+            </thead>
+            <tbody>
+              {preview.eligible.map((w) => {
+                const dup = dupKeys.has(w.dedupKey);
+                return (
+                  <tr class="border-t border-black/5">
+                    <td class="p-2 whitespace-nowrap">{w.weddingDateIso}</td>
+                    <td class="p-2">{fmtPair(w)}</td>
+                    <td class="p-2 uppercase">{w.preferredLanguage}</td>
+                    <td class="p-2 text-ink/70">{w.venueName}</td>
+                    <td class="p-2">{dup ? <span class="text-amber-700">ja existeix · s’omet</span> : <span class="text-green-700">nova · s’importa</span>}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        <form method="POST" class="flex items-center gap-3">
+          <input type="hidden" name="action" value="import" />
+          <textarea name="csvText" class="hidden">{csvText}</textarea>
+          <button type="submit" class="bg-gold text-ink font-bold px-6 py-3 text-xs tracking-[0.15em] uppercase hover:bg-ink hover:text-white transition-colors">
+            Importar {preview.eligible.filter((w) => !dupKeys.has(w.dedupKey)).length} bodes
+          </button>
+          <a href="/admin/bookings/import" class="text-sm text-ink/70 hover:text-gold">Cancel·lar</a>
+        </form>
+      </div>
+    )}
+
+    {mode === 'done' && result && (
+      <div class="bg-white border border-black/10 p-6">
+        <p class="text-lg font-bold mb-3">Importació completada</p>
+        <ul class="text-sm space-y-1 mb-4">
+          <li>✅ Importades: <strong>{result.imported}</strong></li>
+          <li>↪️ Omeses (ja existien): <strong>{result.skippedDup}</strong></li>
+          {result.failed > 0 && <li class="text-red-700">⚠️ Errors: <strong>{result.failed}</strong></li>}
+        </ul>
+        {result.errors.length > 0 && (
+          <pre class="text-xs bg-red-50 border border-red-200 p-3 overflow-x-auto whitespace-pre-wrap">{result.errors.join('\n')}</pre>
+        )}
+        <div class="mt-4 flex gap-3">
+          <a href="/admin/bookings" class="bg-ink text-white font-bold px-6 py-3 text-xs tracking-[0.15em] uppercase hover:bg-gold hover:text-ink transition-colors">Veure reserves</a>
+          <a href="/admin/bookings/import" class="text-sm text-ink/70 hover:text-gold self-center">Importar un altre</a>
+        </div>
+      </div>
+    )}
+  </div>
+</AdminLayout>
