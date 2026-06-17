@@ -56,11 +56,14 @@ const showPlaceholders = !showingLive && import.meta.env.DEV;
                   target="_blank"
                   rel="noopener"
                   class="relative block aspect-square overflow-hidden group"
-                  aria-label={alt}
                 >
                   <img
                     src={p.thumbnailUrl}
+                    srcset={p.thumbnailSrcset || undefined}
+                    sizes="(min-width: 768px) 25vw, 50vw"
                     alt={alt}
+                    width="640"
+                    height="640"
                     class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                     decoding="async"
