@@ -44,7 +44,7 @@ const jsonLd = [
 >
   <Section bg="cream" class="pt-32">
     <div class="max-w-6xl mx-auto">
-      <nav aria-label="Breadcrumb" class="text-xs text-ink/60 mb-6 text-center">
+      <nav aria-label="Breadcrumb" class="text-xs text-ink/70 mb-6 text-center">
         <a href="/en/blog" class="hover:text-gold">Blog</a>
         <span class="mx-2 opacity-50">·</span>
         <span>{meta.en}</span>
@@ -85,15 +85,15 @@ const jsonLd = [
                 <div class="w-full aspect-[4/3] bg-cream flex items-center justify-center text-ink/30 text-sm">Coming soon</div>
               )}
               <div class="p-6">
-                <p class="text-[0.7rem] font-bold tracking-[0.18em] uppercase text-gold mb-2">
+                <p class="text-[0.7rem] font-bold tracking-[0.18em] uppercase text-gold-deep mb-2">
                   {BLOG_CATEGORIES[p.category].en}
-                  {p.readingTime ? <span class="text-ink/50"> · {p.readingTime} min</span> : null}
+                  {p.readingTime ? <span class="text-ink/70"> · {p.readingTime} min</span> : null}
                 </p>
                 <h2 class="font-display text-xl font-bold leading-tight mb-3 group-hover:text-gold transition-colors">
                   {p.title}
                 </h2>
                 {p.publishedAt && (
-                  <p class="text-xs text-ink/60">{fmtDate(p.publishedAt)}</p>
+                  <p class="text-xs text-ink/70">{fmtDate(p.publishedAt)}</p>
                 )}
               </div>
             </a>

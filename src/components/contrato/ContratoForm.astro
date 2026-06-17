@@ -75,11 +75,11 @@ const consentChannels: Array<{
       <!-- ─── Section 1: Day operational details ──────────────────── -->
       <fieldset class="space-y-6">
         <legend class="font-display text-xl md:text-2xl font-bold mb-2">{t('contrato.section.day.heading')}</legend>
-        <p class="text-sm text-ink/60 -mt-1">{t('contrato.section.day.intro')}</p>
+        <p class="text-sm text-ink/70 -mt-1">{t('contrato.section.day.intro')}</p>
 
         <label class="block">
           <span class="text-sm font-semibold text-ink/70">{t('contrato.field.languageBetween')}</span>
-          <span class="block text-xs text-ink/50 mt-0.5">{t('contrato.field.languageBetween.help')}</span>
+          <span class="block text-xs text-ink/70 mt-0.5">{t('contrato.field.languageBetween.help')}</span>
           <input name="languageBetween" maxlength="80" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
         </label>
 
@@ -99,12 +99,12 @@ const consentChannels: Array<{
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label class="block">
             <span class="text-sm font-semibold text-ink/70">{t('contrato.field.c1PrepAddress')}</span>
-            <span class="block text-xs text-ink/50 mt-0.5">{t('contrato.field.prepAddress.help')}</span>
+            <span class="block text-xs text-ink/70 mt-0.5">{t('contrato.field.prepAddress.help')}</span>
             <input name="c1PrepAddress" maxlength="300" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
           </label>
           <label class="block">
             <span class="text-sm font-semibold text-ink/70">{t('contrato.field.c2PrepAddress')}</span>
-            <span class="block text-xs text-ink/50 mt-0.5">{t('contrato.field.prepAddress.help')}</span>
+            <span class="block text-xs text-ink/70 mt-0.5">{t('contrato.field.prepAddress.help')}</span>
             <input name="c2PrepAddress" maxlength="300" class="mt-1.5 w-full px-3 py-2.5 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
           </label>
         </div>
@@ -127,7 +127,7 @@ const consentChannels: Array<{
 
         <div class="pt-4 border-t border-ink/10">
           <p class="text-sm font-semibold text-ink/70 mb-1">{t('contrato.field.firstLook')} *</p>
-          <p class="text-xs text-ink/55 mb-3 leading-relaxed">{t('contrato.field.firstLook.help')}</p>
+          <p class="text-xs text-ink/70 mb-3 leading-relaxed">{t('contrato.field.firstLook.help')}</p>
           <div class="flex flex-wrap gap-6">
             {firstLookOptions.map((opt) => (
               <label class="flex items-center gap-2 cursor-pointer">
@@ -176,7 +176,7 @@ const consentChannels: Array<{
         >
           {t('contrato.submit')}
         </button>
-        <p class="text-sm text-ink/60 mt-4 max-w-xl">{t('contrato.submit.microcopy')}</p>
+        <p class="text-sm text-ink/70 mt-4 max-w-xl">{t('contrato.submit.microcopy')}</p>
       </div>
     </form>
   </div>

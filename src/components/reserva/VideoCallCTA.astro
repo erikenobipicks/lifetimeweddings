@@ -28,7 +28,7 @@ const bookingUrl = SITE.bookingUrl?.trim() || null;
 
 <section class="px-6 md:px-12 py-20 md:py-28 bg-cream text-ink">
   <div class="max-w-3xl mx-auto text-center">
-    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-4">
+    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold-deep mb-4">
       {t('reserva.videocall.eyebrow')}
     </p>
     <h2 class="font-display text-3xl md:text-4xl font-bold mb-6 leading-tight">
@@ -51,12 +51,12 @@ const bookingUrl = SITE.bookingUrl?.trim() || null;
           </svg>
           <span>{t('reserva.videocall.bookCta')}</span>
         </a>
-        <p class="text-xs text-ink/55 mt-5">
+        <p class="text-xs text-ink/70 mt-5">
           {t('reserva.videocall.orWhatsapp')} <a
             href={whatsappLink}
             target="_blank"
             rel="noopener"
-            class="text-gold hover:underline"
+            class="text-gold-deep hover:underline"
           >{t('reserva.videocall.whatsappLink')}</a>
         </p>
       </>
@@ -73,6 +73,6 @@ const bookingUrl = SITE.bookingUrl?.trim() || null;
         <span>{t('reserva.videocall.cta')}</span>
       </a>
     )}
-    <p class="text-xs text-ink/50 mt-4">{t('reserva.videocall.subnote')}</p>
+    <p class="text-xs text-ink/70 mt-4">{t('reserva.videocall.subnote')}</p>
   </div>
 </section>

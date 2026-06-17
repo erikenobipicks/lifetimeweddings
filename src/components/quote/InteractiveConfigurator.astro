@@ -106,7 +106,7 @@ const noSelection = t('quote.configurator.empty');
   data-filter={filterMode}
 >
   <div class="max-w-4xl mx-auto">
-    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3 text-center">
+    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold-deep mb-3 text-center">
       {t('quote.configurator.eyebrow')}
     </p>
     <h2 class="font-display text-2xl md:text-3xl font-bold text-center mb-3">{heading}</h2>
@@ -131,7 +131,7 @@ const noSelection = t('quote.configurator.empty');
           any combo and vice versa (shared name="pack"). */}
       <div>
         <p class="text-xs font-bold tracking-[0.18em] uppercase text-ink/70 mb-1">{basePacksLabel}</p>
-        <p class="text-xs text-ink/55 mb-3">{t('quote.configurator.singleChoiceNote')}</p>
+        <p class="text-xs text-ink/70 mb-3">{t('quote.configurator.singleChoiceNote')}</p>
         <div class="grid sm:grid-cols-2 gap-3">
           {basePacks.map((p) => (
             <label
@@ -150,11 +150,11 @@ const noSelection = t('quote.configurator.empty');
                 />
                 <div class="flex-1">
                   <p class="font-bold text-ink leading-tight">{p.name[lang]}</p>
-                  <p class="text-[0.7rem] uppercase tracking-wider text-ink/55 mt-1">
+                  <p class="text-[0.7rem] uppercase tracking-wider text-ink/70 mt-1">
                     {p.type === 'photo' ? t('quote.configurator.typePhoto') : p.type === 'video' ? t('quote.configurator.typeVideo') : t('quote.configurator.typeCombo')}
                   </p>
                 </div>
-                <p class="font-display font-bold text-gold whitespace-nowrap">{p.price}</p>
+                <p class="font-display font-bold text-gold-deep whitespace-nowrap">{p.price}</p>
               </div>
             </label>
           ))}
@@ -184,7 +184,7 @@ const noSelection = t('quote.configurator.empty');
                   <p class="font-bold text-ink leading-tight">{p.name[lang]}</p>
                   <p class="text-[0.7rem] uppercase tracking-wider text-gold/80 mt-1">Combo</p>
                 </div>
-                <p class="font-display font-bold text-gold whitespace-nowrap">{p.price}</p>
+                <p class="font-display font-bold text-gold-deep whitespace-nowrap">{p.price}</p>
               </div>
             </label>
           ))}
@@ -194,7 +194,7 @@ const noSelection = t('quote.configurator.empty');
             type="button"
             id="qc-clear-pack"
             hidden
-            class="mt-3 text-xs text-ink/60 hover:text-gold underline"
+            class="mt-3 text-xs text-ink/70 hover:text-gold underline"
           >
             {t('quote.configurator.clearPack')}
           </button>
@@ -219,9 +219,9 @@ const noSelection = t('quote.configurator.empty');
                 />
                 <div class="flex-1">
                   <p class="text-ink">{x.name[lang]}</p>
-                  {x.note && <p class="text-xs text-ink/55 mt-0.5">{x.note[lang]}</p>}
+                  {x.note && <p class="text-xs text-ink/70 mt-0.5">{x.note[lang]}</p>}
                 </div>
-                <p class="font-bold text-gold whitespace-nowrap">{x.price}</p>
+                <p class="font-bold text-gold-deep whitespace-nowrap">{x.price}</p>
               </label>
             </li>
           ))}
@@ -237,14 +237,14 @@ const noSelection = t('quote.configurator.empty');
         {adminDiscountCents > 0 && (
           <div class="flex justify-between text-sm">
             <span class="text-ink/70">{discountLabel}</span>
-            <span class="font-bold text-gold">−{formatEuros(adminDiscountCents)}</span>
+            <span class="font-bold text-gold-deep">−{formatEuros(adminDiscountCents)}</span>
           </div>
         )}
         <div class="flex justify-between items-baseline pt-2 border-t border-black/10">
           <span class="font-display text-xl font-bold">{totalLabel}</span>
-          <span id="qc-total" class="font-display text-3xl font-bold text-gold">0 €</span>
+          <span id="qc-total" class="font-display text-3xl font-bold text-gold-deep">0 €</span>
         </div>
-        <p class="text-xs text-ink/55 mt-2">{t('quote.configurator.paymentNote')}</p>
+        <p class="text-xs text-ink/70 mt-2">{t('quote.configurator.paymentNote')}</p>
       </div>
 
       {!isClosed && (
@@ -268,7 +268,7 @@ const noSelection = t('quote.configurator.empty');
           <button
             type="submit"
             id="qc-submit"
-            class="w-full bg-ink text-white py-4 text-xs font-bold tracking-[0.18em] uppercase hover:bg-gold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            class="w-full bg-ink text-white py-4 text-xs font-bold tracking-[0.18em] uppercase hover:bg-gold hover:text-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitLabel}
           </button>
@@ -282,7 +282,7 @@ const noSelection = t('quote.configurator.empty');
           type="button"
           id="qc-toggle-others"
           data-show={filterMode === 'photo' ? 'video' : 'photo'}
-          class="text-xs font-bold tracking-[0.18em] uppercase underline text-ink/60 hover:text-gold"
+          class="text-xs font-bold tracking-[0.18em] uppercase underline text-ink/70 hover:text-gold"
         >
           {filterMode === 'photo' ? t('quote.configurator.toggleSeeVideo') : t('quote.configurator.toggleSeePhoto')}
         </button>

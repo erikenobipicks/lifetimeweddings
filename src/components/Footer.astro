@@ -8,37 +8,37 @@ const t = useTranslations(lang);
 const year = new Date().getFullYear();
 ---
 
-<footer class="bg-ink text-white/60 py-10 px-6 text-center text-sm">
+<footer class="bg-ink text-white/80 py-10 px-6 text-center text-sm">
   <div class="max-w-5xl mx-auto flex flex-col gap-3">
     <p class="font-display text-white text-lg">Lifetime Weddings</p>
 
     <p>
       <a href={`mailto:${SITE.email}`} class="text-gold hover:underline">{SITE.email}</a>
-      <span class="mx-2 opacity-50">·</span>
+      <span class="mx-2 opacity-70" aria-hidden="true">·</span>
       <a href={`tel:${SITE.phone}`} class="text-gold hover:underline">{SITE.phoneDisplay}</a>
     </p>
 
     <p>
       <a href={SITE.social.instagram} target="_blank" rel="noopener" class="hover:text-gold">Instagram</a>
-      <span class="mx-2 opacity-50">·</span>
+      <span class="mx-2 opacity-70" aria-hidden="true">·</span>
       <a href={SITE.social.youtube} target="_blank" rel="noopener" class="hover:text-gold">YouTube</a>
-      <span class="mx-2 opacity-50">·</span>
+      <span class="mx-2 opacity-70" aria-hidden="true">·</span>
       <a href={SITE.social.pinterest} target="_blank" rel="noopener" class="hover:text-gold">Pinterest</a>
     </p>
 
-    <p class="text-xs opacity-70 mt-1">
+    <p class="text-xs opacity-90 mt-1">
       {lang === 'ca' ? 'Responem de dl. a dv., de 9 a 19h' : lang === 'es' ? 'Respondemos de L a V, de 9 a 19h' : 'We reply Mon–Fri, 9am–7pm'}
-      <span class="mx-2 opacity-50">·</span>
+      <span class="mx-2 opacity-70" aria-hidden="true">·</span>
       {lang === 'ca' ? 'Pagament fraccionat disponible' : lang === 'es' ? 'Pago fraccionado disponible' : 'Split payment available'}
     </p>
 
-    <nav aria-label="Legal" class="text-xs opacity-70">
+    <nav aria-label="Legal" class="text-xs opacity-90">
       <a href={localePath(lang, '/legal')} class="hover:text-gold">{t('footer.legal')}</a>
-      <span class="mx-2 opacity-50">·</span>
+      <span class="mx-2 opacity-70" aria-hidden="true">·</span>
       <a href={localePath(lang, '/privacidad')} class="hover:text-gold">{t('footer.privacy')}</a>
-      <span class="mx-2 opacity-50">·</span>
+      <span class="mx-2 opacity-70" aria-hidden="true">·</span>
       <a href={localePath(lang, '/cookies')} class="hover:text-gold">{t('footer.cookies')}</a>
-      <span class="mx-2 opacity-50">·</span>
+      <span class="mx-2 opacity-70" aria-hidden="true">·</span>
       <button
         type="button"
         data-cookie-reopen
@@ -48,7 +48,7 @@ const year = new Date().getFullYear();
       </button>
     </nav>
 
-    <p class="opacity-60 text-xs mt-2">© {SITE.copyrightSince}–{year} Lifetime Weddings. {t('footer.rights')}</p>
+    <p class="opacity-90 text-xs mt-2">© {SITE.copyrightSince}–{year} Lifetime Weddings. {t('footer.rights')}</p>
   </div>
 </footer>
 

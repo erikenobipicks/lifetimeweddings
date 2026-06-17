@@ -156,7 +156,7 @@ const waLink = `${WHATSAPP_BASE}&text=${waMessage}`;
       <p class="text-ink/75 leading-relaxed mb-6 text-base md:text-lg">{copy.whatItOffersIntro}</p>
       <ul class="space-y-4">
         {copy.whatItOffersBullets.map((b) => (
-          <li class="flex gap-3"><span class="text-gold font-bold flex-shrink-0 mt-1">·</span><span class="text-ink/85 leading-relaxed">{b}</span></li>
+          <li class="flex gap-3"><span class="text-gold-deep font-bold flex-shrink-0 mt-1">·</span><span class="text-ink/85 leading-relaxed">{b}</span></li>
         ))}
       </ul>
     </div>
@@ -181,11 +181,11 @@ const waLink = `${WHATSAPP_BASE}&text=${waMessage}`;
       <p class="text-ink/75 leading-relaxed mb-6 text-base md:text-lg">{copy.whyChooseIntro}</p>
       <ol class="space-y-5 mb-10">
         {copy.whyChoosePoints.map((p, i) => (
-          <li class="flex gap-4"><span class="font-display text-2xl text-gold font-bold flex-shrink-0">{i + 1}.</span><span class="text-ink/85 leading-relaxed pt-1">{p}</span></li>
+          <li class="flex gap-4"><span class="font-display text-2xl text-gold-deep font-bold flex-shrink-0">{i + 1}.</span><span class="text-ink/85 leading-relaxed pt-1">{p}</span></li>
         ))}
       </ol>
       <div class="text-center pt-4">
-        <a href={waLink} target="_blank" rel="noopener" class="inline-block bg-ink text-white border-2 border-ink px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-gold hover:border-gold transition-colors">Hablemos por WhatsApp</a>
+        <a href={waLink} target="_blank" rel="noopener" class="inline-block bg-ink text-white border-2 border-ink px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-gold hover:text-ink hover:border-gold transition-colors">Hablemos por WhatsApp</a>
       </div>
     </div>
   </Section>

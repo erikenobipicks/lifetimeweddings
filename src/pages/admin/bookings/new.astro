@@ -145,7 +145,7 @@ const extrasCatalog = EXTRAS.map((x) => ({
 <AdminLayout title="Nova reserva">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
     <h1 class="font-display text-2xl sm:text-3xl font-bold">Nova reserva</h1>
-    <a href="/admin/bookings" class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold whitespace-nowrap">← Tornar al llistat</a>
+    <a href="/admin/bookings" class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold whitespace-nowrap">← Tornar al llistat</a>
   </div>
 
   {error && (
@@ -171,24 +171,24 @@ const extrasCatalog = EXTRAS.map((x) => ({
       <legend class="font-display text-xl font-bold mb-3">Parella</legend>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <label class="block">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Nom 1 *</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom 1 *</span>
           <input name="coupleName1" required value={v('coupleName1')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Nom 2 *</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom 2 *</span>
           <input name="coupleName2" required value={v('coupleName2')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Email principal *</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Email principal *</span>
           <input type="email" name="coupleEmailPrimary" required value={v('coupleEmailPrimary')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
           <span class="block text-[10px] text-ink/45 mt-1">Cal per enviar el link de /reserva, la confirmació i els formularis de seguiment.</span>
         </label>
         <label class="block">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Telèfon</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Telèfon</span>
           <input name="couplePhonePrimary" value={v('couplePhonePrimary')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Idioma de la pàgina *</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Idioma de la pàgina *</span>
           <select id="preferredLanguageField" name="preferredLanguage" required class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
             {[['ca','Català'],['es','Castellano'],['en','English']].map(([code,label]) => (
               <option value={code} selected={v('preferredLanguage') === code || (!v('preferredLanguage') && code === 'ca')}>{label}</option>
@@ -202,19 +202,19 @@ const extrasCatalog = EXTRAS.map((x) => ({
       <legend class="font-display text-xl font-bold mb-3">Boda</legend>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <label class="block">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Data *</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Data *</span>
           <input type="date" name="weddingDate" required value={v('weddingDate')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Venue *</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Venue *</span>
           <input name="venueName" required value={v('venueName')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Ciutat</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Ciutat</span>
           <input name="venueCity" value={v('venueCity')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Adreça</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Adreça</span>
           <input name="venueAddress" value={v('venueAddress')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
       </div>
@@ -225,7 +225,7 @@ const extrasCatalog = EXTRAS.map((x) => ({
       <div class="bg-cream/60 border border-gold/30 p-4 md:p-5">
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Carregar des d'un pack del catàleg</span>
-          <span class="block text-[11px] text-ink/55 mb-1.5">Omple el nom, els ítems inclosos i el preu/dipòsit (30 %) segons l'idioma de la pàgina. Pots editar-ho després.</span>
+          <span class="block text-[11px] text-ink/70 mb-1.5">Omple el nom, els ítems inclosos i el preu/dipòsit (30 %) segons l'idioma de la pàgina. Pots editar-ho després.</span>
           <select id="pack-picker" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
             <option value="">— Personalitzat (no carregar) —</option>
             {PACKS.map((p) => (
@@ -236,31 +236,31 @@ const extrasCatalog = EXTRAS.map((x) => ({
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <label class="block md:col-span-2">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Nom del pack *</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom del pack *</span>
           <input id="packNameField" name="packName" required value={v('packName')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block md:col-span-2">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Descripció</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Descripció</span>
           <textarea name="packDescription" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{v('packDescription')}</textarea>
         </label>
         <label class="block">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Què inclou</span>
-          <span class="block text-[11px] text-ink/50 mb-1">una línia per ítem</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Què inclou</span>
+          <span class="block text-[11px] text-ink/70 mb-1">una línia per ítem</span>
           <textarea id="packIncludesField" name="packIncludes" rows="6" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('packIncludes')}</textarea>
         </label>
         <label class="block">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Què no inclou</span>
-          <span class="block text-[11px] text-ink/50 mb-1">una línia per ítem</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Què no inclou</span>
+          <span class="block text-[11px] text-ink/70 mb-1">una línia per ítem</span>
           <textarea name="packExcludes" rows="6" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('packExcludes')}</textarea>
         </label>
         <label class="block md:col-span-2">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Add-ons</span>
-          <span class="block text-[11px] text-ink/50 mb-1">una línia per ítem · format <code class="bg-cream px-1">Nom | preu_en_euros</code> · ex: <code class="bg-cream px-1">Àlbum 30x30 | 390</code></span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Add-ons</span>
+          <span class="block text-[11px] text-ink/70 mb-1">una línia per ítem · format <code class="bg-cream px-1">Nom | preu_en_euros</code> · ex: <code class="bg-cream px-1">Àlbum 30x30 | 390</code></span>
           <textarea id="packAddonsField" name="packAddons" rows="4" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('packAddons')}</textarea>
         </label>
         <div class="block md:col-span-2 bg-cream/60 border border-gold/30 p-4 md:p-5">
           <p class="text-xs font-bold tracking-widest uppercase text-ink/70">Extres del catàleg</p>
-          <p class="text-[11px] text-ink/55 mb-3">Marca'n els que vols incloure i s'afegiran sols a la llista d'add-ons de dalt. Marca <strong>🎁 Regal</strong> per afegir-lo a cost 0 €.</p>
+          <p class="text-[11px] text-ink/70 mb-3">Marca'n els que vols incloure i s'afegiran sols a la llista d'add-ons de dalt. Marca <strong>🎁 Regal</strong> per afegir-lo a cost 0 €.</p>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
             {EXTRAS.map((x) => (
               <div class="flex items-start gap-2 py-1.5 px-2 hover:bg-white">
@@ -278,15 +278,15 @@ const extrasCatalog = EXTRAS.map((x) => ({
           </div>
         </div>
         <label class="block">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Inversió total (€) *</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Inversió total (€) *</span>
           <input id="packPriceField" name="packPriceEuros" required inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 1500, 1.500, 1500,00 o 1.500,00" value={v('packPriceEuros')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Dipòsit (€) *</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Dipòsit (€) *</span>
           <input id="depositField" name="depositEuros" required inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 500, 500,00 o 1.500,00" value={v('depositEuros')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block md:col-span-2">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Termes de pagament</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Termes de pagament</span>
           <input id="paymentTermsField" name="paymentTerms" value={v('paymentTerms')} placeholder="50% en signar, 50% un mes abans" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
 
@@ -294,7 +294,7 @@ const extrasCatalog = EXTRAS.map((x) => ({
           <p class="text-xs font-bold tracking-widest uppercase text-ink/70 mb-3">Descompte (opcional)</p>
           <div class="flex flex-wrap items-end gap-3">
             <div>
-              <p class="text-[11px] font-bold tracking-wide uppercase text-ink/60 mb-1">Tipus</p>
+              <p class="text-[11px] font-bold tracking-wide uppercase text-ink/70 mb-1">Tipus</p>
               <div class="flex gap-3 text-sm">
                 <label class="flex items-center gap-1.5 cursor-pointer">
                   <input type="radio" name="discountType" value="percent" id="discountTypePct" class="accent-gold" checked={v('discountType') === 'percent'} />
@@ -307,7 +307,7 @@ const extrasCatalog = EXTRAS.map((x) => ({
               </div>
             </div>
             <label class="block">
-              <span class="text-[11px] font-bold tracking-wide uppercase text-ink/60">Valor</span>
+              <span class="text-[11px] font-bold tracking-wide uppercase text-ink/70">Valor</span>
               <input id="discountValueField" name="discountValue" inputmode="decimal" placeholder="0" value={v('discountValue')} class="mt-1 w-28 px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
             </label>
             <p id="discountPreview" class="text-sm text-gold font-semibold self-end pb-2"></p>
@@ -316,35 +316,35 @@ const extrasCatalog = EXTRAS.map((x) => ({
 
         <div class="block md:col-span-2 bg-cream/60 border border-gold/30 p-4 md:p-5">
           <p class="text-xs font-bold tracking-widest uppercase text-ink/70 mb-1">💶 Calculadora de pagament</p>
-          <p class="text-[11px] text-ink/55 mb-3">Suma automàticament <strong>Inversió total + add-ons</strong>. La part en <strong>efectiu</strong> es queda fora de la factura (estalvi del 21 % sobre aquell tram). Apreta el botó <strong>↻</strong> al costat d'un camp per completar-lo amb el que falta. <em>Inserir text al pla de pagament</em> copia el desglossament al camp de dalt.</p>
+          <p class="text-[11px] text-ink/70 mb-3">Suma automàticament <strong>Inversió total + add-ons</strong>. La part en <strong>efectiu</strong> es queda fora de la factura (estalvi del 21 % sobre aquell tram). Apreta el botó <strong>↻</strong> al costat d'un camp per completar-lo amb el que falta. <em>Inserir text al pla de pagament</em> copia el desglossament al camp de dalt.</p>
 
           <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
             <label class="block">
-              <span class="text-[11px] font-bold tracking-wide uppercase text-ink/60">Reserva (€)</span>
+              <span class="text-[11px] font-bold tracking-wide uppercase text-ink/70">Reserva (€)</span>
               <div class="mt-1 flex">
                 <input id="paySchedule0" data-pay-slot="0" type="number" min="0" step="1" class="pay-input flex-1 min-w-0 px-2 py-1.5 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none" />
-                <button type="button" data-fill-slot="0" title="Completar amb la diferència" class="pay-fill px-2 border border-l-0 border-black/15 bg-cream hover:bg-gold hover:text-white text-sm transition-colors">↻</button>
+                <button type="button" data-fill-slot="0" title="Completar amb la diferència" class="pay-fill px-2 border border-l-0 border-black/15 bg-cream hover:bg-gold hover:text-ink text-sm transition-colors">↻</button>
               </div>
             </label>
             <label class="block">
-              <span class="text-[11px] font-bold tracking-wide uppercase text-ink/60">2n pagament (€)</span>
+              <span class="text-[11px] font-bold tracking-wide uppercase text-ink/70">2n pagament (€)</span>
               <div class="mt-1 flex">
                 <input id="paySchedule1" data-pay-slot="1" type="number" min="0" step="1" class="pay-input flex-1 min-w-0 px-2 py-1.5 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none" />
-                <button type="button" data-fill-slot="1" title="Completar amb la diferència" class="pay-fill px-2 border border-l-0 border-black/15 bg-cream hover:bg-gold hover:text-white text-sm transition-colors">↻</button>
+                <button type="button" data-fill-slot="1" title="Completar amb la diferència" class="pay-fill px-2 border border-l-0 border-black/15 bg-cream hover:bg-gold hover:text-ink text-sm transition-colors">↻</button>
               </div>
             </label>
             <label class="block">
-              <span class="text-[11px] font-bold tracking-wide uppercase text-ink/60">3r pagament (€)</span>
+              <span class="text-[11px] font-bold tracking-wide uppercase text-ink/70">3r pagament (€)</span>
               <div class="mt-1 flex">
                 <input id="paySchedule2" data-pay-slot="2" type="number" min="0" step="1" class="pay-input flex-1 min-w-0 px-2 py-1.5 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none" />
-                <button type="button" data-fill-slot="2" title="Completar amb la diferència" class="pay-fill px-2 border border-l-0 border-black/15 bg-cream hover:bg-gold hover:text-white text-sm transition-colors">↻</button>
+                <button type="button" data-fill-slot="2" title="Completar amb la diferència" class="pay-fill px-2 border border-l-0 border-black/15 bg-cream hover:bg-gold hover:text-ink text-sm transition-colors">↻</button>
               </div>
             </label>
             <label class="block">
-              <span class="text-[11px] font-bold tracking-wide uppercase text-ink/60">En efectiu (€)</span>
+              <span class="text-[11px] font-bold tracking-wide uppercase text-ink/70">En efectiu (€)</span>
               <div class="mt-1 flex">
                 <input id="payCash" data-pay-slot="cash" type="number" min="0" step="1" class="pay-input flex-1 min-w-0 px-2 py-1.5 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none" />
-                <button type="button" data-fill-slot="cash" title="Completar amb la diferència" class="pay-fill px-2 border border-l-0 border-black/15 bg-cream hover:bg-gold hover:text-white text-sm transition-colors">↻</button>
+                <button type="button" data-fill-slot="cash" title="Completar amb la diferència" class="pay-fill px-2 border border-l-0 border-black/15 bg-cream hover:bg-gold hover:text-ink text-sm transition-colors">↻</button>
               </div>
               <span class="block text-[10px] text-ink/45 mt-0.5">tram fora de factura (estalvi IVA)</span>
             </label>
@@ -352,29 +352,29 @@ const extrasCatalog = EXTRAS.map((x) => ({
 
           <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs bg-white border border-black/10 p-3">
             <div>
-              <p class="text-ink/55">Inversió pack</p>
+              <p class="text-ink/70">Inversió pack</p>
               <p id="calcPackTotal" class="font-bold text-ink">0 €</p>
             </div>
             <div>
-              <p class="text-ink/55">Suma add-ons</p>
+              <p class="text-ink/70">Suma add-ons</p>
               <p id="calcAddonsTotal" class="font-bold text-ink">0 €</p>
             </div>
             <div>
-              <p class="text-ink/55">Total amb IVA</p>
+              <p class="text-ink/70">Total amb IVA</p>
               <p id="calcGrossTotal" class="font-bold text-ink">0 €</p>
             </div>
             <div>
-              <p class="text-ink/55">Total a cobrar <span class="text-[10px]">(amb efectiu)</span></p>
+              <p class="text-ink/70">Total a cobrar <span class="text-[10px]">(amb efectiu)</span></p>
               <p id="calcNetTotal" class="font-bold text-gold">0 €</p>
             </div>
-            <div class="col-span-2 md:col-span-4 text-[10px] text-ink/55 border-t border-black/5 pt-2">
+            <div class="col-span-2 md:col-span-4 text-[10px] text-ink/70 border-t border-black/5 pt-2">
               Base imposable: <span id="calcBase">0 €</span> · IVA 21 %: <span id="calcVat">0 €</span> · Estalvi efectiu: <span id="calcCashSaving">0 €</span>
               · Pagaments programats: <span id="calcScheduled">0 €</span>
               <span id="calcRemaining" class="ml-2 font-bold"></span>
             </div>
           </div>
 
-          <button type="button" id="insertPaymentPlanBtn" class="mt-3 inline-block bg-ink text-white px-3 py-2 text-[11px] font-bold tracking-widest uppercase hover:bg-gold transition-colors">
+          <button type="button" id="insertPaymentPlanBtn" class="mt-3 inline-block bg-ink text-white px-3 py-2 text-[11px] font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">
             Inserir text al pla de pagament
           </button>
         </div>
@@ -384,36 +384,36 @@ const extrasCatalog = EXTRAS.map((x) => ({
     <fieldset class="space-y-4">
       <legend class="font-display text-xl font-bold mb-3">Personalització</legend>
       <label class="block">
-        <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Intro personalitzada</span>
-        <span class="block text-[11px] text-ink/50 mb-1">opcional, sobre l'intro standard del hero</span>
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Intro personalitzada</span>
+        <span class="block text-[11px] text-ink/70 mb-1">opcional, sobre l'intro standard del hero</span>
         <textarea name="customIntro" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{v('customIntro')}</textarea>
       </label>
       <label class="block">
-        <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Notes internes</span>
-        <span class="block text-[11px] text-ink/50 mb-1">només per a tu — referrer, acords especials, context. <strong>Mai es mostra a la parella</strong>.</span>
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Notes internes</span>
+        <span class="block text-[11px] text-ink/70 mb-1">només per a tu — referrer, acords especials, context. <strong>Mai es mostra a la parella</strong>.</span>
         <textarea name="internalNotes" rows="3" placeholder="ex: ve de part de Maria & Joan (boda 2024) · descompte 10%" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{v('internalNotes')}</textarea>
       </label>
       <div class="border-t border-black/10 pt-4">
-        <p class="text-xs font-bold tracking-widest uppercase text-ink/60 mb-3">Testimoni de referència (opcional)</p>
+        <p class="text-xs font-bold tracking-widest uppercase text-ink/70 mb-3">Testimoni de referència (opcional)</p>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label class="block md:col-span-2">
-            <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Quote</span>
+            <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Quote</span>
             <textarea name="testimonialQuote" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{v('testimonialQuote')}</textarea>
           </label>
           <label class="block">
-            <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Autor</span>
+            <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Autor</span>
             <input name="testimonialAuthor" value={v('testimonialAuthor')} placeholder="ex: Cristina i Daniel" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
           </label>
           <label class="block">
-            <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Context</span>
+            <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Context</span>
             <input name="testimonialContext" value={v('testimonialContext')} placeholder="ex: Mas la Boella, Tarragona" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
           </label>
         </div>
       </div>
       <div class="border-t border-black/10 pt-4">
         <label class="block max-w-md">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Vídeo destacat</span>
-          <span class="block text-[11px] text-ink/50 mb-1">opcional · si es deixa buit, s'usa el vídeo per defecte (Elena i Jordi)</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Vídeo destacat</span>
+          <span class="block text-[11px] text-ink/70 mb-1">opcional · si es deixa buit, s'usa el vídeo per defecte (Elena i Jordi)</span>
           <select name="flagshipVideoId" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
             <option value="">— Per defecte (Elena i Jordi) —</option>
             <optgroup label="Tràilers">
@@ -439,21 +439,21 @@ const extrasCatalog = EXTRAS.map((x) => ({
 
     <fieldset class="space-y-4">
       <legend class="font-display text-xl font-bold mb-1">Caramel / Incentiu</legend>
-      <p class="text-[11px] text-ink/50 -mt-2 mb-3">opcional · apareix a la proposta per motivar la parella a confirmar. Si queda buit, no es mostra res.</p>
+      <p class="text-[11px] text-ink/70 -mt-2 mb-3">opcional · apareix a la proposta per motivar la parella a confirmar. Si queda buit, no es mostra res.</p>
       <label class="block">
-        <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Missatge del caramel</span>
-        <span class="block text-[11px] text-ink/50 mb-1">Ex: "Us regalareu una sessió preboda a la llum daurada del delta de l'Ebre, sense cost addicional."</span>
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Missatge del caramel</span>
+        <span class="block text-[11px] text-ink/70 mb-1">Ex: "Us regalareu una sessió preboda a la llum daurada del delta de l'Ebre, sense cost addicional."</span>
         <textarea name="incentiveBody" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{v('incentiveBody')}</textarea>
       </label>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <label class="block">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Preu original (€) — per tatxar</span>
-          <span class="block text-[11px] text-ink/50 mb-1">opcional · si és més gran que la inversió, es mostra tatxat</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Preu original (€) — per tatxar</span>
+          <span class="block text-[11px] text-ink/70 mb-1">opcional · si és més gran que la inversió, es mostra tatxat</span>
           <input name="incentiveOriginalPriceEuros" inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 3500 o 3.500,00" value={v('incentiveOriginalPriceEuros')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Data límit de l'oferta</span>
-          <span class="block text-[11px] text-ink/50 mb-1">opcional · "vàlid si reserveu abans del…"</span>
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Data límit de l'oferta</span>
+          <span class="block text-[11px] text-ink/70 mb-1">opcional · "vàlid si reserveu abans del…"</span>
           <input type="date" name="incentiveDeadline" value={v('incentiveDeadline')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
         </label>
       </div>
@@ -462,16 +462,16 @@ const extrasCatalog = EXTRAS.map((x) => ({
     <fieldset>
       <legend class="font-display text-xl font-bold mb-3">Vigència</legend>
       <label class="block max-w-sm">
-        <span class="text-xs font-bold tracking-widest uppercase text-ink/60">Vàlid fins (opcional)</span>
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Vàlid fins (opcional)</span>
         <input type="date" name="expiresAt" value={v('expiresAt')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
       </label>
     </fieldset>
 
     <div class="flex items-center gap-4 pt-4 border-t border-black/10">
-      <button type="submit" class="bg-ink text-white px-6 py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold transition-colors">
+      <button type="submit" class="bg-ink text-white px-6 py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">
         Crear (estat: draft)
       </button>
-      <a href="/admin/bookings" class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold">Cancel·lar</a>
+      <a href="/admin/bookings" class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold">Cancel·lar</a>
     </div>
   </form>
 

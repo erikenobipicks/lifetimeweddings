@@ -77,7 +77,7 @@ const deadlineStr = incentiveDeadline
 
 <section class="px-6 md:px-12 py-20 md:py-28 bg-white text-ink">
   <div class="max-w-5xl mx-auto">
-    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">
+    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold-deep mb-3">
       {t('reserva.pack.eyebrow')}
     </p>
     <h2 class="font-display text-3xl md:text-4xl font-bold mb-4">
@@ -98,7 +98,7 @@ const deadlineStr = incentiveDeadline
             <ul class="space-y-2">
               {includes.map((item) => (
                 <li class="flex gap-3 leading-relaxed">
-                  <span class="text-gold flex-shrink-0 mt-1.5" aria-hidden="true">✓</span>
+                  <span class="text-gold-deep flex-shrink-0 mt-1.5" aria-hidden="true">✓</span>
                   <span>{item}</span>
                 </li>
               ))}
@@ -139,7 +139,7 @@ const deadlineStr = incentiveDeadline
       <div class="md:col-span-2 space-y-4">
         {showIncentive && (
           <div class="bg-gold/10 border border-gold/40 p-6">
-            <p class="text-[10px] font-bold tracking-[0.22em] uppercase text-gold mb-1">
+            <p class="text-[10px] font-bold tracking-[0.22em] uppercase text-gold-deep mb-1">
               {t('reserva.incentive.eyebrow')}
             </p>
             <p class="font-display text-lg font-bold text-ink mb-3">
@@ -149,12 +149,12 @@ const deadlineStr = incentiveDeadline
               {incentiveBody}
             </p>
             {savingsAmount > 0 && (
-              <p class="text-sm font-semibold text-gold">
+              <p class="text-sm font-semibold text-gold-deep">
                 {tpl(t('reserva.incentive.save'), { amount: formatPrice(savingsAmount, lang) })}
               </p>
             )}
             {deadlineStr && (
-              <p class="text-xs text-ink/60 mt-2">
+              <p class="text-xs text-ink/70 mt-2">
                 {tpl(t('reserva.incentive.deadline'), { date: deadlineStr })}
               </p>
             )}
@@ -163,7 +163,7 @@ const deadlineStr = incentiveDeadline
 
         <div class="bg-cream p-8 md:p-10 border-l-4 border-gold">
           <div class="mb-6">
-            <p class="text-xs font-semibold tracking-[0.15em] uppercase text-ink/50 mb-2">
+            <p class="text-xs font-semibold tracking-[0.15em] uppercase text-ink/70 mb-2">
               {t('reserva.pack.invest')}
             </p>
             {showStrikethrough && (
@@ -178,19 +178,19 @@ const deadlineStr = incentiveDeadline
               {formatPrice(effectivePriceCents, lang)}
             </p>
             {hasDiscount && (
-              <p class="text-sm font-semibold text-gold mt-1">
+              <p class="text-sm font-semibold text-gold-deep mt-1">
                 {t('reserva.pack.discount')} −{formatPrice(discountCents, lang)}
               </p>
             )}
           </div>
           <dl class="space-y-3 text-sm border-t border-ink/10 pt-6">
             <div class="flex justify-between gap-4">
-              <dt class="text-ink/60">{t('reserva.pack.deposit')}</dt>
+              <dt class="text-ink/70">{t('reserva.pack.deposit')}</dt>
               <dd class="font-semibold">{formatPrice(depositCents, lang)}</dd>
             </div>
             {paymentTerms && (
               <div class="flex justify-between gap-4">
-                <dt class="text-ink/60">{t('reserva.pack.terms')}</dt>
+                <dt class="text-ink/70">{t('reserva.pack.terms')}</dt>
                 <dd class="text-right">{paymentTerms}</dd>
               </div>
             )}

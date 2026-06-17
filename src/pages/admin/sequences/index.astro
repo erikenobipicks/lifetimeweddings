@@ -36,14 +36,14 @@ function triggerLabel(s: EmailSequence): string {
         <form method="POST" action="/api/admin/sequences/seed-defaults">
           <button
             type="submit"
-            class="border border-gold text-gold text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-gold hover:text-white transition-colors whitespace-nowrap"
+            class="border border-gold text-gold text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-gold hover:text-ink transition-colors whitespace-nowrap"
             title={`Crea ${missingDefaults.length} plantilla(es) per defecte (recordatori 2n pagament, etc.)`}
           >
             ✨ Crear plantilles per defecte
           </button>
         </form>
       )}
-      <a href="/admin/sequences/new" class="bg-ink text-white text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-gold transition-colors whitespace-nowrap">+ Nova plantilla</a>
+      <a href="/admin/sequences/new" class="bg-ink text-white text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-gold hover:text-ink transition-colors whitespace-nowrap">+ Nova plantilla</a>
     </div>
   </div>
 
@@ -78,7 +78,7 @@ function triggerLabel(s: EmailSequence): string {
   ) : (
     <div class="bg-white border border-black/10 overflow-x-auto">
       <table class="w-full text-sm">
-        <thead class="bg-cream text-ink/60 text-[0.7rem] uppercase tracking-widest">
+        <thead class="bg-cream text-ink/70 text-[0.7rem] uppercase tracking-widest">
           <tr>
             <th class="text-left px-4 py-3">Slug</th>
             <th class="text-left px-4 py-3">Quan s'envia</th>
@@ -98,7 +98,7 @@ function triggerLabel(s: EmailSequence): string {
               <td class="px-4 py-3">
                 {s.enabled
                   ? <span class="text-[0.65rem] bg-emerald-100 text-emerald-700 px-2 py-0.5 font-bold uppercase tracking-widest">Activa</span>
-                  : <span class="text-[0.65rem] bg-ink/10 text-ink/50 px-2 py-0.5 font-bold uppercase tracking-widest">Inactiva</span>}
+                  : <span class="text-[0.65rem] bg-ink/10 text-ink/70 px-2 py-0.5 font-bold uppercase tracking-widest">Inactiva</span>}
               </td>
               <td class="px-4 py-3 text-right">
                 <a href={`/admin/sequences/${s.id}`} class="text-xs text-gold hover:underline">Editar →</a>

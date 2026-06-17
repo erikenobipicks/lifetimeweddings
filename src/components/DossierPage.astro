@@ -29,10 +29,10 @@ function smallLabelFor(p: Pack): string | null {
 <!-- Hero de /packs -->
 <Section bg="cream" class="pt-32">
   <div class="max-w-3xl mx-auto text-center">
-    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-4">{t('dossier.badge')}</p>
+    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold-deep mb-4">{t('dossier.badge')}</p>
     <h1 class="font-display text-3xl md:text-5xl font-bold mb-6 leading-[1.15]">{t('dossier.title')}</h1>
     <p class="text-ink/75 leading-relaxed">{t('dossier.lead')}</p>
-    <p class="text-xs md:text-sm text-ink/60 mt-4">{t('dossier.lead2')}</p>
+    <p class="text-xs md:text-sm text-ink/70 mt-4">{t('dossier.lead2')}</p>
   </div>
 </Section>
 
@@ -62,22 +62,22 @@ function smallLabelFor(p: Pack): string | null {
                   : 'bg-white border border-black/10',
               ]}>
                 {isStar && (
-                  <span class="absolute -top-3 right-5 bg-gold text-white text-[0.65rem] md:text-[0.7rem] font-bold tracking-[0.18em] uppercase px-3 py-1 rounded-full">
+                  <span class="absolute -top-3 right-5 bg-gold text-ink text-[0.65rem] md:text-[0.7rem] font-bold tracking-[0.18em] uppercase px-3 py-1 rounded-full">
                     {t('dossier.badge.star')}
                   </span>
                 )}
                 {small && !isStar && (
-                  <p class="text-[0.7rem] italic tracking-[0.08em] text-gold mb-2">
+                  <p class="text-[0.7rem] italic tracking-[0.08em] text-gold-deep mb-2">
                     {small}
                   </p>
                 )}
-                <div class="text-gold mb-3"><Icon name={iconByType(p.type)} size={28} /></div>
+                <div class="text-gold-deep mb-3"><Icon name={iconByType(p.type)} size={28} /></div>
                 <h3 class="font-display text-lg mb-3" style="font-weight: 500; letter-spacing: -0.01em;">{p.name[lang]}</h3>
-                <p class="pack-price text-2xl md:text-[1.75rem] text-gold mb-5">{p.price}</p>
-                <p class="text-xs font-bold tracking-[0.12em] uppercase text-ink/60 mb-3">{t('dossier.includes')}</p>
+                <p class="pack-price text-2xl md:text-[1.75rem] text-gold-deep mb-5">{p.price}</p>
+                <p class="text-xs font-bold tracking-[0.12em] uppercase text-ink/70 mb-3">{t('dossier.includes')}</p>
                 <ul class="space-y-2 text-sm text-ink/75 mb-6 flex-1">
                   {p.includes[lang].map((it) => (
-                    <li class="flex gap-2"><span class="text-gold">✓</span><span>{it}</span></li>
+                    <li class="flex gap-2"><span class="text-gold-deep">✓</span><span>{it}</span></li>
                   ))}
                 </ul>
                 <a
@@ -85,8 +85,8 @@ function smallLabelFor(p: Pack): string | null {
                   class:list={[
                     'block text-center border-2 px-6 py-3 text-xs font-bold tracking-[0.15em] uppercase transition-colors',
                     isStar
-                      ? 'bg-gold border-gold text-white hover:bg-ink hover:border-ink'
-                      : 'bg-ink border-ink text-white hover:bg-gold hover:border-gold',
+                      ? 'bg-gold border-gold text-ink hover:bg-ink hover:border-ink hover:text-white'
+                      : 'bg-ink border-ink text-white hover:bg-gold hover:text-ink hover:border-gold',
                   ]}
                 >
                   {t('dossier.cta')}
@@ -121,7 +121,7 @@ function smallLabelFor(p: Pack): string | null {
     <div class="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-stretch sm:items-center">
       <a
         href={localePath(lang, '/quiz')}
-        class="inline-block bg-white text-ink border-2 border-white px-8 md:px-10 py-3.5 md:py-4 text-xs md:text-sm font-bold tracking-[0.18em] uppercase text-center hover:bg-gold hover:border-gold hover:text-white transition-colors"
+        class="inline-block bg-white text-ink border-2 border-white px-8 md:px-10 py-3.5 md:py-4 text-xs md:text-sm font-bold tracking-[0.18em] uppercase text-center hover:bg-gold hover:border-gold hover:text-ink transition-colors"
       >
         {t('dossier.next.cta.primary')}
       </a>
@@ -140,7 +140,7 @@ function smallLabelFor(p: Pack): string | null {
 <!-- Oferta flash (sobria) -->
 <Section>
   <div class="max-w-2xl mx-auto text-center">
-    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-5">{t('dossier.offer.title')}</p>
+    <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold-deep mb-5">{t('dossier.offer.title')}</p>
     <p class="text-ink/70 text-sm md:text-base leading-relaxed mb-2">{t('dossier.offer.p1')}</p>
     <p class="text-ink/70 text-sm md:text-base leading-relaxed">{t('dossier.offer.p2')}</p>
   </div>

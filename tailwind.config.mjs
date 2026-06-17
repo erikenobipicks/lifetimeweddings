@@ -14,6 +14,9 @@ export default {
         cream: 'rgb(var(--cream) / <alpha-value>)',
         ink: 'rgb(var(--ink) / <alpha-value>)',
         gold: 'rgb(var(--gold) / <alpha-value>)',
+        // Darker, same-hue gold for accessible small text on light
+        // backgrounds (eyebrows/labels). See --gold-deep in global.css.
+        'gold-deep': 'rgb(var(--gold-deep) / <alpha-value>)',
       },
       fontFamily: {
         // Fraunces (display/headings, variable with SOFT axis)
