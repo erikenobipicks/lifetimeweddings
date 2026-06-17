@@ -441,6 +441,14 @@ export async function initSchema() {
   // couple e-signs the cancellation agreement at /cancellacio/[slug], which
   // stamps cancellation_signed_at/ip. retained_cents snapshots the amount kept
   // (paga i senyal) so the document is stable even if the price changes later.
+  // Procedència (referral) + tipus de servei + propietat de la boda.
+  // kind: 'own' (LifeTime), 'collab' (LifeTime + col·laborador extern),
+  //       'external' (per a un altre estudi → mailing desactivat).
+  // service_type override: 'photo' | 'video' | 'combo' (null → inferit del pack).
+  await ensureColumn('bookings', 'source', 'TEXT');
+  await ensureColumn('bookings', 'kind', "TEXT NOT NULL DEFAULT 'own'");
+  await ensureColumn('bookings', 'collaborator_name', 'TEXT');
+  await ensureColumn('bookings', 'service_type', 'TEXT');
   await ensureColumn('bookings', 'cancelled_at', 'TEXT');
   await ensureColumn('bookings', 'cancellation_reason', 'TEXT');
   await ensureColumn('bookings', 'cancellation_retained_cents', 'INTEGER');

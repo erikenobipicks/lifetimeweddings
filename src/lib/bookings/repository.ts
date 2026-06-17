@@ -17,10 +17,12 @@ import type {
   Booking,
   BookingCreateInput,
   BookingFormResponse,
+  BookingKind,
   BookingStatus,
   Lang,
   PackAddon,
   PublicationChannel,
+  ServiceType,
   ReferenceTestimonial,
 } from './types';
 
@@ -73,6 +75,10 @@ function rowToBooking(row: Record<string, unknown>): Booking {
     coupleEmailPrimary: String(row.couple_email_primary),
     couplePhonePrimary: row.couple_phone_primary ? String(row.couple_phone_primary) : null,
     preferredLanguage: String(row.preferred_language) as Lang,
+    source: row.source ? String(row.source) : null,
+    kind: ((row.kind as BookingKind) || 'own') as BookingKind,
+    collaboratorName: row.collaborator_name ? String(row.collaborator_name) : null,
+    serviceType: (row.service_type as ServiceType | null) || null,
 
     weddingDate: fromIso(row.wedding_date) ?? new Date(`${row.wedding_date}T00:00:00Z`),
     venueName: String(row.venue_name),
@@ -209,6 +215,7 @@ export async function createBooking(input: BookingCreateInput): Promise<Booking>
     sql: `INSERT INTO bookings (
       id, slug,
       couple_name_1, couple_name_2, couple_email_primary, couple_phone_primary, preferred_language,
+      source, kind, collaborator_name, service_type,
       wedding_date, venue_name, venue_city, venue_address,
       pack_name, pack_description, pack_includes, pack_excludes, pack_addons,
       pack_price_cents, deposit_cents, payment_terms,
@@ -220,6 +227,7 @@ export async function createBooking(input: BookingCreateInput): Promise<Booking>
     ) VALUES (
       ?, ?,
       ?, ?, ?, ?, ?,
+      ?, ?, ?, ?,
       ?, ?, ?, ?,
       ?, ?, ?, ?, ?,
       ?, ?, ?,
@@ -233,6 +241,7 @@ export async function createBooking(input: BookingCreateInput): Promise<Booking>
       id, slug,
       input.coupleName1, input.coupleName2, input.coupleEmailPrimary,
       input.couplePhonePrimary ?? null, input.preferredLanguage ?? 'ca',
+      input.source ?? null, input.kind ?? 'own', input.collaboratorName ?? null, input.serviceType ?? null,
       weddingDateIso, input.venueName, input.venueCity ?? null, input.venueAddress ?? null,
       input.packName, input.packDescription ?? null,
       JSON.stringify(input.packIncludes ?? []),
@@ -351,6 +360,10 @@ export type BookingUpdate = Partial<{
   coupleEmailPrimary: string;
   couplePhonePrimary: string | null;
   preferredLanguage: Lang;
+  source: string | null;
+  kind: BookingKind;
+  collaboratorName: string | null;
+  serviceType: ServiceType | null;
   weddingDate: Date;
   venueName: string;
   venueCity: string | null;
@@ -380,6 +393,10 @@ const COLUMN_FOR: Record<keyof BookingUpdate, string> = {
   coupleEmailPrimary: 'couple_email_primary',
   couplePhonePrimary: 'couple_phone_primary',
   preferredLanguage: 'preferred_language',
+  source: 'source',
+  kind: 'kind',
+  collaboratorName: 'collaborator_name',
+  serviceType: 'service_type',
   weddingDate: 'wedding_date',
   venueName: 'venue_name',
   venueCity: 'venue_city',

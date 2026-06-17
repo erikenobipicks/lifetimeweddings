@@ -4,6 +4,15 @@
 
 export type Lang = 'ca' | 'es' | 'en';
 
+/** Ownership of the booking:
+ *  - 'own'      → LifeTime Weddings (default).
+ *  - 'collab'   → LifeTime + an external collaborator (still LifeTime brand).
+ *  - 'external' → white-label work for another studio (mailing disabled). */
+export type BookingKind = 'own' | 'collab' | 'external';
+
+/** Service covered. null when not set explicitly (infer from the pack). */
+export type ServiceType = 'photo' | 'video' | 'combo';
+
 export type BookingStatus =
   | 'draft'
   | 'sent'
@@ -120,6 +129,15 @@ export interface Booking {
    *  reflects what the couple authorised. */
   fotostudioProjectId: number | null;
 
+  /** Procedència / referral (free text, e.g. "Instagram", "Recomanació X"). */
+  source: string | null;
+  /** Ownership of the booking (see BookingKind). */
+  kind: BookingKind;
+  /** Name of the collaborator (kind='collab') or client studio (kind='external'). */
+  collaboratorName: string | null;
+  /** Explicit service type override; null → infer from the pack. */
+  serviceType: ServiceType | null;
+
   /** Cancellation (Fase B). cancelledAt set → the booking is cancelled.
    *  cancellationSignedAt/Ip set once the couple e-signs the cancellation
    *  agreement. retainedCents = amount kept (paga i senyal), snapshotted. */
@@ -147,6 +165,11 @@ export interface BookingCreateInput {
   coupleEmailPrimary: string;
   couplePhonePrimary?: string;
   preferredLanguage?: Lang;
+
+  source?: string | null;
+  kind?: BookingKind;
+  collaboratorName?: string | null;
+  serviceType?: ServiceType | null;
 
   weddingDate: Date;
   venueName: string;
