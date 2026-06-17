@@ -16,7 +16,9 @@ import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { getUser } from '~/lib/auth';
 import {
+  addPayment,
   deleteBooking,
+  deletePayment,
   getBookingById,
   markDepositPaid,
   setBookingStatus,
@@ -221,6 +223,27 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
       console.error('[admin.deposit_unpaid] cancelPendingSchedules failed (non-fatal)', err);
     }
     return back('?ok=deposit:unpaid');
+  }
+
+  // ── Payments ledger ──────────────────────────────────────────────────────
+  if (action === 'payment_add') {
+    const cents = eurosStringToCents(String(form.get('amountEuros') ?? ''));
+    if (Number.isNaN(cents) || cents <= 0) {
+      return back('?error=Import+de+pagament+no+vàlid');
+    }
+    const paidOnRaw = String(form.get('paidOn') ?? '').trim();
+    const paidOn = /^\d{4}-\d{2}-\d{2}$/.test(paidOnRaw) ? paidOnRaw : null;
+    const methodRaw = String(form.get('method') ?? '').trim();
+    const method = methodRaw ? methodRaw.slice(0, 40) : null;
+    const noteRaw = String(form.get('note') ?? '').trim();
+    const note = noteRaw ? noteRaw.slice(0, 200) : null;
+    await addPayment({ bookingId: id, amountCents: cents, paidOn, method, note });
+    return back('?ok=payment:added#pagaments');
+  }
+  if (action === 'payment_delete') {
+    const paymentId = String(form.get('paymentId') ?? '').trim();
+    if (paymentId) await deletePayment(paymentId, id);
+    return back('?ok=payment:deleted#pagaments');
   }
 
   // Default: content update.
