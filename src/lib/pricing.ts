@@ -9,31 +9,12 @@
 // the Canva tarifes.
 
 import { PACKS, EXTRAS, type Pack } from '~/data/packs';
+import { parsePriceCents, formatEuros } from '~/lib/payments/money';
 
-/** Parse a localised "1.290 €" or "1.290,50 €" price string into cents.
- *  Returns 0 for unparseable input — Pack/Extra strings are author-
- *  controlled so the runtime fallback is just defensive. */
-export function parsePriceCents(price: string): number {
-  // Strip currency, whitespace. Whatever remains is "1.290" or "1.290,50".
-  const cleaned = price.replace(/[€\s]/g, '');
-  if (!cleaned) return 0;
-  // Spanish convention: "." thousands, "," decimal. Convert to "." decimal.
-  const normalised = cleaned.replace(/\./g, '').replace(',', '.');
-  const n = Number(normalised);
-  if (!Number.isFinite(n)) return 0;
-  return Math.round(n * 100);
-}
-
-/** Format a cent amount back to "1.290 €" (no decimals when round). */
-export function formatEuros(cents: number): string {
-  const abs = Math.abs(cents);
-  const euros = abs / 100;
-  const isRound = abs % 100 === 0;
-  const formatted = isRound
-    ? new Intl.NumberFormat('es-ES', { maximumFractionDigits: 0 }).format(euros)
-    : new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(euros);
-  return `${cents < 0 ? '−' : ''}${formatted} €`;
-}
+// Money primitives now live in ~/lib/payments/money (single source of
+// truth). Re-exported here so existing `~/lib/pricing` importers keep
+// working unchanged.
+export { parsePriceCents, formatEuros };
 
 export function priceForPack(id: string): number {
   const p = PACKS.find((x) => x.id === id);

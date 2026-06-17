@@ -32,55 +32,17 @@ import {
 import { issueDepositInvoiceForBooking } from '~/lib/bookings/invoicing';
 import { sendContratoInvite, sendReservaInvite } from '~/lib/bookings/emails';
 import { cancelPendingSchedules, materialiseSchedulesForBooking } from '~/lib/bookings/sequences';
-import type { BookingStatus, PackAddon } from '~/lib/bookings/types';
+import type { BookingStatus } from '~/lib/bookings/types';
+import {
+  SPANISH_EUROS_RE,
+  eurosStringToCents,
+  computeDiscountCents,
+  parseLines,
+  parseAddons,
+} from '~/lib/payments/money';
 
-// Spanish-format euro parser. See create.ts for the full rationale —
-// kept duplicated here so update.ts has zero new shared imports.
-const SPANISH_EUROS_RE = /^(?:\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:[.,]\d{1,2})?)$/;
-
-function eurosStringToCents(raw: string): number {
-  const s = raw.trim();
-  if (!SPANISH_EUROS_RE.test(s)) return NaN;
-  let normalized: string;
-  if (s.includes(',')) {
-    normalized = s.replace(/\./g, '').replace(',', '.');
-  } else if (/^\d{1,3}(?:\.\d{3})+$/.test(s)) {
-    normalized = s.replace(/\./g, '');
-  } else {
-    normalized = s;
-  }
-  const n = parseFloat(normalized);
-  if (!Number.isFinite(n) || n < 0) return NaN;
-  return Math.round(n * 100);
-}
-
-function computeDiscountCents(type: string, value: string, packCents: number): number {
-  const v = parseFloat(value.trim().replace(',', '.'));
-  if (!Number.isFinite(v) || v <= 0) return 0;
-  if (type === 'percent') return Math.round(packCents * Math.min(v, 100) / 100);
-  if (type === 'amount') return Math.round(v * 100);
-  return 0;
-}
-
-function parseLines(raw: string | null | undefined): string[] {
-  if (!raw) return [];
-  return raw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
-}
-
-function parseAddons(raw: string | null | undefined): PackAddon[] {
-  return parseLines(raw)
-    .map((line): PackAddon | null => {
-      const idx = line.lastIndexOf('|');
-      if (idx < 0) return null;
-      const name = line.slice(0, idx).trim();
-      const priceStr = line.slice(idx + 1).trim();
-      if (!name) return null;
-      const cents = eurosStringToCents(priceStr);
-      if (Number.isNaN(cents)) return null;
-      return { name, price_cents: cents };
-    })
-    .filter((x): x is PackAddon => x !== null);
-}
+// Euro parsing, the price format and the discount/add-on parsers live in
+// ~/lib/payments/money (single source of truth shared with create.ts).
 
 const updateSchema = z.object({
   coupleName1: z.string().min(1).max(60).optional(),

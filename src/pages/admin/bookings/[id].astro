@@ -1150,6 +1150,9 @@ const ibanPlaceholder = transfer.isPlaceholder;
 </AdminLayout>
 
 <script>
+  // Discount math comes from ~/lib/payments/money (single source of truth).
+  import { parseEurosLoose, computeDiscountEuros, formatEurosAmount } from '~/lib/payments/money';
+
   document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const text = btn.dataset.copy!;
@@ -1343,19 +1346,14 @@ const ibanPlaceholder = transfer.isPlaceholder;
   const packPriceInput = document.querySelector<HTMLInputElement>('input[name="packPriceEuros"]');
   function updateDiscountPreview() {
     const typeEl = document.querySelector<HTMLInputElement>('input[name="discountType"]:checked');
-    const type = typeEl?.value ?? 'amount';
-    const val = parseFloat((discountValueInput?.value ?? '').replace(',', '.'));
-    const packCents = Math.round(parseFloat((packPriceInput?.value ?? '0').replace(',', '.')) * 100);
-    if (!Number.isFinite(val) || val <= 0 || packCents <= 0) {
+    const packEuros = parseEurosLoose(packPriceInput?.value);
+    const discount = computeDiscountEuros(typeEl?.value ?? 'amount', discountValueInput?.value, packEuros);
+    if (discount <= 0 || packEuros <= 0) {
       if (discountPreviewEl) discountPreviewEl.textContent = '';
       return;
     }
-    const discountCents = type === 'percent'
-      ? Math.round(packCents * Math.min(val, 100) / 100)
-      : Math.round(val * 100);
-    const effectiveCents = packCents - discountCents;
     if (discountPreviewEl) {
-      discountPreviewEl.textContent = `−${(discountCents / 100).toFixed(0)} € · efectiu: ${(effectiveCents / 100).toFixed(0)} €`;
+      discountPreviewEl.textContent = `−${formatEurosAmount(discount)} · efectiu: ${formatEurosAmount(packEuros - discount)}`;
     }
   }
   discountValueInput?.addEventListener('input', updateDiscountPreview);

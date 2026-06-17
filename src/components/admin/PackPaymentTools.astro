@@ -159,6 +159,17 @@ const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madr
 </div>
 
 <script>
+  // Money math (parsing, discount, VAT, tranche solving) is shared with the
+  // server via ~/lib/payments/money — keep this file to DOM wiring only.
+  import {
+    parseEurosLoose,
+    computeDiscountEuros,
+    formatEurosAmount,
+    paymentBreakdown,
+    solveTranche,
+    type PaymentInput,
+  } from '~/lib/payments/money';
+
   type Lang = 'ca' | 'es' | 'en';
   interface PackCatalogItem {
     id: string;
@@ -311,55 +322,36 @@ const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madr
     // read the pack/price fields.
     const discountValueField = document.getElementById('discountValueField') as HTMLInputElement | null;
 
-    function parseEuros(s: string | null | undefined): number {
-      if (!s) return 0;
-      const n = parseFloat(String(s).replace(',', '.'));
-      return Number.isFinite(n) ? n : 0;
-    }
-
-    // Discount in euros, applied to the pack price. percent → % of pack,
-    // amount → absolute euros. Never exceeds the pack price.
-    function currentDiscountEuros(packEuros: number): number {
-      const typeEl = document.querySelector<HTMLInputElement>('input[name="discountType"]:checked');
-      const type = typeEl?.value ?? 'amount';
-      const val = parseEuros(discountValueField?.value);
-      if (val <= 0) return 0;
-      const raw = type === 'percent' ? (packEuros * Math.min(val, 100)) / 100 : val;
-      return Math.min(packEuros, raw);
-    }
-
-    function fmt(n: number): string {
-      return `${n.toLocaleString('ca-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} €`;
-    }
+    const fmt = formatEurosAmount;
 
     function sumAddons(): number {
       if (!addonsField) return 0;
       return addonsField.value
         .split(/\r?\n/)
         .map((l) => l.match(/\|\s*(\d+(?:[.,]\d+)?)\s*$/))
-        .reduce((acc, m) => acc + (m ? parseEuros(m[1]) : 0), 0);
+        .reduce((acc, m) => acc + (m ? parseEurosLoose(m[1]) : 0), 0);
     }
 
-    function paymentState() {
-      const pack = parseEuros(priceField?.value);
-      const discount = currentDiscountEuros(pack);
-      const packNet = pack - discount;
-      const addons = sumAddons();
-      const gross = packNet + addons;
-      const cash = Math.max(0, parseEuros(cashInput?.value));
-      const cashSaving = cash * 0.21;
-      const net = gross - cashSaving;
-      const s = [parseEuros(sched0?.value), parseEuros(sched1?.value), parseEuros(sched2?.value)];
-      const scheduled = s[0] + s[1] + s[2];
-      const paid = scheduled + cash;
-      const invoiced = Math.max(0, gross - cash * 1.21);
-      const base = invoiced / 1.21;
-      const vat = invoiced - base;
-      return { pack, discount, packNet, addons, gross, cash, cashSaving, net, s, scheduled, paid, base, vat };
+    // Gather the calculator inputs (euros) into the shared PaymentInput shape.
+    function currentInput(): PaymentInput {
+      const pack = parseEurosLoose(priceField?.value);
+      const typeEl = document.querySelector<HTMLInputElement>('input[name="discountType"]:checked');
+      const discount = computeDiscountEuros(typeEl?.value ?? 'amount', discountValueField?.value, pack);
+      return {
+        packEuros: pack,
+        discountEuros: discount,
+        addonsEuros: sumAddons(),
+        cashEuros: parseEurosLoose(cashInput?.value),
+        scheduled: [
+          parseEurosLoose(sched0?.value),
+          parseEurosLoose(sched1?.value),
+          parseEurosLoose(sched2?.value),
+        ],
+      };
     }
 
     function recalcPayment() {
-      const st = paymentState();
+      const st = paymentBreakdown(currentInput());
       if (elPack) elPack.textContent = fmt(st.pack);
       if (elAddons) elAddons.textContent = fmt(st.addons);
       if (elDiscount) elDiscount.textContent = `−${fmt(st.discount)}`;
@@ -389,22 +381,15 @@ const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madr
     }
 
     function solveSlot(slot: '0' | '1' | '2' | 'cash'): number {
-      const st = paymentState();
-      if (slot === 'cash') {
-        const v = (st.gross - st.scheduled) / 1.21;
-        return Math.max(0, Math.round(v));
-      }
-      const idx = Number(slot);
-      const otherScheds = st.s.reduce((acc, x, i) => (i === idx ? acc : acc + x), 0);
-      const v = st.gross - st.cash * 1.21 - otherScheds;
-      return Math.max(0, Math.round(v));
+      return solveTranche(currentInput(), slot);
     }
 
     function generatePaymentText(): string {
-      const st = paymentState();
-      const r = Math.round(st.s[0]);
-      const p2 = Math.round(st.s[1]);
-      const p3 = Math.round(st.s[2]);
+      const input = currentInput();
+      const st = paymentBreakdown(input);
+      const r = Math.round(input.scheduled[0]);
+      const p2 = Math.round(input.scheduled[1]);
+      const p3 = Math.round(input.scheduled[2]);
       const cash = Math.round(st.cash);
       const lines: string[] = [];
       if (r > 0) lines.push(`Reserva: ${r} €`);
@@ -446,11 +431,11 @@ const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madr
     dumpBtn?.addEventListener('click', async () => {
       const bookingId = dumpBtn.dataset.bookingId;
       if (!bookingId) return;
-      const st = paymentState();
-      const reserva = Math.round(st.s[0]);
-      const p2 = Math.round(st.s[1]);
-      const p3 = Math.round(st.s[2]);
-      const cash = Math.round(st.cash);
+      const input = currentInput();
+      const reserva = Math.round(input.scheduled[0]);
+      const p2 = Math.round(input.scheduled[1]);
+      const p3 = Math.round(input.scheduled[2]);
+      const cash = Math.round(input.cashEuros);
       const count = [reserva, p2, p3, cash].filter((n) => n > 0).length;
       if (count === 0) {
         if (dumpStatus) dumpStatus.textContent = 'Omple algun tram primer.';
