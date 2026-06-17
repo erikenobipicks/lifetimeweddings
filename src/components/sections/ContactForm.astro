@@ -134,6 +134,8 @@ const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
         throw new Error('HTTP ' + res.status + (detail ? ' ' + detail : ''));
       }
       ok?.classList.remove('hidden');
+      // GA4 lead conversion (consent-aware no-op via lwTrack).
+      (window as any).lwTrack?.('qualify_lead', { source: 'contact_form' });
       form.reset();
     } catch (error) {
       console.error('[contact] submit failed', error);

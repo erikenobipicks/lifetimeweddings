@@ -28,12 +28,18 @@ const chat = t('wa.chat');
 </a>
 
 <script>
+  const waEl = document.getElementById('whatsapp-float');
   // Fade-in after 1s so it doesn't feel aggressive on the first paint.
   window.setTimeout(() => {
-    const el = document.getElementById('whatsapp-float');
-    if (el) {
-      el.style.transition = (el.style.transition ? el.style.transition + ', ' : '') + 'opacity 0.4s ease';
-      el.style.opacity = '1';
+    if (waEl) {
+      waEl.style.transition = (waEl.style.transition ? waEl.style.transition + ', ' : '') + 'opacity 0.4s ease';
+      waEl.style.opacity = '1';
     }
   }, 1000);
+
+  // GA4 event on click (consent-aware no-op via lwTrack; link opens in a new
+  // tab so this never blocks navigation).
+  waEl?.addEventListener('click', () => {
+    (window as any).lwTrack?.('whatsapp_click', { location: 'float' });
+  });
 </script>

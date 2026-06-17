@@ -164,6 +164,10 @@ const alternates: { hreflang: string; href: string }[] = [
       <script is:inline define:vars={{ gaId }}>
         (function() {
           var KEY = 'lifetime.cookies.v1';
+          function consentAccepted() {
+            try { return JSON.parse(localStorage.getItem(KEY) || '{}').choice === 'accept'; }
+            catch (e) { return false; }
+          }
           var loaded = false;
           function loadGA() {
             if (loaded) return;
@@ -174,13 +178,18 @@ const alternates: { hreflang: string; href: string }[] = [
             document.head.appendChild(s);
             window.dataLayer = window.dataLayer || [];
             function gtag() { dataLayer.push(arguments); }
+            window.gtag = gtag; // expose so app code can send events
             gtag('js', new Date());
             gtag('config', gaId, { anonymize_ip: true });
           }
-          try {
-            var stored = JSON.parse(localStorage.getItem(KEY) || '{}');
-            if (stored.choice === 'accept') loadGA();
-          } catch(e) {}
+          // Consent-aware event helper. Components call window.lwTrack(name, params).
+          // No-ops unless analytics consent is accepted AND gtag has loaded, so
+          // nothing is ever sent without consent.
+          window.lwTrack = function(name, params) {
+            if (!consentAccepted() || typeof window.gtag !== 'function') return;
+            window.gtag('event', name, params || {});
+          };
+          if (consentAccepted()) loadGA();
           document.addEventListener('consent:change', function(e) {
             if (e.detail && e.detail.choice === 'accept') loadGA();
           });
