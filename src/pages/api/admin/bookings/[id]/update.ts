@@ -16,6 +16,7 @@ import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { getUser } from '~/lib/auth';
 import {
+  addBookingChange,
   addPayment,
   deleteBooking,
   deletePayment,
@@ -244,6 +245,41 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
     const paymentId = String(form.get('paymentId') ?? '').trim();
     if (paymentId) await deletePayment(paymentId, id);
     return back('?ok=payment:deleted#pagaments');
+  }
+
+  // ── Date / price change → addendum ───────────────────────────────────────
+  if (action === 'change_addendum') {
+    const newDateRaw = String(form.get('newWeddingDate') ?? '').trim();
+    const newPriceRaw = String(form.get('newPriceEuros') ?? '').trim();
+    const note = String(form.get('note') ?? '').trim().slice(0, 500) || null;
+
+    const oldDateIso = booking.weddingDate.toISOString().slice(0, 10);
+    const wantsDate = !!newDateRaw && newDateRaw !== oldDateIso && /^\d{4}-\d{2}-\d{2}$/.test(newDateRaw);
+    let wantsPrice = false;
+    let newPriceCents = NaN;
+    if (newPriceRaw) {
+      newPriceCents = eurosStringToCents(newPriceRaw);
+      if (Number.isNaN(newPriceCents)) return back('?error=Import+no+vàlid#addendum');
+      wantsPrice = newPriceCents !== booking.packPriceCents;
+    }
+    if (!wantsDate && !wantsPrice) {
+      return back('?error=Indica+una+nova+data+o+un+nou+import#addendum');
+    }
+
+    const patch: BookingUpdate = {};
+    if (wantsDate) patch.weddingDate = new Date(`${newDateRaw}T12:00:00Z`);
+    if (wantsPrice) patch.packPriceCents = newPriceCents;
+    await updateBooking(id, patch);
+
+    await addBookingChange({
+      bookingId: id,
+      oldWeddingDate: wantsDate ? oldDateIso : null,
+      newWeddingDate: wantsDate ? newDateRaw : null,
+      oldPriceCents: wantsPrice ? booking.packPriceCents : null,
+      newPriceCents: wantsPrice ? newPriceCents : null,
+      note,
+    });
+    return back('?ok=change:saved#addendum');
   }
 
   // Default: content update.

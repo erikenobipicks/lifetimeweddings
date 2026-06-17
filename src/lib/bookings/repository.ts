@@ -712,6 +712,81 @@ export async function deletePayment(paymentId: string, bookingId: string): Promi
   });
 }
 
+// ─── Change log: date / price addendums ──────────────────────────────────────
+export interface BookingChange {
+  id: string;
+  bookingId: string;
+  /** YYYY-MM-DD or null when the date wasn't part of this change. */
+  oldWeddingDate: string | null;
+  newWeddingDate: string | null;
+  oldPriceCents: number | null;
+  newPriceCents: number | null;
+  note: string | null;
+  createdAt: Date;
+}
+
+export interface BookingChangeCreateInput {
+  bookingId: string;
+  oldWeddingDate?: string | null;
+  newWeddingDate?: string | null;
+  oldPriceCents?: number | null;
+  newPriceCents?: number | null;
+  note?: string | null;
+}
+
+function hydrateChange(row: Record<string, unknown>): BookingChange {
+  return {
+    id: String(row.id),
+    bookingId: String(row.booking_id),
+    oldWeddingDate: row.old_wedding_date ? String(row.old_wedding_date) : null,
+    newWeddingDate: row.new_wedding_date ? String(row.new_wedding_date) : null,
+    oldPriceCents: row.old_price_cents != null ? Number(row.old_price_cents) : null,
+    newPriceCents: row.new_price_cents != null ? Number(row.new_price_cents) : null,
+    note: row.note ? String(row.note) : null,
+    createdAt: fromIso(row.created_at) ?? new Date(),
+  };
+}
+
+export async function addBookingChange(input: BookingChangeCreateInput): Promise<string> {
+  await initSchema();
+  const id = randomUUID();
+  await db.execute({
+    sql: `INSERT INTO booking_changes
+            (id, booking_id, old_wedding_date, new_wedding_date, old_price_cents, new_price_cents, note, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [
+      id,
+      input.bookingId,
+      input.oldWeddingDate ?? null,
+      input.newWeddingDate ?? null,
+      input.oldPriceCents ?? null,
+      input.newPriceCents ?? null,
+      input.note ?? null,
+      nowIso(),
+    ],
+  });
+  return id;
+}
+
+export async function listBookingChanges(bookingId: string): Promise<BookingChange[]> {
+  await initSchema();
+  const res = await db.execute({
+    sql: `SELECT * FROM booking_changes WHERE booking_id = ? ORDER BY created_at DESC`,
+    args: [bookingId],
+  });
+  return res.rows.map((r) => hydrateChange(r as Record<string, unknown>));
+}
+
+export async function getBookingChange(id: string, bookingId: string): Promise<BookingChange | null> {
+  await initSchema();
+  const res = await db.execute({
+    sql: `SELECT * FROM booking_changes WHERE id = ? AND booking_id = ?`,
+    args: [id, bookingId],
+  });
+  const row = res.rows[0];
+  return row ? hydrateChange(row as Record<string, unknown>) : null;
+}
+
 export interface ContractDataInput {
   bookingId: string;
   languageBetween?: string | null;

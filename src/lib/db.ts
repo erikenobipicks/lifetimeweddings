@@ -233,6 +233,21 @@ export async function initSchema() {
       )`,
       `CREATE INDEX IF NOT EXISTS idx_booking_payments_booking ON booking_payments(booking_id)`,
 
+      // ── Change log (date / price addendums) ────────────────────────────
+      // One row per recorded change of wedding date and/or price, so we can
+      // render an addendum PDF and keep a history on the booking.
+      `CREATE TABLE IF NOT EXISTS booking_changes (
+        id TEXT PRIMARY KEY,
+        booking_id TEXT NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
+        old_wedding_date TEXT,
+        new_wedding_date TEXT,
+        old_price_cents INTEGER,
+        new_price_cents INTEGER,
+        note TEXT,
+        created_at TEXT NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_booking_changes_booking ON booking_changes(booking_id)`,
+
       // ── Email sequences ────────────────────────────────────────────────
       // Catalogue of recurring/follow-up email templates Eric can manage
       // from /admin/sequences. Each row is one "kind of email" (e.g.

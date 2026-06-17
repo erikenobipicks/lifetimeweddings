@@ -6,7 +6,7 @@
 //     _action=update.
 //   - Bottom: form_response display if the couple already submitted.
 import AdminLayout from '~/layouts/AdminLayout.astro';
-import { getBookingById, getFormResponseForBooking, listPayments } from '~/lib/bookings/repository';
+import { getBookingById, getFormResponseForBooking, listPayments, listBookingChanges } from '~/lib/bookings/repository';
 import type { BookingStatus } from '~/lib/bookings/types';
 import { publicVideos, fullVideos } from '~/data/videos';
 import { getBankTransferDetails, isStripeTestMode } from '~/lib/payments/config';
@@ -32,6 +32,8 @@ const payments = await listPayments(booking.id);
 const totalCents = booking.packPriceCents - booking.discountCents;
 const paidCents = payments.reduce((acc, p) => acc + p.amountCents, 0);
 const pendingCents = totalCents - paidCents;
+const changes = await listBookingChanges(booking.id);
+const weddingDateIso = booking.weddingDate.toISOString().slice(0, 10);
 const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madrid' });
 const fmtEur = (cents: number): string =>
   new Intl.NumberFormat('ca-ES', { style: 'currency', currency: 'EUR' }).format(cents / 100);
@@ -173,6 +175,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
       {ok === 'deposit:unpaid' && 'Marca de dipòsit retirada.'}
       {ok === 'payment:added' && 'Pagament registrat.'}
       {ok === 'payment:deleted' && 'Pagament eliminat.'}
+      {ok === 'change:saved' && 'Canvi desat. Pots descarregar l\'addendum a baix.'}
       {ok === 'offline_confirmed' && 'Booking confirmat offline. Ja podeu enviar la URL /contrato a la parella (la veieu al bloc verd més avall).'}
       {ok === 'offline_silent' && 'Boda històrica registrada (mode silenciós). Dipòsit marcat com a pagat. No s\'ha emès factura ni s\'ha enviat email a la parella.'}
       {ok === 'form:sent' && 'Formulari enviat a la parella. (Mira la cola més avall per veure l\'estat.)'}
@@ -482,6 +485,69 @@ const ibanPlaceholder = transfer.isPlaceholder;
         + Afegir pagament
       </button>
     </form>
+  </div>
+
+  {/* Canvi de data / preu → addendum. Edita el valor i genera un PDF
+      d'addendum (sense firma). Queda registrat a l'historial. */}
+  <div id="addendum" class="bg-white border border-black/10 p-5 md:p-6 mb-6 scroll-mt-24">
+    <h2 class="font-display text-lg font-bold mb-1">Canvi de data / preu</h2>
+    <p class="text-sm text-ink/70 mb-4">
+      Actualitza la data i/o l’import i es genera un <strong>addendum en PDF</strong> per enviar a la parella.
+      No modifica el contracte original.
+    </p>
+
+    <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="flex flex-wrap items-end gap-3 mb-5">
+      <input type="hidden" name="_action" value="change_addendum" />
+      <label class="block">
+        <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Nova data</span>
+        <input type="date" name="newWeddingDate" value={weddingDateIso} class="mt-1 px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+      </label>
+      <label class="block">
+        <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Nou import total (€)</span>
+        <input name="newPriceEuros" inputmode="decimal" placeholder={eurosFromCents(booking.packPriceCents)} class="mt-1 w-32 px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+      </label>
+      <label class="block flex-1 min-w-[160px]">
+        <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Nota (opcional)</span>
+        <input name="note" maxlength="500" placeholder="motiu del canvi" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+      </label>
+      <button type="submit" class="bg-gold text-ink font-bold px-5 py-2.5 text-xs tracking-widest uppercase hover:bg-ink hover:text-white transition-colors">
+        Desar canvi
+      </button>
+    </form>
+
+    {changes.length > 0 ? (
+      <div class="overflow-x-auto border border-black/10">
+        <table class="w-full text-sm">
+          <thead class="bg-cream text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">
+            <tr>
+              <th class="text-left px-3 py-2">Registrat</th>
+              <th class="text-left px-3 py-2">Canvi</th>
+              <th class="text-left px-3 py-2">Nota</th>
+              <th class="px-3 py-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {changes.map((c) => (
+              <tr class="border-t border-black/5">
+                <td class="px-3 py-2 whitespace-nowrap text-ink/70">{fmtDateTime(c.createdAt)}</td>
+                <td class="px-3 py-2">
+                  {c.newWeddingDate && <div>Data: <span class="text-ink/60">{c.oldWeddingDate ?? '—'}</span> → <strong>{c.newWeddingDate}</strong></div>}
+                  {c.newPriceCents != null && <div>Import: <span class="text-ink/60">{c.oldPriceCents != null ? fmtEur(c.oldPriceCents) : '—'}</span> → <strong>{fmtEur(c.newPriceCents)}</strong></div>}
+                </td>
+                <td class="px-3 py-2 text-ink/70">{c.note ?? ''}</td>
+                <td class="px-3 py-2 text-right whitespace-nowrap">
+                  <a href={`/api/admin/bookings/${booking.id}/addendum?change=${c.id}`} target="_blank" rel="noopener" class="text-gold text-xs font-bold tracking-widest uppercase hover:underline">
+                    PDF ↓
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      <p class="text-sm text-ink/60 italic">Cap canvi registrat encara.</p>
+    )}
   </div>
 
   {/* Workflow checklist — shown once the booking has form-submitted (we
