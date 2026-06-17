@@ -20,6 +20,9 @@ export interface IgPost {
   permalink: string;
   mediaUrl: string;
   thumbnailUrl: string;
+  /** Responsive `srcset` built from Behold's size variants (`<url> <w>w`).
+   *  Empty string when no sized variants are available. */
+  thumbnailSrcset: string;
   mediaType: IgMediaType;
   timestamp: string;
 }
@@ -80,12 +83,22 @@ export async function getRecentPosts(limit = 12): Promise<IgPost[]> {
         p.sizes?.small?.mediaUrl ??
         p.thumbnailUrl ??
         stableImg;
+      // Responsive srcset so small grid cells (½ width on mobile, ¼ on
+      // desktop) fetch a small variant instead of the large one — saves
+      // bandwidth and speeds up the below-the-fold grid. Dedupe by width.
+      const seen = new Set<number>();
+      const thumbnailSrcset = [p.sizes?.small, p.sizes?.medium, p.sizes?.large]
+        .filter((s): s is BeholdSize => !!s?.mediaUrl && !!s.width)
+        .filter((s) => (seen.has(s.width) ? false : (seen.add(s.width), true)))
+        .map((s) => `${s.mediaUrl} ${s.width}w`)
+        .join(', ');
       return {
         id: p.id,
         caption: (p.prunedCaption ?? p.caption ?? null) || null,
         permalink: p.permalink,
         mediaUrl: p.mediaType === 'VIDEO' ? (p.mediaUrl) : stableImg,
         thumbnailUrl: thumb,
+        thumbnailSrcset,
         mediaType: p.mediaType,
         timestamp: p.timestamp,
       };
