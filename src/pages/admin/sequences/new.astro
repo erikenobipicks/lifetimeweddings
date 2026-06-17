@@ -58,6 +58,16 @@ function v(name: string): string { return params.get(`v_${name}`) ?? ''; }
             <option value="music">Música</option>
           </select>
         </label>
+        <label class="block md:col-span-2">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">A qui s'envia (servei)</span>
+          <span class="block text-[11px] text-ink/70 mb-1">El combo rep sempre les de foto, les de vídeo i les comunes.</span>
+          <select name="serviceScope" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+            <option value="any" selected={v('serviceScope') === '' || v('serviceScope') === 'any'}>Tothom (foto, vídeo i combo)</option>
+            <option value="photo" selected={v('serviceScope') === 'photo'}>Només foto (i combo)</option>
+            <option value="video" selected={v('serviceScope') === 'video'}>Només vídeo (i combo)</option>
+            <option value="combo" selected={v('serviceScope') === 'combo'}>Només combo (foto + vídeo)</option>
+          </select>
+        </label>
       </div>
     </fieldset>
 

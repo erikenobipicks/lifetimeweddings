@@ -67,6 +67,18 @@ function v(name: string, fallback: string): string {
             <option value="music" selected={seq.formKind === 'music'}>Música</option>
           </select>
         </label>
+        <label class="block md:col-span-2">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">A qui s'envia (servei)</span>
+          <span class="block text-[11px] text-ink/70 mb-1">El combo rep sempre les de foto, les de vídeo i les comunes.</span>
+          {(() => { const sc = v('serviceScope', seq.serviceScope); return (
+          <select name="serviceScope" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+            <option value="any" selected={sc === 'any'}>Tothom (foto, vídeo i combo)</option>
+            <option value="photo" selected={sc === 'photo'}>Només foto (i combo)</option>
+            <option value="video" selected={sc === 'video'}>Només vídeo (i combo)</option>
+            <option value="combo" selected={sc === 'combo'}>Només combo (foto + vídeo)</option>
+          </select>
+          ); })()}
+        </label>
       </div>
     </fieldset>
 

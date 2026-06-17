@@ -8,6 +8,7 @@ const schema = z.object({
   triggerKind: z.enum(['days_after_deposit', 'days_before_wedding', 'days_after_wedding']),
   triggerOffsetDays: z.string().regex(/^\d+$/).transform((s) => Number(s)),
   formKind: z.string().optional(),
+  serviceScope: z.enum(['any', 'photo', 'video', 'combo']).optional(),
   subjectCa: z.string().min(1).max(200),
   subjectEs: z.string().min(1).max(200),
   subjectEn: z.string().min(1).max(200),
@@ -40,6 +41,7 @@ export const POST: APIRoute = async ({ request, params, redirect }) => {
     triggerKind: d.triggerKind,
     triggerOffsetDays: d.triggerOffsetDays,
     formKind,
+    serviceScope: d.serviceScope ?? 'any',
     subject: { ca: d.subjectCa, es: d.subjectEs, en: d.subjectEn },
     bodyHtml: { ca: d.bodyHtmlCa, es: d.bodyHtmlEs, en: d.bodyHtmlEn },
   });
