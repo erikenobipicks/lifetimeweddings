@@ -6,9 +6,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        cream: '#f9f5f0',
-        ink: '#1a1a1a',
-        gold: '#c9a96e',
+        // Brand colors are defined as CSS custom properties (RGB channels)
+        // in src/styles/global.css `:root`. Referencing them through
+        // `rgb(var(--x) / <alpha-value>)` keeps Tailwind opacity modifiers
+        // (e.g. `bg-gold/5`, `text-gold/30`) working while the canonical
+        // values live in a single place.
+        cream: 'rgb(var(--cream) / <alpha-value>)',
+        ink: 'rgb(var(--ink) / <alpha-value>)',
+        gold: 'rgb(var(--gold) / <alpha-value>)',
       },
       fontFamily: {
         // Fraunces (display/headings, variable with SOFT axis)

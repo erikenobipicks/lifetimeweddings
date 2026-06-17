@@ -120,6 +120,8 @@ const alternates: { hreflang: string; href: string }[] = [
     <meta name="twitter:image" content={new URL(ogImage, site).toString()} />
     <meta name="twitter:image:alt" content={title} />
 
+    {/* Brand gold. Keep in sync with `--gold` in src/styles/global.css —
+        an HTML attribute can't read a CSS custom property. */}
     <meta name="theme-color" content="#c9a96e" />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
