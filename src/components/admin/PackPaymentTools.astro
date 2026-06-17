@@ -109,6 +109,10 @@ const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madr
         <p class="text-ink/70">Suma add-ons</p>
         <p id="calcAddonsTotal" class="font-bold text-ink">0 €</p>
       </div>
+      <div data-discount-cell hidden>
+        <p class="text-ink/70">Descompte</p>
+        <p id="calcDiscount" class="font-bold text-gold">0 €</p>
+      </div>
       <div>
         <p class="text-ink/70">Total amb IVA</p>
         <p id="calcGrossTotal" class="font-bold text-ink">0 €</p>
@@ -279,8 +283,10 @@ const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madr
     });
 
     // ─── Payment calculator ──────────────────────────────────────────────
-    // gross = pack + addons (IVA included). The cash slice sits OUTSIDE the
-    // invoice; the couple saves the 21 % VAT on that tram.
+    // gross = (pack − discount) + addons (IVA included). The discount comes
+    // from the surrounding booking form (percent or absolute euros) and is
+    // applied to the pack price before anything else. The cash slice sits
+    // OUTSIDE the invoice; the couple saves the 21 % VAT on that tram.
     //   cashSaving = cash * 0.21
     //   net = gross - cashSaving ;  sched0+sched1+sched2+cash = net
     //   ⇒ sched_sum = gross - cash*1.21 ;  cash = (gross - sched_sum)/1.21
@@ -297,12 +303,29 @@ const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madr
     const elCashSav = document.getElementById('calcCashSaving');
     const elScheduled = document.getElementById('calcScheduled');
     const elRemaining = document.getElementById('calcRemaining');
+    const elDiscount = document.getElementById('calcDiscount');
+    const discountCell = document.querySelector<HTMLElement>('[data-discount-cell]');
     const insertBtn = document.getElementById('insertPaymentPlanBtn');
+    // Discount fields live in the surrounding booking form (new.astro /
+    // [id].astro), not in this shared component — read them the same way we
+    // read the pack/price fields.
+    const discountValueField = document.getElementById('discountValueField') as HTMLInputElement | null;
 
     function parseEuros(s: string | null | undefined): number {
       if (!s) return 0;
       const n = parseFloat(String(s).replace(',', '.'));
       return Number.isFinite(n) ? n : 0;
+    }
+
+    // Discount in euros, applied to the pack price. percent → % of pack,
+    // amount → absolute euros. Never exceeds the pack price.
+    function currentDiscountEuros(packEuros: number): number {
+      const typeEl = document.querySelector<HTMLInputElement>('input[name="discountType"]:checked');
+      const type = typeEl?.value ?? 'amount';
+      const val = parseEuros(discountValueField?.value);
+      if (val <= 0) return 0;
+      const raw = type === 'percent' ? (packEuros * Math.min(val, 100)) / 100 : val;
+      return Math.min(packEuros, raw);
     }
 
     function fmt(n: number): string {
@@ -319,8 +342,10 @@ const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madr
 
     function paymentState() {
       const pack = parseEuros(priceField?.value);
+      const discount = currentDiscountEuros(pack);
+      const packNet = pack - discount;
       const addons = sumAddons();
-      const gross = pack + addons;
+      const gross = packNet + addons;
       const cash = Math.max(0, parseEuros(cashInput?.value));
       const cashSaving = cash * 0.21;
       const net = gross - cashSaving;
@@ -330,13 +355,15 @@ const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madr
       const invoiced = Math.max(0, gross - cash * 1.21);
       const base = invoiced / 1.21;
       const vat = invoiced - base;
-      return { pack, addons, gross, cash, cashSaving, net, s, scheduled, paid, base, vat };
+      return { pack, discount, packNet, addons, gross, cash, cashSaving, net, s, scheduled, paid, base, vat };
     }
 
     function recalcPayment() {
       const st = paymentState();
       if (elPack) elPack.textContent = fmt(st.pack);
       if (elAddons) elAddons.textContent = fmt(st.addons);
+      if (elDiscount) elDiscount.textContent = `−${fmt(st.discount)}`;
+      if (discountCell) discountCell.hidden = st.discount <= 0;
       if (elGross) elGross.textContent = fmt(st.gross);
       if (elNet) elNet.textContent = fmt(st.net);
       if (elBase) elBase.textContent = fmt(st.base);
@@ -391,6 +418,11 @@ const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madr
     [priceField, addonsField, cashInput, sched0, sched1, sched2].forEach((el) => {
       el?.addEventListener('input', recalcPayment);
     });
+    // Recalculate when the discount changes too (value or %/€ toggle).
+    discountValueField?.addEventListener('input', recalcPayment);
+    document
+      .querySelectorAll<HTMLInputElement>('input[name="discountType"]')
+      .forEach((r) => r.addEventListener('change', recalcPayment));
     document.querySelectorAll<HTMLButtonElement>('.pay-fill').forEach((btn) => {
       btn.addEventListener('click', () => {
         const slot = btn.dataset.fillSlot as '0' | '1' | '2' | 'cash' | undefined;
