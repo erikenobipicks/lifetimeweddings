@@ -23,6 +23,13 @@ function triggerLabel(s: EmailSequence): string {
   if (s.triggerKind === 'days_before_wedding') return `${d} dies abans de la boda`;
   return `${d} dies després de la boda`;
 }
+
+const SCOPE_LABEL: Record<EmailSequence['serviceScope'], string> = {
+  any: 'Tothom',
+  photo: 'Foto (+combo)',
+  video: 'Vídeo (+combo)',
+  combo: 'Combo',
+};
 ---
 
 <AdminLayout title="Email sequences">
@@ -83,6 +90,7 @@ function triggerLabel(s: EmailSequence): string {
             <th class="text-left px-4 py-3">Slug</th>
             <th class="text-left px-4 py-3">Quan s'envia</th>
             <th class="text-left px-4 py-3">Assumpte (CA)</th>
+            <th class="text-left px-4 py-3">Servei</th>
             <th class="text-left px-4 py-3">Formulari</th>
             <th class="text-left px-4 py-3">Estat</th>
             <th class="px-4 py-3"></th>
@@ -94,6 +102,7 @@ function triggerLabel(s: EmailSequence): string {
               <td class="px-4 py-3 font-mono text-xs">{s.slug}</td>
               <td class="px-4 py-3">{triggerLabel(s)}</td>
               <td class="px-4 py-3 max-w-md truncate">{s.subject.ca}</td>
+              <td class="px-4 py-3 text-xs">{SCOPE_LABEL[s.serviceScope]}</td>
               <td class="px-4 py-3 text-xs">{s.formKind ?? '—'}</td>
               <td class="px-4 py-3">
                 {s.enabled

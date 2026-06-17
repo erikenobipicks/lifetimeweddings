@@ -273,6 +273,11 @@ export async function initSchema() {
         -- Optional form to attach. Null → informational email only.
         -- Today: 'timeline' is planned. New kinds are added in code.
         form_kind TEXT,
+        -- Which couples receive this, by service type:
+        -- 'any' (everyone) | 'photo' (photo+combo) | 'video' (video+combo)
+        -- | 'combo' (combo only). Default 'any' = no behaviour change.
+        service_scope TEXT NOT NULL DEFAULT 'any'
+          CHECK (service_scope IN ('any', 'photo', 'video', 'combo')),
         subject_ca TEXT NOT NULL,
         subject_es TEXT NOT NULL,
         subject_en TEXT NOT NULL,
@@ -491,6 +496,12 @@ export async function initSchema() {
   // instagrams), fired ~2 days before the wedding (or manually). NULL =
   // not sent yet; the cron sweep uses it as the once-only guard.
   await ensureColumn('bookings', 'prewedding_telegram_sent_at', 'TEXT');
+
+  // Per-sequence service scope (Fase A of the photo/video/combo mailing
+  // split). 'any' on pre-migration rows → keeps sending to everyone, so the
+  // existing default templates (2nd-payment reminder, info form, inspiration)
+  // are unaffected until Eric narrows them. See ServiceScope in sequences.ts.
+  await ensureColumn('email_sequences', 'service_scope', "TEXT NOT NULL DEFAULT 'any'");
 
   // ── Retention sweep (boot-time) ───────────────────────────────────────
   // Data-minimisation per RGPD: keep personal data only as long as needed.

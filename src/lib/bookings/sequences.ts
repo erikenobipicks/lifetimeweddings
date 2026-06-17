@@ -16,7 +16,8 @@ import { randomUUID } from 'node:crypto';
 import { db, initSchema } from '~/lib/db';
 import { resend } from '~/lib/email';
 import { getBookingById, getFormResponseForBooking } from '~/lib/bookings/repository';
-import type { Booking, BookingFormResponse, Lang } from './types';
+import { inferServiceType } from '~/lib/contracts/generate';
+import type { Booking, BookingFormResponse, Lang, ServiceType } from './types';
 import { SITE } from '~/data/site';
 
 const FROM_HELLO = process.env.EMAIL_FROM_HELLO ?? 'Lifetime Weddings <hola@lifetime.photo>';
@@ -25,6 +26,16 @@ const SITE_URL = process.env.PUBLIC_SITE_URL ?? SITE.url;
 export type TriggerKind = 'days_after_deposit' | 'days_before_wedding' | 'days_after_wedding';
 export type FormKind = 'timeline' | 'guest_list' | 'music' | 'wedding_details' | 'inspiration'; // expand as Eric adds forms
 
+// Which couples a sequence targets, by service type:
+//   'any'   — everyone (the default; pre-migration rows behave this way too)
+//   'photo' — photo-only AND combo bookings
+//   'video' — video-only AND combo bookings
+//   'combo' — combo bookings only
+// A combo booking therefore receives photo + video + common sequences (so
+// nothing photo- or video-specific is missed); a 'combo'-scoped sequence is
+// for things that ONLY make sense when both services are contracted.
+export type ServiceScope = 'any' | 'photo' | 'video' | 'combo';
+
 export interface EmailSequence {
   id: number;
   slug: string;
@@ -32,10 +43,30 @@ export interface EmailSequence {
   triggerKind: TriggerKind;
   triggerOffsetDays: number;
   formKind: FormKind | null;
+  serviceScope: ServiceScope;
   subject: Record<Lang, string>;
   bodyHtml: Record<Lang, string>;
   createdAt: Date;
   updatedAt: Date;
+}
+
+/** A booking's effective service type: the explicit override when set,
+ *  otherwise inferred from the pack (same logic the contract uses). Used to
+ *  decide which sequences a booking should receive. */
+export function resolveBookingServiceType(booking: Booking): ServiceType {
+  return booking.serviceType ?? inferServiceType(booking.packName, booking.packIncludes);
+}
+
+/** Does a sequence's scope apply to a booking of the given service type?
+ *  Combo bookings match photo- and video-scoped sequences (they get both
+ *  worlds); a combo-scoped sequence only fires for combo bookings. */
+export function scopeMatchesService(scope: ServiceScope, service: ServiceType): boolean {
+  switch (scope) {
+    case 'any': return true;
+    case 'photo': return service === 'photo' || service === 'combo';
+    case 'video': return service === 'video' || service === 'combo';
+    case 'combo': return service === 'combo';
+  }
 }
 
 export interface EmailScheduleRow {
@@ -70,6 +101,7 @@ function mapSequence(r: Record<string, unknown>): EmailSequence {
     triggerKind: r.trigger_kind as TriggerKind,
     triggerOffsetDays: Number(r.trigger_offset_days),
     formKind: (r.form_kind as FormKind | null) || null,
+    serviceScope: ((r.service_scope as ServiceScope) || 'any') as ServiceScope,
     subject: {
       ca: String(r.subject_ca ?? ''),
       es: String(r.subject_es ?? ''),
@@ -123,6 +155,7 @@ export interface SequenceInput {
   triggerKind: TriggerKind;
   triggerOffsetDays: number;
   formKind?: FormKind | null;
+  serviceScope?: ServiceScope;
   subject: Record<Lang, string>;
   bodyHtml: Record<Lang, string>;
 }
@@ -132,17 +165,18 @@ export async function createSequence(input: SequenceInput): Promise<number> {
   const now = toIso(new Date());
   const res = await db.execute({
     sql: `INSERT INTO email_sequences (
-        slug, enabled, trigger_kind, trigger_offset_days, form_kind,
+        slug, enabled, trigger_kind, trigger_offset_days, form_kind, service_scope,
         subject_ca, subject_es, subject_en,
         body_html_ca, body_html_es, body_html_en,
         created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       input.slug.trim(),
       input.enabled === false ? 0 : 1,
       input.triggerKind,
       input.triggerOffsetDays,
       input.formKind ?? null,
+      input.serviceScope ?? 'any',
       input.subject.ca, input.subject.es, input.subject.en,
       input.bodyHtml.ca, input.bodyHtml.es, input.bodyHtml.en,
       now, now,
@@ -155,7 +189,7 @@ export async function updateSequence(id: number, input: SequenceInput): Promise<
   await initSchema();
   await db.execute({
     sql: `UPDATE email_sequences SET
-      slug = ?, enabled = ?, trigger_kind = ?, trigger_offset_days = ?, form_kind = ?,
+      slug = ?, enabled = ?, trigger_kind = ?, trigger_offset_days = ?, form_kind = ?, service_scope = ?,
       subject_ca = ?, subject_es = ?, subject_en = ?,
       body_html_ca = ?, body_html_es = ?, body_html_en = ?,
       updated_at = ?
@@ -166,6 +200,7 @@ export async function updateSequence(id: number, input: SequenceInput): Promise<
       input.triggerKind,
       input.triggerOffsetDays,
       input.formKind ?? null,
+      input.serviceScope ?? 'any',
       input.subject.ca, input.subject.es, input.subject.en,
       input.bodyHtml.ca, input.bodyHtml.es, input.bodyHtml.en,
       toIso(new Date()),
@@ -243,10 +278,14 @@ export async function materialiseSchedulesForBooking(bookingId: string): Promise
   // mailing flow — we only track their date + billing.
   if (booking.kind === 'external') return { created: 0 };
   const sequences = await listSequences(false); // enabled only
+  const service = resolveBookingServiceType(booking);
   const now = toIso(new Date());
   const today = ymd(new Date());
   let created = 0;
   for (const seq of sequences) {
+    // Skip sequences whose service scope doesn't apply to this booking
+    // (e.g. a video-only preparation email for a photo-only couple).
+    if (!scopeMatchesService(seq.serviceScope, service)) continue;
     const date = computeScheduleDate(seq, booking);
     if (!date) continue;
     const scheduledFor = date < today ? today : date;

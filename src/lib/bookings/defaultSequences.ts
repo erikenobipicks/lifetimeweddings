@@ -14,6 +14,7 @@ export const SECOND_PAYMENT_REMINDER: SequenceInput = {
   triggerKind: 'days_before_wedding',
   triggerOffsetDays: 14,
   formKind: null,
+  serviceScope: 'any', // payment reminder applies to every booking
   subject: {
     ca: 'Recordatori del segon pagament · {couple}',
     es: 'Recordatorio del segundo pago · {couple}',
@@ -66,6 +67,7 @@ export const PRE_WEDDING_INFO: SequenceInput = {
   triggerKind: 'days_before_wedding',
   triggerOffsetDays: 30,
   formKind: 'wedding_details',
+  serviceScope: 'any', // logistics questionnaire applies to every booking
   subject: {
     ca: 'Un mes: necessitem conèixer-vos una mica més (10 minuts, ho prometem)',
     es: 'Un mes: necesitamos conoceros un poco más (10 minutos, prometido)',
@@ -112,6 +114,7 @@ export const INSPIRATION_FORM: SequenceInput = {
   triggerKind: 'days_before_wedding',
   triggerOffsetDays: 60,
   formKind: 'inspiration',
+  serviceScope: 'any', // music & inspiration helps both photo and video
   subject: {
     ca: 'Dos mesos: parlem de música i inspiració 🎶',
     es: 'Dos meses: hablemos de música e inspiración 🎶',
