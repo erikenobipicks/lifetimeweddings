@@ -11,73 +11,18 @@ import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { getUser } from '~/lib/auth';
 import { createBooking } from '~/lib/bookings/repository';
-import type { BookingCreateInput, PackAddon, ReferenceTestimonial } from '~/lib/bookings/types';
+import type { BookingCreateInput, ReferenceTestimonial } from '~/lib/bookings/types';
+import {
+  SPANISH_EUROS_RE,
+  eurosStringToCents,
+  computeDiscountCents,
+  parseLines,
+  parseAddons,
+} from '~/lib/payments/money';
 
 // ─── Field parsers (form-data → typed) ────────────────────────────────────
-// Each list field comes as a textarea with one line per item; addons come
-// as "Name | 290" lines (name pipe price-in-euros). Empty lines ignored.
-
-// Accepted price formats (Spanish-first, US fallback):
-//   "3170"   "3170.00"   "3170,00"
-//   "3.170"  "3.170,00"  "1.500.000,00"
-// Spanish convention: "." = thousands separator, "," = decimal.
-// US fallback: a bare "1500.00" with 1–2 trailing digits is treated as
-// decimal so old quotes / picker output keep working.
-const SPANISH_EUROS_RE = /^(?:\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:[.,]\d{1,2})?)$/;
-
-/** Parse a Spanish (or US-style) euro string into cents. Returns NaN if
- *  the input is unparseable so the caller can reject it. */
-function eurosStringToCents(raw: string): number {
-  const s = raw.trim();
-  if (!SPANISH_EUROS_RE.test(s)) return NaN;
-  // If a comma is present, it's the decimal — strip all dots (thousands)
-  // and swap the comma. Without a comma, ".\d{3}" groups are thousands;
-  // a lone ".\d{1,2}" tail is a decimal (US fallback).
-  let normalized: string;
-  if (s.includes(',')) {
-    normalized = s.replace(/\./g, '').replace(',', '.');
-  } else if (/^\d{1,3}(?:\.\d{3})+$/.test(s)) {
-    normalized = s.replace(/\./g, '');
-  } else {
-    normalized = s;
-  }
-  const n = parseFloat(normalized);
-  if (!Number.isFinite(n) || n < 0) return NaN;
-  return Math.round(n * 100);
-}
-
-function parseLines(raw: string | null | undefined): string[] {
-  if (!raw) return [];
-  return raw
-    .split(/\r?\n/)
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0);
-}
-
-function parseAddons(raw: string | null | undefined): PackAddon[] {
-  return parseLines(raw)
-    .map((line): PackAddon | null => {
-      // Split on the last "|" so names containing the pipe character
-      // (unlikely but possible) don't break the parse.
-      const idx = line.lastIndexOf('|');
-      if (idx < 0) return null;
-      const name = line.slice(0, idx).trim();
-      const priceStr = line.slice(idx + 1).trim();
-      if (!name) return null;
-      const cents = eurosStringToCents(priceStr);
-      if (Number.isNaN(cents)) return null;
-      return { name, price_cents: cents };
-    })
-    .filter((x): x is PackAddon => x !== null);
-}
-
-function computeDiscountCents(type: string, value: string, packCents: number): number {
-  const v = parseFloat(value.trim().replace(',', '.'));
-  if (!Number.isFinite(v) || v <= 0) return 0;
-  if (type === 'percent') return Math.round(packCents * Math.min(v, 100) / 100);
-  if (type === 'amount') return Math.round(v * 100);
-  return 0;
-}
+// Euro parsing, the accepted price format (SPANISH_EUROS_RE) and the
+// discount/add-on parsers all live in ~/lib/payments/money now.
 
 function parseTestimonial(
   quote: string | null | undefined,

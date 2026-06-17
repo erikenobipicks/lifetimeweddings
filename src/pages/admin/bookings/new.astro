@@ -359,24 +359,22 @@ if (sourceQuote) {
   // The pack picker / extras / payment calculator live in the shared
   // <PackPaymentTools> component. This page only keeps the discount live
   // preview (it reads the same #packPriceField the component writes to).
+  // Discount math comes from ~/lib/payments/money (single source of truth).
+  import { parseEurosLoose, computeDiscountEuros, formatEurosAmount } from '~/lib/payments/money';
+
   const discountValueInput = document.getElementById('discountValueField') as HTMLInputElement | null;
   const discountPreviewEl = document.getElementById('discountPreview');
   const priceField = document.getElementById('packPriceField') as HTMLInputElement | null;
   function updateDiscountPreview() {
     const typeEl = document.querySelector<HTMLInputElement>('input[name="discountType"]:checked');
-    const type = typeEl?.value ?? 'amount';
-    const val = parseFloat((discountValueInput?.value ?? '').replace(',', '.'));
-    const packCents = Math.round(parseFloat((priceField?.value ?? '0').replace(',', '.')) * 100);
-    if (!Number.isFinite(val) || val <= 0 || packCents <= 0) {
+    const packEuros = parseEurosLoose(priceField?.value);
+    const discount = computeDiscountEuros(typeEl?.value ?? 'amount', discountValueInput?.value, packEuros);
+    if (discount <= 0 || packEuros <= 0) {
       if (discountPreviewEl) discountPreviewEl.textContent = '';
       return;
     }
-    const discountCents = type === 'percent'
-      ? Math.round(packCents * Math.min(val, 100) / 100)
-      : Math.round(val * 100);
-    const effectiveCents = packCents - discountCents;
     if (discountPreviewEl) {
-      discountPreviewEl.textContent = `−${(discountCents / 100).toFixed(0)} € · efectiu: ${(effectiveCents / 100).toFixed(0)} €`;
+      discountPreviewEl.textContent = `−${formatEurosAmount(discount)} · efectiu: ${formatEurosAmount(packEuros - discount)}`;
     }
   }
   discountValueInput?.addEventListener('input', updateDiscountPreview);
