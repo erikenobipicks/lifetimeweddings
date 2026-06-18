@@ -15,6 +15,13 @@ export interface Pack {
   id: string;
   type: PackType;
   name: Record<Lang, string>;
+  /** Functional, plain-language subtitle shown as the prominent label on
+   *  the quote page, with `name` demoted to a small italic kicker above
+   *  it. The series-style names (How I Met…, This Is Us…) have personality
+   *  but force the couple to decode what each pack actually is at the exact
+   *  moment they're comparing prices; the subtitle removes that friction
+   *  ("Fotografia · El reportatge complet del dia"). */
+  subtitle?: Record<Lang, string>;
   /** Formatted price string, IVA included (Spanish B2C law requires
    *  tax-included display for consumer prices — no "+ IVA" suffix). */
   price: string;
@@ -52,6 +59,11 @@ export const PACKS: Pack[] = [
       ca: 'Com vaig conèixer la vostra mare',
       en: 'How I Met Your Mother',
     },
+    subtitle: {
+      es: 'Fotografía · El reportaje completo del día',
+      ca: 'Fotografia · El reportatge complet del dia',
+      en: 'Photography · The full coverage of the day',
+    },
     price: '1.290 €',
     highlight: 'picked-photo',
     includes: {
@@ -61,7 +73,7 @@ export const PACKS: Pack[] = [
         'Galería privada online para compartir con familia y amigos',
         'Caja de madera personalizada con 9 copias seleccionadas',
         'Pendrive con todas las fotografías',
-        'Entrega en máximo 90 días',
+        'Galería privada online en un máximo de 4 semanas',
       ],
       ca: [
         'Cobertura completa del dia: des dels preparatius fins a 45 min – 1 h després del primer ball (màxim 14 h)',
@@ -69,7 +81,7 @@ export const PACKS: Pack[] = [
         'Galeria privada online per compartir amb família i amics',
         'Caixa de fusta personalitzada amb 9 còpies seleccionades',
         'Pendrive amb totes les fotografies',
-        'Entrega en màxim 90 dies',
+        'Galeria privada online en un màxim de 4 setmanes',
       ],
       en: [
         'Full-day coverage: from prep to 45 min – 1 h after the first dance (max 14 h)',
@@ -77,14 +89,19 @@ export const PACKS: Pack[] = [
         'Private online gallery to share with family and friends',
         'Personalised wooden box with 9 selected prints',
         'USB drive with all photographs',
-        'Delivered within 90 days',
+        'Private online gallery within 4 weeks',
       ],
     },
   },
   {
     id: 'lqsa',
     type: 'photo',
-    name: { es: '¡La que se avecina!', ca: '¡La que se avecina!', en: '¡La que se avecina!' },
+    name: { es: 'Lo que está por venir', ca: 'El que ha de venir', en: 'What’s to Come' },
+    subtitle: {
+      es: 'Fotografía · Reportaje completo + álbum de madera',
+      ca: 'Fotografia · Reportatge complet + àlbum de fusta',
+      en: 'Photography · Full coverage + wooden album',
+    },
     price: '1.740 €',
     includes: {
       es: [
@@ -107,6 +124,11 @@ export const PACKS: Pack[] = [
     id: 'this-is-us',
     type: 'video',
     name: { es: 'This Is Us', ca: 'This Is Us', en: 'This Is Us' },
+    subtitle: {
+      es: 'Vídeo · Película documental de la boda',
+      ca: 'Vídeo · Pel·lícula documental del casament',
+      en: 'Film · Documentary wedding film',
+    },
     price: '1.290 €',
     highlight: 'picked-video',
     includes: {
@@ -116,7 +138,7 @@ export const PACKS: Pack[] = [
         'Dron incluido (sujeto a condiciones meteorológicas y normativa AESA)',
         'Edición documental sin marca de agua',
         'Entrega en MP4 (HD)',
-        'Entrega en máximo 5 meses',
+        'Película de boda entregada en un máximo de 10 semanas',
       ],
       ca: [
         'Cobertura completa amb 1 càmera: des dels preparatius fins a 45 min després del primer ball',
@@ -124,7 +146,7 @@ export const PACKS: Pack[] = [
         'Dron inclòs (segons condicions meteorològiques i normativa AESA)',
         'Edició documental sense marca d’aigua',
         'Entrega en MP4 (HD)',
-        'Entrega en màxim 5 mesos',
+        'Pel·lícula de casament entregada en un màxim de 10 setmanes',
       ],
       en: [
         'Full-day coverage with 1 camera: from prep to 45 min after the first dance',
@@ -132,7 +154,7 @@ export const PACKS: Pack[] = [
         'Drone included (weather and AESA regulation permitting)',
         'Documentary edit, no watermark',
         'Delivered in MP4 (HD)',
-        'Delivered within 5 months',
+        'Wedding film delivered within 10 weeks',
       ],
     },
   },
@@ -140,6 +162,11 @@ export const PACKS: Pack[] = [
     id: 'outlander',
     type: 'video',
     name: { es: 'Outlander', ca: 'Outlander', en: 'Outlander' },
+    subtitle: {
+      es: 'Vídeo · Documental completo con dron',
+      ca: 'Vídeo · Documental complet amb dron',
+      en: 'Film · Full documentary with drone',
+    },
     price: '1.590 €',
     includes: {
       es: [
@@ -170,6 +197,11 @@ export const PACKS: Pack[] = [
       ca: 'Com vaig conèixer + This Is Us',
       en: 'How I Met + This Is Us',
     },
+    subtitle: {
+      es: 'Foto + Vídeo · Reportaje y película del día',
+      ca: 'Foto + Vídeo · Reportatge i pel·lícula del dia',
+      en: 'Photo + Film · Coverage and film of the day',
+    },
     price: '2.480 €',
     includes: {
       es: [
@@ -195,6 +227,11 @@ export const PACKS: Pack[] = [
       ca: 'Com vaig conèixer + Outlander',
       en: 'How I Met + Outlander',
     },
+    subtitle: {
+      es: 'Foto + Vídeo · Reportaje y documental con dron',
+      ca: 'Foto + Vídeo · Reportatge i documental amb dron',
+      en: 'Photo + Film · Coverage and documentary with drone',
+    },
     price: '2.750 €',
     includes: {
       es: ['Foto + vídeo coordinados por dos hermanos en un solo equipo'],
@@ -207,9 +244,14 @@ export const PACKS: Pack[] = [
     type: 'combo',
     composedOf: ['lqsa', 'this-is-us'],
     name: {
-      es: '¡La que se avecina! + This Is Us',
-      ca: '¡La que se avecina! + This Is Us',
-      en: '¡La que se avecina! + This Is Us',
+      es: 'Lo que está por venir + This Is Us',
+      ca: 'El que ha de venir + This Is Us',
+      en: 'What’s to Come + This Is Us',
+    },
+    subtitle: {
+      es: 'Foto + Vídeo · Todo completo, con álbum y película',
+      ca: 'Foto + Vídeo · Tot complet, amb àlbum i pel·lícula',
+      en: 'Photo + Film · Everything, with album and film',
     },
     price: '2.900 €',
     highlight: 'star',
@@ -233,9 +275,14 @@ export const PACKS: Pack[] = [
     type: 'combo',
     composedOf: ['lqsa', 'outlander'],
     name: {
-      es: '¡La que se avecina! + Outlander',
-      ca: '¡La que se avecina! + Outlander',
-      en: '¡La que se avecina! + Outlander',
+      es: 'Lo que está por venir + Outlander',
+      ca: 'El que ha de venir + Outlander',
+      en: 'What’s to Come + Outlander',
+    },
+    subtitle: {
+      es: 'Foto + Vídeo · La cobertura más completa',
+      ca: 'Foto + Vídeo · La cobertura més completa',
+      en: 'Photo + Film · Our most complete coverage',
     },
     price: '3.170 €',
     includes: {
@@ -266,6 +313,11 @@ export const PACKS: Pack[] = [
       ca: 'Reportatge curt',
       es: 'Reportaje corto',
       en: 'Short coverage',
+    },
+    subtitle: {
+      ca: 'Fotografia · Cobertura essencial',
+      es: 'Fotografía · Cobertura esencial',
+      en: 'Photography · Essential coverage',
     },
     price: '500 €',
     includes: {
@@ -303,6 +355,11 @@ export const PACKS: Pack[] = [
       es: 'Vídeo corto',
       en: 'Short video coverage',
     },
+    subtitle: {
+      ca: 'Vídeo · Cobertura essencial',
+      es: 'Vídeo · Cobertura esencial',
+      en: 'Film · Essential coverage',
+    },
     price: '550 €',
     includes: {
       es: [
@@ -311,7 +368,7 @@ export const PACKS: Pack[] = [
         'Vídeo cinematográfico de 8-12 minutos',
         'Audio de la ceremonia incluido',
         'Edición sin marca de agua',
-        'Entrega online en máximo 3 meses',
+        'Entrega online en un máximo de 6 semanas',
       ],
       ca: [
         'Cobertura de ~2,5 hores: cerimònia + sessió de nuvis + aperitiu',
@@ -319,7 +376,7 @@ export const PACKS: Pack[] = [
         'Vídeo cinematogràfic de 8-12 minuts',
         'Àudio de la cerimònia inclòs',
         'Edició sense marca d\'aigua',
-        'Entrega online en màxim 3 mesos',
+        'Entrega online en un màxim de 6 setmanes',
       ],
       en: [
         '~2.5 h coverage: ceremony + couple shoot + aperitivo',
@@ -327,7 +384,7 @@ export const PACKS: Pack[] = [
         'Cinematic highlight film of 8-12 minutes',
         'Ceremony audio included',
         'Edited, no watermark',
-        'Online delivery within 3 months',
+        'Online delivery within 6 weeks',
       ],
     },
   },
@@ -339,6 +396,11 @@ export const PACKS: Pack[] = [
       ca: 'Reportatge curt foto + vídeo',
       es: 'Reportaje corto foto + vídeo',
       en: 'Short coverage photo + film',
+    },
+    subtitle: {
+      ca: 'Foto + Vídeo · Cobertura essencial',
+      es: 'Foto + Vídeo · Cobertura esencial',
+      en: 'Photo + Film · Essential coverage',
     },
     price: '900 €',
     includes: {

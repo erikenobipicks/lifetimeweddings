@@ -61,7 +61,10 @@ export interface ServiceFlags {
  *  false negatives → he can't tick something he actually delivered). */
 export function serviceFlags(packName: string | null | undefined): ServiceFlags {
   const n = (packName ?? '').toLowerCase();
-  const photoKeywords = ['foto', 'com vaig', 'cómo conocí', 'como conoci', 'how i met', 'lqsa', 'la que se avecina', 'combo'];
+  // Includes both the current pack name ("El que ha de venir" / "Lo que está
+  // por venir" / "What's to Come") and the legacy "¡La que se avecina!" so
+  // bookings created before the rename still classify correctly.
+  const photoKeywords = ['foto', 'com vaig', 'cómo conocí', 'como conoci', 'how i met', 'lqsa', 'la que se avecina', 'ha de venir', 'por venir', 'to come', 'combo'];
   const videoKeywords = ['vídeo', 'video', 'this is us', 'outlander', 'combo'];
   const hasPhoto = photoKeywords.some((k) => n.includes(k));
   const hasVideo = videoKeywords.some((k) => n.includes(k));

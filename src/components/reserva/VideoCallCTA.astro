@@ -24,9 +24,12 @@ interface Props {
   coupleName?: string | null;
   /** When set, an email link is offered alongside WhatsApp. */
   emailHref?: string | null;
+  /** Honest scarcity line ("only one wedding a day…") shown below the
+   *  primary button. Optional — only the quote page passes it. */
+  scarcityNote?: string | null;
 }
 
-const { lang, whatsappLink, coupleName = null, emailHref = null } = Astro.props;
+const { lang, whatsappLink, coupleName = null, emailHref = null, scarcityNote = null } = Astro.props;
 const t = useTranslations(lang);
 const bookingUrl = SITE.bookingUrl?.trim() || null;
 ---
@@ -86,6 +89,9 @@ const bookingUrl = SITE.bookingUrl?.trim() || null;
           </p>
         )}
       </>
+    )}
+    {scarcityNote && (
+      <p class="text-sm text-gold-deep font-medium mt-6 max-w-xl mx-auto">{scarcityNote}</p>
     )}
     <p class="text-xs text-ink/70 mt-4">{t('reserva.videocall.subnote')}</p>
   </div>

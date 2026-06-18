@@ -650,8 +650,8 @@ export const ui = {
     'quote.values.p1.body': 'Foto y vídeo coordinados desde dentro: una sola mirada en dos formatos. No tendréis que sincronizar a dos proveedores el día más importante.',
     'quote.values.p2.title': 'Fotoperiodismo, sin poses',
     'quote.values.p2.body': 'Pasamos desapercibidos y no dirigimos la escena. Queremos que en 20 años reviváis el día tal y como fue, no que recordéis al fotógrafo.',
-    'quote.values.p3.title': 'Entrega en 3-4 semanas',
-    'quote.values.p3.body': 'Vuestra galería privada con 700-1.200 fotos editadas, listas para compartir antes de lo que tarda en apagarse el bronceado de la luna de miel. El vídeo, en 8-10 semanas.',
+    'quote.values.p3.title': 'Solo una boda al día',
+    'quote.values.p3.body': 'El día de vuestra boda no tenemos ninguna otra. Ni prisas por marcharnos, ni la cabeza en otra pareja. Todo nuestro tiempo y toda nuestra atención son para vosotros, desde la mañana hasta el último baile.',
     'quote.faq.heading': 'Preguntas frecuentes',
     'quote.faq.q1.q': '¿Cuántas fotos entregamos?',
     'quote.faq.q1.a': 'Os entregamos entre 700 y 1.200 fotografías editadas, seleccionando siempre las mejores para contar vuestra historia de la forma más emocionante y auténtica.',
@@ -667,6 +667,15 @@ export const ui = {
     'quote.faq.q6.a': 'Sí. Hemos cubierto bodas por toda España y también en Nueva York, Roma y Londres. Las tarifas incluyen el desplazamiento dentro de la provincia de Tarragona y hasta 100 km de Reus. Para distancias mayores, presupuestamos viaje y kilometraje aparte.',
     'quote.faq.q7.q': '¿Cuánto tiempo estaréis en la boda?',
     'quote.faq.q7.a': 'El día de vuestra boda lo reservamos solo para vosotros. Normalmente estamos entre 10 y 13 horas — desde los preparativos hasta 45 min – 1 h después del baile nupcial. Y nunca delegamos en terceros: vamos nosotros.',
+    // Quote validity (shown discreetly near the total) — {date} interpolated.
+    'quote.validity': 'Este presupuesto es válido hasta el {date}.',
+    // Honest scarcity line under the final CTA. "withDate" personalises with
+    // the couple's wedding date; "noDate" is the fallback when we don't have it.
+    'quote.scarcity.withDate': 'Como solo hacemos una boda al día, las fechas son limitadas. Consultad si la vuestra ({date}) aún está libre.',
+    'quote.scarcity.noDate': 'Como solo hacemos una boda al día, las fechas son limitadas. Consultad si la vuestra aún está libre.',
+    // Social-proof block (real reviews only — hidden until populated).
+    'quote.testimonials.eyebrow': 'Lo que dicen las parejas',
+    'quote.testimonials.heading': 'La mejor garantía',
   },
 
   ca: {
@@ -1276,8 +1285,8 @@ export const ui = {
     'quote.values.p1.body': 'Foto i vídeo coordinats des de dins: una mateixa mirada en dos formats. No haureu de sincronitzar dos proveïdors el dia més important.',
     'quote.values.p2.title': 'Fotoperiodisme, sense poses',
     'quote.values.p2.body': 'Passem desapercebuts i no dirigim l\'escena. Volem que d\'aquí 20 anys reviviu el dia tal com va ser, no que us recordeu del fotògraf.',
-    'quote.values.p3.title': 'Entrega en 3-4 setmanes',
-    'quote.values.p3.body': 'La vostra galeria privada amb 700-1.200 fotos editades, llestes per compartir abans del que tarda a esvair-se el bronzejat de la lluna de mel. El vídeo, en 8-10 setmanes.',
+    'quote.values.p3.title': 'Només una boda al dia',
+    'quote.values.p3.body': 'El dia del vostre casament no en tenim cap altra. Ni presses per marxar, ni el cap en una altra parella. Tot el nostre temps i tota la nostra atenció són per a vosaltres, des del matí fins a l\'últim ball.',
     'quote.faq.heading': 'Preguntes freqüents',
     'quote.faq.q1.q': 'Quantes fotos entreguem?',
     'quote.faq.q1.a': 'Us entreguem entre 700 i 1.200 fotografies editades, sempre seleccionant les millors per explicar la vostra història de la manera més emocionant i autèntica.',
@@ -1293,6 +1302,15 @@ export const ui = {
     'quote.faq.q6.a': 'Sí, i tant! Hem cobert casaments arreu d\'Espanya i també a Nova York, Roma i Londres. Les tarifes inclouen el desplaçament dins de la província de Tarragona i fins a 100 km de Reus. Per a desplaçaments més llargs, pressupostem viatge i quilometratge a part.',
     'quote.faq.q7.q': 'Quant de temps esteu al casament?',
     'quote.faq.q7.a': 'El dia del vostre casament el reservem exclusivament per a vosaltres. Normalment estem entre 10 i 13 hores — des dels preparatius fins a 45 min – 1 h després del ball nupcial. I no deleguem mai a tercers: anem nosaltres.',
+    // Quote validity (shown discreetly near the total) — {date} interpolated.
+    'quote.validity': 'Aquest pressupost és vàlid fins al {date}.',
+    // Honest scarcity line under the final CTA. "withDate" personalises with
+    // the couple's wedding date; "noDate" is the fallback when we don't have it.
+    'quote.scarcity.withDate': 'Com només fem una boda al dia, les dates són limitades. Consulteu si la vostra ({date}) encara és lliure.',
+    'quote.scarcity.noDate': 'Com només fem una boda al dia, les dates són limitades. Consulteu si la vostra data encara és lliure.',
+    // Social-proof block (real reviews only — hidden until populated).
+    'quote.testimonials.eyebrow': 'El que diuen les parelles',
+    'quote.testimonials.heading': 'La millor garantia',
   },
 
   en: {
@@ -1902,8 +1920,8 @@ export const ui = {
     'quote.values.p1.body': 'Photo and video coordinated from the inside — the same eye in two formats. No need to sync two separate vendors on the most important day.',
     'quote.values.p2.title': 'Documentary, no posing',
     'quote.values.p2.body': "We blend in and don't direct the scene. We want you to relive the day exactly as it happened — not to remember the photographer.",
-    'quote.values.p3.title': '3-4 week delivery',
-    'quote.values.p3.body': 'Your private gallery with 700-1,200 edited photos, ready to share before your honeymoon tan fades. Video lands in 8-10 weeks.',
+    'quote.values.p3.title': 'Only one wedding a day',
+    'quote.values.p3.body': 'On your wedding day we have no other. No rush to leave, no mind on another couple. All our time and all our attention are for you, from the morning to the last dance.',
     'quote.faq.heading': 'Frequently asked questions',
     'quote.faq.q1.q': 'How many photos do you deliver?',
     'quote.faq.q1.a': "We deliver between 700 and 1,200 edited photographs — always picking the best ones to tell your story in the most emotional and authentic way.",
@@ -1919,6 +1937,15 @@ export const ui = {
     'quote.faq.q6.a': "Yes! We've shot weddings all over Spain and also in New York, Rome and London. Our rates include travel within the province of Tarragona and up to 100 km from Reus. For longer trips, travel and mileage are quoted separately.",
     'quote.faq.q7.q': 'How long will you stay at the wedding?',
     'quote.faq.q7.a': "Your wedding day is reserved exclusively for you. We typically stay 10–13 hours — from prep through to 45 min – 1 h after the first dance. And we never delegate to third parties: it's always us.",
+    // Quote validity (shown discreetly near the total) — {date} interpolated.
+    'quote.validity': 'This quote is valid until {date}.',
+    // Honest scarcity line under the final CTA. "withDate" personalises with
+    // the couple's wedding date; "noDate" is the fallback when we don't have it.
+    'quote.scarcity.withDate': 'As we only photograph one wedding a day, dates are limited. Check whether yours ({date}) is still free.',
+    'quote.scarcity.noDate': 'As we only photograph one wedding a day, dates are limited. Check whether your date is still free.',
+    // Social-proof block (real reviews only — hidden until populated).
+    'quote.testimonials.eyebrow': 'What couples say',
+    'quote.testimonials.heading': 'The best guarantee',
   },
 } as const;
 
