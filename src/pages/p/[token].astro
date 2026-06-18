@@ -92,6 +92,10 @@ const latestResponse = quote && !quote.archived && !expired && !needsPassword
 //   1. Real wedding override (quote.flagshipWeddingSlug) — most personal.
 //   2. Showcase override (quote.flagshipShowcaseSlug) — themed gallery.
 //   3. Lead-based recommendation (auto from quiz answers).
+// The lead is also reused below to personalise the hero (venue + date).
+const lead = quote && !quote.archived && !expired && !needsPassword
+  ? await getLeadByQuoteId(quote.id)
+  : null;
 let showcaseSlug: string | null = null;
 let weddingFeatured: typeof WEDDINGS[number] | null = null;
 if (quote && !quote.archived) {
@@ -102,7 +106,6 @@ if (quote && !quote.archived) {
     if (quote.flagshipShowcaseSlug) {
       showcaseSlug = quote.flagshipShowcaseSlug;
     } else {
-      const lead = await getLeadByQuoteId(quote.id);
       if (lead?.ceremonyType && lead?.location) {
         showcaseSlug = recommendShowcase({
           location: lead.location,
@@ -116,14 +119,30 @@ if (quote && !quote.archived) {
 }
 const showcase = showcaseSlug ? SHOWCASES.find((s) => s.slug === showcaseSlug) : null;
 
-function waForCouple(): string {
-  if (!quote) return waLink('Hola!');
-  return waLink(t('quote.wa.message').replace('{name}', quote.coupleName));
-}
+// Personalised hero subtitle built from the lead: "{venue} · {location} ·
+// {long date}". Each piece is optional; when none exist (e.g. a manually
+// created quote with no lead) we fall back to the generic hero body.
+const heroDetail: string | null = (() => {
+  if (!lead) return null;
+  const parts: string[] = [];
+  if (lead.venueName) parts.push(lead.venueName);
+  if (lead.location && lead.location !== lead.venueName) parts.push(lead.location);
+  const d = lead.weddingDate;
+  if (d) {
+    const locale = lang === 'es' ? 'es-ES' : lang === 'en' ? 'en-GB' : 'ca-ES';
+    const iso = /^\d{4}-\d{2}-\d{2}$/.test(d) ? new Date(`${d}T12:00:00Z`) : null;
+    parts.push(
+      iso
+        ? iso.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Madrid' })
+        : d,
+    );
+  }
+  return parts.length ? parts.join(' · ') : null;
+})();
 
-// Different WhatsApp pre-filled message for the videocall ask — friendlier
-// surface than waForCouple() so Ferran sees the intent (videocall) at a
-// glance and can prep for a short call rather than a long async chat.
+
+// WhatsApp pre-filled message for the closing block. Uses the videocall
+// intent so Ferran sees at a glance the couple wants a short call.
 function waForVideocall(): string {
   if (!quote) return waLink('Hola!');
   return waLink(t('quote.wa.videocallMessage').replace('{name}', quote.coupleName));
@@ -203,9 +222,10 @@ const flagshipVideo = overrideHit
       </Section>
     ) : (
       <>
-        <!-- Hero. Atmospheric B&W photo as background with a heavy dark
-             overlay so the gold eyebrow + white title stay legible.
-             `eager` because this is the LCP element on the page. -->
+        <!-- Hero. Atmospheric B&W photo as background with a vertical
+             gradient (lighter at the centre, darker at the edges) so the
+             first impression feels more luminous while the gold eyebrow +
+             white title stay legible. `eager` because this is the LCP. -->
         <section class="relative py-24 md:py-32 px-6 text-center text-white overflow-hidden bg-ink">
           <div class="absolute inset-0 z-0">
             <AtmosphericPhoto
@@ -216,24 +236,30 @@ const flagshipVideo = overrideHit
               eager
               sizes="100vw"
             />
-            <div class="absolute inset-0 bg-ink/70"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-ink/60 via-ink/45 to-ink/75"></div>
           </div>
           <div class="relative z-10">
             <img src="/logos/logo-circle-white.png" alt="" aria-hidden="true" class="w-24 mx-auto mb-6 opacity-95" />
             <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('quote.hero.eyebrow')}</p>
             <h1 class="font-display text-4xl md:text-5xl font-bold mb-4">{quote.coupleName}</h1>
+            {heroDetail ? (
+              <p class="text-sm md:text-base font-medium tracking-wide text-white/90 mb-4">{heroDetail}</p>
+            ) : null}
             <p class="max-w-xl mx-auto opacity-90">{t('quote.hero.body')}</p>
           </div>
         </section>
 
-        {quote.notes && (
-          <Section>
-            <div class="max-w-2xl mx-auto bg-white border-l-4 border-gold p-6">
-              <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-deep mb-3">{t('quote.notes.eyebrow')}</p>
-              <p class="text-ink/85 leading-relaxed whitespace-pre-wrap">{quote.notes}</p>
-            </div>
-          </Section>
-        )}
+        {/* Personal intro: the operator's note when present, otherwise a
+            warm default that uses the couple's name so the page never opens
+            with a generic wall. */}
+        <Section>
+          <div class="max-w-2xl mx-auto bg-white border-l-4 border-gold p-6">
+            <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-deep mb-3">{t('quote.notes.eyebrow')}</p>
+            <p class="text-ink/85 leading-relaxed whitespace-pre-wrap">
+              {quote.notes ? quote.notes : t('quote.intro.default').replace('{name}', quote.coupleName)}
+            </p>
+          </div>
+        </Section>
 
         <!-- Flagship trailer first — let the couple feel the work in
              motion before they see a number. Tagged data-service="video"
@@ -247,32 +273,9 @@ const flagshipVideo = overrideHit
           />
         </div>
 
-        <!-- Atmospheric break: joyful crowd moment between the video and
-             the gallery / showcase blocks. -->
-        <section class="bg-cream">
-          <AtmosphericPhoto
-            slot="moment-lifted-bride"
-            alt=""
-            aspect="3 / 2"
-            mode="cover"
-            sizes="100vw"
-            class="max-h-[60vh]"
-          />
-        </section>
-
-        {/* External gallery (FotoStudio etc.) — iframe with auto-fallback
-            to a "open in new tab" CTA when the host blocks embedding.
-            Tagged data-service="photo" since FotoStudio is photo-only;
-            the video-only filter hides it. */}
-        {quote.flagshipExternalGalleryUrl && (
-          <div data-service="photo">
-            <ExternalGalleryEmbed lang={lang} url={quote.flagshipExternalGalleryUrl} />
-          </div>
-        )}
-
-        {/* Real-wedding override — takes priority over showcase. The
-            link points at /bodes/<slug> (Catalan default) so the couple
-            lands on the full case-study with all the photos. */}
+        {/* Real-wedding override — most personal proof, shown right after
+            the film. Takes priority over showcase. Links to the full
+            case-study at /bodas/<slug>. */}
         {weddingFeatured && (
           <Section>
             <div class="max-w-2xl mx-auto text-center">
@@ -306,8 +309,19 @@ const flagshipVideo = overrideHit
           </Section>
         )}
 
-        <!-- Cinematic atmospheric break between the gallery / showcase
-             block above and the triptych below. -->
+        {/* External gallery (FotoStudio etc.) — iframe with auto-fallback
+            to a "open in new tab" CTA when the host blocks embedding.
+            Tagged data-service="photo" since FotoStudio is photo-only;
+            the video-only filter hides it. */}
+        {quote.flagshipExternalGalleryUrl && (
+          <div data-service="photo">
+            <ExternalGalleryEmbed lang={lang} url={quote.flagshipExternalGalleryUrl} />
+          </div>
+        )}
+
+        <!-- Single cinematic break before the "why us" + price blocks.
+             We keep just one full-bleed atmospheric photo so the proposal
+             reads as tailored, not like a generic photo catalogue. -->
         <section class="bg-ink">
           <AtmosphericPhoto
             slot="moment-couple-blur"
@@ -317,35 +331,6 @@ const flagshipVideo = overrideHit
             sizes="100vw"
             class="max-h-[70vh]"
           />
-        </section>
-
-        {/* Triptych — three portraits side by side (kiss, ceremony smoke,
-            bouquet+vintage car). Stacks vertically on mobile so each
-            photo still gets its moment. */}
-        <section class="px-4 md:px-6 py-12 md:py-16 bg-cream">
-          <div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
-            <AtmosphericPhoto
-              slot="triptych-kiss"
-              alt=""
-              aspect="2 / 3"
-              mode="cover"
-              sizes="(min-width: 640px) 33vw, 100vw"
-            />
-            <AtmosphericPhoto
-              slot="triptych-smoke"
-              alt=""
-              aspect="2 / 3"
-              mode="cover"
-              sizes="(min-width: 640px) 33vw, 100vw"
-            />
-            <AtmosphericPhoto
-              slot="triptych-bouquet"
-              alt=""
-              aspect="2 / 3"
-              mode="cover"
-              sizes="(min-width: 640px) 33vw, 100vw"
-            />
-          </div>
         </section>
 
         <!-- Value pillars: three columns answering "why us" right
@@ -463,43 +448,15 @@ const flagshipVideo = overrideHit
           </div>
         </Section>
 
-        <!-- Softer "let's meet before deciding" block, paired with the
-             generic CTA below. The two have different intents and pre-fill
-             different WhatsApp messages so Ferran can triage at a glance. -->
-        <VideoCallCTA lang={lang} whatsappLink={waForVideocall()} />
-
-        {/* Emotional closer — B&W motion-blur portrait, last image
-            before the generic CTA. Constrained width on desktop because
-            the source is vertical; full-bleed on mobile. */}
-        <section class="py-12 md:py-16 px-4 md:px-6 bg-cream">
-          <div class="max-w-xl mx-auto">
-            <AtmosphericPhoto
-              slot="closer-walk"
-              alt=""
-              aspect="2 / 3"
-              mode="cover"
-              sizes="(min-width: 768px) 36rem, 100vw"
-            />
-          </div>
-        </section>
-
-        <!-- CTA -->
-        <Section bg="ink">
-          <div class="max-w-2xl mx-auto text-center text-white">
-            <h2 class="font-display text-3xl font-bold mb-4">{t('quote.cta.heading')}</h2>
-            <p class="opacity-85 mb-8">{t('quote.cta.body')}</p>
-            <div class="flex flex-wrap justify-center gap-3">
-              <a href={`mailto:${SITE.email}`}
-                 class="inline-block border-2 border-white px-8 py-3 text-xs font-bold tracking-[0.15em] uppercase hover:bg-white hover:text-ink transition-colors">
-                {t('quote.cta.email')}
-              </a>
-              <a href={waForCouple()} target="_blank" rel="noopener"
-                 class="inline-block bg-[#25D366] border-2 border-[#25D366] text-white px-8 py-3 text-xs font-bold tracking-[0.15em] uppercase hover:brightness-110 transition">
-                {t('quote.cta.whatsapp')}
-              </a>
-            </div>
-          </div>
-        </Section>
+        {/* Single closing block — videocall (primary) + WhatsApp + email,
+            personalised with the couple's name. Replaces the old duplicate
+            "videocall" + generic CTA pair (and the extra closer photo). */}
+        <VideoCallCTA
+          lang={lang}
+          coupleName={quote.coupleName}
+          whatsappLink={waForVideocall()}
+          emailHref={`mailto:${SITE.email}`}
+        />
 
         <footer class="bg-ink text-white/60 py-6 text-center text-xs border-t border-white/10">
           <p>© Lifetime Weddings · <a href={`mailto:${SITE.email}`} class="text-gold hover:underline">{SITE.email}</a> · <a href={`tel:${SITE.phone}`} class="text-gold hover:underline">{SITE.phoneDisplay}</a></p>
