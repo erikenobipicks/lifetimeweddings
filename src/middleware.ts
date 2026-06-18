@@ -30,6 +30,8 @@ const SITE_APEX = SITE_HOST.replace(/^www\./, '');
 //   - Behold Instagram feed (feeds.behold.so + behold.so)
 //   - FotoStudio external galleries (gallery.fotostudio.io) \u2014 iframe
 //   - Google Places (places.googleapis.com) for venue ratings
+//   - Google Fonts (fonts.googleapis.com stylesheet → fonts.gstatic.com
+//     woff2) for the Cormorant Garamond + Jost type stack
 // 'unsafe-inline' is required for now because of Astro `is:inline` +
 // `define:vars` bootstrap scripts and the gtag/Tailwind inline blocks; a
 // nonce-based tightening is a follow-up once Report-Only shows a clean run.
@@ -40,8 +42,8 @@ const CSP_REPORT_ONLY = [
   `frame-ancestors 'self'`,
   `form-action 'self'`,
   `img-src 'self' data: https:`,
-  `font-src 'self' data:`,
-  `style-src 'self' 'unsafe-inline'`,
+  `font-src 'self' data: https://fonts.gstatic.com`,
+  `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
   `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://www.youtube.com https://s.ytimg.com https://js.stripe.com`,
   `connect-src 'self' https://challenges.cloudflare.com https://cloudflareinsights.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://connect.facebook.net https://www.facebook.com https://places.googleapis.com https://feeds.behold.so`,
   `frame-src 'self' https://challenges.cloudflare.com https://www.youtube-nocookie.com https://www.youtube.com https://js.stripe.com https://hooks.stripe.com https://gallery.fotostudio.io https://www.instagram.com https://behold.so`,
