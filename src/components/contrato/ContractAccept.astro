@@ -5,6 +5,7 @@
 // /api/contrato/accept which records it + emails the PDF copy.
 
 import { useTranslations, type Lang } from '~/i18n/ui';
+import SignatureCapture from '~/components/SignatureCapture.astro';
 
 interface Props {
   lang: Lang;
@@ -16,6 +17,10 @@ interface Props {
 const { lang, slug, contractHtml } = Astro.props;
 const t = useTranslations(lang);
 const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
+const signMissing =
+  lang === 'es' ? 'Por favor, escribe tu nombre y firma en el recuadro antes de continuar.'
+  : lang === 'en' ? 'Please type your name and sign in the box before continuing.'
+  : 'Si us plau, escriviu el nom i signeu al requadre abans de continuar.';
 ---
 
 <section id="contracte" class="px-6 md:px-12 py-12 md:py-20 bg-cream text-ink">
@@ -34,6 +39,8 @@ const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
         <input type="checkbox" name="accepted" required class="h-5 w-5 mt-0.5 accent-gold flex-shrink-0" />
         <span class="text-sm font-semibold">{t('contrato.accept.checkbox')} *</span>
       </label>
+
+      <SignatureCapture lang={lang} />
 
       {turnstileSitekey && (
         <div class="cf-turnstile mt-5" data-sitekey={turnstileSitekey} data-theme="light" data-size="flexible"></div>
@@ -74,6 +81,7 @@ const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
     successBody: t('contrato.accept.success.body'),
     errorGeneric: t('contrato.accept.error.generic'),
     submitting: t('contrato.accept.submitting'),
+    signMissing,
   }}
 >
   (() => {
@@ -100,8 +108,19 @@ const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
       const old = submitBtn.textContent;
       submitBtn.textContent = submitting;
 
+      const nameEl = form.querySelector('input[name="signerName"]');
+      const sigEl = form.querySelector('input[name="signatureImage"]');
+      const signerName = nameEl ? nameEl.value.trim() : '';
+      const signatureImage = sigEl ? sigEl.value : '';
+      if (!signerName || !signatureImage) {
+        showStatus('err', '⚠', signMissing);
+        submitBtn.disabled = false;
+        submitBtn.textContent = old;
+        return;
+      }
+
       const tk = form.querySelector('input[name="cf-turnstile-response"]');
-      const payload = { slug, accepted: true };
+      const payload = { slug, accepted: true, signerName, signatureImage };
       if (tk && tk.value) payload.captchaToken = tk.value;
 
       try {

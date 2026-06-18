@@ -9,6 +9,7 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 import type { Lang } from '~/i18n/ui';
 import { getBookingBySlug } from '~/lib/bookings/repository';
 import { buildCancellationHtml } from '~/lib/contracts/cancellation';
+import SignatureCapture from '~/components/SignatureCapture.astro';
 
 const slug = Astro.params.slug!;
 const booking = await getBookingBySlug(slug);
@@ -37,6 +38,7 @@ const TX = {
     naTitle: 'Enllaç no disponible',
     naBody: 'Aquest enllaç de cancel·lació no és vàlid o ja no està actiu.',
     err: 'Hi ha hagut un error. Torna-ho a provar.',
+    signMissing: 'Si us plau, escriviu el nom i signeu al requadre abans de continuar.',
   },
   es: {
     title: 'Acuerdo de cancelación',
@@ -51,6 +53,7 @@ const TX = {
     naTitle: 'Enlace no disponible',
     naBody: 'Este enlace de cancelación no es válido o ya no está activo.',
     err: 'Ha habido un error. Inténtalo de nuevo.',
+    signMissing: 'Por favor, escribe tu nombre y firma en el recuadro antes de continuar.',
   },
   en: {
     title: 'Cancellation agreement',
@@ -65,6 +68,7 @@ const TX = {
     naTitle: 'Link not available',
     naBody: 'This cancellation link is not valid or no longer active.',
     err: 'Something went wrong. Please try again.',
+    signMissing: 'Please type your name and sign in the box before continuing.',
   },
 } as const;
 const t = TX[lang] ?? TX.ca;
@@ -97,6 +101,9 @@ const t = TX[lang] ?? TX.ca;
               <input type="checkbox" name="accepted" required class="h-5 w-5 mt-0.5 accent-gold flex-shrink-0" />
               <span class="text-sm font-semibold">{t.checkbox} *</span>
             </label>
+
+            <SignatureCapture lang={lang} />
+
             <div class="mt-6">
               <button type="submit" id="cx-submit" class="inline-flex items-center justify-center bg-gold text-ink font-bold px-8 py-4 hover:bg-ink hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 {t.submit}
@@ -117,7 +124,7 @@ const t = TX[lang] ?? TX.ca;
 
   <script
     is:inline
-    define:vars={{ slug, successTitle: t.successTitle, successBody: t.successBody, submitting: t.submit, submittingLabel: t.submitting, errGeneric: t.err }}
+    define:vars={{ slug, successTitle: t.successTitle, successBody: t.successBody, submitting: t.submit, submittingLabel: t.submitting, errGeneric: t.err, signMissing: t.signMissing }}
   >
     (() => {
       const form = document.getElementById('cx-form');
@@ -135,6 +142,14 @@ const t = TX[lang] ?? TX.ca;
       form.addEventListener('submit', async (ev) => {
         ev.preventDefault();
         if (!form.reportValidity()) return;
+        const nameEl = form.querySelector('input[name="signerName"]');
+        const sigEl = form.querySelector('input[name="signatureImage"]');
+        const signerName = nameEl ? nameEl.value.trim() : '';
+        const signatureImage = sigEl ? sigEl.value : '';
+        if (!signerName || !signatureImage) {
+          showStatus('err', '⚠', signMissing);
+          return;
+        }
         submitBtn.disabled = true;
         const old = submitBtn.textContent;
         submitBtn.textContent = submittingLabel;
@@ -142,7 +157,7 @@ const t = TX[lang] ?? TX.ca;
           const res = await fetch('/api/cancellacio/accept', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ slug }),
+            body: JSON.stringify({ slug, signerName, signatureImage }),
           });
           const data = await res.json().catch(() => ({}));
           if (res.status === 200 && data.ok) {

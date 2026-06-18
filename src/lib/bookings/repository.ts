@@ -645,14 +645,34 @@ export async function setFacturadirectaInvoice(
 /** Record the couple's electronic acceptance of the contract. Idempotent:
  *  only stamps if not already accepted (first acceptance wins). Returns
  *  true if it set the acceptance now, false if it was already accepted. */
-export async function markContractAccepted(bookingId: string, ip: string | null): Promise<boolean> {
+export interface SignatureProof {
+  ip: string | null;
+  name?: string | null;
+  userAgent?: string | null;
+  /** sha256 audit hash of (document + name + ip + ua + timestamp). */
+  hash?: string | null;
+  /** Drawn signature as a PNG data URL. */
+  signature?: string | null;
+}
+
+export async function markContractAccepted(bookingId: string, proof: SignatureProof): Promise<boolean> {
   await initSchema();
   const now = nowIso();
   const res = await db.execute({
     sql: `UPDATE bookings
-          SET contract_accepted_at = ?, contract_accepted_ip = ?
+          SET contract_accepted_at = ?, contract_accepted_ip = ?,
+              contract_accepted_name = ?, contract_accepted_user_agent = ?,
+              contract_accepted_hash = ?, contract_accepted_signature = ?
           WHERE id = ? AND contract_accepted_at IS NULL`,
-    args: [now, ip, bookingId],
+    args: [
+      now,
+      proof.ip,
+      proof.name ?? null,
+      proof.userAgent ?? null,
+      proof.hash ?? null,
+      proof.signature ?? null,
+      bookingId,
+    ],
   });
   return (res.rowsAffected ?? 0) > 0;
 }
@@ -899,14 +919,25 @@ export async function uncancelBooking(id: string): Promise<void> {
 
 /** Record the couple's e-signature of the cancellation agreement. Idempotent:
  *  returns true only the first time (so the caller can email a copy once). */
-export async function markCancellationSigned(id: string, ip: string | null): Promise<boolean> {
+export async function markCancellationSigned(id: string, proof: SignatureProof): Promise<boolean> {
   await initSchema();
   const existing = await getBookingById(id);
   if (!existing || !existing.cancelledAt) return false;
   if (existing.cancellationSignedAt) return false;
   await db.execute({
-    sql: `UPDATE bookings SET cancellation_signed_at = ?, cancellation_signed_ip = ? WHERE id = ?`,
-    args: [nowIso(), ip ?? null, id],
+    sql: `UPDATE bookings SET cancellation_signed_at = ?, cancellation_signed_ip = ?,
+            cancellation_signed_name = ?, cancellation_signed_user_agent = ?,
+            cancellation_signed_hash = ?, cancellation_signed_signature = ?
+          WHERE id = ?`,
+    args: [
+      nowIso(),
+      proof.ip ?? null,
+      proof.name ?? null,
+      proof.userAgent ?? null,
+      proof.hash ?? null,
+      proof.signature ?? null,
+      id,
+    ],
   });
   return true;
 }
