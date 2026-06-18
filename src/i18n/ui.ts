@@ -42,7 +42,7 @@ export const ui = {
     // Trust bar
     'trust.weddings': '+150 bodas',
     'trust.coverage': 'Tarragona · Lleida · Barcelona',
-    'trust.delivery': 'Fotos en 60 días',
+    'trust.delivery': 'Una sola boda al día',
     'trust.rating': '5★ en Google',
 
     // About
@@ -78,6 +78,12 @@ export const ui = {
     'services.fusion.title': 'Sesión pre-boda',
     'services.fusion.desc':
       'Una mañana o una tarde para conocernos y para que os familiaricéis con la cámara antes del gran día. En Tarragona, Reus o donde os venga bien.',
+    'services.albums.title': 'Álbumes',
+    'services.albums.desc':
+      'Álbumes de madera personalizados, hechos a mano e incluidos en algunos packs. También disponibles para padres y padrinos, para que cada uno tenga su recuerdo.',
+    'services.drone.title': 'Dron',
+    'services.drone.desc':
+      'Imágenes aéreas que dan otra dimensión al reportaje, sujetas a las condiciones meteorológicas y a la normativa AESA.',
 
     // Video / Love Stories
     'video.label': 'Hasta donde haga falta',
@@ -699,7 +705,7 @@ export const ui = {
 
     'trust.weddings': '+150 bodes',
     'trust.coverage': 'Tarragona · Lleida · Barcelona',
-    'trust.delivery': 'Fotos en 60 dies',
+    'trust.delivery': 'Una sola boda al dia',
     'trust.rating': '5★ a Google',
 
     'about.label': 'Qui som',
@@ -731,6 +737,12 @@ export const ui = {
     'services.fusion.title': 'Sessió pre-boda',
     'services.fusion.desc':
       'Un matí o una tarda per conèixer-nos i perquè us familiaritzeu amb la càmera abans del gran dia. A Tarragona, Reus o allà on us vagi bé.',
+    'services.albums.title': 'Àlbums',
+    'services.albums.desc':
+      'Àlbums de fusta personalitzats, fets a mà i inclosos en alguns packs. També disponibles per a pares i padrins, perquè cadascú tingui el seu record.',
+    'services.drone.title': 'Dron',
+    'services.drone.desc':
+      'Imatges aèries que donen una altra dimensió al reportatge, segons les condicions meteorològiques i la normativa AESA.',
 
     'video.label': 'Fins on calgui',
     'video.title': 'Nova York, Màlaga, Osca, o a la vora de casa',
@@ -1333,7 +1345,7 @@ export const ui = {
 
     'trust.weddings': '+150 weddings',
     'trust.coverage': 'Tarragona · Lleida · Barcelona',
-    'trust.delivery': 'Photos in 60 days',
+    'trust.delivery': 'One wedding a day',
     'trust.rating': '5★ on Google',
 
     'about.label': 'Who we are',
@@ -1365,6 +1377,12 @@ export const ui = {
     'services.fusion.title': 'Pre-wedding session',
     'services.fusion.desc':
       'A morning or afternoon to get to know each other and for you to get comfortable in front of the camera. In Tarragona, Reus or wherever suits you.',
+    'services.albums.title': 'Albums',
+    'services.albums.desc':
+      'Personalised handmade wooden albums, included in some packs. Also available for parents and godparents, so everyone keeps their own memory.',
+    'services.drone.title': 'Drone',
+    'services.drone.desc':
+      'Aerial footage that adds another dimension to the story, subject to weather conditions and AESA regulations.',
 
     'video.label': 'As far as it takes',
     'video.title': 'New York, Málaga, Huesca, or just round the corner',

@@ -7,11 +7,13 @@ interface Props { lang: Lang }
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 
-type IconName = 'camera' | 'video' | 'diamond';
+type IconName = 'camera' | 'video' | 'diamond' | 'book' | 'drone';
 const items: { icon: IconName; title: string; desc: string }[] = [
   { icon: 'camera', title: t('services.photo.title'), desc: t('services.photo.desc') },
   { icon: 'video', title: t('services.video.title'), desc: t('services.video.desc') },
   { icon: 'diamond', title: t('services.fusion.title'), desc: t('services.fusion.desc') },
+  { icon: 'book', title: t('services.albums.title'), desc: t('services.albums.desc') },
+  { icon: 'drone', title: t('services.drone.title'), desc: t('services.drone.desc') },
 ];
 ---
 
