@@ -728,6 +728,23 @@ export async function listPayments(bookingId: string): Promise<BookingPayment[]>
   }));
 }
 
+/** Sum of recorded payments per booking, in one query. Returns a Map of
+ *  booking_id → cents collected (bookings with no payments are absent).
+ *  Used by the bookings list to show the total still pending to collect. */
+export async function sumPaymentsByBooking(): Promise<Map<string, number>> {
+  await initSchema();
+  const res = await db.execute({
+    sql: `SELECT booking_id, SUM(amount_cents) AS paid
+          FROM booking_payments GROUP BY booking_id`,
+    args: [],
+  });
+  const map = new Map<string, number>();
+  for (const row of res.rows) {
+    map.set(String(row.booking_id), Number(row.paid ?? 0));
+  }
+  return map;
+}
+
 export async function addPayment(input: PaymentCreateInput): Promise<string> {
   await initSchema();
   const id = randomUUID();
