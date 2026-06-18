@@ -74,6 +74,14 @@ export const videos: Video[] = [
     kind: 'full',
     adminNote: 'Cerimònia civil, masia entorn natural, tot al mateix lloc',
   },
+  {
+    youtubeId: 'XFIO1aeeQjQ',
+    coupleName: 'Esther i Jesús',
+    venue: 'Heretat Sabartés',
+    date: '2024-06-15',
+    kind: 'full',
+    adminNote: 'Mostra Heretat Sabartés — per a parelles interessades en aquesta finca',
+  },
 ];
 
 /** Public-facing list — what we show on /videos and JSON-LD. Drops the
