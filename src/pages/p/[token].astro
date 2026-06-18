@@ -6,6 +6,7 @@ import VideoEmbed from '~/components/reserva/VideoEmbed.astro';
 import VideoCallCTA from '~/components/reserva/VideoCallCTA.astro';
 import { getQuoteByToken, recordView, verifyQuotePassword, getLeadByQuoteId, getLatestQuoteResponse } from '~/lib/quotes';
 import { PACKS, getComposedSubpacks } from '~/data/packs';
+import { QUOTE_TESTIMONIALS } from '~/data/quoteTestimonials';
 import { SHOWCASES } from '~/data/showcases';
 import { WEDDINGS } from '~/data/weddings';
 import { recommendShowcase } from '~/lib/matcher';
@@ -165,6 +166,37 @@ const overrideHit = overrideId ? videos.find((v) => v.youtubeId === overrideId) 
 const flagshipVideo = overrideHit
   ? { youtubeId: overrideHit.youtubeId, coupleName: overrideHit.coupleName, venue: overrideHit.venue }
   : DEFAULT_FLAGSHIP;
+
+// Quote validity line shown discreetly near the total. Only rendered when
+// the quote has an expiry; short numeric date in the couple's locale.
+const validUntilText: string | null = (() => {
+  if (!quote?.expiresAt) return null;
+  const d = new Date(quote.expiresAt);
+  if (isNaN(d.getTime())) return null;
+  const locale = lang === 'es' ? 'es-ES' : lang === 'en' ? 'en-GB' : 'ca-ES';
+  const date = d.toLocaleDateString(locale, {
+    day: '2-digit', month: '2-digit', year: '2-digit', timeZone: 'Europe/Madrid',
+  });
+  return t('quote.validity').replace('{date}', date);
+})();
+
+// Honest scarcity line under the final CTA — "only one wedding a day".
+// Personalised with the couple's date when the lead has it, generic
+// otherwise.
+const scarcityNote: string = (() => {
+  const d = lead?.weddingDate;
+  if (d) {
+    const iso = /^\d{4}-\d{2}-\d{2}$/.test(d) ? new Date(`${d}T12:00:00Z`) : null;
+    if (iso && !isNaN(iso.getTime())) {
+      const locale = lang === 'es' ? 'es-ES' : lang === 'en' ? 'en-GB' : 'ca-ES';
+      const date = iso.toLocaleDateString(locale, {
+        day: '2-digit', month: '2-digit', year: '2-digit', timeZone: 'Europe/Madrid',
+      });
+      return t('quote.scarcity.withDate').replace('{date}', date);
+    }
+  }
+  return t('quote.scarcity.noDate');
+})();
 ---
 
 <!doctype html>
@@ -372,7 +404,14 @@ const flagshipVideo = overrideHit
                 return (
                   <article class="bg-white p-7 border border-black/10">
                     <div class="text-gold-deep mb-3"><Icon name={iconForType(p.type) as any} size={28} /></div>
-                    <h3 class="font-display text-xl font-bold mb-3">{p.name[lang]}</h3>
+                    {p.subtitle ? (
+                      <>
+                        <p class="text-sm italic text-ink/55 mb-1 font-display">{p.name[lang]}</p>
+                        <h3 class="font-display text-xl font-bold mb-3 leading-tight">{p.subtitle[lang]}</h3>
+                      </>
+                    ) : (
+                      <h3 class="font-display text-xl font-bold mb-3">{p.name[lang]}</h3>
+                    )}
                     <p class="text-3xl font-display font-bold text-gold-deep mb-5">{p.price}</p>
                     <p class="text-xs font-bold tracking-[0.12em] uppercase text-ink/70 mb-3">{t('quote.packs.includes')}</p>
                     {subpacks.length > 0 ? (
@@ -415,6 +454,43 @@ const flagshipVideo = overrideHit
           </div>
         </Section>
 
+        {/* Social proof — real testimonials only. Rendered right before the
+            configurator so it answers the "can we trust paying up front?"
+            objection just as the couple is about to commit. Hidden entirely
+            until QUOTE_TESTIMONIALS holds real reviews. */}
+        {QUOTE_TESTIMONIALS.length > 0 && (
+          <Section>
+            <div class="max-w-5xl mx-auto text-center">
+              <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold-deep mb-3">{t('quote.testimonials.eyebrow')}</p>
+              <h2 class="font-display text-2xl md:text-3xl font-bold mb-10">{t('quote.testimonials.heading')}</h2>
+              <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 text-left">
+                {QUOTE_TESTIMONIALS.map((tm) => (
+                  <figure class="bg-white border-l-4 border-gold p-6 flex flex-col">
+                    <blockquote class="text-ink/85 leading-relaxed italic flex-1">“{tm.quote}”</blockquote>
+                    <figcaption class="mt-5">
+                      <p class="font-bold text-ink">{tm.author}</p>
+                      <div class="mt-1.5 flex items-center gap-2">
+                        <span class="text-gold-deep tracking-tight" aria-label={`${tm.rating} / 5`}>
+                          {'★'.repeat(tm.rating)}
+                        </span>
+                        <span class="inline-flex items-center gap-1 text-xs text-ink/60">
+                          <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" aria-hidden="true">
+                            <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47a5.4 5.4 0 0 1-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/>
+                            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09A12 12 0 0 0 12 24z"/>
+                            <path fill="#FBBC05" d="M5.27 14.29a7.2 7.2 0 0 1 0-4.58V6.62H1.29a12 12 0 0 0 0 10.76l3.98-3.09z"/>
+                            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42A12 12 0 0 0 12 0 12 12 0 0 0 1.29 6.62l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75z"/>
+                          </svg>
+                          Google
+                        </span>
+                      </div>
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+            </div>
+          </Section>
+        )}
+
         <!-- Interactive configurator. Replaces the static extras catalog:
              same info (packs + combos + extras) but the couple can tick
              what they want, see the total update live, and send their
@@ -427,6 +503,7 @@ const flagshipVideo = overrideHit
           adminDiscountCents={quote.adminDiscountCents}
           closedAt={quote.closedAt}
           serviceInterest={quote.serviceInterest}
+          validUntilText={validUntilText}
         />
 
         <!-- FAQ. Mirrors the two FAQ pages in the tarifes PDF so couples get
@@ -456,6 +533,7 @@ const flagshipVideo = overrideHit
           coupleName={quote.coupleName}
           whatsappLink={waForVideocall()}
           emailHref={`mailto:${SITE.email}`}
+          scarcityNote={scarcityNote}
         />
 
         <footer class="bg-ink text-white/60 py-6 text-center text-xs border-t border-white/10">

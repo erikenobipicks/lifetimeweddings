@@ -38,8 +38,11 @@ interface Props {
    *  catalogue (photo-only hides video packs + video extras, etc.).
    *  'both' / 'undecided' surface everything (default). */
   serviceInterest: ServiceInterest;
+  /** Pre-formatted "valid until {date}" line shown under the total. Null
+   *  when the quote has no expiry. */
+  validUntilText?: string | null;
 }
-const { lang, token, initialPackIds, lastResponse, adminDiscountCents, closedAt, serviceInterest } = Astro.props;
+const { lang, token, initialPackIds, lastResponse, adminDiscountCents, closedAt, serviceInterest, validUntilText = null } = Astro.props;
 const t = useTranslations(lang);
 
 // Catalogue → service-tag map. Used both server-side (to set the data
@@ -149,7 +152,8 @@ const noSelection = t('quote.configurator.empty');
                   class="mt-1 accent-gold qc-input qc-pack"
                 />
                 <div class="flex-1">
-                  <p class="font-bold text-ink leading-tight">{p.name[lang]}</p>
+                  {p.subtitle && <p class="text-xs italic text-ink/55 leading-tight font-display">{p.name[lang]}</p>}
+                  <p class="font-bold text-ink leading-tight">{p.subtitle ? p.subtitle[lang] : p.name[lang]}</p>
                   <p class="text-[0.7rem] uppercase tracking-wider text-ink/70 mt-1">
                     {p.type === 'photo' ? t('quote.configurator.typePhoto') : p.type === 'video' ? t('quote.configurator.typeVideo') : t('quote.configurator.typeCombo')}
                   </p>
@@ -181,7 +185,8 @@ const noSelection = t('quote.configurator.empty');
                   class="mt-1 accent-gold qc-input qc-pack qc-combo"
                 />
                 <div class="flex-1">
-                  <p class="font-bold text-ink leading-tight">{p.name[lang]}</p>
+                  {p.subtitle && <p class="text-xs italic text-ink/55 leading-tight font-display">{p.name[lang]}</p>}
+                  <p class="font-bold text-ink leading-tight">{p.subtitle ? p.subtitle[lang] : p.name[lang]}</p>
                   <p class="text-[0.7rem] uppercase tracking-wider text-gold/80 mt-1">Combo</p>
                 </div>
                 <p class="font-display font-bold text-gold-deep whitespace-nowrap">{p.price}</p>
@@ -245,6 +250,9 @@ const noSelection = t('quote.configurator.empty');
           <span id="qc-total" class="font-display text-3xl font-bold text-gold-deep">0 €</span>
         </div>
         <p class="text-xs text-ink/70 mt-2">{t('quote.configurator.paymentNote')}</p>
+        {validUntilText && (
+          <p class="text-xs text-ink/60 italic mt-1">{validUntilText}</p>
+        )}
       </div>
 
       {!isClosed && (
