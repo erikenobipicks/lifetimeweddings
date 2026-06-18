@@ -161,10 +161,10 @@ function humanSecs(n: number): string {
     <a href="/admin" class="text-xs text-ink/70 hover:text-gold whitespace-nowrap">← Tornar</a>
   </div>
 
-  <div class="bg-white border border-black/10 p-5 mb-8">
+  <div class="bg-white border border-line p-5 mb-8">
     <p class="text-xs font-bold tracking-widest uppercase mb-2">Enllaç</p>
     <div class="flex flex-wrap gap-2">
-      <input readonly value={url} class="flex-1 min-w-[180px] px-3 py-2 border border-black/15 bg-cream font-mono text-sm" />
+      <input readonly value={url} class="flex-1 min-w-[180px] px-3 py-2 border border-line bg-cream font-mono text-sm" />
       <button type="button" data-copy={url} class="bg-ink text-white px-4 py-2 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors whitespace-nowrap">Copiar</button>
       {quote.coupleEmail && (
         <button
@@ -212,7 +212,7 @@ function humanSecs(n: number): string {
         </>
       )}
       {followUpState === 'skipped' && (
-        <span class="flex items-center gap-2 text-xs text-ink/70 px-3 py-2 border border-black/10 bg-cream/50 whitespace-nowrap">
+        <span class="flex items-center gap-2 text-xs text-ink/70 px-3 py-2 border border-line bg-cream/50 whitespace-nowrap">
           🔕 Recordatori desactivat {quote.followUpSkippedAt ? `· ${fmt(quote.followUpSkippedAt)}` : ''}
           <form method="POST" class="inline">
             <input type="hidden" name="action" value="restore-followup" />
@@ -227,7 +227,7 @@ function humanSecs(n: number): string {
         </span>
       )}
       {followUpState === 'already_sent' && (
-        <span class="text-xs text-ink/70 px-3 py-2 border border-black/10 bg-cream/50 whitespace-nowrap">
+        <span class="text-xs text-ink/70 px-3 py-2 border border-line bg-cream/50 whitespace-nowrap">
           ✓ Recordatori enviat {quote.followUpSentAt ? `· ${fmt(quote.followUpSentAt)}` : ''}
         </span>
       )}
@@ -255,26 +255,26 @@ function humanSecs(n: number): string {
   </div>
 
   <div class="grid md:grid-cols-4 gap-4 mb-8">
-    <div class="bg-white p-5 border border-black/10 text-center">
+    <div class="bg-white p-5 border border-line text-center">
       <p class="text-xs font-bold tracking-widest uppercase text-ink/70">Visites</p>
       <p class="font-display text-4xl font-bold">{stats.views}</p>
     </div>
-    <div class="bg-white p-5 border border-black/10 text-center">
+    <div class="bg-white p-5 border border-line text-center">
       <p class="text-xs font-bold tracking-widest uppercase text-ink/70">Visitants únics</p>
       <p class="font-display text-4xl font-bold">{stats.uniqueVisitors}</p>
     </div>
-    <div class="bg-white p-5 border border-black/10 text-center">
+    <div class="bg-white p-5 border border-line text-center">
       <p class="text-xs font-bold tracking-widest uppercase text-ink/70">Temps màx.</p>
       <p class="font-display text-4xl font-bold">{humanSecs(stats.totalTimeSeconds)}</p>
     </div>
-    <div class="bg-white p-5 border border-black/10 text-center">
+    <div class="bg-white p-5 border border-line text-center">
       <p class="text-xs font-bold tracking-widest uppercase text-ink/70">Scroll màx.</p>
       <p class="font-display text-4xl font-bold">{stats.maxScroll}%</p>
     </div>
   </div>
 
   <div class="grid md:grid-cols-2 gap-6 mb-8">
-    <div class="bg-white border border-black/10 p-5">
+    <div class="bg-white border border-line p-5">
       <p class="text-xs font-bold tracking-widest uppercase mb-3">Packs inclosos</p>
       <ul class="space-y-2 text-sm">
         {packs.map((p) => (
@@ -282,7 +282,7 @@ function humanSecs(n: number): string {
         ))}
       </ul>
     </div>
-    <div class="bg-white border border-black/10 p-5">
+    <div class="bg-white border border-line p-5">
       <p class="text-xs font-bold tracking-widest uppercase mb-3">Notes personals</p>
       <p class="text-sm text-ink/80 whitespace-pre-wrap">{quote.notes || '—'}</p>
     </div>
@@ -350,13 +350,13 @@ function humanSecs(n: number): string {
       </div>
 
       {responses.length > 1 && (
-        <details class="mt-4 pt-3 border-t border-black/10">
+        <details class="mt-4 pt-3 border-t border-line">
           <summary class="text-xs text-ink/70 cursor-pointer hover:text-gold select-none">
             Veure les {responses.length - 1} respostes anteriors
           </summary>
           <ul class="mt-3 space-y-2 text-xs">
             {responses.slice(1).map((r) => (
-              <li class="flex justify-between gap-3 border-b border-black/5 pb-2">
+              <li class="flex justify-between gap-3 border-b border-line pb-2">
                 <span class="text-ink/70">{fmt(r.createdAt)} · {r.packIds.length} pack(s) · {r.extraIds.length} extra(s)</span>
                 <span class="text-gold font-bold">{formatEuros(r.totalCents)}</span>
               </li>
@@ -370,7 +370,7 @@ function humanSecs(n: number): string {
   {/* Service interest — what filter the configurator on /p/<token> uses.
       Defaults to what the lead's quiz answer said; editable here if the
       couple changes their mind. */}
-  <div class="bg-white border border-black/10 p-5 mb-8">
+  <div class="bg-white border border-line p-5 mb-8">
     <p class="text-xs font-bold tracking-widest uppercase mb-1">Què volen</p>
     <p class="text-[0.7rem] text-ink/70 mb-3">Filtra el configurador interactiu del pressupost. Si dubten, "encara dubten" — així veuen tot.</p>
     <form method="POST" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -390,7 +390,7 @@ function humanSecs(n: number): string {
             onchange="this.form.requestSubmit()"
             class="sr-only peer"
           />
-          <span class="block text-xs font-bold tracking-widest uppercase text-center px-3 py-2 border border-black/15 cursor-pointer hover:border-gold peer-checked:bg-ink peer-checked:text-white peer-checked:border-ink transition-colors">
+          <span class="block text-xs font-bold tracking-widest uppercase text-center px-3 py-2 border border-line cursor-pointer hover:border-gold peer-checked:bg-ink peer-checked:text-white peer-checked:border-ink transition-colors">
             {opt.label}
           </span>
         </label>
@@ -400,7 +400,7 @@ function humanSecs(n: number): string {
 
   {/* Discount + close controls. Visible regardless of whether a response
       came in — Eric may want to apply a referral discount up front. */}
-  <div class="bg-white border border-black/10 p-5 mb-8">
+  <div class="bg-white border border-line p-5 mb-8">
     <p class="text-xs font-bold tracking-widest uppercase mb-3">Descompte i estat</p>
     {quote.adminDiscountCents > 0 ? (
       <div class="mb-4 p-3 bg-gold/10 border border-gold/40 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -427,7 +427,7 @@ function humanSecs(n: number): string {
           inputmode="decimal"
           placeholder="100"
           value={quote.adminDiscountCents > 0 ? (quote.adminDiscountCents / 100).toString() : ''}
-          class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none"
+          class="w-full px-3 py-2 border border-line focus:border-gold focus:outline-none"
         />
       </div>
       <div>
@@ -438,7 +438,7 @@ function humanSecs(n: number): string {
           type="text"
           placeholder="Ex: recomanació de l'Anna López"
           value={quote.adminDiscountReason ?? ''}
-          class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none"
+          class="w-full px-3 py-2 border border-line focus:border-gold focus:outline-none"
         />
       </div>
       <button
@@ -449,7 +449,7 @@ function humanSecs(n: number): string {
       </button>
     </form>
 
-    <div class="mt-5 pt-4 border-t border-black/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div class="mt-5 pt-4 border-t border-line flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <p class="text-sm">
         {quote.closedAt ? (
           <span><span class="font-bold text-ink">Pressupost tancat</span> · <span class="text-ink/70">{fmt(quote.closedAt)}</span></span>
@@ -472,7 +472,7 @@ function humanSecs(n: number): string {
   </div>
 
   {lead && (
-    <div class="bg-white border border-black/10 p-5 mb-8">
+    <div class="bg-white border border-line p-5 mb-8">
       <p class="text-xs font-bold tracking-widest uppercase mb-3">Respostes del quiz</p>
       <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
         {lead.weddingDate && (
@@ -497,8 +497,8 @@ function humanSecs(n: number): string {
     </div>
   )}
 
-  <div class="bg-white border border-black/10 mb-8">
-    <p class="px-5 py-3 text-xs font-bold tracking-widest uppercase border-b border-black/10">Historial d'esdeveniments</p>
+  <div class="bg-white border border-line mb-8">
+    <p class="px-5 py-3 text-xs font-bold tracking-widest uppercase border-b border-line">Historial d'esdeveniments</p>
     {events.length === 0 ? (
       <p class="p-5 text-ink/70 text-sm">Encara no hi ha activitat.</p>
     ) : (
@@ -514,7 +514,7 @@ function humanSecs(n: number): string {
         </thead>
         <tbody>
           {events.map((e) => (
-            <tr class="border-t border-black/5">
+            <tr class="border-t border-line">
               <td class="px-4 py-2 text-ink/70">{fmt(e.createdAt)}</td>
               <td class="px-4 py-2">
                 {e.kind === 'view' ? (
@@ -533,7 +533,7 @@ function humanSecs(n: number): string {
     )}
   </div>
 
-  <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-black/10 pt-6">
+  <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-6">
     <form method="POST" onsubmit="return confirm('Arxivar aquest pressupost? No es veurà al llistat però es pot recuperar.')">
       <input type="hidden" name="action" value="archive" />
       <button type="submit" class="text-xs text-ink/70 hover:text-gold underline">📦 Arxivar</button>

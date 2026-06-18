@@ -6,12 +6,9 @@ import WhatsAppFloat from '~/components/WhatsAppFloat.astro';
 import CookieBanner from '~/components/CookieBanner.astro';
 import { ogLocale, useTranslations, type Lang } from '~/i18n/ui';
 
-// Vite resolves these to hashed URLs in /_astro/ at build time. We
-// preload only the latin subset and only the upright weights — italic
-// Fraunces is used solely below the fold (testimonial blockquote), so
-// it can wait for its own fetch turn without hurting LCP.
-import fraunceRomanUrl from '@fontsource-variable/fraunces/files/fraunces-latin-full-normal.woff2?url';
-import interRomanUrl from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+// Fonts (Cormorant Garamond + Jost) are loaded from Google Fonts via the
+// @import at the top of global.css, so a single source covers every page.
+// We only add the preconnect hints below for faster handshakes.
 
 interface Props {
   title: string;
@@ -122,20 +119,18 @@ const alternates: { hreflang: string; href: string }[] = [
 
     {/* Brand gold. Keep in sync with `--gold` in src/styles/global.css —
         an HTML attribute can't read a CSS custom property. */}
-    <meta name="theme-color" content="#c9a96e" />
+    <meta name="theme-color" content="#a9885f" />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
-    {/* Fonts are self-hosted via @fontsource-variable; @font-face rules
-        live in src/styles/global.css. Preload only the two latin upright
-        files — the browser would otherwise wait for the CSS to parse
-        before fetching them. `crossorigin` is required even on
-        same-origin font preloads per the Fetch spec. */}
-    <link rel="preload" as="font" type="font/woff2" href={fraunceRomanUrl} crossorigin />
-    <link rel="preload" as="font" type="font/woff2" href={interRomanUrl} crossorigin />
+    {/* Fonts load from Google Fonts (Cormorant Garamond + Jost) via the
+        @import in global.css. Preconnect shaves the TLS handshake off the
+        critical path. */}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
     {/* Preload the home hero image for an LCP win. Only injected on the
         three locale homes — other routes carry their own LCP candidates
@@ -197,7 +192,7 @@ const alternates: { hreflang: string; href: string }[] = [
       </script>
     )}
   </head>
-  <body class="bg-white text-ink font-sans antialiased">
+  <body class="bg-cream text-ink font-sans antialiased">
     <a
       href="#main"
       class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-ink focus:text-white focus:px-4 focus:py-2"

@@ -18,8 +18,6 @@ import { SITE, waLink } from '~/data/site';
 import Icon from '~/components/Icon.astro';
 import { videos } from '~/data/videos';
 import { useTranslations, type Lang } from '~/i18n/ui';
-import fraunceRomanUrl from '@fontsource-variable/fraunces/files/fraunces-latin-full-normal.woff2?url';
-import interRomanUrl from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 
 function iconForType(t: 'photo' | 'video' | 'combo') {
   return t === 'photo' ? 'camera' : t === 'video' ? 'video' : 'diamond';
@@ -208,10 +206,10 @@ const scarcityNote: string = (() => {
     <meta name="robots" content="noindex, nofollow" />
     <title>{quote ? `${t('quote.hero.eyebrow')} · ${quote.coupleName}` : t('quote.notFound.title')}</title>
     <link rel="icon" type="image/png" href="/favicon.png" />
-    {/* Fonts self-hosted via @fontsource-variable; @font-face rules ship
-        in global.css (imported above in the frontmatter). */}
-    <link rel="preload" as="font" type="font/woff2" href={fraunceRomanUrl} crossorigin />
-    <link rel="preload" as="font" type="font/woff2" href={interRomanUrl} crossorigin />
+    {/* Fonts (Cormorant Garamond + Jost) load from Google Fonts via the
+        @import in global.css (imported above in the frontmatter). */}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   </head>
   <body
     class="bg-cream text-ink font-sans antialiased"
@@ -241,12 +239,12 @@ const scarcityNote: string = (() => {
       </Section>
     ) : needsPassword ? (
       <Section class="min-h-screen flex items-center justify-center">
-        <form method="POST" class="max-w-sm w-full bg-white p-8 border border-black/10">
+        <form method="POST" class="max-w-sm w-full bg-white p-8 border border-line">
           <h1 class="font-display text-2xl font-bold mb-2 text-center">{t('quote.password.title')}</h1>
           <p class="text-ink/70 text-sm mb-6 text-center">{t('quote.password.body')}</p>
           {passwordError && <p class="mb-4 p-2 bg-red-50 border border-red-200 text-red-700 text-sm">{passwordError}</p>}
           <input type="password" name="password" required autofocus
-                 class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none mb-4" />
+                 class="w-full px-3 py-2 border border-line focus:border-gold focus:outline-none mb-4" />
           <button type="submit"
                   class="w-full bg-ink text-white py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">
             {t('quote.password.submit')}
@@ -403,7 +401,7 @@ const scarcityNote: string = (() => {
               {packs.map((p) => {
                 const subpacks = getComposedSubpacks(p);
                 return (
-                  <article class="bg-white p-7 border border-black/10">
+                  <article class="lw-card p-7">
                     <div class="text-gold-deep mb-3"><Icon name={iconForType(p.type) as any} size={28} /></div>
                     {p.subtitle ? (
                       <>
@@ -431,7 +429,7 @@ const scarcityNote: string = (() => {
                           </div>
                         ))}
                         {p.includes[lang].length > 0 && (
-                          <div class="mt-4 pt-4 border-t border-black/10">
+                          <div class="mt-4 pt-4 border-t border-line">
                             <p class="text-[0.78rem] font-bold tracking-wide text-gold-deep mb-2">{t('quote.combo.extras.heading')}</p>
                             <ul class="space-y-2 text-sm text-ink/80 pl-1">
                               {p.includes[lang].map((it) => (
@@ -466,7 +464,7 @@ const scarcityNote: string = (() => {
               <h2 class="font-display text-2xl md:text-3xl font-bold mb-10">{t('quote.testimonials.heading')}</h2>
               <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 text-left">
                 {QUOTE_TESTIMONIALS.map((tm) => (
-                  <figure class="bg-white border-l-4 border-gold p-6 flex flex-col">
+                  <figure class="lw-card border-l-4 border-gold p-6 flex flex-col">
                     <blockquote class="text-ink/85 leading-relaxed italic flex-1">“{tm.quote}”</blockquote>
                     <figcaption class="mt-5">
                       <p class="font-bold text-ink">{tm.author}</p>
@@ -519,7 +517,7 @@ const scarcityNote: string = (() => {
             <h2 class="font-display text-2xl md:text-3xl font-bold text-center mb-8">{t('quote.faq.heading')}</h2>
             <div class="space-y-3">
               {[1, 2, 3, 4, 5, 6, 7].map((n) => (
-                <details class="group bg-white border border-black/10 open:border-gold/40">
+                <details class="group bg-white border border-line open:border-gold/40">
                   <summary class="cursor-pointer list-none flex items-center justify-between gap-4 px-5 py-4 font-bold text-ink hover:text-gold transition-colors">
                     <span>{t(`quote.faq.q${n}.q` as any)}</span>
                     <span class="text-gold-deep text-xl leading-none group-open:rotate-45 transition-transform">+</span>

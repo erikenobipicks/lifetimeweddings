@@ -47,7 +47,7 @@ const labels: Record<string, string> = {
       <button
         type="button"
         data-test-telegram
-        class="border border-black/15 px-3 py-1.5 font-bold tracking-widest uppercase text-ink/70 hover:border-gold hover:text-gold transition-colors whitespace-nowrap"
+        class="border border-line px-3 py-1.5 font-bold tracking-widest uppercase text-ink/70 hover:border-gold hover:text-gold transition-colors whitespace-nowrap"
         title="Envia un missatge de prova al chat de Telegram configurat"
       >
         🧪 Test Telegram
@@ -76,7 +76,7 @@ const labels: Record<string, string> = {
         the card, matching the bookings/quotes pattern. */}
     <ul class="md:hidden space-y-3">
       {leads.map((l) => (
-        <li class="bg-white border border-black/10">
+        <li class="bg-white border border-line">
           <div class="p-4">
             <p class="font-bold leading-tight">{l.coupleName}</p>
             <p class="text-[0.7rem] text-ink/70 truncate">{l.email}</p>
@@ -90,7 +90,7 @@ const labels: Record<string, string> = {
               <div><span class="text-ink/70">Rebut:</span><br/><strong>{fmt(l.createdAt)}</strong></div>
             </div>
           </div>
-          <div class="flex border-t border-black/5">
+          <div class="flex border-t border-line">
             {l.quoteId ? (
               <a href={`/admin/${l.quoteId}`} class="flex-1 text-center text-gold text-[0.7rem] font-bold tracking-widest uppercase px-4 py-3 hover:bg-cream">
                 Veure pressupost →
@@ -102,7 +102,7 @@ const labels: Record<string, string> = {
             )}
             <form
               method="POST"
-              class="border-l border-black/5"
+              class="border-l border-line"
               onsubmit={`return confirm('⚠ Eliminar el lead de ${l.coupleName.replace(/'/g, "\\'")}?\\n\\nNo es podrà recuperar.')`}
             >
               <input type="hidden" name="action" value="delete" />
@@ -120,7 +120,7 @@ const labels: Record<string, string> = {
       ))}
     </ul>
 
-    <div class="hidden md:block overflow-x-auto bg-white border border-black/10">
+    <div class="hidden md:block overflow-x-auto bg-white border border-line">
       <table class="w-full text-sm">
         <thead class="bg-cream text-[0.7rem] font-bold tracking-widest uppercase">
           <tr>
@@ -136,7 +136,7 @@ const labels: Record<string, string> = {
         </thead>
         <tbody>
           {leads.map((l) => (
-            <tr class="border-t border-black/5 hover:bg-cream/50">
+            <tr class="border-t border-line hover:bg-cream/50">
               <td class="px-4 py-3">
                 <span class="font-bold">{l.coupleName}</span>
                 <div class="text-xs text-ink/70">{l.email}</div>

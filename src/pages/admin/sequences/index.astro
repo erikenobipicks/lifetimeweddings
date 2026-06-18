@@ -63,7 +63,7 @@ const SCOPE_LABEL: Record<EmailSequence['serviceScope'], string> = {
     </div>
   )}
   {ok === 'seed-noop' && (
-    <div class="mb-4 px-4 py-3 bg-cream border border-black/10 text-ink/70 text-sm">
+    <div class="mb-4 px-4 py-3 bg-cream border border-line text-ink/70 text-sm">
       Les plantilles per defecte ja existien — res a crear.
     </div>
   )}
@@ -83,7 +83,7 @@ const SCOPE_LABEL: Record<EmailSequence['serviceScope'], string> = {
       <p class="text-sm">Crea la primera amb el botó <em>+ Nova plantilla</em>. Quan una parella pagui el dipòsit, els emails s'enviaran segons el calendari que defineixis.</p>
     </div>
   ) : (
-    <div class="bg-white border border-black/10 overflow-x-auto">
+    <div class="bg-white border border-line overflow-x-auto">
       <table class="w-full text-sm">
         <thead class="bg-cream text-ink/70 text-[0.7rem] uppercase tracking-widest">
           <tr>
@@ -98,7 +98,7 @@ const SCOPE_LABEL: Record<EmailSequence['serviceScope'], string> = {
         </thead>
         <tbody>
           {sequences.map((s) => (
-            <tr class="border-t border-black/5">
+            <tr class="border-t border-line">
               <td class="px-4 py-3 font-mono text-xs">{s.slug}</td>
               <td class="px-4 py-3">{triggerLabel(s)}</td>
               <td class="px-4 py-3 max-w-md truncate">{s.subject.ca}</td>

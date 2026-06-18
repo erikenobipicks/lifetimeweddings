@@ -46,7 +46,7 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
       type="text"
       id="search-input"
       placeholder="Cercar per nom o email..."
-      class="flex-1 min-w-0 sm:min-w-[200px] px-3 py-2 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none"
+      class="flex-1 min-w-0 sm:min-w-[200px] px-3 py-2 border border-line bg-white text-sm focus:border-gold focus:outline-none"
     />
     <a
       href={showArchived ? '/admin' : '/admin?arxivats=1'}
@@ -68,7 +68,7 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
         const t = tempLabel(s);
         return (
           <li
-            class:list={['bg-white border border-black/10', q.archived && 'opacity-60']}
+            class:list={['bg-white border border-line', q.archived && 'opacity-60']}
             data-search={`${q.coupleName} ${q.coupleEmail ?? ''}`.toLowerCase()}
           >
             <a href={`/admin/${q.id}`} class="block p-4 hover:bg-cream/50">
@@ -89,7 +89,7 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
               </div>
               <p class="text-[0.7rem] text-ink/70 mt-3 ml-7">Creat {fmt(q.createdAt)}</p>
             </a>
-            <div class="flex border-t border-black/5">
+            <div class="flex border-t border-line">
               <button
                 type="button"
                 data-copy={`${siteUrl}/p/${q.token}`}
@@ -100,7 +100,7 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
               <form
                 method="POST"
                 action={`/admin/${q.id}`}
-                class="flex-1 border-l border-black/5"
+                class="flex-1 border-l border-line"
                 onsubmit={`return confirm('⚠ Eliminar el pressupost de ${q.coupleName.replace(/'/g, "\\'")} DEFINITIVAMENT?\\n\\nNo es podrà recuperar.')`}
               >
                 <input type="hidden" name="action" value="delete" />
@@ -117,7 +117,7 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
       })}
     </ul>
 
-    <div class="hidden md:block overflow-x-auto bg-white border border-black/10">
+    <div class="hidden md:block overflow-x-auto bg-white border border-line">
       <table class="w-full text-sm" id="quotes-table">
         <thead class="bg-cream text-[0.7rem] font-bold tracking-widest uppercase">
           <tr>
@@ -136,7 +136,7 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
             const s = stats[i];
             const t = tempLabel(s);
             return (
-              <tr class:list={['border-t border-black/5 hover:bg-cream/50', q.archived && 'opacity-50']} data-search={`${q.coupleName} ${q.coupleEmail ?? ''}`.toLowerCase()}>
+              <tr class:list={['border-t border-line hover:bg-cream/50', q.archived && 'opacity-50']} data-search={`${q.coupleName} ${q.coupleEmail ?? ''}`.toLowerCase()}>
                 <td class={`px-4 py-3 text-lg ${t.color}`}>{t.icon}</td>
                 <td class="px-4 py-3">
                   <a href={`/admin/${q.id}`} class="font-bold hover:text-gold">{q.coupleName}</a>

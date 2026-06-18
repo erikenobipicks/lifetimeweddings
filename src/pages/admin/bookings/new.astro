@@ -110,31 +110,31 @@ if (sourceQuote) {
     </div>
   )}
 
-  <form method="POST" action="/api/admin/bookings/create" class="space-y-10 bg-white border border-black/10 p-6 md:p-8">
+  <form method="POST" action="/api/admin/bookings/create" class="space-y-10 bg-white border border-line p-6 md:p-8">
 
     <fieldset class="space-y-4">
       <legend class="font-display text-xl font-bold mb-3">Parella</legend>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom 1 *</span>
-          <input name="coupleName1" required value={v('coupleName1')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input name="coupleName1" required value={v('coupleName1')} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom 2 *</span>
-          <input name="coupleName2" required value={v('coupleName2')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input name="coupleName2" required value={v('coupleName2')} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Email principal *</span>
-          <input type="email" name="coupleEmailPrimary" required value={v('coupleEmailPrimary')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input type="email" name="coupleEmailPrimary" required value={v('coupleEmailPrimary')} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
           <span class="block text-[10px] text-ink/45 mt-1">Cal per enviar el link de /reserva, la confirmació i els formularis de seguiment.</span>
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Telèfon</span>
-          <input name="couplePhonePrimary" value={v('couplePhonePrimary')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input name="couplePhonePrimary" value={v('couplePhonePrimary')} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Idioma de la pàgina *</span>
-          <select id="preferredLanguageField" name="preferredLanguage" required class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+          <select id="preferredLanguageField" name="preferredLanguage" required class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
             {[['ca','Català'],['es','Castellano'],['en','English']].map(([code,label]) => (
               <option value={code} selected={v('preferredLanguage') === code || (!v('preferredLanguage') && code === 'ca')}>{label}</option>
             ))}
@@ -145,11 +145,11 @@ if (sourceQuote) {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Procedència</span>
-          <input name="source" value={v('source')} placeholder="Instagram, recomanació de…, orgànic" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input name="source" value={v('source')} placeholder="Instagram, recomanació de…, orgànic" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Tipus de servei</span>
-          <select name="serviceType" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+          <select name="serviceType" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
             <option value="">— Auto (del pack) —</option>
             {[['photo','Només foto'],['video','Només vídeo'],['combo','Foto + vídeo']].map(([code,label]) => (
               <option value={code} selected={v('serviceType') === code}>{label}</option>
@@ -158,7 +158,7 @@ if (sourceQuote) {
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Propietat</span>
-          <select name="kind" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+          <select name="kind" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
             {[['own','LifeTime Weddings'],['collab','LifeTime + col·laborador'],['external','Per a un altre estudi (sense mailing)']].map(([code,label]) => (
               <option value={code} selected={v('kind') === code || (!v('kind') && code === 'own')}>{label}</option>
             ))}
@@ -166,7 +166,7 @@ if (sourceQuote) {
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom (col·laborador / estudi)</span>
-          <input name="collaboratorName" value={v('collaboratorName')} placeholder="només si col·laboració o per a un altre estudi" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input name="collaboratorName" value={v('collaboratorName')} placeholder="només si col·laboració o per a un altre estudi" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
       </div>
     </fieldset>
@@ -176,19 +176,19 @@ if (sourceQuote) {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Data *</span>
-          <input type="date" name="weddingDate" required value={v('weddingDate')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input type="date" name="weddingDate" required value={v('weddingDate')} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Venue *</span>
-          <input name="venueName" required value={v('venueName')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input name="venueName" required value={v('venueName')} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Ciutat</span>
-          <input name="venueCity" value={v('venueCity')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input name="venueCity" value={v('venueCity')} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Adreça</span>
-          <input name="venueAddress" value={v('venueAddress')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input name="venueAddress" value={v('venueAddress')} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
       </div>
     </fieldset>
@@ -199,38 +199,38 @@ if (sourceQuote) {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <label class="block md:col-span-2">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom del pack *</span>
-          <input id="packNameField" name="packName" required value={v('packName')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input id="packNameField" name="packName" required value={v('packName')} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block md:col-span-2">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Descripció</span>
-          <textarea name="packDescription" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{v('packDescription')}</textarea>
+          <textarea name="packDescription" rows="3" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">{v('packDescription')}</textarea>
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Què inclou</span>
           <span class="block text-[11px] text-ink/70 mb-1">una línia per ítem</span>
-          <textarea id="packIncludesField" name="packIncludes" rows="6" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('packIncludes')}</textarea>
+          <textarea id="packIncludesField" name="packIncludes" rows="6" class="mt-1 w-full px-3 py-2 border border-line bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('packIncludes')}</textarea>
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Què no inclou</span>
           <span class="block text-[11px] text-ink/70 mb-1">una línia per ítem</span>
-          <textarea name="packExcludes" rows="6" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('packExcludes')}</textarea>
+          <textarea name="packExcludes" rows="6" class="mt-1 w-full px-3 py-2 border border-line bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('packExcludes')}</textarea>
         </label>
         <label class="block md:col-span-2">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Add-ons</span>
           <span class="block text-[11px] text-ink/70 mb-1">una línia per ítem · format <code class="bg-cream px-1">Nom | preu_en_euros</code> · ex: <code class="bg-cream px-1">Àlbum 30x30 | 390</code></span>
-          <textarea id="packAddonsField" name="packAddons" rows="4" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('packAddons')}</textarea>
+          <textarea id="packAddonsField" name="packAddons" rows="4" class="mt-1 w-full px-3 py-2 border border-line bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('packAddons')}</textarea>
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Inversió total (€) *</span>
-          <input id="packPriceField" name="packPriceEuros" required inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 1500, 1.500, 1500,00 o 1.500,00" value={v('packPriceEuros')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input id="packPriceField" name="packPriceEuros" required inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 1500, 1.500, 1500,00 o 1.500,00" value={v('packPriceEuros')} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Dipòsit (€) *</span>
-          <input id="depositField" name="depositEuros" required inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 500, 500,00 o 1.500,00" value={v('depositEuros')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input id="depositField" name="depositEuros" required inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 500, 500,00 o 1.500,00" value={v('depositEuros')} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block md:col-span-2">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Termes de pagament</span>
-          <input id="paymentTermsField" name="paymentTerms" value={v('paymentTerms')} placeholder="50% en signar, 50% un mes abans" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input id="paymentTermsField" name="paymentTerms" value={v('paymentTerms')} placeholder="50% en signar, 50% un mes abans" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
 
         <div class="block md:col-span-2 border border-gold/40 bg-gold/5 p-4">
@@ -251,7 +251,7 @@ if (sourceQuote) {
             </div>
             <label class="block">
               <span class="text-[11px] font-bold tracking-wide uppercase text-ink/70">Valor</span>
-              <input id="discountValueField" name="discountValue" inputmode="decimal" placeholder="0" value={v('discountValue')} class="mt-1 w-28 px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+              <input id="discountValueField" name="discountValue" inputmode="decimal" placeholder="0" value={v('discountValue')} class="mt-1 w-28 px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
             </label>
             <p id="discountPreview" class="text-sm text-gold font-semibold self-end pb-2"></p>
           </div>
@@ -264,35 +264,35 @@ if (sourceQuote) {
       <label class="block">
         <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Intro personalitzada</span>
         <span class="block text-[11px] text-ink/70 mb-1">opcional, sobre l'intro standard del hero</span>
-        <textarea name="customIntro" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{v('customIntro')}</textarea>
+        <textarea name="customIntro" rows="3" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">{v('customIntro')}</textarea>
       </label>
       <label class="block">
         <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Notes internes</span>
         <span class="block text-[11px] text-ink/70 mb-1">només per a tu — referrer, acords especials, context. <strong>Mai es mostra a la parella</strong>.</span>
-        <textarea name="internalNotes" rows="3" placeholder="ex: ve de part de Maria & Joan (boda 2024) · descompte 10%" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{v('internalNotes')}</textarea>
+        <textarea name="internalNotes" rows="3" placeholder="ex: ve de part de Maria & Joan (boda 2024) · descompte 10%" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">{v('internalNotes')}</textarea>
       </label>
-      <div class="border-t border-black/10 pt-4">
+      <div class="border-t border-line pt-4">
         <p class="text-xs font-bold tracking-widest uppercase text-ink/70 mb-3">Testimoni de referència (opcional)</p>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label class="block md:col-span-2">
             <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Quote</span>
-            <textarea name="testimonialQuote" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{v('testimonialQuote')}</textarea>
+            <textarea name="testimonialQuote" rows="3" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">{v('testimonialQuote')}</textarea>
           </label>
           <label class="block">
             <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Autor</span>
-            <input name="testimonialAuthor" value={v('testimonialAuthor')} placeholder="ex: Cristina i Daniel" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+            <input name="testimonialAuthor" value={v('testimonialAuthor')} placeholder="ex: Cristina i Daniel" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
           </label>
           <label class="block">
             <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Context</span>
-            <input name="testimonialContext" value={v('testimonialContext')} placeholder="ex: Mas la Boella, Tarragona" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+            <input name="testimonialContext" value={v('testimonialContext')} placeholder="ex: Mas la Boella, Tarragona" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
           </label>
         </div>
       </div>
-      <div class="border-t border-black/10 pt-4">
+      <div class="border-t border-line pt-4">
         <label class="block max-w-md">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Vídeo destacat</span>
           <span class="block text-[11px] text-ink/70 mb-1">opcional · si es deixa buit, s'usa el vídeo per defecte (Elena i Jordi)</span>
-          <select name="flagshipVideoId" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+          <select name="flagshipVideoId" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
             <option value="">— Per defecte (Elena i Jordi) —</option>
             <optgroup label="Tràilers">
               {publicVideos.map((vid) => (
@@ -321,18 +321,18 @@ if (sourceQuote) {
       <label class="block">
         <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Missatge del caramel</span>
         <span class="block text-[11px] text-ink/70 mb-1">Ex: "Us regalareu una sessió preboda a la llum daurada del delta de l'Ebre, sense cost addicional."</span>
-        <textarea name="incentiveBody" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{v('incentiveBody')}</textarea>
+        <textarea name="incentiveBody" rows="3" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">{v('incentiveBody')}</textarea>
       </label>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Preu original (€) — per tatxar</span>
           <span class="block text-[11px] text-ink/70 mb-1">opcional · si és més gran que la inversió, es mostra tatxat</span>
-          <input name="incentiveOriginalPriceEuros" inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 3500 o 3.500,00" value={v('incentiveOriginalPriceEuros')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input name="incentiveOriginalPriceEuros" inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 3500 o 3.500,00" value={v('incentiveOriginalPriceEuros')} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Data límit de l'oferta</span>
           <span class="block text-[11px] text-ink/70 mb-1">opcional · "vàlid si reserveu abans del…"</span>
-          <input type="date" name="incentiveDeadline" value={v('incentiveDeadline')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input type="date" name="incentiveDeadline" value={v('incentiveDeadline')} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
       </div>
     </fieldset>
@@ -341,11 +341,11 @@ if (sourceQuote) {
       <legend class="font-display text-xl font-bold mb-3">Vigència</legend>
       <label class="block max-w-sm">
         <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Vàlid fins (opcional)</span>
-        <input type="date" name="expiresAt" value={v('expiresAt')} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        <input type="date" name="expiresAt" value={v('expiresAt')} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
       </label>
     </fieldset>
 
-    <div class="flex items-center gap-4 pt-4 border-t border-black/10">
+    <div class="flex items-center gap-4 pt-4 border-t border-line">
       <button type="submit" class="bg-ink text-white px-6 py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">
         Crear (estat: draft)
       </button>

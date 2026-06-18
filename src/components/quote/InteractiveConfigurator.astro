@@ -139,7 +139,7 @@ const noSelection = t('quote.configurator.empty');
           {basePacks.map((p) => (
             <label
               data-service={p.type}
-              class={`qc-row block border border-black/15 bg-white p-4 cursor-pointer hover:border-gold transition-colors has-[:checked]:border-gold has-[:checked]:bg-gold/5 ${isClosed ? 'pointer-events-none opacity-60' : ''}`}
+              class={`qc-row block border border-line bg-white p-4 cursor-pointer hover:border-gold transition-colors has-[:checked]:border-gold has-[:checked]:bg-gold/5 ${isClosed ? 'pointer-events-none opacity-60' : ''}`}
             >
               <div class="flex items-start gap-3">
                 <input
@@ -172,7 +172,7 @@ const noSelection = t('quote.configurator.empty');
           {comboPacks.map((p) => (
             <label
               data-service="combo"
-              class={`block border border-black/15 bg-white p-4 cursor-pointer hover:border-gold transition-colors has-[:checked]:border-gold has-[:checked]:bg-gold/5 ${isClosed ? 'pointer-events-none opacity-60' : ''}`}
+              class={`block border border-line bg-white p-4 cursor-pointer hover:border-gold transition-colors has-[:checked]:border-gold has-[:checked]:bg-gold/5 ${isClosed ? 'pointer-events-none opacity-60' : ''}`}
             >
               <div class="flex items-start gap-3">
                 <input
@@ -209,7 +209,7 @@ const noSelection = t('quote.configurator.empty');
       {/* Extras */}
       <div>
         <p class="text-xs font-bold tracking-[0.18em] uppercase text-ink/70 mb-3">{extrasLabel}</p>
-        <ul class="divide-y divide-black/10 border border-black/15 bg-white">
+        <ul class="divide-y divide-line border border-line bg-white">
           {extrasWithCents.map((x) => (
             <li class="qc-row" data-service={EXTRA_SERVICE[x.id] ?? 'both'}>
               <label class={`flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-cream/50 has-[:checked]:bg-gold/5 ${isClosed ? 'pointer-events-none opacity-60' : ''}`}>
@@ -234,7 +234,7 @@ const noSelection = t('quote.configurator.empty');
       </div>
 
       {/* Total */}
-      <div class="border-t border-b border-black/15 py-5 space-y-2">
+      <div class="border-t border-b border-line py-5 space-y-2">
         <div class="flex justify-between text-sm">
           <span class="text-ink/70">{t('quote.configurator.subtotal')}</span>
           <span id="qc-subtotal" class="font-bold">0 €</span>
@@ -245,7 +245,7 @@ const noSelection = t('quote.configurator.empty');
             <span class="font-bold text-gold-deep">−{formatEuros(adminDiscountCents)}</span>
           </div>
         )}
-        <div class="flex justify-between items-baseline pt-2 border-t border-black/10">
+        <div class="flex justify-between items-baseline pt-2 border-t border-line">
           <span class="font-display text-xl font-bold">{totalLabel}</span>
           <span id="qc-total" class="font-display text-3xl font-bold text-gold-deep">0 €</span>
         </div>
@@ -267,7 +267,7 @@ const noSelection = t('quote.configurator.empty');
               rows="3"
               maxlength="2000"
               placeholder={messagePlaceholder}
-              class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none resize-y bg-white"
+              class="w-full px-3 py-2 border border-line focus:border-gold focus:outline-none resize-y bg-white"
             ></textarea>
           </div>
 

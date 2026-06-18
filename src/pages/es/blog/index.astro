@@ -45,7 +45,7 @@ const jsonLd = [
 
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         {posts.map((p) => (
-          <article class="bg-white border border-black/5 group">
+          <article class="bg-white border border-line group">
             <a href={`/es/blog/${p.slug}`} class="block">
               {p.cover ? (
                 <img src={p.cover} alt={p.title} class="w-full aspect-[4/3] object-cover group-hover:opacity-90 transition-opacity" loading="lazy" decoding="async" width="1200" height="900" />
