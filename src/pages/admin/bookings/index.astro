@@ -3,9 +3,10 @@
 // Filters: ?status=<status>, ?archived=1 to include archived.
 // Search: client-side filter on couple/venue text.
 import AdminLayout from '~/layouts/AdminLayout.astro';
-import { listBookings } from '~/lib/bookings/repository';
+import { listBookings, listPublicationConsentByBooking } from '~/lib/bookings/repository';
 import type { Booking, BookingStatus } from '~/lib/bookings/types';
 import { inferServiceType } from '~/lib/contracts/generate';
+import { consentBadge } from '~/lib/bookings/publicationConsent';
 
 const SERVICE_LABEL: Record<string, string> = {
   photo: 'Foto',
@@ -45,6 +46,14 @@ const sortKey: SortKey =
   sortRaw === 'date_desc' || sortRaw === 'recent' ? sortRaw : 'date_asc';
 
 const all = await listBookings({ includeArchived });
+
+// Publication consent per booking (one query) → at-a-glance badge + filter.
+// Bookings without a /contrato submission are absent from the map and the
+// badge helper treats undefined as "pending".
+const consentByBooking = await listPublicationConsentByBooking();
+function consentFor(b: Booking) {
+  return consentBadge(consentByBooking.get(b.id));
+}
 
 // Years dropdown — derived from the live data so it stays current without
 // hand-maintained lists; we also throw next year into the mix so a quote
@@ -200,6 +209,18 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
         </select>
       </label>
     </form>
+    <label class="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-ink/70">
+      Publicació
+      <select
+        id="consent-filter"
+        class="px-2 py-1.5 border border-black/15 bg-white text-xs focus:border-gold focus:outline-none"
+      >
+        <option value="">— Totes —</option>
+        <option value="publishes">✓ Deixen publicar</option>
+        <option value="no">⛔ No deixen</option>
+        <option value="pending">⏳ Pendents</option>
+      </select>
+    </label>
     <input
       type="text"
       id="search-input"
@@ -249,6 +270,7 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
           <li
             class="bg-white border border-black/10"
             data-search={`${couple} ${b.venueName} ${b.coupleEmailPrimary}`.toLowerCase()}
+            data-consent={consentFor(b).state}
           >
             <a href={`/admin/bookings/${b.id}`} class="block p-4 hover:bg-cream/50">
               <div class="flex items-start justify-between gap-3 mb-2">
@@ -260,6 +282,7 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
                     {ownership(b) && (
                       <span class:list={['text-[0.6rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded-sm', ownership(b)!.classes]}>{ownership(b)!.label}</span>
                     )}
+                    <span class:list={['text-[0.6rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded-sm', consentFor(b).classes]} title={consentFor(b).title}>{consentFor(b).label}</span>
                   </div>
                 </div>
                 <span class:list={['shrink-0 text-[0.6rem] font-bold tracking-widest uppercase px-2 py-1 rounded-sm', badge.classes]}>
@@ -296,6 +319,7 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
             <th class="text-left px-4 py-3">Parella</th>
             <th class="text-left px-4 py-3">Data boda</th>
             <th class="text-left px-4 py-3">Venue</th>
+            <th class="text-left px-4 py-3">Publicació</th>
             <th class="text-right px-4 py-3">Pressupostat</th>
             <th class="text-left px-4 py-3">Actualitzat</th>
             <th class="text-right px-4 py-3"></th>
@@ -309,6 +333,7 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
               <tr
                 class="border-t border-black/5 hover:bg-cream/50"
                 data-search={`${couple} ${b.venueName} ${b.coupleEmailPrimary}`.toLowerCase()}
+                data-consent={consentFor(b).state}
               >
                 <td class="px-4 py-3">
                   <span class:list={['inline-block text-[0.65rem] font-bold tracking-widest uppercase px-2 py-1 rounded-sm', badge.classes]}>
@@ -335,6 +360,11 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
                 <td class="px-4 py-3 text-ink/70">
                   {b.venueName}
                   {b.venueCity && <span class="text-ink/70"> · {b.venueCity}</span>}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class:list={['inline-block text-[0.65rem] font-bold tracking-wider uppercase px-2 py-1 rounded-sm', consentFor(b).classes]} title={consentFor(b).title}>
+                    {consentFor(b).label}
+                  </span>
                 </td>
                 <td class="px-4 py-3 text-right font-bold text-gold whitespace-nowrap">{formatEuros(b.packPriceCents)}</td>
                 <td class="px-4 py-3 text-ink/70">{fmtRelative(b.updatedAt)}</td>
@@ -375,12 +405,18 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
   });
 
   const input = document.getElementById('search-input') as HTMLInputElement | null;
+  const consentFilter = document.getElementById('consent-filter') as HTMLSelectElement | null;
   const rows = document.querySelectorAll<HTMLElement>('#bookings-table tbody tr, #bookings-cards li');
-  input?.addEventListener('input', () => {
-    const q = input.value.toLowerCase().trim();
+  function applyFilters() {
+    const q = (input?.value ?? '').toLowerCase().trim();
+    const consent = consentFilter?.value ?? '';
     rows.forEach((row) => {
       const hay = row.dataset.search ?? '';
-      row.style.display = !q || hay.includes(q) ? '' : 'none';
+      const matchesSearch = !q || hay.includes(q);
+      const matchesConsent = !consent || row.dataset.consent === consent;
+      row.style.display = matchesSearch && matchesConsent ? '' : 'none';
     });
-  });
+  }
+  input?.addEventListener('input', applyFilters);
+  consentFilter?.addEventListener('change', applyFilters);
 </script>
