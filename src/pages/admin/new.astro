@@ -135,7 +135,7 @@ const LABELS: Record<string, string> = {
         <input
           readonly
           value={`${siteUrl}/p/${createdToken}`}
-          class="flex-1 min-w-[180px] px-3 py-2 border border-black/15 bg-cream font-mono text-sm"
+          class="flex-1 min-w-[180px] px-3 py-2 border border-line bg-cream font-mono text-sm"
           id="token-url"
         />
         <button
@@ -169,20 +169,20 @@ const LABELS: Record<string, string> = {
 
   {error && <p class="mb-6 p-3 bg-red-50 border border-red-200 text-red-700 text-sm">{error}</p>}
 
-  <form method="POST" class="max-w-2xl space-y-6 bg-white p-6 border border-black/10">
+  <form method="POST" class="max-w-2xl space-y-6 bg-white p-6 border border-line">
     {lead && <input type="hidden" name="lead_id" value={lead.id} />}
 
     <div>
       <label for="couple_name" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Nom de la parella *</label>
       <input id="couple_name" name="couple_name" required value={initialName}
-             class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none"
+             class="w-full px-3 py-2 border border-line focus:border-gold focus:outline-none"
              placeholder="Luis & Craig" />
     </div>
 
     <div>
       <label for="couple_email" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Email (opcional)</label>
       <input id="couple_email" name="couple_email" type="email" value={initialEmail}
-             class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none" />
+             class="w-full px-3 py-2 border border-line focus:border-gold focus:outline-none" />
     </div>
 
     <div>
@@ -203,7 +203,7 @@ const LABELS: Record<string, string> = {
               checked={initialServiceInterest === opt.v}
               class="sr-only peer"
             />
-            <span class="block text-xs font-bold tracking-widest uppercase text-center px-3 py-2 border border-black/15 cursor-pointer hover:border-gold peer-checked:bg-ink peer-checked:text-white peer-checked:border-ink transition-colors">
+            <span class="block text-xs font-bold tracking-widest uppercase text-center px-3 py-2 border border-line cursor-pointer hover:border-gold peer-checked:bg-ink peer-checked:text-white peer-checked:border-ink transition-colors">
               {opt.label}
             </span>
           </label>
@@ -218,7 +218,7 @@ const LABELS: Record<string, string> = {
         {PACKS.map((p) => {
           const subpacks = getComposedSubpacks(p);
           return (
-            <details class="border border-black/10 bg-white open:border-gold/40">
+            <details class="border border-line bg-white open:border-gold/40">
               <summary class="cursor-pointer list-none flex items-start gap-3 p-3 hover:bg-cream">
                 <input type="checkbox" name="packs" value={p.id}
                        checked={recommendedPackIds.includes(p.id)}
@@ -230,7 +230,7 @@ const LABELS: Record<string, string> = {
                 </span>
                 <span class="text-ink/40 text-sm leading-none mt-1 select-none">▾</span>
               </summary>
-              <div class="px-4 pb-4 -mt-1 border-t border-black/5 pt-3 space-y-3">
+              <div class="px-4 pb-4 -mt-1 border-t border-line pt-3 space-y-3">
                 {subpacks.length > 0 ? (
                   <>
                     {subpacks.map((sp) => (
@@ -244,7 +244,7 @@ const LABELS: Record<string, string> = {
                       </div>
                     ))}
                     {p.includes.ca.length > 0 && (
-                      <div class="pt-2 border-t border-black/5">
+                      <div class="pt-2 border-t border-line">
                         <p class="text-[0.7rem] font-bold uppercase tracking-wide text-gold mb-1">I junts:</p>
                         <ul class="space-y-1.5 text-sm text-ink/80">
                           {p.includes.ca.map((it) => (
@@ -268,13 +268,13 @@ const LABELS: Record<string, string> = {
       </div>
     </div>
 
-    <details class="border border-black/10 bg-cream/40">
+    <details class="border border-line bg-cream/40">
       <summary class="cursor-pointer px-4 py-3 text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold select-none">
         ＋ Extres disponibles (referència)
       </summary>
       <div class="px-4 pb-4 pt-2">
         <p class="text-[0.7rem] text-ink/70 mb-3">Aquests extres ja surten al pressupost de la parella. Si vols afegir-ne algun al missatge personalitzat, copia el text d'aquí.</p>
-        <ul class="divide-y divide-black/5 text-sm">
+        <ul class="divide-y divide-line text-sm">
           {EXTRAS.map((x) => (
             <li class="flex items-start justify-between gap-3 py-2">
               <div class="flex-1">
@@ -291,11 +291,11 @@ const LABELS: Record<string, string> = {
     <div>
       <label for="notes" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Notes personals (opcional)</label>
       <textarea id="notes" name="notes" rows="3"
-                class="w-full px-3 py-2 border border-black/15 focus:border-gold focus:outline-none resize-y"
+                class="w-full px-3 py-2 border border-line focus:border-gold focus:outline-none resize-y"
                 placeholder="Missatge personalitzat que veurà la parella a la pàgina…"></textarea>
     </div>
 
-    <details class="border border-black/10 bg-cream/40">
+    <details class="border border-line bg-cream/40">
       <summary class="cursor-pointer px-4 py-3 text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold select-none">
         ⚙ Opcions avançades
       </summary>
@@ -303,20 +303,20 @@ const LABELS: Record<string, string> = {
         <div>
           <label for="expires_at" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Caduca</label>
           <input id="expires_at" name="expires_at" type="date"
-                 class="w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+                 class="w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
           <p class="text-[0.7rem] text-ink/70 mt-1">L'enllaç deixarà de funcionar després d'aquesta data.</p>
         </div>
         <div>
           <label for="password" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Contrasenya</label>
           <input id="password" name="password"
-                 class="w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none"
+                 class="w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none"
                  placeholder="Deixa-ho en blanc" />
           <p class="text-[0.7rem] text-ink/70 mt-1">Capa extra de seguretat si voleu que la parella introdueixi una paraula per obrir el pressupost.</p>
         </div>
         <div>
           <label for="preferred_language" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Idioma</label>
           <select id="preferred_language" name="preferred_language"
-                  class="w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+                  class="w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
             <option value="ca" selected={initialLanguage === 'ca'}>Català</option>
             <option value="es" selected={initialLanguage === 'es'}>Castellano</option>
             <option value="en" selected={initialLanguage === 'en'}>English</option>
@@ -326,7 +326,7 @@ const LABELS: Record<string, string> = {
         <div class="md:col-span-2">
           <label for="flagship_video_id" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Vídeo destacat</label>
           <select id="flagship_video_id" name="flagship_video_id"
-                  class="w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+                  class="w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
             <option value="">— Per defecte (Elena i Jordi) —</option>
             <optgroup label="Tràilers">
               {publicVideos.map((v) => (
@@ -349,7 +349,7 @@ const LABELS: Record<string, string> = {
         <div class="md:col-span-2">
           <label for="flagship_wedding_slug" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Galeria de fotos destacada — Boda real</label>
           <select id="flagship_wedding_slug" name="flagship_wedding_slug"
-                  class="w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+                  class="w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
             <option value="">— Cap (deixar automàtic) —</option>
             {WEDDINGS.map((w) => (
               <option value={w.slug}>{w.couple} · {w.venue} · {w.location}</option>
@@ -361,7 +361,7 @@ const LABELS: Record<string, string> = {
         <div class="md:col-span-2">
           <label for="flagship_showcase_slug" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Galeria de fotos destacada — Showcase temàtic</label>
           <select id="flagship_showcase_slug" name="flagship_showcase_slug"
-                  class="w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+                  class="w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
             <option value="">— Cap (deixar automàtic) —</option>
             {SHOWCASES.map((s) => (
               <option value={s.slug}>{s.title.ca}</option>
@@ -376,7 +376,7 @@ const LABELS: Record<string, string> = {
             <select
               id="flagship_external_gallery_picker"
               data-gallery-picker
-              class="w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none mb-2"
+              class="w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none mb-2"
             >
               <option value="">— Trieu una galeria del catàleg, o enganxeu URL a sota —</option>
               {externalGalleries.map((g) => (
@@ -388,7 +388,7 @@ const LABELS: Record<string, string> = {
           )}
           <input id="flagship_external_gallery_url" name="flagship_external_gallery_url" type="url"
                  placeholder="https://gallery.fotostudio.io/objectiu-fotografs/..."
-                 class="w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+                 class="w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
           <p class="text-[0.7rem] text-ink/70 mt-1">Si poses una URL de galeria de FotoStudio (o similar), s'incrusta a la pàgina del pressupost. Si la galeria no es deixa embedar, surt un botó per obrir-la en una pestanya nova automàticament.</p>
         </div>
       </div>

@@ -131,7 +131,7 @@ const fmtPair = (w: MappedWedding) => `${w.coupleName1}${w.coupleName2 ? ' & ' +
     {error && <p class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm">{error}</p>}
 
     {mode === 'upload' && (
-      <form method="POST" enctype="multipart/form-data" class="bg-white border border-black/10 p-6">
+      <form method="POST" enctype="multipart/form-data" class="bg-white border border-line p-6">
         <input type="hidden" name="action" value="preview" />
         <label class="block text-sm font-semibold mb-2" for="csv">Fitxer CSV</label>
         <input id="csv" type="file" name="csv" accept=".csv,text/csv" required class="block w-full text-sm mb-4" />
@@ -145,12 +145,12 @@ const fmtPair = (w: MappedWedding) => `${w.coupleName1}${w.coupleName2 ? ' & ' +
       <div>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5 text-center">
           <div class="bg-cream border border-gold/40 p-3"><div class="text-2xl font-bold">{preview.eligible.length}</div><div class="text-[0.7rem] uppercase tracking-wider text-ink/70">≥ {MIN_WEDDING_YEAR}</div></div>
-          <div class="bg-white border border-black/10 p-3"><div class="text-2xl font-bold">{preview.eligible.filter((w) => dupKeys.has(w.dedupKey)).length}</div><div class="text-[0.7rem] uppercase tracking-wider text-ink/70">ja existents</div></div>
-          <div class="bg-white border border-black/10 p-3"><div class="text-2xl font-bold">{preview.skippedOld}</div><div class="text-[0.7rem] uppercase tracking-wider text-ink/70">anteriors (fora)</div></div>
-          <div class="bg-white border border-black/10 p-3"><div class="text-2xl font-bold">{preview.totalRows}</div><div class="text-[0.7rem] uppercase tracking-wider text-ink/70">total al fitxer</div></div>
+          <div class="bg-white border border-line p-3"><div class="text-2xl font-bold">{preview.eligible.filter((w) => dupKeys.has(w.dedupKey)).length}</div><div class="text-[0.7rem] uppercase tracking-wider text-ink/70">ja existents</div></div>
+          <div class="bg-white border border-line p-3"><div class="text-2xl font-bold">{preview.skippedOld}</div><div class="text-[0.7rem] uppercase tracking-wider text-ink/70">anteriors (fora)</div></div>
+          <div class="bg-white border border-line p-3"><div class="text-2xl font-bold">{preview.totalRows}</div><div class="text-[0.7rem] uppercase tracking-wider text-ink/70">total al fitxer</div></div>
         </div>
 
-        <div class="overflow-x-auto border border-black/10 mb-5">
+        <div class="overflow-x-auto border border-line mb-5">
           <table class="w-full text-sm">
             <thead class="bg-cream text-[0.7rem] uppercase tracking-wider text-ink/70">
               <tr><th class="text-left p-2">Data</th><th class="text-left p-2">Parella</th><th class="text-left p-2">Idioma</th><th class="text-left p-2">Lloc</th><th class="text-left p-2">Estat</th></tr>
@@ -159,7 +159,7 @@ const fmtPair = (w: MappedWedding) => `${w.coupleName1}${w.coupleName2 ? ' & ' +
               {preview.eligible.map((w) => {
                 const dup = dupKeys.has(w.dedupKey);
                 return (
-                  <tr class="border-t border-black/5">
+                  <tr class="border-t border-line">
                     <td class="p-2 whitespace-nowrap">{w.weddingDateIso}</td>
                     <td class="p-2">{fmtPair(w)}</td>
                     <td class="p-2 uppercase">{w.preferredLanguage}</td>
@@ -184,7 +184,7 @@ const fmtPair = (w: MappedWedding) => `${w.coupleName1}${w.coupleName2 ? ' & ' +
     )}
 
     {mode === 'done' && result && (
-      <div class="bg-white border border-black/10 p-6">
+      <div class="bg-white border border-line p-6">
         <p class="text-lg font-bold mb-3">Importació completada</p>
         <ul class="text-sm space-y-1 mb-4">
           <li>✅ Importades: <strong>{result.imported}</strong></li>

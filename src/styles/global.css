@@ -1,32 +1,25 @@
-/* Self-hosted fonts (April 2026). `full.css` ships the full variable
-   Fraunces with all four axes (wght, opsz, SOFT, WONK) — required
-   because the body uses `font-variation-settings: 'SOFT' 50` on display
-   headings. fontsource splits by unicode subset; the browser only
-   downloads the latin range for ES/CA/EN visitors thanks to
-   unicode-range filtering.
+/* Web fonts (reskin April 2026 → light editorial):
+   Cormorant Garamond (display/headings, 500/600 + italic) and Jost
+   (body/UI, 300/400/500/600) from Google Fonts. Loaded via @import so a
+   single source covers every page that pulls in this stylesheet,
+   including the standalone /p/<token> head.
 
    @import MUST sit above the @tailwind directives — CSS spec says
    @import rules must precede everything except @charset / @layer. */
-@import '@fontsource-variable/fraunces/full.css';
-@import '@fontsource-variable/fraunces/full-italic.css';
-@import '@fontsource-variable/inter/index.css';
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Jost:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ────────────────────────────────────────────────────────────────
-   Type system — Fraunces (display) + Inter (body/UI)
-   Replaces the old Lato + Playfair stack in April 2026.
+   Type system — Cormorant Garamond (display) + Jost (body/UI)
+   Light editorial reskin (April 2026). Replaces Fraunces + Inter.
    ──────────────────────────────────────────────────────────────── */
 
 :root {
-  --font-display: 'Fraunces Variable', Georgia, serif;
-  --font-body: 'Inter Variable', system-ui, -apple-system, sans-serif;
-
-  /* Fraunces SOFT axis: 0 (default) → 100 (max softness).
-     50 = warmer than default without feeling gimmicky. */
-  --fraunces-soft: 50;
+  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-body: 'Jost', system-ui, -apple-system, sans-serif;
 
   /* ── Brand colors — single source of truth ──────────────────────
      Stored as space-separated RGB channels (not hex) so Tailwind can
@@ -35,18 +28,21 @@
      working while the actual values live in one place.
      Mirror any change here in the static `theme-color` meta tag in
      BaseLayout.astro (HTML attributes can't read CSS vars).
-       --gold:  #c9a96e   --cream: #f9f5f0   --ink: #1a1a1a          */
-  --gold: 201 169 110;
-  --cream: 249 245 240;
-  --ink: 26 26 26;
 
-  /* Accessible gold for small TEXT on light backgrounds (eyebrows, section
-     labels, links on cream/white). The brand gold (--gold) only reaches
-     ~2.1:1 as text on cream — below WCAG AA. This darker, same-hue gold
-     (#7d6944) hits 4.87:1 on cream / 5.28:1 on white while reading as the
-     same warm gold. Use --gold (light) for gold text on DARK backgrounds. */
-  --gold-deep: 125 105 68;
+       Light editorial palette:
+       --cream/ivory #f7f4ef · --sand #efe9e0 · --paper(white) #fffdfa
+       --ink #2b2723 · --ink-soft #6f675e · --line #ddd4c8
+       --gold #a9885f · --gold-deep #8a6c45                          */
+  --cream: 247 244 239;
+  --sand: 239 233 224;
+  --paper: 255 253 250;
+  --ink: 43 39 35;
+  --ink-soft: 111 103 94;
+  --line: 221 212 200;
+  --gold: 169 136 95;
+  --gold-deep: 138 108 69;
 }
+
 
 @layer base {
   html {
@@ -55,48 +51,45 @@
 
   body {
     font-family: var(--font-body);
-    /* Inter stylistic sets: ss01 single-storey a, cv11 curved l, cv05 lower-g.
-       Slightly more elegant than default Inter. */
-    font-feature-settings: 'ss01', 'cv11', 'cv05';
-    font-optical-sizing: auto;
+    /* Jost reads best with a light body weight in editorial layouts. */
+    font-weight: 300;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
 
-  /* Display headings */
+  /* Display headings — Cormorant Garamond, medium weight (500). It is a
+     high-contrast serif, so headings get a touch of positive tracking
+     rather than the tight negative tracking the old grotesk used. */
   h1, h2, h3, .font-display {
     font-family: var(--font-display);
-    font-variation-settings: 'SOFT' var(--fraunces-soft);
-    font-optical-sizing: auto;
-    letter-spacing: -0.015em;
+    font-weight: 500;
+    letter-spacing: 0;
   }
   h1 {
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    font-weight: 400;
+    line-height: 1.08;
+    font-weight: 500;
   }
   h2 {
     line-height: 1.15;
-    letter-spacing: -0.015em;
-    font-weight: 400;
+    font-weight: 500;
   }
   h3 {
     line-height: 1.25;
-    letter-spacing: -0.01em;
     font-weight: 500;
   }
 
-  /* h4-h6 stay in Inter for visual hierarchy separation */
+  /* h4-h6 stay in the body sans (Jost) for hierarchy separation */
   h4, h5, h6 {
     font-family: var(--font-body);
-    font-weight: 600;
-    letter-spacing: -0.005em;
+    font-weight: 500;
+    letter-spacing: 0;
   }
 
   /* Body paragraphs */
   p {
-    line-height: 1.65;
+    line-height: 1.7;
+    font-weight: 300;
   }
 
   /* Long-reading blocks (inside .prose already has good defaults from
@@ -144,11 +137,29 @@ summary.faq-summary {
   letter-spacing: -0.005em;
 }
 
-/* Eyebrow / kicker pattern */
+/* Eyebrow / kicker pattern. Uppercase, wide tracking, deep gold — the
+   editorial reskin's signature label treatment. */
 .eyebrow {
   font-family: var(--font-body);
   font-weight: 500;
   font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.18em;
+  color: rgb(var(--gold-deep));
+}
+
+/* ────────────────────────────────────────────────────────────────
+   Editorial card — shared surface treatment (light reskin).
+   1px warm hairline, gentle radius and a soft, low shadow on a paper
+   background. Applied to content cards so the whole site shares one
+   card language without per-component box-shadow tweaks. */
+@layer components {
+  .lw-card {
+    background-color: rgb(var(--paper));
+    border: 1px solid rgb(var(--line));
+    border-radius: 4px;
+    box-shadow:
+      0 1px 2px rgb(43 39 35 / 0.04),
+      0 10px 30px -16px rgb(43 39 35 / 0.18);
+  }
 }

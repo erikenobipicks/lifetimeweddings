@@ -52,7 +52,7 @@ const TOTAL_STEPS = 6;
   <!-- Step 1: Date -->
   <div data-step="1" class="quiz-step">
     <h2 class="font-display text-2xl md:text-3xl font-bold mb-6 text-center">{t('quiz.q1')}</h2>
-    <input type="date" id="q-date" class="w-full px-4 py-3 border border-black/15 bg-white text-center text-lg focus:border-gold focus:outline-none" />
+    <input type="date" id="q-date" class="w-full px-4 py-3 border border-line bg-white text-center text-lg focus:border-gold focus:outline-none" />
   </div>
 
   <!-- Step 2: Location -->
@@ -61,7 +61,7 @@ const TOTAL_STEPS = 6;
     <div class="grid gap-3">
       {locations.map((loc) => (
         <button type="button" data-choice="location" data-value={loc.value}
-                class="quiz-option px-5 py-4 border border-black/15 text-left font-bold hover:border-gold hover:bg-cream transition-colors">
+                class="quiz-option px-5 py-4 border border-line text-left font-bold hover:border-gold hover:bg-cream transition-colors">
           {loc.label}
         </button>
       ))}
@@ -74,7 +74,7 @@ const TOTAL_STEPS = 6;
     <div class="grid gap-3">
       {ceremonies.map((c) => (
         <button type="button" data-choice="ceremonyType" data-value={c.value}
-                class="quiz-option px-5 py-4 border border-black/15 text-left font-bold hover:border-gold hover:bg-cream transition-colors">
+                class="quiz-option px-5 py-4 border border-line text-left font-bold hover:border-gold hover:bg-cream transition-colors">
           {c.label}
         </button>
       ))}
@@ -87,7 +87,7 @@ const TOTAL_STEPS = 6;
     <div class="grid gap-3">
       {services.map((s) => (
         <button type="button" data-choice="serviceInterest" data-value={s.value}
-                class="quiz-option px-5 py-4 border border-black/15 text-left font-bold hover:border-gold hover:bg-cream transition-colors text-lg">
+                class="quiz-option px-5 py-4 border border-line text-left font-bold hover:border-gold hover:bg-cream transition-colors text-lg">
           {s.label}
         </button>
       ))}
@@ -100,7 +100,7 @@ const TOTAL_STEPS = 6;
     <div class="grid gap-3">
       {budgets.map((b) => (
         <button type="button" data-choice="budgetRange" data-value={b.value}
-                class="quiz-option px-5 py-4 border border-black/15 text-left font-bold hover:border-gold hover:bg-cream transition-colors">
+                class="quiz-option px-5 py-4 border border-line text-left font-bold hover:border-gold hover:bg-cream transition-colors">
           {b.label}
         </button>
       ))}
@@ -114,22 +114,22 @@ const TOTAL_STEPS = 6;
       <div>
         <label for="q-name" class="block text-xs font-bold tracking-[0.1em] uppercase mb-1.5">{t('quiz.name.label')} *</label>
         <input id="q-name" type="text" required placeholder={t('quiz.name.placeholder')}
-               class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+               class="w-full px-4 py-3 border border-line bg-white focus:border-gold focus:outline-none" />
       </div>
       <div>
         <label for="q-email" class="block text-xs font-bold tracking-[0.1em] uppercase mb-1.5">{t('quiz.email.label')} *</label>
         <input id="q-email" type="email" required
-               class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+               class="w-full px-4 py-3 border border-line bg-white focus:border-gold focus:outline-none" />
       </div>
       <div>
         <label for="q-phone" class="block text-xs font-bold tracking-[0.1em] uppercase mb-1.5">{t('quiz.phone.label')}</label>
         <input id="q-phone" type="tel"
-               class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+               class="w-full px-4 py-3 border border-line bg-white focus:border-gold focus:outline-none" />
       </div>
       <div>
         <label for="q-venue" class="block text-xs font-bold tracking-[0.1em] uppercase mb-1.5">{t('quiz.venue.label')} *</label>
         <input id="q-venue" type="text" required maxlength="200" placeholder={t('quiz.venue.placeholder')}
-               class="w-full px-4 py-3 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+               class="w-full px-4 py-3 border border-line bg-white focus:border-gold focus:outline-none" />
       </div>
       {turnstileSitekey && (
         <div class="cf-turnstile flex justify-center pt-2" data-sitekey={turnstileSitekey} data-theme="light" data-size="flexible"></div>
@@ -158,7 +158,7 @@ const TOTAL_STEPS = 6;
   <!-- Nav buttons -->
   <div id="q-nav" class="flex justify-between mt-8">
     <button type="button" id="q-back"
-            class="px-6 py-3 border border-black/15 text-xs font-bold tracking-widest uppercase hover:bg-cream transition-colors invisible">
+            class="px-6 py-3 border border-line text-xs font-bold tracking-widest uppercase hover:bg-cream transition-colors invisible">
       {t('quiz.back')}
     </button>
     <button type="button" id="q-next"
@@ -219,7 +219,7 @@ const TOTAL_STEPS = 6;
         btn.parentElement.querySelectorAll('.quiz-option').forEach((o) => {
           o.classList.toggle('border-gold', o === btn);
           o.classList.toggle('bg-cream', o === btn);
-          o.classList.toggle('border-black/15', o !== btn);
+          o.classList.toggle('border-line', o !== btn);
           o.classList.remove('bg-cream');
         });
         btn.classList.add('bg-cream');

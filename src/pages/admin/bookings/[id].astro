@@ -196,7 +196,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
   )}
 
   <!-- Sidebar: URL + accions ràpides -->
-  <div class="bg-white border border-black/10 p-5 mb-6">
+  <div class="bg-white border border-line p-5 mb-6">
     <!-- Row 1: URL (full width) + copy/open -->
     <div class="flex items-start gap-3 mb-4">
       <div class="flex-1 min-w-0">
@@ -218,7 +218,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
           href={publicUrl}
           target="_blank"
           rel="noopener"
-          class="border border-black/15 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:border-gold hover:text-gold transition-colors whitespace-nowrap"
+          class="border border-line text-xs font-bold tracking-widest uppercase px-4 py-2 hover:border-gold hover:text-gold transition-colors whitespace-nowrap"
         >Obrir →</a>
       </div>
     </div>
@@ -279,7 +279,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
         </button>
       </form>
     </div>
-    <dl class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5 pt-5 border-t border-black/10 text-xs">
+    <dl class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5 pt-5 border-t border-line text-xs">
       <div><dt class="text-ink/70 mb-1">Creat</dt><dd>{fmtDateTime(booking.createdAt)}</dd></div>
       <div><dt class="text-ink/70 mb-1">Actualitzat</dt><dd>{fmtDateTime(booking.updatedAt)}</dd></div>
       <div><dt class="text-ink/70 mb-1">Primera vista</dt><dd>{fmtDateTime(booking.firstViewedAt)}</dd></div>
@@ -290,7 +290,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
   <!-- Sidebar: gestió del flux /contrato (només visible un cop la parella
        ha enviat /reserva; abans no té sentit) -->
   {booking.status === 'form_submitted' && (
-    <div class="bg-white border border-black/10 p-5 mb-6">
+    <div class="bg-white border border-line p-5 mb-6">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
         <div>
           <p class="text-[11px] font-bold tracking-widest uppercase text-ink/70 mb-1">Flux post-dipòsit</p>
@@ -364,7 +364,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
       </dl>
 
       {booking.depositPaidAt && (
-        <div class="mt-4 pt-4 border-t border-black/10">
+        <div class="mt-4 pt-4 border-t border-line">
           <div class="flex flex-col md:flex-row md:items-center gap-3">
             <div class="flex-1 min-w-0">
               <p class="text-[11px] font-bold tracking-widest uppercase text-ink/70 mb-1">URL /contrato per a la parella</p>
@@ -380,7 +380,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
                 href={contratoUrl}
                 target="_blank"
                 rel="noopener"
-                class="border border-black/15 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:border-gold hover:text-gold transition-colors"
+                class="border border-line text-xs font-bold tracking-widest uppercase px-4 py-2 hover:border-gold hover:text-gold transition-colors"
               >Obrir →</a>
             </div>
           </div>
@@ -391,18 +391,18 @@ const ibanPlaceholder = transfer.isPlaceholder;
 
   {/* Pressupost i pagaments — operator bookkeeping. Total = inversió
       efectiva (preu − descompte); el pendent = total − suma de pagaments. */}
-  <div id="pagaments" class="bg-white border border-black/10 p-5 md:p-6 mb-6 scroll-mt-24">
+  <div id="pagaments" class="bg-white border border-line p-5 md:p-6 mb-6 scroll-mt-24">
     <h2 class="font-display text-lg font-bold mb-4">Pressupost i pagaments</h2>
 
     <div class="grid grid-cols-3 gap-3 mb-5">
-      <div class="bg-cream border border-black/10 p-3">
+      <div class="bg-cream border border-line p-3">
         <div class="text-[0.65rem] uppercase tracking-wider text-ink/70 mb-1">Total</div>
         <div class="text-lg font-bold whitespace-nowrap">{fmtEur(totalCents)}</div>
         {booking.discountCents > 0 && (
           <div class="text-[0.65rem] text-ink/60 mt-0.5">preu −{fmtEur(booking.discountCents)} dte.</div>
         )}
       </div>
-      <div class="bg-cream border border-black/10 p-3">
+      <div class="bg-cream border border-line p-3">
         <div class="text-[0.65rem] uppercase tracking-wider text-ink/70 mb-1">Pagat</div>
         <div class="text-lg font-bold whitespace-nowrap text-emerald-700">{fmtEur(paidCents)}</div>
         <div class="text-[0.65rem] text-ink/60 mt-0.5">{payments.length} {payments.length === 1 ? 'pagament' : 'pagaments'}</div>
@@ -429,7 +429,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
     )}
 
     {payments.length > 0 && (
-      <div class="overflow-x-auto border border-black/10 mb-4">
+      <div class="overflow-x-auto border border-line mb-4">
         <table class="w-full text-sm">
           <thead class="bg-cream text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">
             <tr>
@@ -442,7 +442,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
           </thead>
           <tbody>
             {payments.map((p) => (
-              <tr class="border-t border-black/5">
+              <tr class="border-t border-line">
                 <td class="px-3 py-2 whitespace-nowrap">{p.paidOn ?? '—'}</td>
                 <td class="px-3 py-2">{p.method ?? '—'}</td>
                 <td class="px-3 py-2 text-ink/70">{p.note ?? ''}</td>
@@ -465,15 +465,15 @@ const ibanPlaceholder = transfer.isPlaceholder;
       <input type="hidden" name="_action" value="payment_add" />
       <label class="block">
         <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Import (€)</span>
-        <input name="amountEuros" inputmode="decimal" required placeholder="0" class="mt-1 w-28 px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        <input name="amountEuros" inputmode="decimal" required placeholder="0" class="mt-1 w-28 px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
       </label>
       <label class="block">
         <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Data</span>
-        <input type="date" name="paidOn" value={todayIso} class="mt-1 px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        <input type="date" name="paidOn" value={todayIso} class="mt-1 px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
       </label>
       <label class="block">
         <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Mètode</span>
-        <select name="method" class="mt-1 px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+        <select name="method" class="mt-1 px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
           <option>Transferència</option>
           <option>Targeta</option>
           <option>Efectiu</option>
@@ -483,7 +483,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
       </label>
       <label class="block flex-1 min-w-[140px]">
         <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Nota (opcional)</span>
-        <input name="note" maxlength="200" placeholder="p. ex. paga i senyal" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        <input name="note" maxlength="200" placeholder="p. ex. paga i senyal" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
       </label>
       <button type="submit" class="bg-gold text-ink font-bold px-5 py-2.5 text-xs tracking-widest uppercase hover:bg-ink hover:text-white transition-colors">
         + Afegir pagament
@@ -493,7 +493,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
 
   {/* Canvi de data / preu → addendum. Edita el valor i genera un PDF
       d'addendum (sense firma). Queda registrat a l'historial. */}
-  <div id="addendum" class="bg-white border border-black/10 p-5 md:p-6 mb-6 scroll-mt-24">
+  <div id="addendum" class="bg-white border border-line p-5 md:p-6 mb-6 scroll-mt-24">
     <h2 class="font-display text-lg font-bold mb-1">Canvi de data / preu</h2>
     <p class="text-sm text-ink/70 mb-4">
       Actualitza la data i/o l’import i es genera un <strong>addendum en PDF</strong> per enviar a la parella.
@@ -504,15 +504,15 @@ const ibanPlaceholder = transfer.isPlaceholder;
       <input type="hidden" name="_action" value="change_addendum" />
       <label class="block">
         <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Nova data</span>
-        <input type="date" name="newWeddingDate" value={weddingDateIso} class="mt-1 px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        <input type="date" name="newWeddingDate" value={weddingDateIso} class="mt-1 px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
       </label>
       <label class="block">
         <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Nou import total (€)</span>
-        <input name="newPriceEuros" inputmode="decimal" placeholder={eurosFromCents(booking.packPriceCents)} class="mt-1 w-32 px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        <input name="newPriceEuros" inputmode="decimal" placeholder={eurosFromCents(booking.packPriceCents)} class="mt-1 w-32 px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
       </label>
       <label class="block flex-1 min-w-[160px]">
         <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Nota (opcional)</span>
-        <input name="note" maxlength="500" placeholder="motiu del canvi" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        <input name="note" maxlength="500" placeholder="motiu del canvi" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
       </label>
       <button type="submit" class="bg-gold text-ink font-bold px-5 py-2.5 text-xs tracking-widest uppercase hover:bg-ink hover:text-white transition-colors">
         Desar canvi
@@ -520,7 +520,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
     </form>
 
     {changes.length > 0 ? (
-      <div class="overflow-x-auto border border-black/10">
+      <div class="overflow-x-auto border border-line">
         <table class="w-full text-sm">
           <thead class="bg-cream text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">
             <tr>
@@ -532,7 +532,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
           </thead>
           <tbody>
             {changes.map((c) => (
-              <tr class="border-t border-black/5">
+              <tr class="border-t border-line">
                 <td class="px-3 py-2 whitespace-nowrap text-ink/70">{fmtDateTime(c.createdAt)}</td>
                 <td class="px-3 py-2">
                   {c.newWeddingDate && <div>Data: <span class="text-ink/60">{c.oldWeddingDate ?? '—'}</span> → <strong>{c.newWeddingDate}</strong></div>}
@@ -558,7 +558,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
       cancel·lació a la parella perquè el signi online. */}
   <div id="cancellacio" class:list={[
     'border p-5 md:p-6 mb-6 scroll-mt-24',
-    booking.cancelledAt ? 'bg-red-50 border-red-200' : 'bg-white border-black/10',
+    booking.cancelledAt ? 'bg-red-50 border-red-200' : 'bg-white border-line',
   ]}>
     <h2 class="font-display text-lg font-bold mb-1">Cancel·lació</h2>
 
@@ -578,11 +578,11 @@ const ibanPlaceholder = transfer.isPlaceholder;
           <div class="flex flex-wrap gap-3">
             <label class="block flex-1 min-w-[200px]">
               <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Motiu (opcional)</span>
-              <input name="reason" maxlength="1000" placeholder="p. ex. la parella ajorna sense data" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+              <input name="reason" maxlength="1000" placeholder="p. ex. la parella ajorna sense data" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
             </label>
             <label class="block">
               <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Import retingut (€)</span>
-              <input name="retainedEuros" inputmode="decimal" value={eurosFromCents(booking.depositCents)} class="mt-1 w-32 px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+              <input name="retainedEuros" inputmode="decimal" value={eurosFromCents(booking.depositCents)} class="mt-1 w-32 px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
             </label>
           </div>
           <button type="submit" class="bg-red-600 text-white font-bold px-5 py-2.5 text-xs tracking-widest uppercase hover:bg-red-700 transition-colors">
@@ -596,12 +596,12 @@ const ibanPlaceholder = transfer.isPlaceholder;
         {booking.cancellationReason && <p class="text-sm text-ink/80 mb-1"><strong>Motiu:</strong> {booking.cancellationReason}</p>}
         <p class="text-sm text-ink/80 mb-3"><strong>Import retingut:</strong> {fmtEur(booking.cancellationRetainedCents ?? booking.depositCents)}</p>
 
-        <div class="bg-white border border-black/10 p-4 mb-3">
+        <div class="bg-white border border-line p-4 mb-3">
           <p class="text-[11px] font-bold tracking-widest uppercase text-ink/70 mb-1">Enllaç de firma per a la parella</p>
           <code class="text-sm break-all text-ink/80">{siteUrl}/cancellacio/{booking.slug}</code>
           <div class="flex flex-wrap gap-2 mt-3">
             <button type="button" data-copy={`${siteUrl}/cancellacio/${booking.slug}`} class="bg-gold text-ink text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-ink hover:text-white transition-colors">Copiar enllaç</button>
-            <a href={`/api/admin/bookings/${booking.id}/cancellation`} target="_blank" rel="noopener" class="border border-black/15 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:border-gold hover:text-gold transition-colors">Descarregar PDF</a>
+            <a href={`/api/admin/bookings/${booking.id}/cancellation`} target="_blank" rel="noopener" class="border border-line text-xs font-bold tracking-widest uppercase px-4 py-2 hover:border-gold hover:text-gold transition-colors">Descarregar PDF</a>
           </div>
         </div>
 
@@ -626,7 +626,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
       checks are sourced from the booking columns (read-only) for a
       single unified view of the post-booking flow. */}
   {booking.status === 'form_submitted' && (
-    <section class="bg-white border border-black/10 p-5 md:p-6 mb-6">
+    <section class="bg-white border border-line p-5 md:p-6 mb-6">
       <div class="flex items-center justify-between gap-3 mb-4">
         <h2 class="font-display text-xl font-bold">Seguiment de la boda</h2>
         <span class="text-[11px] font-bold tracking-widest uppercase text-ink/70">
@@ -767,7 +767,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
   )}
 
   <!-- Edit form -->
-  <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="space-y-10 bg-white border border-black/10 p-6 md:p-8">
+  <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="space-y-10 bg-white border border-line p-6 md:p-8">
     <input type="hidden" name="_action" value="update" />
 
     {booking.status !== 'draft' && (
@@ -779,13 +779,13 @@ const ibanPlaceholder = transfer.isPlaceholder;
     <fieldset class="space-y-4">
       <legend class="font-display text-xl font-bold mb-3">Parella</legend>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom 1</span><input name="coupleName1" value={booking.coupleName1} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
-        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom 2</span><input name="coupleName2" value={booking.coupleName2} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
-        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Email principal</span><input type="email" name="coupleEmailPrimary" value={booking.coupleEmailPrimary} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
-        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Telèfon</span><input name="couplePhonePrimary" value={booking.couplePhonePrimary ?? ''} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom 1</span><input name="coupleName1" value={booking.coupleName1} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom 2</span><input name="coupleName2" value={booking.coupleName2} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Email principal</span><input type="email" name="coupleEmailPrimary" value={booking.coupleEmailPrimary} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Telèfon</span><input name="couplePhonePrimary" value={booking.couplePhonePrimary ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Idioma de la pàgina</span>
-          <select id="preferredLanguageField" name="preferredLanguage" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+          <select id="preferredLanguageField" name="preferredLanguage" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
             {[['ca','Català'],['es','Castellano'],['en','English']].map(([code,label]) => (
               <option value={code} selected={booking.preferredLanguage === code}>{label}</option>
             ))}
@@ -793,10 +793,10 @@ const ibanPlaceholder = transfer.isPlaceholder;
         </label>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Procedència</span><input name="source" value={booking.source ?? ''} placeholder="Instagram, recomanació de…, orgànic" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Procedència</span><input name="source" value={booking.source ?? ''} placeholder="Instagram, recomanació de…, orgànic" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Tipus de servei</span>
-          <select name="serviceType" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+          <select name="serviceType" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
             <option value="">— Auto (del pack) —</option>
             {[['photo','Només foto'],['video','Només vídeo'],['combo','Foto + vídeo']].map(([code,label]) => (
               <option value={code} selected={booking.serviceType === code}>{label}</option>
@@ -805,23 +805,23 @@ const ibanPlaceholder = transfer.isPlaceholder;
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Propietat</span>
-          <select name="kind" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+          <select name="kind" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
             {[['own','LifeTime Weddings'],['collab','LifeTime + col·laborador'],['external','Per a un altre estudi (sense mailing)']].map(([code,label]) => (
               <option value={code} selected={booking.kind === code}>{label}</option>
             ))}
           </select>
         </label>
-        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom (col·laborador / estudi)</span><input name="collaboratorName" value={booking.collaboratorName ?? ''} placeholder="només si col·laboració o altre estudi" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom (col·laborador / estudi)</span><input name="collaboratorName" value={booking.collaboratorName ?? ''} placeholder="només si col·laboració o altre estudi" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
       </div>
     </fieldset>
 
     <fieldset class="space-y-4">
       <legend class="font-display text-xl font-bold mb-3">Boda</legend>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Data</span><input type="date" name="weddingDate" value={yyyymmdd(booking.weddingDate)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
-        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Venue</span><input name="venueName" value={booking.venueName} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
-        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Ciutat</span><input name="venueCity" value={booking.venueCity ?? ''} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
-        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Adreça</span><input name="venueAddress" value={booking.venueAddress ?? ''} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Data</span><input type="date" name="weddingDate" value={yyyymmdd(booking.weddingDate)} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Venue</span><input name="venueName" value={booking.venueName} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Ciutat</span><input name="venueCity" value={booking.venueCity ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Adreça</span><input name="venueAddress" value={booking.venueAddress ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
       </div>
     </fieldset>
 
@@ -829,29 +829,29 @@ const ibanPlaceholder = transfer.isPlaceholder;
       <legend class="font-display text-xl font-bold mb-3">Pack</legend>
       <PackPaymentTools bookingId={booking.id} />
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <label class="block md:col-span-2"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom del pack</span><input id="packNameField" name="packName" value={booking.packName} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block md:col-span-2"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom del pack</span><input id="packNameField" name="packName" value={booking.packName} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
         <label class="block md:col-span-2">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Descripció</span>
-          <textarea name="packDescription" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{booking.packDescription ?? ''}</textarea>
+          <textarea name="packDescription" rows="3" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">{booking.packDescription ?? ''}</textarea>
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Què inclou</span>
           <span class="block text-[11px] text-ink/70 mb-1">una línia per ítem</span>
-          <textarea id="packIncludesField" name="packIncludes" rows="6" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{includesText}</textarea>
+          <textarea id="packIncludesField" name="packIncludes" rows="6" class="mt-1 w-full px-3 py-2 border border-line bg-white font-mono text-sm focus:border-gold focus:outline-none">{includesText}</textarea>
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Què no inclou</span>
           <span class="block text-[11px] text-ink/70 mb-1">una línia per ítem</span>
-          <textarea name="packExcludes" rows="6" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{excludesText}</textarea>
+          <textarea name="packExcludes" rows="6" class="mt-1 w-full px-3 py-2 border border-line bg-white font-mono text-sm focus:border-gold focus:outline-none">{excludesText}</textarea>
         </label>
         <label class="block md:col-span-2">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Add-ons</span>
           <span class="block text-[11px] text-ink/70 mb-1">una línia per ítem · format <code class="bg-cream px-1">Nom | preu_en_euros</code></span>
-          <textarea id="packAddonsField" name="packAddons" rows="4" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{addonsText}</textarea>
+          <textarea id="packAddonsField" name="packAddons" rows="4" class="mt-1 w-full px-3 py-2 border border-line bg-white font-mono text-sm focus:border-gold focus:outline-none">{addonsText}</textarea>
         </label>
-        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Inversió total (€)</span><input id="packPriceField" name="packPriceEuros" inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 1500, 1.500, 1500,00 o 1.500,00" value={eurosFromCents(booking.packPriceCents)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
-        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Dipòsit (€)</span><input id="depositField" name="depositEuros" inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 500, 500,00 o 1.500,00" value={eurosFromCents(booking.depositCents)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
-        <label class="block md:col-span-2"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Termes de pagament</span><input id="paymentTermsField" name="paymentTerms" value={booking.paymentTerms ?? ''} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Inversió total (€)</span><input id="packPriceField" name="packPriceEuros" inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 1500, 1.500, 1500,00 o 1.500,00" value={eurosFromCents(booking.packPriceCents)} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Dipòsit (€)</span><input id="depositField" name="depositEuros" inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 500, 500,00 o 1.500,00" value={eurosFromCents(booking.depositCents)} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
+        <label class="block md:col-span-2"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Termes de pagament</span><input id="paymentTermsField" name="paymentTerms" value={booking.paymentTerms ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
 
         <div class="md:col-span-2 border border-gold/40 bg-gold/5 p-4">
           <p class="text-xs font-bold tracking-widest uppercase text-ink/70 mb-3">Descompte (opcional)</p>
@@ -876,7 +876,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
             </div>
             <label class="block">
               <span class="text-[11px] font-bold tracking-wide uppercase text-ink/70">Valor (0 = sense descompte)</span>
-              <input id="discountValueField" name="discountValue" inputmode="decimal" placeholder="0" value={booking.discountCents > 0 ? eurosFromCents(booking.discountCents) : ''} class="mt-1 w-28 px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+              <input id="discountValueField" name="discountValue" inputmode="decimal" placeholder="0" value={booking.discountCents > 0 ? eurosFromCents(booking.discountCents) : ''} class="mt-1 w-28 px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
             </label>
             <p id="discountPreview" class="text-sm text-gold font-semibold self-end pb-2"></p>
           </div>
@@ -888,26 +888,26 @@ const ibanPlaceholder = transfer.isPlaceholder;
       <legend class="font-display text-xl font-bold mb-3">Personalització</legend>
       <label class="block">
         <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Intro personalitzada</span>
-        <textarea name="customIntro" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{booking.customIntro ?? ''}</textarea>
+        <textarea name="customIntro" rows="3" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">{booking.customIntro ?? ''}</textarea>
       </label>
       <label class="block">
         <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Notes internes</span>
         <span class="block text-[11px] text-ink/70 mb-1">només per a tu — referrer, acords especials. <strong>Mai es mostra a la parella</strong>.</span>
-        <textarea name="internalNotes" rows="3" placeholder="ex: ve de part de Maria & Joan (boda 2024) · descompte 10%" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{booking.internalNotes ?? ''}</textarea>
+        <textarea name="internalNotes" rows="3" placeholder="ex: ve de part de Maria & Joan (boda 2024) · descompte 10%" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">{booking.internalNotes ?? ''}</textarea>
       </label>
-      <div class="border-t border-black/10 pt-4">
+      <div class="border-t border-line pt-4">
         <p class="text-xs font-bold tracking-widest uppercase text-ink/70 mb-3">Testimoni de referència</p>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <label class="block md:col-span-2"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Quote</span><textarea name="testimonialQuote" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{t?.quote ?? ''}</textarea></label>
-          <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Autor</span><input name="testimonialAuthor" value={t?.author ?? ''} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
-          <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Context</span><input name="testimonialContext" value={t?.context ?? ''} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+          <label class="block md:col-span-2"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Quote</span><textarea name="testimonialQuote" rows="3" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">{t?.quote ?? ''}</textarea></label>
+          <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Autor</span><input name="testimonialAuthor" value={t?.author ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
+          <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Context</span><input name="testimonialContext" value={t?.context ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
         </div>
       </div>
-      <div class="border-t border-black/10 pt-4">
+      <div class="border-t border-line pt-4">
         <label class="block max-w-md">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Vídeo destacat</span>
           <span class="block text-[11px] text-ink/70 mb-1">opcional · si es deixa buit, s'usa el vídeo per defecte (Elena i Jordi)</span>
-          <select name="flagshipVideoId" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+          <select name="flagshipVideoId" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
             <option value="" selected={!booking.flagshipVideoId}>— Per defecte (Elena i Jordi) —</option>
             <optgroup label="Tràilers">
               {publicVideos.map((vid) => (
@@ -935,18 +935,18 @@ const ibanPlaceholder = transfer.isPlaceholder;
       <p class="text-[11px] text-ink/70 -mt-2 mb-3">opcional · apareix a la proposta per motivar la parella a confirmar. Si queda buit, no es mostra res.</p>
       <label class="block">
         <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Missatge del caramel</span>
-        <textarea name="incentiveBody" rows="3" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">{booking.incentiveBody ?? ''}</textarea>
+        <textarea name="incentiveBody" rows="3" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">{booking.incentiveBody ?? ''}</textarea>
       </label>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Preu original (€) — per tatxar</span>
           <span class="block text-[11px] text-ink/70 mb-1">opcional · si és més gran que la inversió, es mostra tatxat</span>
-          <input name="incentiveOriginalPriceEuros" inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 3500 o 3.500,00" value={booking.incentiveOriginalPriceCents != null ? eurosFromCents(booking.incentiveOriginalPriceCents) : ''} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input name="incentiveOriginalPriceEuros" inputmode="decimal" pattern="\\d{1,3}(?:\\.\\d{3})+(?:,\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?" title="Ex: 3500 o 3.500,00" value={booking.incentiveOriginalPriceCents != null ? eurosFromCents(booking.incentiveOriginalPriceCents) : ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Data límit de l'oferta</span>
           <span class="block text-[11px] text-ink/70 mb-1">opcional · "vàlid si reserveu abans del…"</span>
-          <input type="date" name="incentiveDeadline" value={yyyymmdd(booking.incentiveDeadline)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input type="date" name="incentiveDeadline" value={yyyymmdd(booking.incentiveDeadline)} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
       </div>
     </fieldset>
@@ -955,11 +955,11 @@ const ibanPlaceholder = transfer.isPlaceholder;
       <legend class="font-display text-xl font-bold mb-3">Vigència</legend>
       <label class="block max-w-sm">
         <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Vàlid fins</span>
-        <input type="date" name="expiresAt" value={yyyymmdd(booking.expiresAt)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+        <input type="date" name="expiresAt" value={yyyymmdd(booking.expiresAt)} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
       </label>
     </fieldset>
 
-    <div class="flex items-center gap-4 pt-4 border-t border-black/10">
+    <div class="flex items-center gap-4 pt-4 border-t border-line">
       <button type="submit" class="bg-ink text-white px-6 py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">
         Desar canvis
       </button>
@@ -969,7 +969,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
 
   <!-- ── Respostes del formulari pre-boda ───────────────────────────── -->
   {weddingDetails && (
-    <section class="mt-10 bg-white border border-black/10 p-5 md:p-8">
+    <section class="mt-10 bg-white border border-line p-5 md:p-8">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
         <div>
           <h2 class="font-display text-xl md:text-2xl font-bold">Informació de la boda</h2>
@@ -987,7 +987,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
       <div class="space-y-6">
         {wdGroups.map((g) => (
           <div>
-            <h3 class="text-[0.7rem] font-bold tracking-widest uppercase text-ink/70 border-b border-black/10 pb-1 mb-2">{g.title}</h3>
+            <h3 class="text-[0.7rem] font-bold tracking-widest uppercase text-ink/70 border-b border-line pb-1 mb-2">{g.title}</h3>
             <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm">
               {g.rows.map((r) => (
                 <div class="flex flex-col">
@@ -1006,7 +1006,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
 
   <!-- ── Respostes del formulari d'inspiració ───────────────────────── -->
   {inspiration && (
-    <section class="mt-10 bg-white border border-black/10 p-5 md:p-8">
+    <section class="mt-10 bg-white border border-line p-5 md:p-8">
       <div class="mb-5">
         <h2 class="font-display text-xl md:text-2xl font-bold">Inspiració i música</h2>
         <p class="text-sm text-ink/65 mt-1">Respostes del formulari d'inspiració · enviat {fmtDateTime(inspiration.submittedAt)}</p>
@@ -1032,7 +1032,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
   <!-- Email-sequence queue for this booking. Lets Eric see what's been
        sent / is pending, force-send something now, or cancel an upcoming
        row. Triggered automatically when the deposit is marked paid. -->
-  <section class="mt-10 bg-white border border-black/10 p-5 md:p-8">
+  <section class="mt-10 bg-white border border-line p-5 md:p-8">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
       <div>
         <h2 class="font-display text-xl md:text-2xl font-bold">Comunicacions</h2>
@@ -1055,7 +1055,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
           <label class="block">
             <span class="text-[0.7rem] font-bold tracking-widest uppercase text-ink/65">Enviar formulari ara</span>
             <span class="block text-xs text-ink/70 mt-0.5">Tria una plantilla amb formulari i l'enviem a la parella ara mateix, independentment de la data programada.</span>
-            <select name="sequenceId" required class="mt-2 w-full px-3 py-2 border border-black/15 bg-white text-sm focus:border-gold focus:outline-none">
+            <select name="sequenceId" required class="mt-2 w-full px-3 py-2 border border-line bg-white text-sm focus:border-gold focus:outline-none">
               <option value="">— Trià una plantilla —</option>
               {allSequences.filter((s) => s.formKind && s.enabled).map((s) => (
                 <option value={s.id}>{s.slug} · {s.formKind}</option>
@@ -1112,7 +1112,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
               const isCancelled = sch.cancelledAt instanceof Date;
               const isPending = !isSent && !isCancelled;
               return (
-                <tr class="border-t border-black/5">
+                <tr class="border-t border-line">
                   <td class="px-3 py-2 font-mono text-xs">{seq?.slug ?? `#${sch.sequenceId}`}</td>
                   <td class="px-3 py-2 whitespace-nowrap">{sch.scheduledFor}</td>
                   <td class="px-3 py-2 text-xs">

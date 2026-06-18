@@ -28,12 +28,12 @@ function v(name: string, fallback: string): string {
     <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-800 text-sm"><strong>Error:</strong> {error}</div>
   )}
 
-  <form method="POST" action={`/api/admin/sequences/${seq.id}/update`} class="space-y-8 bg-white border border-black/10 p-6 md:p-8 max-w-3xl">
+  <form method="POST" action={`/api/admin/sequences/${seq.id}/update`} class="space-y-8 bg-white border border-line p-6 md:p-8 max-w-3xl">
     <fieldset class="space-y-4">
       <legend class="font-display text-xl font-bold mb-3">Identificació</legend>
       <label class="block">
         <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Slug intern *</span>
-        <input name="slug" required pattern="[a-z0-9-]+" maxlength="80" value={v('slug', seq.slug)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none" />
+        <input name="slug" required pattern="[a-z0-9-]+" maxlength="80" value={v('slug', seq.slug)} class="mt-1 w-full px-3 py-2 border border-line bg-white font-mono text-sm focus:border-gold focus:outline-none" />
       </label>
       <label class="flex items-center gap-3 cursor-pointer">
         <input type="checkbox" name="enabled" value="1" checked={seq.enabled} class="h-5 w-5 accent-gold" />
@@ -46,7 +46,7 @@ function v(name: string, fallback: string): string {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Tipus de disparador *</span>
-          <select name="triggerKind" required class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+          <select name="triggerKind" required class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
             <option value="days_after_deposit" selected={seq.triggerKind === 'days_after_deposit'}>Dies després del dipòsit pagat</option>
             <option value="days_before_wedding" selected={seq.triggerKind === 'days_before_wedding'}>Dies abans de la boda</option>
             <option value="days_after_wedding" selected={seq.triggerKind === 'days_after_wedding'}>Dies després de la boda</option>
@@ -54,11 +54,11 @@ function v(name: string, fallback: string): string {
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Dies *</span>
-          <input type="number" name="triggerOffsetDays" required min="0" max="3650" value={v('triggerOffsetDays', String(seq.triggerOffsetDays))} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" />
+          <input type="number" name="triggerOffsetDays" required min="0" max="3650" value={v('triggerOffsetDays', String(seq.triggerOffsetDays))} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block md:col-span-2">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Formulari associat</span>
-          <select name="formKind" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+          <select name="formKind" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
             <option value="" selected={!seq.formKind}>— Cap (només informatiu) —</option>
             <option value="wedding_details" selected={seq.formKind === 'wedding_details'}>Informació de la boda (preparatius, persones clau...)</option>
             <option value="inspiration" selected={seq.formKind === 'inspiration'}>Inspiració i música (playlist, Pinterest, vídeo...)</option>
@@ -71,7 +71,7 @@ function v(name: string, fallback: string): string {
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">A qui s'envia (servei)</span>
           <span class="block text-[11px] text-ink/70 mb-1">El combo rep sempre les de foto, les de vídeo i les comunes.</span>
           {(() => { const sc = v('serviceScope', seq.serviceScope); return (
-          <select name="serviceScope" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none">
+          <select name="serviceScope" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
             <option value="any" selected={sc === 'any'}>Tothom (foto, vídeo i combo)</option>
             <option value="photo" selected={sc === 'photo'}>Només foto (i combo)</option>
             <option value="video" selected={sc === 'video'}>Només vídeo (i combo)</option>
@@ -84,26 +84,26 @@ function v(name: string, fallback: string): string {
 
     <fieldset class="space-y-4">
       <legend class="font-display text-xl font-bold mb-3">Assumpte</legend>
-      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Català *</span><input name="subjectCa" required maxlength="200" value={v('subjectCa', seq.subject.ca)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
-      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Castellà *</span><input name="subjectEs" required maxlength="200" value={v('subjectEs', seq.subject.es)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
-      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">English *</span><input name="subjectEn" required maxlength="200" value={v('subjectEn', seq.subject.en)} class="mt-1 w-full px-3 py-2 border border-black/15 bg-white focus:border-gold focus:outline-none" /></label>
+      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Català *</span><input name="subjectCa" required maxlength="200" value={v('subjectCa', seq.subject.ca)} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
+      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Castellà *</span><input name="subjectEs" required maxlength="200" value={v('subjectEs', seq.subject.es)} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
+      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">English *</span><input name="subjectEn" required maxlength="200" value={v('subjectEn', seq.subject.en)} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
     </fieldset>
 
     <fieldset class="space-y-4">
       <legend class="font-display text-xl font-bold mb-3">Cos de l'email (HTML)</legend>
       <p class="text-sm text-ink/65 -mt-2">Variables: <code class="bg-cream px-1">{`{coupleName1}`}</code>, <code class="bg-cream px-1">{`{coupleName2}`}</code>, <code class="bg-cream px-1">{`{weddingDate}`}</code>, <code class="bg-cream px-1">{`{venueName}`}</code>, <code class="bg-cream px-1">{`{packName}`}</code>, <code class="bg-cream px-1">{`{c1FullName}`}</code>, <code class="bg-cream px-1">{`{c2FullName}`}</code>, <code class="bg-cream px-1">{`{formUrl}`}</code>.</p>
-      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Català *</span><textarea name="bodyHtmlCa" required rows="10" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('bodyHtmlCa', seq.bodyHtml.ca)}</textarea></label>
-      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Castellà *</span><textarea name="bodyHtmlEs" required rows="10" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('bodyHtmlEs', seq.bodyHtml.es)}</textarea></label>
-      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">English *</span><textarea name="bodyHtmlEn" required rows="10" class="mt-1 w-full px-3 py-2 border border-black/15 bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('bodyHtmlEn', seq.bodyHtml.en)}</textarea></label>
+      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Català *</span><textarea name="bodyHtmlCa" required rows="10" class="mt-1 w-full px-3 py-2 border border-line bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('bodyHtmlCa', seq.bodyHtml.ca)}</textarea></label>
+      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">Castellà *</span><textarea name="bodyHtmlEs" required rows="10" class="mt-1 w-full px-3 py-2 border border-line bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('bodyHtmlEs', seq.bodyHtml.es)}</textarea></label>
+      <label class="block"><span class="text-xs font-bold tracking-widest uppercase text-ink/70">English *</span><textarea name="bodyHtmlEn" required rows="10" class="mt-1 w-full px-3 py-2 border border-line bg-white font-mono text-sm focus:border-gold focus:outline-none">{v('bodyHtmlEn', seq.bodyHtml.en)}</textarea></label>
     </fieldset>
 
-    <div class="flex items-center gap-4 pt-4 border-t border-black/10">
+    <div class="flex items-center gap-4 pt-4 border-t border-line">
       <button type="submit" class="bg-ink text-white px-6 py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">Desar canvis</button>
       <a href="/admin/sequences" class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold">Cancel·lar</a>
     </div>
   </form>
 
-  <div class="mt-8 pt-6 border-t border-black/10">
+  <div class="mt-8 pt-6 border-t border-line">
     <form method="POST" action={`/api/admin/sequences/${seq.id}/delete`} onsubmit="return confirm('Eliminar aquesta plantilla DEFINITIVAMENT?\n\nAixò NO esborrarà els emails ja enviats. Els enviaments pendents que utilitzin aquesta plantilla quedaran orfes (per CASCADE).')">
       <button type="submit" class="text-xs text-red-600 font-bold hover:underline">🗑 Eliminar plantilla definitivament</button>
     </form>

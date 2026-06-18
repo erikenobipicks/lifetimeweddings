@@ -31,13 +31,13 @@ const fmtDate = (iso: string | null): string =>
   iso ? new Date(iso).toLocaleDateString(localeStr, { year: 'numeric', month: 'long', day: 'numeric' }) : '';
 ---
 
-<aside class="bg-cream border-t border-black/5 py-16 md:py-20">
+<aside class="bg-cream border-t border-line py-16 md:py-20">
   <div class="max-w-6xl mx-auto px-6">
     <h2 class="font-display text-2xl md:text-3xl font-bold text-center mb-10">{labels.title}</h2>
 
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
       {siblings.map((p) => (
-        <article class="bg-white border border-black/5 group">
+        <article class="bg-white border border-line group">
           <a href={`${blogPrefix}/${p.slug}`} class="block">
             {p.cover ? (
               <img

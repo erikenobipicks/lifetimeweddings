@@ -11,18 +11,25 @@ export default {
         // `rgb(var(--x) / <alpha-value>)` keeps Tailwind opacity modifiers
         // (e.g. `bg-gold/5`, `text-gold/30`) working while the canonical
         // values live in a single place.
-        cream: 'rgb(var(--cream) / <alpha-value>)',
+        cream: 'rgb(var(--cream) / <alpha-value>)', // page background — ivory #f7f4ef
+        sand: 'rgb(var(--sand) / <alpha-value>)', // alternating section band #efe9e0
+        // `white` is overridden to the warm "paper" tone (#fffdfa) so the
+        // hundreds of existing `bg-white` cards/surfaces pick up the
+        // editorial off-white without per-component edits.
+        white: 'rgb(var(--paper) / <alpha-value>)',
         ink: 'rgb(var(--ink) / <alpha-value>)',
+        'ink-soft': 'rgb(var(--ink-soft) / <alpha-value>)', // muted body text #6f675e
+        line: 'rgb(var(--line) / <alpha-value>)', // hairline / borders #ddd4c8
         gold: 'rgb(var(--gold) / <alpha-value>)',
         // Darker, same-hue gold for accessible small text on light
         // backgrounds (eyebrows/labels). See --gold-deep in global.css.
         'gold-deep': 'rgb(var(--gold-deep) / <alpha-value>)',
       },
       fontFamily: {
-        // Fraunces (display/headings, variable with SOFT axis)
-        // Inter (body/UI) — replaces Lato (too generic / overused)
-        display: ['Fraunces', 'Georgia', 'serif'],
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        // Cormorant Garamond (display/headings, serif, weight 500)
+        // Jost (body/UI, 300/400) — light editorial reskin (April 2026)
+        display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+        sans: ['Jost', 'system-ui', '-apple-system', 'sans-serif'],
       },
       container: {
         center: true,
