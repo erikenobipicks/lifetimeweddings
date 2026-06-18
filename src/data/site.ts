@@ -13,6 +13,10 @@ export const SITE = {
    *  string disables the booking CTA across the site (we fall back to
    *  the WhatsApp prompt as the only call-to-action). */
   bookingUrl: 'https://cal.com/lifetime-weddings-366ynh/15min',
+  /** Public Google Business Profile, used by the "5★ on Google" trust
+   *  signal and the testimonial badges so the social proof is verifiable.
+   *  Swap for the direct reviews deep-link if/when we have one. */
+  googleReviewsUrl: 'https://www.google.com/maps/place/Lifetime+Weddings',
   address: {
     street: 'C/ Mare Molas, 26',
     city: 'Reus',

@@ -42,7 +42,7 @@ export const ui = {
     // Trust bar
     'trust.weddings': '+150 bodas',
     'trust.coverage': 'Tarragona · Lleida · Barcelona',
-    'trust.delivery': 'Entrega en 3–4 semanas',
+    'trust.delivery': 'Fotos en 4 semanas',
     'trust.rating': '5★ en Google',
 
     // About
@@ -699,7 +699,7 @@ export const ui = {
 
     'trust.weddings': '+150 bodes',
     'trust.coverage': 'Tarragona · Lleida · Barcelona',
-    'trust.delivery': 'Entrega en 3–4 setmanes',
+    'trust.delivery': 'Fotos en 4 setmanes',
     'trust.rating': '5★ a Google',
 
     'about.label': 'Qui som',
@@ -1333,7 +1333,7 @@ export const ui = {
 
     'trust.weddings': '+150 weddings',
     'trust.coverage': 'Tarragona · Lleida · Barcelona',
-    'trust.delivery': 'Delivery in 3–4 weeks',
+    'trust.delivery': 'Photos in 4 weeks',
     'trust.rating': '5★ on Google',
 
     'about.label': 'Who we are',
