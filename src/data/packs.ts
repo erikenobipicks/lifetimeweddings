@@ -96,7 +96,7 @@ export const PACKS: Pack[] = [
   {
     id: 'lqsa',
     type: 'photo',
-    name: { es: 'Lo que está por venir', ca: 'El que ha de venir', en: 'What’s to Come' },
+    name: { es: '¡La que se avecina!', ca: '¡La que se avecina!', en: '¡La que se avecina!' },
     subtitle: {
       es: 'Fotografía · Reportaje completo + álbum de madera',
       ca: 'Fotografia · Reportatge complet + àlbum de fusta',
@@ -244,9 +244,9 @@ export const PACKS: Pack[] = [
     type: 'combo',
     composedOf: ['lqsa', 'this-is-us'],
     name: {
-      es: 'Lo que está por venir + This Is Us',
-      ca: 'El que ha de venir + This Is Us',
-      en: 'What’s to Come + This Is Us',
+      es: '¡La que se avecina! + This Is Us',
+      ca: '¡La que se avecina! + This Is Us',
+      en: '¡La que se avecina! + This Is Us',
     },
     subtitle: {
       es: 'Foto + Vídeo · Todo completo, con álbum y película',
@@ -275,9 +275,9 @@ export const PACKS: Pack[] = [
     type: 'combo',
     composedOf: ['lqsa', 'outlander'],
     name: {
-      es: 'Lo que está por venir + Outlander',
-      ca: 'El que ha de venir + Outlander',
-      en: 'What’s to Come + Outlander',
+      es: '¡La que se avecina! + Outlander',
+      ca: '¡La que se avecina! + Outlander',
+      en: '¡La que se avecina! + Outlander',
     },
     subtitle: {
       es: 'Foto + Vídeo · La cobertura más completa',

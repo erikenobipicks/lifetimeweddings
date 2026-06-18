@@ -16,7 +16,7 @@ export const SITE = {
   /** Public Google Business Profile, used by the "5★ on Google" trust
    *  signal and the testimonial badges so the social proof is verifiable.
    *  Swap for the direct reviews deep-link if/when we have one. */
-  googleReviewsUrl: 'https://www.google.com/maps/place/Lifetime+Weddings',
+  googleReviewsUrl: 'https://www.google.com/maps?cid=9550864279818307584',
   address: {
     street: 'C/ Mare Molas, 26',
     city: 'Reus',
