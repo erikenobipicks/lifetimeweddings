@@ -82,9 +82,7 @@ export function buildCancellationHtml(booking: Booking): string {
   }
   parts.push(`<p><strong>${t.retainLabel}:</strong> ${eur(retained, lang)}</p>`);
   parts.push(`<p>${t.retainClause} <strong>${eur(retained, lang)}</strong>. ${t.refundClause}</p>`);
-  parts.push(`<p><em>${t.disclaimer}</em></p>`);
-  parts.push(`<br/>`);
-  parts.push(`<p>${t.signParty}: ________________________</p>`);
-  parts.push(`<p>${t.signStudio}: ________________________</p>`);
+  // The signature lines used to be decorative blanks; the page now captures a
+  // real drawn signature + typed name, recorded below the document in the PDF.
   return parts.join('\n');
 }

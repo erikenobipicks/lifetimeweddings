@@ -849,6 +849,57 @@ export async function sendContractAcceptedCopy(
   }
 }
 
+/** Email the signed cancellation-agreement PDF to the couple + studio.
+ *  Mirrors sendContractAcceptedCopy but a cancellation has no form-response,
+ *  so recipients come from the booking's primary email only. */
+export async function sendCancellationSignedCopy(booking: Booking, pdf: Buffer): Promise<void> {
+  const lang = booking.preferredLanguage;
+  const couple = `${booking.coupleName1} & ${booking.coupleName2}`;
+  const subject =
+    lang === 'es' ? `Acuerdo de cancelación firmado · ${couple}`
+    : lang === 'en' ? `Signed cancellation agreement · ${couple}`
+    : `Acord de cancel·lació signat · ${couple}`;
+  const body =
+    lang === 'es' ? `Hola,\n\nAdjuntamos el acuerdo de cancelación firmado. Gracias.\n\nFerran y Eric\nLifetime`
+    : lang === 'en' ? `Hi,\n\nAttached is the signed cancellation agreement. Thank you.\n\nFerran & Eric\nLifetime`
+    : `Hola,\n\nAdjuntem l'acord de cancel·lació signat. Gràcies.\n\nFerran i Eric\nLifetime`;
+
+  const filename = `Cancellacio-${booking.coupleName1}-${booking.coupleName2}`
+    .replace(/[^\p{L}\p{N}]+/gu, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 50) || 'Cancellacio';
+  const attachment = { filename: `${filename}.pdf`, content: pdf };
+  const html = `<div style="font-family:-apple-system,sans-serif;color:#1a1a1a;line-height:1.6;max-width:560px;margin:0 auto;padding:24px;white-space:pre-line">${escapeHtml(body)}</div>`;
+
+  if (!resend) {
+    // eslint-disable-next-line no-console
+    console.log('[booking-email] (dev) cancellation copy:', { to: booking.coupleEmailPrimary, internal: INTERNAL_TO, subject, attachment: attachment.filename });
+    return;
+  }
+  try {
+    if (booking.coupleEmailPrimary) {
+      await resend.emails.send({ from: FROM_HELLO, to: [booking.coupleEmailPrimary.toLowerCase()], subject, html, text: body, attachments: [attachment] });
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[booking-email] cancellation copy to couple failed (non-fatal)', err);
+  }
+  try {
+    const adminUrl = `${SITE_URL}/admin/bookings/${booking.id}`;
+    await resend.emails.send({
+      from: FROM_NOTIFY,
+      to: [INTERNAL_TO],
+      subject: `[Cancel·lació signada] ${couple}`,
+      html: `<p>Acord de cancel·lació signat electrònicament.</p><p><a href="${adminUrl}">Veure a admin</a></p>`,
+      text: `Acord de cancel·lació signat. ${adminUrl}`,
+      attachments: [attachment],
+    });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[booking-email] cancellation copy to studio failed (non-fatal)', err);
+  }
+}
+
 // ─── /reserva invite (operator → couple) ────────────────────────────────
 // Sent when Eric flips a booking from draft → sent in /admin. Gives the
 // couple the URL to fill in their data on /reserva/<slug>. The data

@@ -17,6 +17,12 @@ export interface ContractPdfInput {
   /** Electronic-acceptance footer line, already localised. Omitted → no
    *  footer (e.g. preview before acceptance). */
   acceptanceLine?: string;
+  /** Drawn signature as a PNG data URL ("data:image/png;base64,…"). */
+  signatureImage?: string;
+  /** Typed full name of the signer, shown next to the drawn signature. */
+  signerName?: string;
+  /** Localised "Signat per" label for the signature block. */
+  signedByLabel?: string;
 }
 
 interface Run {
@@ -179,6 +185,26 @@ export function generateContractPdf(input: ContractPdfInput): Promise<Buffer> {
             renderRuns(inlineRuns(el));
             doc.moveDown(0.3);
           }
+      }
+    }
+
+    // Drawn signature + typed name (the e-signature itself).
+    if (input.signatureImage || input.signerName) {
+      doc.moveDown(1.2);
+      doc.fillColor(MUTED).font('Helvetica-Bold').fontSize(9)
+        .text((input.signedByLabel ?? 'Signat per') + (input.signerName ? ': ' + input.signerName : ''));
+      doc.moveDown(0.2);
+      if (input.signatureImage) {
+        const m = /^data:image\/\w+;base64,(.+)$/.exec(input.signatureImage.trim());
+        if (m) {
+          try {
+            const buf = Buffer.from(m[1], 'base64');
+            doc.image(buf, doc.page.margins.left, doc.y, { fit: [220, 90] });
+            doc.moveDown(0.3);
+          } catch {
+            /* corrupt image → skip, the audit line still records the signing */
+          }
+        }
       }
     }
 

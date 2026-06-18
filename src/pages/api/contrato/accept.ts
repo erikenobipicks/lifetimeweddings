@@ -12,6 +12,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
+import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import {
   getBookingBySlug,
@@ -43,16 +44,30 @@ function json(data: unknown, status: number): Response {
 const schema = z.object({
   slug: z.string().trim().min(1).max(100),
   accepted: z.literal(true),
+  signerName: z.string().trim().min(1).max(120),
+  // PNG data URL of the drawn signature. Cap the length so a malicious
+  // client can't push an unbounded blob into the DB.
+  signatureImage: z.string().min(1).max(400_000),
   captchaToken: z.string().optional(),
 });
 
-function acceptanceLine(lang: 'ca' | 'es' | 'en', n1: string, n2: string, when: Date, ip: string): string {
+const SIGNED_BY_LABEL = { ca: 'Signat per', es: 'Firmado por', en: 'Signed by' } as const;
+
+function acceptanceLine(
+  lang: 'ca' | 'es' | 'en',
+  signerName: string,
+  n1: string,
+  n2: string,
+  when: Date,
+  ip: string,
+  uaHash: string,
+): string {
   const date = formatWeddingDateLong(when, lang);
   const localeMap = { ca: 'ca-ES', es: 'es-ES', en: 'en-GB' } as const;
   const time = when.toLocaleTimeString(localeMap[lang], { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
-  if (lang === 'es') return `Aceptado electrónicamente por ${n1} y ${n2} el ${date} a las ${time} (IP ${ip}).`;
-  if (lang === 'en') return `Accepted electronically by ${n1} and ${n2} on ${date} at ${time} (IP ${ip}).`;
-  return `Acceptat electrònicament per ${n1} i ${n2} el ${date} a les ${time} (IP ${ip}).`;
+  if (lang === 'es') return `Firmado electrónicamente por ${signerName} (${n1} y ${n2}) el ${date} a las ${time}. IP ${ip} · dispositivo ${uaHash}.`;
+  if (lang === 'en') return `Signed electronically by ${signerName} (${n1} and ${n2}) on ${date} at ${time}. IP ${ip} · device ${uaHash}.`;
+  return `Signat electrònicament per ${signerName} (${n1} i ${n2}) el ${date} a les ${time}. IP ${ip} · dispositiu ${uaHash}.`;
 }
 
 export const POST: APIRoute = async ({ request }) => {
@@ -102,27 +117,43 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: 'data_pending' }, 409);
   }
 
+  // Build the contract HTML up front so we can hash it as part of the
+  // signing proof (document + signer + ip + ua + timestamp).
+  const lang = booking.preferredLanguage;
+  const ua = request.headers.get('user-agent') ?? null;
+  const data = contractDataFromBooking(booking, fr);
+  const { html } = buildContractHtml(data);
+  const when = new Date();
+  const uaHash = ua ? createHash('sha256').update(ua).digest('hex').slice(0, 12) : '—';
+  const docHash = createHash('sha256')
+    .update(`${html}|${d.signerName}|${ip}|${ua ?? ''}|${when.toISOString()}`)
+    .digest('hex');
+
   // Record acceptance first (idempotent — only the first wins).
-  const stamped = await markContractAccepted(booking.id, ip);
+  const stamped = await markContractAccepted(booking.id, {
+    ip,
+    name: d.signerName,
+    userAgent: ua,
+    hash: docHash,
+    signature: d.signatureImage,
+  });
   if (!stamped) {
     console.warn('[contrato.accept] already_accepted (race)', { slug: d.slug });
     return json({ error: 'already_accepted' }, 409);
   }
-  console.log('[contrato.accept] stamped', { slug: d.slug, ip });
+  console.log('[contrato.accept] stamped', { slug: d.slug, ip, signer: d.signerName });
 
-  // Generate the filled contract PDF with the acceptance footer, then email
-  // copies. PDF / email failures are logged but don't undo the acceptance.
+  // Generate the filled contract PDF (with the drawn signature + acceptance
+  // footer), then email copies. PDF / email failures don't undo acceptance.
   try {
-    const data = contractDataFromBooking(booking, fr);
-    const { html } = buildContractHtml(data);
-    const line = acceptanceLine(
-      booking.preferredLanguage,
-      booking.coupleName1,
-      booking.coupleName2,
-      new Date(),
-      ip,
-    );
-    const pdf = await generateContractPdf({ html, acceptanceLine: line });
+    const line = acceptanceLine(lang, d.signerName, booking.coupleName1, booking.coupleName2, when, ip, uaHash);
+    const pdf = await generateContractPdf({
+      html,
+      acceptanceLine: line,
+      signatureImage: d.signatureImage,
+      signerName: d.signerName,
+      signedByLabel: SIGNED_BY_LABEL[lang],
+    });
     await sendContractAcceptedCopy(booking, fr, pdf);
   } catch (err) {
     // eslint-disable-next-line no-console

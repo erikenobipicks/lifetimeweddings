@@ -1,0 +1,119 @@
+---
+// Shared e-signature capture: a typed full name + a drawn signature pad
+// (HTML canvas, no external library). Used on /contrato and /cancellacio.
+//
+// It exposes two form fields the surrounding <form> submit handler reads:
+//   - input[name="signerName"]    → typed full name
+//   - input[name="signatureImage"]→ hidden, PNG data URL of the drawing
+// The hidden field is kept in sync on every stroke, so the page's own
+// submit handler just reads `.value` (no ordering coupling).
+import type { Lang } from '~/i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const LABELS: Record<Lang, { name: string; draw: string; hint: string; clear: string }> = {
+  ca: { name: 'Nom i cognoms de qui signa', draw: 'Signatura', hint: 'Signeu aquí amb el dit o el ratolí', clear: 'Esborrar' },
+  es: { name: 'Nombre y apellidos de quien firma', draw: 'Firma', hint: 'Firmad aquí con el dedo o el ratón', clear: 'Borrar' },
+  en: { name: 'Full name of the signer', draw: 'Signature', hint: 'Sign here with your finger or mouse', clear: 'Clear' },
+};
+const L = LABELS[lang] ?? LABELS.ca;
+---
+
+<div class="mt-5 space-y-4" data-signature-capture>
+  <label class="block">
+    <span class="text-sm font-semibold">{L.name} *</span>
+    <input
+      type="text"
+      name="signerName"
+      required
+      maxlength="120"
+      autocomplete="name"
+      class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"
+    />
+  </label>
+
+  <div>
+    <span class="text-sm font-semibold block mb-1">{L.draw} *</span>
+    <div class="relative border border-ink/20 bg-white rounded-[4px]" style="touch-action:none">
+      <canvas data-sig-pad class="block w-full h-[180px] rounded-[4px] cursor-crosshair"></canvas>
+      <span data-sig-placeholder class="pointer-events-none absolute inset-0 flex items-center justify-center text-ink/30 text-sm select-none">
+        {L.hint}
+      </span>
+    </div>
+    <div class="flex justify-end mt-2">
+      <button type="button" data-sig-clear class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-gold">
+        {L.clear}
+      </button>
+    </div>
+    <input type="hidden" name="signatureImage" data-sig-data />
+  </div>
+</div>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-signature-capture]');
+    if (!root) return;
+    const canvas = root.querySelector('[data-sig-pad]');
+    const hidden = root.querySelector('[data-sig-data]');
+    const placeholder = root.querySelector('[data-sig-placeholder]');
+    const clearBtn = root.querySelector('[data-sig-clear]');
+    if (!canvas || !hidden) return;
+    const ctx = canvas.getContext('2d');
+    let dpr = Math.max(1, window.devicePixelRatio || 1);
+    let drawing = false;
+    let hasInk = false;
+
+    function size() {
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width) return;
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#1a1a1a';
+    }
+    // Size after layout settles (fonts/reflow) so width is correct.
+    requestAnimationFrame(size);
+    window.addEventListener('resize', () => { const d = hidden.value; size(); /* drawing is cleared on resize */ if (d) { hasInk = false; hidden.value = ''; if (placeholder) placeholder.style.display = ''; } });
+
+    function pos(e) {
+      const r = canvas.getBoundingClientRect();
+      const p = e.touches ? e.touches[0] : e;
+      return { x: p.clientX - r.left, y: p.clientY - r.top };
+    }
+    function start(e) {
+      e.preventDefault();
+      drawing = true;
+      const { x, y } = pos(e);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    }
+    function move(e) {
+      if (!drawing) return;
+      e.preventDefault();
+      const { x, y } = pos(e);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      if (!hasInk) { hasInk = true; if (placeholder) placeholder.style.display = 'none'; }
+    }
+    function end() {
+      if (!drawing) return;
+      drawing = false;
+      if (hasInk) hidden.value = canvas.toDataURL('image/png');
+    }
+
+    canvas.addEventListener('pointerdown', start);
+    canvas.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', end);
+
+    clearBtn && clearBtn.addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      hasInk = false;
+      hidden.value = '';
+      if (placeholder) placeholder.style.display = '';
+    });
+  })();
+</script>

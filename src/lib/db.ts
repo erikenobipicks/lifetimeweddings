@@ -419,6 +419,11 @@ export async function initSchema() {
   // "Accepto el contracte". Null until then.
   await ensureColumn('bookings', 'contract_accepted_at', 'TEXT');
   await ensureColumn('bookings', 'contract_accepted_ip', 'TEXT');
+  // E-signature proof (drawn signature + typed name + audit trail).
+  await ensureColumn('bookings', 'contract_accepted_name', 'TEXT');
+  await ensureColumn('bookings', 'contract_accepted_user_agent', 'TEXT');
+  await ensureColumn('bookings', 'contract_accepted_hash', 'TEXT');
+  await ensureColumn('bookings', 'contract_accepted_signature', 'TEXT');
   // FacturaDirecta deposit-invoice reference. Set when the operator marks the
   // deposit received and the anticipo invoice is issued; doubles as the
   // re-invoicing idempotency guard. Nullable — bookings created before this
@@ -459,6 +464,11 @@ export async function initSchema() {
   await ensureColumn('bookings', 'cancellation_retained_cents', 'INTEGER');
   await ensureColumn('bookings', 'cancellation_signed_at', 'TEXT');
   await ensureColumn('bookings', 'cancellation_signed_ip', 'TEXT');
+  // E-signature proof for the cancellation agreement.
+  await ensureColumn('bookings', 'cancellation_signed_name', 'TEXT');
+  await ensureColumn('bookings', 'cancellation_signed_user_agent', 'TEXT');
+  await ensureColumn('bookings', 'cancellation_signed_hash', 'TEXT');
+  await ensureColumn('bookings', 'cancellation_signed_signature', 'TEXT');
   await ensureColumn('booking_form_responses', 'language_between', 'TEXT');
   await ensureColumn('booking_form_responses', 'ceremony_location_text', 'TEXT');
   await ensureColumn('booking_form_responses', 'reception_location_text', 'TEXT');
