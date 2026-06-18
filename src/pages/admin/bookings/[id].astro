@@ -175,6 +175,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
       {ok === 'deposit:paid' && 'Dipòsit marcat com a rebut. La parella ja pot omplir /contrato.'}
       {ok === 'deposit:unpaid' && 'Marca de dipòsit retirada.'}
       {ok === 'payment:added' && 'Pagament registrat.'}
+      {ok === 'reminder:sent' && 'Recordatori de pagament enviat a la parella.'}
       {ok === 'payment:dumped' && 'Trams afegits al llibre de pagaments.'}
       {ok === 'payment:deleted' && 'Pagament eliminat.'}
       {ok === 'change:saved' && 'Canvi desat. Pots descarregar l\'addendum a baix.'}
@@ -427,6 +428,30 @@ const ibanPlaceholder = transfer.isPlaceholder;
         Encara no has posat l’<strong>Inversió total</strong>. Edita-la al bloc d’edició de més avall perquè el pendent quadri.
       </p>
     )}
+
+    {/* Manual nudge: send the second-payment reminder email right now,
+        without waiting for the automatic 14-days-before-wedding send.
+        Works even if the email queue was never materialised. */}
+    <form
+      method="POST"
+      action={`/api/admin/bookings/${booking.id}/update`}
+      class="mb-4"
+      onsubmit="return confirm('Enviar ara el recordatori del segon pagament a la parella per email?')"
+    >
+      <input type="hidden" name="_action" value="send_payment_reminder" />
+      <button
+        type="submit"
+        disabled={!booking.coupleEmailPrimary}
+        class="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold tracking-widest uppercase border border-gold text-ink bg-gold/10 hover:bg-gold hover:text-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        ✉ Enviar recordatori de pagament ara
+      </button>
+      <span class="block text-[0.7rem] text-ink/60 mt-1.5">
+        {booking.coupleEmailPrimary
+          ? 'Envia el recordatori del segon pagament (transferència o targeta), sense esperar als 14 dies abans de la boda.'
+          : 'Afegeix un email de la parella per poder enviar el recordatori.'}
+      </span>
+    </form>
 
     {payments.length > 0 && (
       <div class="overflow-x-auto border border-line mb-4">

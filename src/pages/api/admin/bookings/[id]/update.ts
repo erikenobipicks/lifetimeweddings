@@ -31,7 +31,8 @@ import {
 } from '~/lib/bookings/repository';
 import { issueDepositInvoiceForBooking } from '~/lib/bookings/invoicing';
 import { sendContratoInvite, sendReservaInvite } from '~/lib/bookings/emails';
-import { cancelPendingSchedules, materialiseSchedulesForBooking } from '~/lib/bookings/sequences';
+import { cancelPendingSchedules, materialiseSchedulesForBooking, listSequences, manualSendSequence, sendDueEmails } from '~/lib/bookings/sequences';
+import { SECOND_PAYMENT_REMINDER } from '~/lib/bookings/defaultSequences';
 import type { BookingStatus } from '~/lib/bookings/types';
 import {
   SPANISH_EUROS_RE,
@@ -193,6 +194,37 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
       console.error('[admin.deposit_unpaid] cancelPendingSchedules failed (non-fatal)', err);
     }
     return back('?ok=deposit:unpaid');
+  }
+
+  // ── Manual "send the second-payment reminder now" ────────────────────────
+  // Fires the second-payment reminder sequence to the couple immediately,
+  // regardless of its 14-days-before-wedding trigger and regardless of
+  // whether the schedule queue was ever materialised (manualSendSequence
+  // creates the row if it's missing). Use when the operator wants to nudge
+  // a couple about the pending payment ahead of the automatic date.
+  if (action === 'send_payment_reminder') {
+    if (!booking.coupleEmailPrimary) {
+      return back('?error=Aquesta+reserva+no+t%C3%A9+email+de+la+parella#pagaments');
+    }
+    try {
+      const sequences = await listSequences(true);
+      const seq = sequences.find((s) => s.slug === SECOND_PAYMENT_REMINDER.slug);
+      if (!seq) {
+        // The starter template hasn't been seeded yet → point the operator
+        // to the one-click seeder on /admin/sequences.
+        return back('?error=Falta+la+seq%C3%BC%C3%A8ncia+de+pagament.+Crea-la+a+/admin/sequences#pagaments');
+      }
+      const scheduleId = await manualSendSequence(id, seq.id);
+      const result = await sendDueEmails();
+      if (result.sent > 0) return back('?ok=reminder:sent#pagaments');
+      // manualSendSequence set scheduled_for=today, so a 0-sent result means
+      // the dispatch hit an error (recorded on the schedule's last_error).
+      console.error('[admin.send_payment_reminder] dispatch sent 0', { bookingId: id, scheduleId, result });
+      return back('?error=No+s%27ha+pogut+enviar+el+recordatori.+Revisa+Comunicacions#pagaments');
+    } catch (err) {
+      console.error('[admin.send_payment_reminder] failed', { bookingId: id, err });
+      return back('?error=No+s%27ha+pogut+enviar+el+recordatori#pagaments');
+    }
   }
 
   // ── Payments ledger ──────────────────────────────────────────────────────
