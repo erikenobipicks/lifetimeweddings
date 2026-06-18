@@ -155,6 +155,32 @@ export interface Booking {
   /** When the pre-wedding Telegram digest (details + supplier instagrams)
    *  was sent, ~2 days before the wedding or manually. NULL = not sent. */
   preweddingTelegramSentAt: Date | null;
+  /** Operator-authored wedding-day timeline ("horaris"). NULL until filled.
+   *  Times are HH:MM strings; addresses optional with an optional explicit
+   *  Google Maps link (else a search link is derived from the address). */
+  dayTimeline: DayTimeline | null;
+}
+
+/** Operator-editable wedding-day schedule. All fields optional so a partly
+ *  filled plan still saves. Times are "HH:MM"; the photographer/videographer
+ *  are free text (names). `prepSameVenue` = both partners get ready at the
+ *  same place (different times). */
+export interface DayTimeline {
+  photographer?: string;
+  videographer?: string;
+  ceremonyLocation?: string;
+  ceremonyMapsUrl?: string;
+  ceremonyTime?: string;
+  arrivalTime?: string; // crew arrival (default ceremony − 30 min)
+  prepStartTime?: string; // prep coverage start (default ceremony − 3 h)
+  prepSameVenue?: boolean;
+  prep1Address?: string;
+  prep1MapsUrl?: string;
+  prep1Time?: string;
+  prep2Address?: string;
+  prep2MapsUrl?: string;
+  prep2Time?: string;
+  notes?: string; // free-form extra timeline (aperitiu, fotos família, ball…)
 }
 
 /** Input for creating a new booking from admin UI. Slug + id + timestamps

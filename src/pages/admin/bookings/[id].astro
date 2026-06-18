@@ -43,6 +43,19 @@ const params = Astro.url.searchParams;
 const ok = params.get('ok');
 const err = params.get('error');
 
+// Wedding-day timeline ("horaris"). Operator-authored; empty object when not
+// filled yet so the form binds cleanly.
+const tl = booking.dayTimeline ?? {};
+/** Build a Google Maps link: an explicit pasted URL wins, else a search
+ *  link derived from the address. Returns null when we have neither. */
+function mapsHref(address?: string, url?: string): string | null {
+  if (url && url.trim()) return url.trim();
+  if (address && address.trim()) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address.trim())}`;
+  }
+  return null;
+}
+
 const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
 const publicUrl = `${siteUrl}/reserva/${booking.slug}`;
 const contratoUrl = `${siteUrl}/contrato/${booking.slug}`;
@@ -176,6 +189,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
       {ok === 'deposit:unpaid' && 'Marca de dipòsit retirada.'}
       {ok === 'payment:added' && 'Pagament registrat.'}
       {ok === 'reminder:sent' && 'Recordatori de pagament enviat a la parella.'}
+      {ok === 'timeline:saved' && 'Horaris del dia desats.'}
       {ok === 'payment:dumped' && 'Trams afegits al llibre de pagaments.'}
       {ok === 'payment:deleted' && 'Pagament eliminat.'}
       {ok === 'change:saved' && 'Canvi desat. Pots descarregar l\'addendum a baix.'}
@@ -515,6 +529,136 @@ const ibanPlaceholder = transfer.isPlaceholder;
       </button>
     </form>
   </div>
+
+  {/* Horaris del dia — operator-authored wedding-day timeline. Map links
+      are derived from the address (or an explicit pasted Google Maps URL). */}
+  <div id="horaris" class="bg-white border border-line p-5 md:p-6 mb-6 scroll-mt-24">
+    <h2 class="font-display text-lg font-bold mb-1">Horaris del dia</h2>
+    <p class="text-xs text-ink/70 mb-4 leading-relaxed">
+      Nuvis: <strong>{booking.coupleName1}</strong> i <strong>{booking.coupleName2}</strong>.
+      Recorda: fotògraf i vídeo arriben <strong>30 min abans</strong> de la cerimònia; els preparatius solen
+      començar <strong>~3 h abans</strong> (ajusta segons desplaçament). Les hores les tries tu.
+    </p>
+
+    <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="space-y-4" id="timeline-form">
+      <input type="hidden" name="_action" value="save_timeline" />
+
+      <div class="grid sm:grid-cols-2 gap-3">
+        <label class="block">
+          <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Fotògraf</span>
+          <input name="photographer" value={tl.photographer ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Videògraf</span>
+          <input name="videographer" value={tl.videographer ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+      </div>
+
+      <div class="border-t border-line pt-4">
+        <p class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70 mb-2">Cerimònia</p>
+        <div class="grid sm:grid-cols-3 gap-3">
+          <label class="block sm:col-span-2">
+            <span class="text-xs text-ink/70">Lloc</span>
+            <input name="ceremonyLocation" value={tl.ceremonyLocation ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+          </label>
+          <label class="block">
+            <span class="text-xs text-ink/70">Hora cerimònia</span>
+            <input type="time" name="ceremonyTime" id="tl-ceremony" value={tl.ceremonyTime ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+          </label>
+        </div>
+        <label class="block mt-3">
+          <span class="text-xs text-ink/70">Enllaç Google Maps (opcional — si no, es genera des del lloc)</span>
+          <input name="ceremonyMapsUrl" value={tl.ceremonyMapsUrl ?? ''} placeholder="https://maps.app.goo.gl/…" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        {mapsHref(tl.ceremonyLocation, tl.ceremonyMapsUrl) && (
+          <a href={mapsHref(tl.ceremonyLocation, tl.ceremonyMapsUrl)!} target="_blank" rel="noopener" class="inline-block mt-2 text-xs font-bold text-gold hover:underline">📍 Obrir a Google Maps</a>
+        )}
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-3 border-t border-line pt-4">
+        <label class="block">
+          <span class="text-xs text-ink/70">Inici preparatius (≈ cerimònia − 3 h)</span>
+          <input type="time" name="prepStartTime" id="tl-prepstart" value={tl.prepStartTime ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs text-ink/70">Arribada de l'equip (≈ cerimònia − 30 min)</span>
+          <input type="time" name="arrivalTime" id="tl-arrival" value={tl.arrivalTime ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+      </div>
+      <button type="button" id="tl-calc" class="text-xs font-bold tracking-widest uppercase text-gold hover:underline">
+        ↻ Calcular des de l'hora de cerimònia
+      </button>
+
+      <label class="flex items-center gap-2 border-t border-line pt-4">
+        <input type="checkbox" name="prepSameVenue" value="1" checked={tl.prepSameVenue} class="accent-gold" />
+        <span class="text-sm text-ink/80">Es vesteixen a la mateixa finca (horaris diferents)</span>
+      </label>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="border border-line p-3">
+          <p class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70 mb-2">Preparatius · {booking.coupleName1}</p>
+          <label class="block"><span class="text-xs text-ink/70">Adreça</span>
+            <input name="prep1Address" value={tl.prep1Address ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
+          <div class="grid grid-cols-2 gap-2 mt-2">
+            <label class="block"><span class="text-xs text-ink/70">Hora</span>
+              <input type="time" name="prep1Time" value={tl.prep1Time ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
+            <label class="block"><span class="text-xs text-ink/70">Maps (opcional)</span>
+              <input name="prep1MapsUrl" value={tl.prep1MapsUrl ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
+          </div>
+          {mapsHref(tl.prep1Address, tl.prep1MapsUrl) && (
+            <a href={mapsHref(tl.prep1Address, tl.prep1MapsUrl)!} target="_blank" rel="noopener" class="inline-block mt-2 text-xs font-bold text-gold hover:underline">📍 Obrir a Google Maps</a>
+          )}
+        </div>
+        <div class="border border-line p-3">
+          <p class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70 mb-2">Preparatius · {booking.coupleName2}</p>
+          <label class="block"><span class="text-xs text-ink/70">Adreça</span>
+            <input name="prep2Address" value={tl.prep2Address ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
+          <div class="grid grid-cols-2 gap-2 mt-2">
+            <label class="block"><span class="text-xs text-ink/70">Hora</span>
+              <input type="time" name="prep2Time" value={tl.prep2Time ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
+            <label class="block"><span class="text-xs text-ink/70">Maps (opcional)</span>
+              <input name="prep2MapsUrl" value={tl.prep2MapsUrl ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" /></label>
+          </div>
+          {mapsHref(tl.prep2Address, tl.prep2MapsUrl) && (
+            <a href={mapsHref(tl.prep2Address, tl.prep2MapsUrl)!} target="_blank" rel="noopener" class="inline-block mt-2 text-xs font-bold text-gold hover:underline">📍 Obrir a Google Maps</a>
+          )}
+        </div>
+      </div>
+
+      <label class="block">
+        <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Altres horaris / notes (aperitiu, fotos de família, dinar, ball…)</span>
+        <textarea name="notes" rows="4" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none resize-y">{tl.notes ?? ''}</textarea>
+      </label>
+
+      <button type="submit" class="bg-ink text-white px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">
+        Desar horaris
+      </button>
+    </form>
+  </div>
+
+  <script is:inline>
+    (() => {
+      const cer = document.getElementById('tl-ceremony');
+      const arr = document.getElementById('tl-arrival');
+      const prep = document.getElementById('tl-prepstart');
+      const btn = document.getElementById('tl-calc');
+      if (!cer) return;
+      function shift(hhmm, mins) {
+        const parts = String(hhmm).split(':');
+        const h = Number(parts[0]); const m = Number(parts[1]);
+        if (Number.isNaN(h) || Number.isNaN(m)) return '';
+        let total = (((h * 60 + m + mins) % 1440) + 1440) % 1440;
+        return String(Math.floor(total / 60)).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
+      }
+      function calc(force) {
+        if (!cer.value) return;
+        if (arr && (force || !arr.value)) arr.value = shift(cer.value, -30);
+        if (prep && (force || !prep.value)) prep.value = shift(cer.value, -180);
+      }
+      cer.addEventListener('change', () => calc(false));
+      btn && btn.addEventListener('click', () => calc(true));
+    })();
+  </script>
 
   {/* Canvi de data / preu → addendum. Edita el valor i genera un PDF
       d'addendum (sense firma). Queda registrat a l'historial. */}

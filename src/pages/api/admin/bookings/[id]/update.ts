@@ -24,11 +24,13 @@ import {
   getBookingById,
   uncancelBooking,
   markDepositPaid,
+  saveDayTimeline,
   setBookingStatus,
   unmarkDepositPaid,
   updateBooking,
   type BookingUpdate,
 } from '~/lib/bookings/repository';
+import type { DayTimeline } from '~/lib/bookings/types';
 import { issueDepositInvoiceForBooking } from '~/lib/bookings/invoicing';
 import { sendContratoInvite, sendReservaInvite } from '~/lib/bookings/emails';
 import { cancelPendingSchedules, materialiseSchedulesForBooking, listSequences, manualSendSequence, sendDueEmails } from '~/lib/bookings/sequences';
@@ -225,6 +227,33 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
       console.error('[admin.send_payment_reminder] failed', { bookingId: id, err });
       return back('?error=No+s%27ha+pogut+enviar+el+recordatori#pagaments');
     }
+  }
+
+  // ── Wedding-day timeline (horaris) ────────────────────────────────────────
+  if (action === 'save_timeline') {
+    const s = (k: string) => {
+      const v = form.get(k);
+      return typeof v === 'string' ? v.trim() : '';
+    };
+    const t: DayTimeline = {
+      photographer: s('photographer'),
+      videographer: s('videographer'),
+      ceremonyLocation: s('ceremonyLocation'),
+      ceremonyMapsUrl: s('ceremonyMapsUrl'),
+      ceremonyTime: s('ceremonyTime'),
+      arrivalTime: s('arrivalTime'),
+      prepStartTime: s('prepStartTime'),
+      prepSameVenue: form.get('prepSameVenue') === '1',
+      prep1Address: s('prep1Address'),
+      prep1MapsUrl: s('prep1MapsUrl'),
+      prep1Time: s('prep1Time'),
+      prep2Address: s('prep2Address'),
+      prep2MapsUrl: s('prep2MapsUrl'),
+      prep2Time: s('prep2Time'),
+      notes: s('notes'),
+    };
+    await saveDayTimeline(id, t);
+    return back('?ok=timeline:saved#horaris');
   }
 
   // ── Payments ledger ──────────────────────────────────────────────────────

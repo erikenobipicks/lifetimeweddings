@@ -497,6 +497,10 @@ export async function initSchema() {
   // not sent yet; the cron sweep uses it as the once-only guard.
   await ensureColumn('bookings', 'prewedding_telegram_sent_at', 'TEXT');
 
+  // Operator-authored wedding-day timeline ("horaris"). JSON blob; see
+  // DayTimeline in src/lib/bookings/types.ts.
+  await ensureColumn('bookings', 'day_timeline_json', 'TEXT');
+
   // Per-sequence service scope (Fase A of the photo/video/combo mailing
   // split). 'any' on pre-migration rows → keeps sending to everyone, so the
   // existing default templates (2nd-payment reminder, info form, inspiration)
