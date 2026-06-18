@@ -84,6 +84,21 @@ export function weddingDetailsAdminGroups(coupleName1: string, coupleName2: stri
       ],
     },
     {
+      title: 'El dia (detalls de la parella)',
+      fields: [
+        { key: 'guests_count', label: 'Nombre de convidats (aprox.)' },
+        { key: 'prep_details', label: 'Detalls dels preparatius', kind: 'textarea' },
+        { key: 'ceremony_details', label: 'Detalls de la cerimònia', kind: 'textarea' },
+        { key: 'reportatge_details', label: 'Detalls del reportatge (sessió de parella)', kind: 'textarea' },
+        { key: 'family_photos', label: 'Fotos de família — grups a fotografiar', kind: 'textarea' },
+        { key: 'family_organizer', label: 'Qui organitza els grups (amb micròfon)' },
+        { key: 'aperitivo_details', label: 'Detalls de l\'aperitiu', kind: 'textarea' },
+        { key: 'restaurant_details', label: 'Detalls del restaurant', kind: 'textarea' },
+        { key: 'gifts_count', label: 'Nombre de regals al restaurant' },
+        { key: 'dance_details', label: 'Detalls del ball (nupcial i/o festa)', kind: 'textarea' },
+      ],
+    },
+    {
       title: 'Persones i moments',
       fields: [
         { key: 'key_people', label: 'Persones clau', kind: 'textarea' },
