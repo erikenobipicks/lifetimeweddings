@@ -40,10 +40,28 @@ const yearFilter = /^\d{4}$/.test(yearFilterRaw) ? Number(yearFilterRaw) : null;
 const includeArchived = Astro.url.searchParams.get('archived') === '1';
 const ok = Astro.url.searchParams.get('ok');
 
+// Time dimension: split already-celebrated weddings off the working list so
+// they don't pile up with the upcoming ones. Default 'upcoming' (date >=
+// today); 'past' = already celebrated; 'all' = everything.
+type WhenKey = 'upcoming' | 'past' | 'all';
+const whenRaw = Astro.url.searchParams.get('when') ?? '';
+const whenKey: WhenKey = whenRaw === 'past' || whenRaw === 'all' ? whenRaw : 'upcoming';
+// Compare by YYYY-MM-DD in Europe/Madrid so a wedding "today" still counts as
+// upcoming and TZ never shifts the boundary by a day.
+const todayYmd = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Europe/Madrid',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+}).format(new Date());
+const isPastWedding = (b: Booking): boolean => b.weddingDate.toISOString().slice(0, 10) < todayYmd;
+
 type SortKey = 'date_asc' | 'date_desc' | 'recent';
 const sortRaw = Astro.url.searchParams.get('sort') ?? '';
+// Past weddings read best most-recent-first; upcoming read soonest-first.
+const defaultSort: SortKey = whenKey === 'past' ? 'date_desc' : 'date_asc';
 const sortKey: SortKey =
-  sortRaw === 'date_desc' || sortRaw === 'recent' ? sortRaw : 'date_asc';
+  sortRaw === 'date_asc' || sortRaw === 'date_desc' || sortRaw === 'recent' ? sortRaw : defaultSort;
 
 const all = await listBookings({ includeArchived });
 
@@ -65,7 +83,8 @@ const yearOptions = [...allYears].sort((a, b) => a - b);
 
 const filtered = all
   .filter((b) => (statusFilter ? b.status === statusFilter : true))
-  .filter((b) => (yearFilter ? b.weddingDate.getFullYear() === yearFilter : true));
+  .filter((b) => (yearFilter ? b.weddingDate.getFullYear() === yearFilter : true))
+  .filter((b) => (whenKey === 'all' ? true : whenKey === 'past' ? isPastWedding(b) : !isPastWedding(b)));
 
 // Sort according to the chosen key. Default 'date_asc' = chronological, the
 // closest-coming wedding first (best for planning). Ties fall back to
@@ -130,6 +149,20 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
   { key: 'viewed',         label: 'Vistos' },
   { key: 'form_submitted', label: 'Reservats' },
 ];
+
+// Time tabs: keep already-celebrated weddings in their own view so they
+// don't overlap with the working (upcoming) list. Counts come from the
+// status+year-filtered set so the numbers match what each tab will show.
+const baseScoped = all
+  .filter((b) => (statusFilter ? b.status === statusFilter : true))
+  .filter((b) => (yearFilter ? b.weddingDate.getFullYear() === yearFilter : true));
+const upcomingCount = baseScoped.filter((b) => !isPastWedding(b)).length;
+const pastCount = baseScoped.filter((b) => isPastWedding(b)).length;
+const WHEN_TABS: { key: WhenKey; label: string; count: number }[] = [
+  { key: 'upcoming', label: 'Pròximes',    count: upcomingCount },
+  { key: 'past',     label: 'Realitzades', count: pastCount },
+  { key: 'all',      label: 'Totes',       count: baseScoped.length },
+];
 ---
 
 <AdminLayout title="Reserves">
@@ -157,6 +190,32 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
     </div>
   )}
 
+  {/* Time tabs — split upcoming vs. already-celebrated weddings. */}
+  <div class="flex flex-wrap items-center gap-2 mb-3">
+    {WHEN_TABS.map((tab) => {
+      // Preserve status / year / archived; let each time-view pick its own
+      // natural default sort, so we don't carry an explicit sort across.
+      const params = new URLSearchParams();
+      if (statusFilter) params.set('status', statusFilter);
+      if (yearFilter) params.set('year', String(yearFilter));
+      if (includeArchived) params.set('archived', '1');
+      if (tab.key !== 'upcoming') params.set('when', tab.key);
+      const qs = params.toString();
+      const isActive = tab.key === whenKey;
+      return (
+        <a
+          href={qs ? `/admin/bookings?${qs}` : '/admin/bookings'}
+          class:list={[
+            'text-xs font-bold tracking-widest uppercase px-3 py-1.5 border rounded-sm transition-colors',
+            isActive ? 'bg-gold text-ink border-gold' : 'border-line text-ink/70 hover:text-gold hover:border-gold',
+          ]}
+        >
+          {tab.label} <span class="opacity-70">({tab.count})</span>
+        </a>
+      );
+    })}
+  </div>
+
   <div class="flex flex-wrap items-center gap-2 mb-4">
     {STATUS_TABS.map((tab) => {
       // Preserve the year filter while switching status tabs.
@@ -164,7 +223,8 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
       if (tab.key) params.set('status', tab.key);
       if (yearFilter) params.set('year', String(yearFilter));
       if (includeArchived) params.set('archived', '1');
-      if (sortKey !== 'date_asc') params.set('sort', sortKey);
+      if (whenKey !== 'upcoming') params.set('when', whenKey);
+      if (sortKey !== defaultSort) params.set('sort', sortKey);
       const qs = params.toString();
       const isActive = (tab.key === '' && !statusFilter) || tab.key === statusFilter;
       return (
@@ -183,6 +243,7 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
     <form method="GET" class="contents">
       {statusFilter && <input type="hidden" name="status" value={statusFilter} />}
       {includeArchived && <input type="hidden" name="archived" value="1" />}
+      {whenKey !== 'upcoming' && <input type="hidden" name="when" value={whenKey} />}
       <label class="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-ink/70">
         Ordenar
         <select
@@ -231,7 +292,8 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
       const params = new URLSearchParams();
       if (statusFilter) params.set('status', statusFilter);
       if (yearFilter) params.set('year', String(yearFilter));
-      if (sortKey !== 'date_asc') params.set('sort', sortKey);
+      if (whenKey !== 'upcoming') params.set('when', whenKey);
+      if (sortKey !== defaultSort) params.set('sort', sortKey);
       if (!includeArchived) params.set('archived', '1');
       const qs = params.toString();
       return (
@@ -247,7 +309,7 @@ const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
 
   {bookings.length > 0 && (
     <div class="mb-4 px-4 py-3 bg-cream border border-line flex flex-wrap items-baseline gap-x-6 gap-y-1 text-sm">
-      <span><strong>{bookings.length}</strong> {bookings.length === 1 ? 'reserva' : 'reserves'}{yearFilter ? ` · ${yearFilter}` : ''}</span>
+      <span><strong>{bookings.length}</strong> {bookings.length === 1 ? 'reserva' : 'reserves'}{whenKey === 'past' ? ' · realitzades' : whenKey === 'upcoming' ? ' · pròximes' : ''}{yearFilter ? ` · ${yearFilter}` : ''}</span>
       <span><strong>Total pressupostat:</strong> <span class="text-gold font-bold">{formatEuros(totalQuotedCents)}</span></span>
     </div>
   )}
