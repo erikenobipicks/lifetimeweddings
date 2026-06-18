@@ -42,7 +42,7 @@ export const ui = {
     // Trust bar
     'trust.weddings': '+150 bodas',
     'trust.coverage': 'Tarragona · Lleida · Barcelona',
-    'trust.delivery': 'Fotos en 4 semanas',
+    'trust.delivery': 'Fotos en 60 días',
     'trust.rating': '5★ en Google',
 
     // About
@@ -71,10 +71,10 @@ export const ui = {
     'services.title': 'Servicios que ofrecemos',
     'services.photo.title': 'Fotografía de Bodas',
     'services.photo.desc':
-      '700–1.200 imágenes editadas, entregadas en galería privada en 3–4 semanas. Cobertura completa del día, del preparativo a la fiesta, con estilo documental.',
+      '700–1.200 imágenes editadas, entregadas en galería privada en 60 días. Cobertura completa del día, del preparativo a la fiesta, con estilo documental.',
     'services.video.title': 'Vídeo de Bodas',
     'services.video.desc':
-      'Película documental de 25–35 minutos, entregada en 8–10 semanas. Opcional: tráiler corto, discursos y ceremonia completa sin cortes.',
+      'Película documental de 25–35 minutos, entregada en 150 días. Opcional: tráiler corto, discursos y ceremonia completa sin cortes.',
     'services.fusion.title': 'Sesión pre-boda',
     'services.fusion.desc':
       'Una mañana o una tarde para conocernos y para que os familiaricéis con la cámara antes del gran día. En Tarragona, Reus o donde os venga bien.',
@@ -162,7 +162,7 @@ export const ui = {
     'faq.q3': '¿Cuánto cuesta una boda con vosotros?',
     'faq.a3': 'Cada boda es única y el presupuesto depende de la fecha, el lugar y el pack. Os pasamos uno personalizado en menos de 24h. Rellenad el quiz de 1 minuto con vuestros datos y os respondemos con una propuesta concreta.',
     'faq.q4': '¿Cuándo recibimos las fotos y el vídeo?',
-    'faq.a4': 'Galería online con todas las fotos editadas en 3–4 semanas. Vídeo documental en 8–10 semanas. Tráiler, si lo habéis contratado, en 3–4 semanas.',
+    'faq.a4': 'Galería online con todas las fotos editadas en un máximo de 60 días (2 meses). El vídeo documental (y el tráiler, si lo habéis contratado) en un máximo de 150 días (5 meses).',
     'faq.q5': '¿Viajáis fuera de Cataluña?',
     'faq.a5': 'Sí. Nuestra base es Reus, pero hemos hecho bodas en Barcelona, Lleida, Girona, Huesca, Castellón, Málaga y Nueva York. Los desplazamientos fuera de Cataluña se presupuestan aparte.',
     'faq.q6': '¿Hacéis sesión pre-boda?',
@@ -260,10 +260,10 @@ export const ui = {
       'Fotógrafos y videógrafos de bodas en Tarragona, Reus, Lleida y Barcelona. Dos hermanos, segunda generación de fotógrafos. Estilo documental, natural, sin poses.',
     'schema.service.foto.name': 'Fotografía de boda',
     'schema.service.foto.description':
-      'Cobertura fotográfica completa de boda: 700–1.200 imágenes editadas en galería privada, entregadas en 3–4 semanas. Estilo documental.',
+      'Cobertura fotográfica completa de boda: 700–1.200 imágenes editadas en galería privada, entregadas en 60 días. Estilo documental.',
     'schema.service.video.name': 'Vídeo de boda',
     'schema.service.video.description':
-      'Película documental de 25–35 minutos, entregada en 8–10 semanas. Opcional: tráiler corto, discursos y ceremonia completa sin cortes.',
+      'Película documental de 25–35 minutos, entregada en 150 días. Opcional: tráiler corto, discursos y ceremonia completa sin cortes.',
     'schema.service.preboda.name': 'Sesión pre-boda',
     'schema.service.preboda.description':
       'Sesión de pareja previa a la boda para conoceros y que os sintáis cómodos con la cámara. En Tarragona, Reus o donde os venga bien.',
@@ -348,7 +348,7 @@ export const ui = {
       'Sí. El pack es un punto de partida. Si necesitáis más horas, menos horas, solo foto, solo vídeo, o algo distinto, lo hablamos y lo ajustamos.',
     'reserva.faq.q4.q': '¿Cuándo recibimos las fotos y el vídeo?',
     'reserva.faq.q4.a':
-      'Material editado completo entre 8 y 12 semanas después de la boda. Una selección breve (10-15 fotos) os la enviamos la semana siguiente para que podáis compartirla con la familia.',
+      'Las fotos editadas en un máximo de 60 días (2 meses) y el vídeo en un máximo de 150 días (5 meses). Una selección breve (10-15 fotos) os la enviamos la semana siguiente para que podáis compartirla con la familia.',
     'reserva.faq.q5.q': '¿Cómo se paga el resto?',
     'reserva.faq.q5.a':
       '50% al firmar, 50% un mes antes del día. Lo podemos ajustar si os va mejor otro reparto.',
@@ -699,7 +699,7 @@ export const ui = {
 
     'trust.weddings': '+150 bodes',
     'trust.coverage': 'Tarragona · Lleida · Barcelona',
-    'trust.delivery': 'Fotos en 4 setmanes',
+    'trust.delivery': 'Fotos en 60 dies',
     'trust.rating': '5★ a Google',
 
     'about.label': 'Qui som',
@@ -724,10 +724,10 @@ export const ui = {
     'services.title': 'Serveis que oferim',
     'services.photo.title': 'Fotografia de Bodes',
     'services.photo.desc':
-      '700–1.200 imatges editades, entregades en galeria privada en 3–4 setmanes. Cobertura completa del dia, de la preparació a la festa, amb estil documental.',
+      '700–1.200 imatges editades, entregades en galeria privada en 60 dies. Cobertura completa del dia, de la preparació a la festa, amb estil documental.',
     'services.video.title': 'Vídeo de Bodes',
     'services.video.desc':
-      'Pel·lícula documental de 25–35 minuts, entregada en 8–10 setmanes. Opcional: tràiler curt, discursos i cerimònia completa sense talls.',
+      'Pel·lícula documental de 25–35 minuts, entregada en 150 dies. Opcional: tràiler curt, discursos i cerimònia completa sense talls.',
     'services.fusion.title': 'Sessió pre-boda',
     'services.fusion.desc':
       'Un matí o una tarda per conèixer-nos i perquè us familiaritzeu amb la càmera abans del gran dia. A Tarragona, Reus o allà on us vagi bé.',
@@ -811,7 +811,7 @@ export const ui = {
     'faq.q3': 'Quant costa una boda amb vosaltres?',
     'faq.a3': 'Cada boda és única i el pressupost depèn de la data, el lloc i el pack. Us en passem un de personalitzat en menys de 24h. Empleneu el quiz d\'1 minut amb les vostres dades i us responem amb una proposta concreta.',
     'faq.q4': 'Quan rebem les fotos i el vídeo?',
-    'faq.a4': 'Galeria online amb totes les fotos editades en 3–4 setmanes. Vídeo documental en 8–10 setmanes. Tràiler, si l’heu contractat, en 3–4 setmanes.',
+    'faq.a4': 'Galeria online amb totes les fotos editades en un màxim de 60 dies (2 mesos). El vídeo documental (i el tràiler, si l’heu contractat) en un màxim de 150 dies (5 mesos).',
     'faq.q5': 'Viatgeu fora de Catalunya?',
     'faq.a5': 'Sí. La nostra base és Reus, però hem fet bodes a Barcelona, Lleida, Girona, Osca, Castelló, Màlaga i Nova York. Els desplaçaments fora de Catalunya es pressuposten a part.',
     'faq.q6': 'Feu sessió pre-boda?',
@@ -899,10 +899,10 @@ export const ui = {
       'Fotògrafs i videògrafs de bodes a Tarragona, Reus, Lleida i Barcelona. Dos germans, segona generació de fotògrafs. Estil documental, natural, sense posats.',
     'schema.service.foto.name': 'Fotografia de boda',
     'schema.service.foto.description':
-      'Cobertura fotogràfica completa de boda: 700–1.200 imatges editades en galeria privada, entregades en 3–4 setmanes. Estil documental.',
+      'Cobertura fotogràfica completa de boda: 700–1.200 imatges editades en galeria privada, entregades en 60 dies. Estil documental.',
     'schema.service.video.name': 'Vídeo de boda',
     'schema.service.video.description':
-      'Pel·lícula documental de 25–35 minuts, entregada en 8–10 setmanes. Opcional: tràiler curt, discursos i cerimònia completa sense talls.',
+      'Pel·lícula documental de 25–35 minuts, entregada en 150 dies. Opcional: tràiler curt, discursos i cerimònia completa sense talls.',
     'schema.service.preboda.name': 'Sessió pre-boda',
     'schema.service.preboda.description':
       'Sessió de parella prèvia a la boda per conèixer-nos i perquè us sentiu còmodes davant la càmera. A Tarragona, Reus o allà on us vagi bé.',
@@ -987,7 +987,7 @@ export const ui = {
       'Sí. El pack és un punt de partida. Si necessiteu més hores, menys hores, només foto, només vídeo, o alguna cosa diferent, ho parlem i ho ajustem.',
     'reserva.faq.q4.q': 'Quan rebem les fotos i el vídeo?',
     'reserva.faq.q4.a':
-      "Material editat complet entre 8 i 12 setmanes després de la boda. Una selecció breu (10-15 fotos) us l'enviem la setmana següent perquè pugueu compartir-la amb la família.",
+      "Les fotos editades en un màxim de 60 dies (2 mesos) i el vídeo en un màxim de 150 dies (5 mesos). Una selecció breu (10-15 fotos) us l'enviem la setmana següent perquè pugueu compartir-la amb la família.",
     'reserva.faq.q5.q': 'Com es paga la resta?',
     'reserva.faq.q5.a':
       '50% en signar, 50% un mes abans del dia. Ho podem ajustar si us va millor un altre repartiment.',
@@ -1333,7 +1333,7 @@ export const ui = {
 
     'trust.weddings': '+150 weddings',
     'trust.coverage': 'Tarragona · Lleida · Barcelona',
-    'trust.delivery': 'Photos in 4 weeks',
+    'trust.delivery': 'Photos in 60 days',
     'trust.rating': '5★ on Google',
 
     'about.label': 'Who we are',
@@ -1358,10 +1358,10 @@ export const ui = {
     'services.title': 'Services we offer',
     'services.photo.title': 'Wedding Photography',
     'services.photo.desc':
-      '700–1,200 edited images, delivered in a private online gallery in 3–4 weeks. Full-day coverage, from getting ready to the party, documentary style.',
+      '700–1,200 edited images, delivered in a private online gallery in 60 days. Full-day coverage, from getting ready to the party, documentary style.',
     'services.video.title': 'Wedding Video',
     'services.video.desc':
-      '25–35 minute documentary film, delivered in 8–10 weeks. Optional: short trailer, speeches and uncut ceremony.',
+      '25–35 minute documentary film, delivered in 150 days. Optional: short trailer, speeches and uncut ceremony.',
     'services.fusion.title': 'Pre-wedding session',
     'services.fusion.desc':
       'A morning or afternoon to get to know each other and for you to get comfortable in front of the camera. In Tarragona, Reus or wherever suits you.',
@@ -1442,7 +1442,7 @@ export const ui = {
     'faq.q3': 'How much does a wedding with you cost?',
     'faq.a3': 'Every wedding is unique and the price depends on the date, location and package. We send you a personalised quote within 24h. Fill in the 1-minute quiz with your details and we\'ll come back with a concrete proposal.',
     'faq.q4': 'When do we get the photos and video?',
-    'faq.a4': 'Online gallery with all edited photos in 3–4 weeks. Documentary film in 8–10 weeks. Trailer, if included, in 3–4 weeks.',
+    'faq.a4': 'Online gallery with all edited photos within a maximum of 60 days (2 months). The documentary film (and trailer, if included) within a maximum of 150 days (5 months).',
     'faq.q5': 'Do you travel outside Catalonia?',
     'faq.a5': 'Yes. Our base is Reus, but we’ve shot weddings in Barcelona, Lleida, Girona, Huesca, Castellón, Málaga and New York. Travel outside Catalonia is quoted separately.',
     'faq.q6': 'Do you offer a pre-wedding session?',
@@ -1533,10 +1533,10 @@ export const ui = {
       'Wedding photographers and videographers in Tarragona, Reus, Lleida and Barcelona. Two brothers, second generation of photographers. Documentary style, natural, no posing.',
     'schema.service.foto.name': 'Wedding photography',
     'schema.service.foto.description':
-      'Full-day wedding photo coverage: 700–1,200 edited images in a private online gallery, delivered in 3–4 weeks. Documentary style.',
+      'Full-day wedding photo coverage: 700–1,200 edited images in a private online gallery, delivered in 60 days. Documentary style.',
     'schema.service.video.name': 'Wedding videography',
     'schema.service.video.description':
-      '25–35 min documentary film, delivered in 8–10 weeks. Optional: short trailer, speeches and uncut ceremony.',
+      '25–35 min documentary film, delivered in 150 days. Optional: short trailer, speeches and uncut ceremony.',
     'schema.service.preboda.name': 'Pre-wedding session',
     'schema.service.preboda.description':
       'Pre-wedding couple session to get to know each other and help you feel comfortable on camera. In Tarragona, Reus or wherever suits you.',
@@ -1622,7 +1622,7 @@ export const ui = {
       "Yes. The pack is a starting point. If you need more hours, fewer hours, photo only, video only, or something different, we'll talk and adjust it.",
     'reserva.faq.q4.q': 'When do we get the photos and video?',
     'reserva.faq.q4.a':
-      "Fully edited material 8 to 12 weeks after the wedding. A short selection (10–15 photos) goes out the following week so you can share with family.",
+      "The edited photos within a maximum of 60 days (2 months) and the film within a maximum of 150 days (5 months). A short selection (10–15 photos) goes out the following week so you can share with family.",
     'reserva.faq.q5.q': 'How do we pay the rest?',
     'reserva.faq.q5.a':
       '50% on signing, 50% one month before the day. We can adjust the split if another arrangement suits you better.',

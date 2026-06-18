@@ -62,7 +62,7 @@ const CA_PHOTO = `<h2 style="text-align:center;">CONTRACTE DE REPORTATGE FOTOGR�
 <p>Els professionals seleccionaran el millor material per a l'edició final.</p>
 <p>Format i termini d'entrega:</p>
 <ul>
-  <li>Fotografies en JPG, màxima qualitat i sense marca d'aigua — termini màxim: <strong>90 dies</strong>.</li>
+  <li>Fotografies en JPG, màxima qualitat i sense marca d'aigua — termini màxim: <strong>60 dies (2 mesos)</strong>.</li>
 </ul>
 <p>No es lliuraran arxius RAW ni material en brut.</p>
 <p>Una única revisió inclosa dins dels 15 dies posteriors a l'entrega. Revisió addicional: <strong>50 €/hora</strong>.</p>
@@ -151,7 +151,7 @@ const CA_VIDEO = `<h2 style="text-align:center;">CONTRACTE DE REPORTATGE VIDEOGR
 <p>Els professionals seleccionaran el millor material per a l'edició final.</p>
 <p>Format i termini d'entrega:</p>
 <ul>
-  <li>Vídeo en MP4 (HD), durada aproximada de <strong>25 a 35 minuts</strong> — termini màxim: <strong>5 mesos</strong>.</li>
+  <li>Vídeo en MP4 (HD), durada aproximada de <strong>25 a 35 minuts</strong> — termini màxim: <strong>150 dies (5 mesos)</strong>.</li>
 </ul>
 <p>No es lliuraran arxius bruts ni material sense editar.</p>
 <p>Una única revisió inclosa dins dels 15 dies posteriors a l'entrega. Revisió addicional: <strong>50 €/hora</strong>.</p>
@@ -240,8 +240,8 @@ const CA_COMBO = `<h2 style="text-align:center;">CONTRACTE DE REPORTATGE DE BODA
 <p>Els professionals seleccionaran el millor material per a l'edició final.</p>
 <p>Formats i terminis d'entrega:</p>
 <ul>
-  <li>Fotografies en JPG, màxima qualitat i sense marca d'aigua — termini màxim: <strong>90 dies</strong>.</li>
-  <li>Vídeo en MP4 (HD), durada aproximada de <strong>25 a 35 minuts</strong> — termini màxim: <strong>5 mesos</strong>.</li>
+  <li>Fotografies en JPG, màxima qualitat i sense marca d'aigua — termini màxim: <strong>60 dies (2 mesos)</strong>.</li>
+  <li>Vídeo en MP4 (HD), durada aproximada de <strong>25 a 35 minuts</strong> — termini màxim: <strong>150 dies (5 mesos)</strong>.</li>
 </ul>
 <p>No es lliuraran arxius RAW ni material en brut.</p>
 <p>Una única revisió inclosa dins dels 15 dies posteriors a l'entrega. Revisió addicional: <strong>50 €/hora</strong>.</p>
@@ -330,7 +330,7 @@ const ES_PHOTO = `<h2 style="text-align:center;">CONTRATO DE REPORTAJE FOTOGRÁF
 <p>Los profesionales seleccionarán el mejor material para la edición final.</p>
 <p>Formato y plazo de entrega:</p>
 <ul>
-  <li>Fotografías en JPG, máxima calidad y sin marca de agua — plazo máximo: <strong>90 días</strong>.</li>
+  <li>Fotografías en JPG, máxima calidad y sin marca de agua — plazo máximo: <strong>60 días (2 meses)</strong>.</li>
 </ul>
 <p>No se entregarán archivos RAW ni material en bruto.</p>
 <p>Una única revisión incluida dentro de los 15 días posteriores a la entrega. Revisión adicional: <strong>50 €/hora</strong>.</p>
@@ -419,7 +419,7 @@ const ES_VIDEO = `<h2 style="text-align:center;">CONTRATO DE REPORTAJE VIDEOGRÁ
 <p>Los profesionales seleccionarán el mejor material para la edición final.</p>
 <p>Formato y plazo de entrega:</p>
 <ul>
-  <li>Vídeo en MP4 (HD), duración aproximada de <strong>25 a 35 minutos</strong> — plazo máximo: <strong>5 meses</strong>.</li>
+  <li>Vídeo en MP4 (HD), duración aproximada de <strong>25 a 35 minutos</strong> — plazo máximo: <strong>150 días (5 meses)</strong>.</li>
 </ul>
 <p>No se entregarán archivos brutos ni material sin editar.</p>
 <p>Una única revisión incluida dentro de los 15 días posteriores a la entrega. Revisión adicional: <strong>50 €/hora</strong>.</p>
@@ -508,8 +508,8 @@ const ES_COMBO = `<h2 style="text-align:center;">CONTRATO DE REPORTAJE DE BODA</
 <p>Los profesionales seleccionarán el mejor material para la edición final.</p>
 <p>Formatos y plazos de entrega:</p>
 <ul>
-  <li>Fotografías en JPG, máxima calidad y sin marca de agua — plazo máximo: <strong>90 días</strong>.</li>
-  <li>Vídeo en MP4 (HD), duración aproximada de <strong>25 a 35 minutos</strong> — plazo máximo: <strong>5 meses</strong>.</li>
+  <li>Fotografías en JPG, máxima calidad y sin marca de agua — plazo máximo: <strong>60 días (2 meses)</strong>.</li>
+  <li>Vídeo en MP4 (HD), duración aproximada de <strong>25 a 35 minutos</strong> — plazo máximo: <strong>150 días (5 meses)</strong>.</li>
 </ul>
 <p>No se entregarán archivos RAW ni material en bruto.</p>
 <p>Una única revisión incluida dentro de los 15 días posteriores a la entrega. Revisión adicional: <strong>50 €/hora</strong>.</p>

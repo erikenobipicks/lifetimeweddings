@@ -130,7 +130,7 @@ export const ZONES: Zone[] = [
       {
         question: 'Quant trigueu a enviar les fotos i el vídeo?',
         answer:
-          "Galeria online amb totes les fotos editades en 3-4 setmanes. Vídeo documental en 8-10 setmanes. Tràiler, si l'heu contractat, en 3-4 setmanes.",
+          "Galeria online amb totes les fotos editades en un màxim de 60 dies (2 mesos). El vídeo documental (i el tràiler, si l'heu contractat) en un màxim de 150 dies (5 mesos).",
       },
       {
         question: 'Hi ha bodes que rebutgeu?',
@@ -229,7 +229,7 @@ export const ZONES: Zone[] = [
       {
         question: 'Quant trigueu a enviar les fotos i el vídeo?',
         answer:
-          "Galeria online amb totes les fotos editades en 3-4 setmanes. Vídeo documental en 8-10 setmanes. Tràiler, si l'heu contractat, en 3-4 setmanes.",
+          "Galeria online amb totes les fotos editades en un màxim de 60 dies (2 mesos). El vídeo documental (i el tràiler, si l'heu contractat) en un màxim de 150 dies (5 mesos).",
       },
       {
         question: 'Quant costa una boda amb vosaltres a Reus?',
@@ -323,7 +323,7 @@ export const ZONES: Zone[] = [
       {
         question: 'Quant trigueu a enviar les fotos i el vídeo?',
         answer:
-          "Galeria online amb totes les fotos editades en 3-4 setmanes. Vídeo documental en 8-10 setmanes. Tràiler, si l'heu contractat, en 3-4 setmanes.",
+          "Galeria online amb totes les fotos editades en un màxim de 60 dies (2 mesos). El vídeo documental (i el tràiler, si l'heu contractat) en un màxim de 150 dies (5 mesos).",
       },
       {
         question: 'Quant costa una boda amb vosaltres a la Costa Daurada?',
@@ -413,7 +413,7 @@ export const ZONES: Zone[] = [
       {
         question: 'Quant trigueu a enviar les fotos i el vídeo?',
         answer:
-          "Galeria online amb totes les fotos editades en 3-4 setmanes. Vídeo documental en 8-10 setmanes. Tràiler, si l'heu contractat, en 3-4 setmanes.",
+          "Galeria online amb totes les fotos editades en un màxim de 60 dies (2 mesos). El vídeo documental (i el tràiler, si l'heu contractat) en un màxim de 150 dies (5 mesos).",
       },
       {
         question: 'Quant costa una boda amb vosaltres a Lleida?',
