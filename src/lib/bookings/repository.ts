@@ -477,6 +477,27 @@ export async function getFormResponseForBooking(
   return row ? rowToFormResponse(row as unknown as Record<string, unknown>) : null;
 }
 
+/** Publication consent for every booking that has a form response, in one
+ *  query — for the bookings-list badge/filter. Returns a Map keyed by
+ *  booking_id with the latest response's consent (null when the /contrato
+ *  step isn't done). Bookings without any form response are simply absent
+ *  from the map (caller treats that as "pending"). */
+export async function listPublicationConsentByBooking(): Promise<Map<string, PublicationChannel[] | null>> {
+  await initSchema();
+  const res = await db.execute(
+    `SELECT booking_id, publication_consent, submitted_at
+       FROM booking_form_responses
+      ORDER BY submitted_at ASC`,
+  );
+  // Iterating ASC and overwriting leaves the latest response per booking.
+  const out = new Map<string, PublicationChannel[] | null>();
+  for (const r of res.rows) {
+    const row = r as unknown as Record<string, unknown>;
+    out.set(String(row.booking_id), safeParseJson<PublicationChannel[] | null>(row.publication_consent, null));
+  }
+  return out;
+}
+
 /** Input shape for creating a form response (matches the public form
  *  exactly). Repository validates structure but NOT business rules — that
  *  belongs in the API endpoint (DNI regex, idempotency, etc.). */
