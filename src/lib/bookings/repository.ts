@@ -19,6 +19,7 @@ import type {
   BookingFormResponse,
   BookingKind,
   BookingStatus,
+  DayTimeline,
   Lang,
   PackAddon,
   PublicationChannel,
@@ -140,6 +141,7 @@ function rowToBooking(row: Record<string, unknown>): Booking {
     cancellationSignedIp: row.cancellation_signed_ip ? String(row.cancellation_signed_ip) : null,
     checklistState: parseChecklistJson(row.checklist_state),
     preweddingTelegramSentAt: fromIso(row.prewedding_telegram_sent_at),
+    dayTimeline: safeParseJson<DayTimeline | null>(row.day_timeline_json, null),
   };
 }
 
@@ -726,6 +728,26 @@ export async function listPayments(bookingId: string): Promise<BookingPayment[]>
     note: row.note ? String(row.note) : null,
     createdAt: fromIso(row.created_at) ?? new Date(),
   }));
+}
+
+/** Persist the operator-authored wedding-day timeline. Pass null to clear.
+ *  Stored as a JSON blob in bookings.day_timeline_json. */
+export async function saveDayTimeline(bookingId: string, timeline: DayTimeline | null): Promise<void> {
+  await initSchema();
+  // Drop empty strings so a blank field doesn't persist as "" noise.
+  let payload: string | null = null;
+  if (timeline) {
+    const cleaned: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(timeline)) {
+      if (v === '' || v === undefined || v === null) continue;
+      cleaned[k] = v;
+    }
+    payload = Object.keys(cleaned).length ? JSON.stringify(cleaned) : null;
+  }
+  await db.execute({
+    sql: 'UPDATE bookings SET day_timeline_json = ?, updated_at = ? WHERE id = ?',
+    args: [payload, nowIso(), bookingId],
+  });
 }
 
 /** Sum of recorded payments per booking, in one query. Returns a Map of
