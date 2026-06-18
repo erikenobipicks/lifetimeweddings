@@ -58,6 +58,16 @@ const name1 = booking?.coupleName1 ?? '';
 const name2 = booking?.coupleName2 ?? '';
 const venueName = booking?.venueName ?? '';
 
+// Operator-proposed wedding-day timeline, shown read-only at the top of the
+// wedding_details form so the couple can see the plan while adding details.
+const tl = booking?.dayTimeline ?? null;
+const hasTimeline = !!tl && Object.keys(tl).some((k) => k !== 'prepSameVenue' && (tl as any)[k]);
+function fmtMaps(address?: string, url?: string): string | null {
+  if (url && url.trim()) return url.trim();
+  if (address && address.trim()) return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address.trim())}`;
+  return null;
+}
+
 // ─── i18n strings for the inspiration form ───────────────────────────────
 const TI = {
   ca: {
@@ -168,6 +178,23 @@ const TX = {
     instaProvidersHint: 'Un per línia, amb el format "Categoria: @compte" (ex: Flors: @florspertu). Així els podem etiquetar a les publicacions.',
     anythingElse: 'Qualsevol altra cosa',
     anythingElseHint: 'El que vulgueu que sapiguem i no encaixi a dalt.',
+    schedHeading: 'La nostra proposta d\'horaris',
+    schedNote: 'Aquesta és la proposta d\'horaris per al vostre dia. Si voleu canviar res, digueu-nos-ho.',
+    schedPhotographer: 'Fotògraf', schedVideographer: 'Videògraf', schedArrival: 'Arribada de l\'equip',
+    schedPrepStart: 'Inici preparatius', schedCeremony: 'Cerimònia', schedPrep: 'Preparatius',
+    secDay: 'El dia: detalls per a nosaltres',
+    guestsCount: 'Nombre de convidats (aprox.)',
+    prepDetails: 'Detalls dels preparatius que hauríem de saber',
+    ceremonyDetails: 'Detalls de la cerimònia que hauríem de saber',
+    reportatgeDetails: 'Detalls del reportatge (la sessió amb vosaltres entre cerimònia i aperitiu)',
+    familyPhotos: 'Fotos de família: grups que voleu fotografiar',
+    familyPhotosHint: 'Feu una llista dels grups (ex: "Pares de la núvia", "Avis", "Amics universitat"). Les fem entre l\'aperitiu i el dinar; va molt bé que algú els organitzi amb micròfon.',
+    familyOrganizer: 'Qui organitzarà els grups (amb micròfon)',
+    aperitivoDetails: 'Detalls de l\'aperitiu (música en directe o res rellevant)',
+    restaurantDetails: 'Detalls del restaurant que hauríem de saber',
+    restaurantHint: 'No cal detallar cada regal; només si hi ha res importantíssim que no ens podem deixar.',
+    giftsCount: 'Nombre de regals que donareu al restaurant',
+    danceDetails: 'Detalls del ball (ball nupcial i/o festa)',
     choose: '— Trieu —',
     submit: 'Enviar respostes', sending: 'Enviant…', optional: 'opcional',
     thanksH: 'Gràcies!',
@@ -221,6 +248,23 @@ const TX = {
     instaProvidersHint: 'Uno por línea, con el formato "Categoría: @cuenta" (ej: Flores: @florespara). Así los etiquetamos en las publicaciones.',
     anythingElse: 'Cualquier otra cosa',
     anythingElseHint: 'Lo que queráis que sepamos y no encaje arriba.',
+    schedHeading: 'Nuestra propuesta de horarios',
+    schedNote: 'Esta es la propuesta de horarios para vuestro día. Si queréis cambiar algo, decídnoslo.',
+    schedPhotographer: 'Fotógrafo', schedVideographer: 'Vídeo', schedArrival: 'Llegada del equipo',
+    schedPrepStart: 'Inicio preparativos', schedCeremony: 'Ceremonia', schedPrep: 'Preparativos',
+    secDay: 'El día: detalles para nosotros',
+    guestsCount: 'Número de invitados (aprox.)',
+    prepDetails: 'Detalles de los preparativos que deberíamos saber',
+    ceremonyDetails: 'Detalles de la ceremonia que deberíamos saber',
+    reportatgeDetails: 'Detalles del reportaje (la sesión con vosotros entre ceremonia y aperitivo)',
+    familyPhotos: 'Fotos de familia: grupos que queréis fotografiar',
+    familyPhotosHint: 'Haced una lista de los grupos (ej: "Padres de la novia", "Abuelos", "Amigos universidad"). Las hacemos entre el aperitivo y la comida; va muy bien que alguien los organice con micrófono.',
+    familyOrganizer: 'Quién organizará los grupos (con micrófono)',
+    aperitivoDetails: 'Detalles del aperitivo (música en directo o algo relevante)',
+    restaurantDetails: 'Detalles del restaurante que deberíamos saber',
+    restaurantHint: 'No hace falta detallar cada regalo; solo si hay algo importantísimo que no nos podemos dejar.',
+    giftsCount: 'Número de regalos que daréis al restaurante',
+    danceDetails: 'Detalles del baile (baile nupcial y/o fiesta)',
     choose: '— Elegid —',
     submit: 'Enviar respuestas', sending: 'Enviando…', optional: 'opcional',
     thanksH: '¡Gracias!',
@@ -274,6 +318,23 @@ const TX = {
     instaProvidersHint: 'One per line, as "Category: @handle" (e.g. Flowers: @flowerco). So we can tag them in the posts.',
     anythingElse: 'Anything else',
     anythingElseHint: 'Whatever you want us to know that doesn\'t fit above.',
+    schedHeading: 'Our proposed timeline',
+    schedNote: 'This is our proposed timeline for your day. If you\'d like to change anything, let us know.',
+    schedPhotographer: 'Photographer', schedVideographer: 'Videographer', schedArrival: 'Crew arrival',
+    schedPrepStart: 'Prep starts', schedCeremony: 'Ceremony', schedPrep: 'Getting ready',
+    secDay: 'The day: details for us',
+    guestsCount: 'Number of guests (approx.)',
+    prepDetails: 'Getting-ready details we should know',
+    ceremonyDetails: 'Ceremony details we should know',
+    reportatgeDetails: 'Couple session details (the shoot with you between ceremony and aperitivo)',
+    familyPhotos: 'Family photos: groups you want photographed',
+    familyPhotosHint: 'List the groups (e.g. "Bride\'s parents", "Grandparents", "Uni friends"). We do these between the aperitivo and the meal; it helps a lot if someone organises them with a microphone.',
+    familyOrganizer: 'Who will organise the groups (with a mic)',
+    aperitivoDetails: 'Aperitivo details (live music or anything relevant)',
+    restaurantDetails: 'Restaurant details we should know',
+    restaurantHint: 'No need to detail every gift; just anything crucial we shouldn\'t miss.',
+    giftsCount: 'Number of gifts you\'ll give the restaurant',
+    danceDetails: 'Dance details (first dance and/or party)',
     choose: '— Choose —',
     submit: 'Send answers', sending: 'Sending…', optional: 'optional',
     thanksH: 'Thank you!',
@@ -313,6 +374,37 @@ const TX = {
         <>
           <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">{title}</h1>
           <p class="text-ink/75 leading-relaxed mb-10">{TX.intro}</p>
+
+          {hasTimeline && tl && (
+            <div class="mb-10 border border-gold/40 bg-white p-5 md:p-6">
+              <p class="font-display text-lg font-bold mb-1">{TX.schedHeading}</p>
+              <p class="text-sm text-ink/70 mb-4">{TX.schedNote}</p>
+              <dl class="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                {tl.photographer && (<div class="flex justify-between gap-3"><dt class="text-ink/60">{TX.schedPhotographer}</dt><dd class="font-semibold text-ink text-right">{tl.photographer}</dd></div>)}
+                {tl.videographer && (<div class="flex justify-between gap-3"><dt class="text-ink/60">{TX.schedVideographer}</dt><dd class="font-semibold text-ink text-right">{tl.videographer}</dd></div>)}
+                {tl.prepStartTime && (<div class="flex justify-between gap-3"><dt class="text-ink/60">{TX.schedPrepStart}</dt><dd class="font-semibold text-ink text-right">{tl.prepStartTime}</dd></div>)}
+                {tl.arrivalTime && (<div class="flex justify-between gap-3"><dt class="text-ink/60">{TX.schedArrival}</dt><dd class="font-semibold text-ink text-right">{tl.arrivalTime}</dd></div>)}
+                {(tl.ceremonyTime || tl.ceremonyLocation) && (
+                  <div class="flex justify-between gap-3 sm:col-span-2">
+                    <dt class="text-ink/60">{TX.schedCeremony}</dt>
+                    <dd class="font-semibold text-ink text-right">
+                      {tl.ceremonyTime}{tl.ceremonyTime && tl.ceremonyLocation ? ' · ' : ''}{tl.ceremonyLocation}
+                      {fmtMaps(tl.ceremonyLocation, tl.ceremonyMapsUrl) && (
+                        <> · <a href={fmtMaps(tl.ceremonyLocation, tl.ceremonyMapsUrl)!} target="_blank" rel="noopener" class="text-gold font-bold">📍</a></>
+                      )}
+                    </dd>
+                  </div>
+                )}
+                {(tl.prep1Time || tl.prep1Address) && (
+                  <div class="flex justify-between gap-3 sm:col-span-2"><dt class="text-ink/60">{TX.schedPrep} · {name1}</dt><dd class="font-semibold text-ink text-right">{tl.prep1Time}{tl.prep1Time && tl.prep1Address ? ' · ' : ''}{tl.prep1Address}</dd></div>
+                )}
+                {(tl.prep2Time || tl.prep2Address) && (
+                  <div class="flex justify-between gap-3 sm:col-span-2"><dt class="text-ink/60">{TX.schedPrep} · {name2}</dt><dd class="font-semibold text-ink text-right">{tl.prep2Time}{tl.prep2Time && tl.prep2Address ? ' · ' : ''}{tl.prep2Address}</dd></div>
+                )}
+              </dl>
+              {tl.notes && <p class="mt-4 pt-4 border-t border-ink/10 text-sm text-ink/80 whitespace-pre-wrap">{tl.notes}</p>}
+            </div>
+          )}
 
           <form id="wd-form" data-token={token} class="space-y-12">
             {[{ n: 1, name: name1 }, { n: 2, name: name2 }].map(({ n, name }) => (
@@ -440,6 +532,64 @@ const TX = {
                   <input name="day_contact_phone" type="tel" class="mt-1 sm:mt-[26px] w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
                 </label>
               </div>
+            </fieldset>
+
+            <!-- El dia: detalls per a nosaltres -->
+            <fieldset class="space-y-5">
+              <legend class="font-display text-xl font-bold mb-2">{TX.secDay}</legend>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label class="block">
+                  <span class="text-sm font-bold text-ink/80">{TX.guestsCount}</span>
+                  <input name="guests_count" type="number" inputmode="numeric" min="0" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+                </label>
+                <label class="block">
+                  <span class="text-sm font-bold text-ink/80">{TX.giftsCount}</span>
+                  <input name="gifts_count" type="number" inputmode="numeric" min="0" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+                </label>
+              </div>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TX.prepDetails} <span class="font-normal text-ink/45">· {TX.optional}</span></span>
+                <textarea name="prep_details" rows="3" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none resize-y"></textarea>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TX.ceremonyDetails} <span class="font-normal text-ink/45">· {TX.optional}</span></span>
+                <textarea name="ceremony_details" rows="3" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none resize-y"></textarea>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TX.reportatgeDetails} <span class="font-normal text-ink/45">· {TX.optional}</span></span>
+                <textarea name="reportatge_details" rows="3" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none resize-y"></textarea>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TX.familyPhotos} <span class="font-normal text-ink/45">· {TX.optional}</span></span>
+                <span class="block text-xs text-ink/70 mb-1">{TX.familyPhotosHint}</span>
+                <textarea name="family_photos" rows="4" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none resize-y"></textarea>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TX.familyOrganizer} <span class="font-normal text-ink/45">· {TX.optional}</span></span>
+                <input name="family_organizer" type="text" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TX.aperitivoDetails} <span class="font-normal text-ink/45">· {TX.optional}</span></span>
+                <textarea name="aperitivo_details" rows="3" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none resize-y"></textarea>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TX.restaurantDetails} <span class="font-normal text-ink/45">· {TX.optional}</span></span>
+                <span class="block text-xs text-ink/70 mb-1">{TX.restaurantHint}</span>
+                <textarea name="restaurant_details" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none resize-y"></textarea>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TX.danceDetails} <span class="font-normal text-ink/45">· {TX.optional}</span></span>
+                <textarea name="dance_details" rows="3" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none resize-y"></textarea>
+              </label>
             </fieldset>
 
             <!-- Persones i moments -->
