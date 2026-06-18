@@ -3,7 +3,7 @@
 // Filters: ?status=<status>, ?archived=1 to include archived.
 // Search: client-side filter on couple/venue text.
 import AdminLayout from '~/layouts/AdminLayout.astro';
-import { listBookings, listPublicationConsentByBooking } from '~/lib/bookings/repository';
+import { listBookings, listPublicationConsentByBooking, sumPaymentsByBooking } from '~/lib/bookings/repository';
 import type { Booking, BookingStatus } from '~/lib/bookings/types';
 import { inferServiceType } from '~/lib/contracts/generate';
 import { consentBadge } from '~/lib/bookings/publicationConsent';
@@ -100,6 +100,24 @@ const bookings = [...filtered].sort((a, b) => {
 // Aggregate total quoted for the current view (post-filter). Stored as cents
 // so the formatter shows the same number we keep in the DB.
 const totalQuotedCents = bookings.reduce((acc, b) => acc + b.packPriceCents, 0);
+
+// Money still to collect across the current view. Effective price =
+// pack price − discount; pending = effective − payments recorded. Cancelled
+// bookings are excluded (their balance isn't "to collect"). One GROUP BY
+// query feeds the per-booking paid lookup.
+const paidByBooking = await sumPaymentsByBooking();
+const moneyBookings = bookings.filter((b) => !b.cancelledAt);
+const collectedCents = moneyBookings.reduce((acc, b) => acc + (paidByBooking.get(b.id) ?? 0), 0);
+const pendingCents = moneyBookings.reduce((acc, b) => {
+  const effective = Math.max(0, b.packPriceCents - b.discountCents);
+  const paid = paidByBooking.get(b.id) ?? 0;
+  return acc + Math.max(0, effective - paid);
+}, 0);
+/** Per-row balance still to collect (effective price − payments). */
+function pendingFor(b: Booking): number {
+  const effective = Math.max(0, b.packPriceCents - b.discountCents);
+  return Math.max(0, effective - (paidByBooking.get(b.id) ?? 0));
+}
 function formatEuros(cents: number): string {
   const euros = cents / 100;
   return new Intl.NumberFormat('ca-ES', {
@@ -310,7 +328,9 @@ const WHEN_TABS: { key: WhenKey; label: string; count: number }[] = [
   {bookings.length > 0 && (
     <div class="mb-4 px-4 py-3 bg-cream border border-line flex flex-wrap items-baseline gap-x-6 gap-y-1 text-sm">
       <span><strong>{bookings.length}</strong> {bookings.length === 1 ? 'reserva' : 'reserves'}{whenKey === 'past' ? ' · realitzades' : whenKey === 'upcoming' ? ' · pròximes' : ''}{yearFilter ? ` · ${yearFilter}` : ''}</span>
-      <span><strong>Total pressupostat:</strong> <span class="text-gold font-bold">{formatEuros(totalQuotedCents)}</span></span>
+      <span><strong>Pressupostat:</strong> <span class="text-gold font-bold">{formatEuros(totalQuotedCents)}</span></span>
+      <span><strong>Cobrat:</strong> <span class="text-emerald-700 font-bold">{formatEuros(collectedCents)}</span></span>
+      <span><strong>Pendent de cobrar:</strong> <span class="text-amber-800 font-bold">{formatEuros(pendingCents)}</span></span>
     </div>
   )}
 
@@ -357,7 +377,15 @@ const WHEN_TABS: { key: WhenKey; label: string; count: number }[] = [
               </p>
               <p class="text-xs text-ink/70">{b.venueName}{b.venueCity && ` · ${b.venueCity}`}</p>
               <div class="mt-3 pt-3 border-t border-line flex items-center justify-between text-xs">
-                <span class="text-gold font-bold">{formatEuros(b.packPriceCents)}</span>
+                <span>
+                  <span class="text-gold font-bold">{formatEuros(b.packPriceCents)}</span>
+                  {!b.cancelledAt && pendingFor(b) > 0 && (
+                    <span class="text-amber-800"> · pendent {formatEuros(pendingFor(b))}</span>
+                  )}
+                  {!b.cancelledAt && pendingFor(b) === 0 && b.packPriceCents > 0 && (
+                    <span class="text-emerald-700"> · ✓ liquidat</span>
+                  )}
+                </span>
                 <span class="text-ink/70">{fmtRelative(b.updatedAt)}</span>
               </div>
             </a>
@@ -428,7 +456,16 @@ const WHEN_TABS: { key: WhenKey; label: string; count: number }[] = [
                     {consentFor(b).label}
                   </span>
                 </td>
-                <td class="px-4 py-3 text-right font-bold text-gold whitespace-nowrap">{formatEuros(b.packPriceCents)}</td>
+                <td class="px-4 py-3 text-right whitespace-nowrap">
+                  <div class="font-bold text-gold">{formatEuros(b.packPriceCents)}</div>
+                  {!b.cancelledAt && (
+                    pendingFor(b) > 0 ? (
+                      <div class="text-[0.7rem] text-amber-800">pendent {formatEuros(pendingFor(b))}</div>
+                    ) : b.packPriceCents > 0 ? (
+                      <div class="text-[0.7rem] text-emerald-700">✓ liquidat</div>
+                    ) : null
+                  )}
+                </td>
                 <td class="px-4 py-3 text-ink/70">{fmtRelative(b.updatedAt)}</td>
                 <td class="px-4 py-3 text-right whitespace-nowrap">
                   <button
