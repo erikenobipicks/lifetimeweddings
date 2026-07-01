@@ -143,6 +143,25 @@ const faqs = [
     a: 'No passa res. El primer pas és només veure si la data és lliure. La resta ho concretem parlant.',
   },
 ];
+
+// Ressenyes reals (extretes de testimonials.ts / Google).
+const reviews = [
+  {
+    quote:
+      'El vídeo ha estat espectacular, com una pel·lícula. Si algun dia necessitem fotògraf o videògraf, repetim!',
+    author: 'Laura & Joel',
+  },
+  {
+    quote:
+      'Creatius, professionals i ràpids. Saben plasmar a la perfecció el que volíem. El dia B… increïble, sense paraules.',
+    author: 'Jose & Jordina',
+  },
+  {
+    quote:
+      'Va capturar cada moment amb una sensibilitat i un estil preciosos. Ens va fer sentir molt còmodes. Un autèntic plaer.',
+    author: 'Luis & Craig',
+  },
+];
 ---
 
 <!-- ───────────────────────── HERO ───────────────────────── -->
@@ -169,8 +188,17 @@ const faqs = [
       />
     </picture>
   )}
-  <div class="absolute inset-0 bg-ink/55"></div>
-  <div class="relative max-w-3xl mx-auto text-center text-white pt-24 pb-20">
+  <div class="absolute inset-0 bg-gradient-to-b from-ink/45 via-ink/40 to-ink/75"></div>
+  <div class="relative max-w-3xl mx-auto text-center text-white pt-24 pb-24">
+    <img
+      src="/logos/logo-circle-white.png"
+      alt="Lifetime Weddings"
+      width="80"
+      height="80"
+      class="mx-auto mb-6 w-14 h-14 md:w-20 md:h-20 drop-shadow"
+      loading="eager"
+      decoding="async"
+    />
     <p class="text-xs font-bold tracking-[0.24em] uppercase text-gold mb-5">
       Fotografia i vídeo de boda · Tarragona
     </p>
@@ -200,6 +228,9 @@ const faqs = [
     </div>
     <p class="text-white/60 text-xs mt-5">Et responem en menys de 24 h · Sense compromís</p>
   </div>
+  <span class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/60 motion-safe:animate-bounce" aria-hidden="true">
+    <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </span>
 </section>
 
 <!-- ──────────────────── PROVA SOCIAL RÀPIDA ──────────────── -->
@@ -223,7 +254,7 @@ const faqs = [
 
 <!-- ─────────────────── EL QUE SENT LA PARELLA ────────────── -->
 <section class="bg-white">
-  <div class="max-w-2xl mx-auto px-6 py-16 md:py-24 text-center">
+  <div class="max-w-2xl mx-auto px-6 py-16 md:py-24 text-center" data-reveal>
     <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold-deep mb-4">Ho entenem</p>
     <h2 class="font-display text-3xl md:text-4xl font-bold mb-8 leading-tight">
       La por de tota parella: que el dia passi i no quedi ben recollit.
@@ -247,7 +278,7 @@ const faqs = [
 <!-- ──────────────────── COM HO FEM NOSALTRES ─────────────── -->
 <section class="bg-ink text-white">
   <div class="max-w-5xl mx-auto px-6 py-16 md:py-24">
-    <div class="max-w-2xl">
+    <div class="max-w-2xl" data-reveal>
       <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold-deep mb-4">El nostre estil</p>
       <h2 class="font-display text-3xl md:text-4xl font-bold mb-6 leading-tight">
         Som dos germans amb una mirada pròpia: el Ferran i l’Eric.
@@ -279,10 +310,89 @@ const faqs = [
   </div>
 </section>
 
+<!-- ─────────────── CONEIX EL FERRAN I L'ERIC ─────────────── -->
+<section class="bg-sand">
+  <div class="max-w-5xl mx-auto px-6 py-16 md:py-24">
+    <div class="text-center max-w-2xl mx-auto mb-12" data-reveal>
+      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold-deep mb-4">Qui hi ha darrere</p>
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-4 leading-tight">Ens diem Ferran i Eric. Germans.</h2>
+      <p class="text-ink-soft leading-relaxed">
+        No sou una parella més a l’agenda: el dia de la vostra boda hi serem nosaltres dos, ningú més.
+        Ens coneixereu abans, i el dia B ja serem cares conegudes.
+      </p>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-6 md:gap-10 max-w-3xl mx-auto">
+      <figure class="text-center" data-reveal>
+        <img
+          src="/team/ferran.jpg"
+          alt="Ferran, fotògraf de Lifetime Weddings"
+          width="900"
+          height="900"
+          loading="lazy"
+          decoding="async"
+          class="w-full aspect-square object-cover"
+        />
+        <figcaption class="mt-4">
+          <p class="font-display text-2xl font-bold leading-none">Ferran</p>
+          <p class="text-[0.7rem] font-bold tracking-[0.2em] uppercase text-gold-deep mt-1.5">Fotògraf</p>
+          <p class="text-ink-soft text-sm leading-relaxed mt-3">
+            Fotografio com qui explica una història, no com qui fa un catàleg. Busco la llum de veritat
+            i els moments que no es repeteixen.
+          </p>
+        </figcaption>
+      </figure>
+      <figure class="text-center" data-reveal>
+        <img
+          src="/team/eric.jpg"
+          alt="Eric, videògraf de Lifetime Weddings"
+          width="900"
+          height="900"
+          loading="lazy"
+          decoding="async"
+          class="w-full aspect-square object-cover"
+        />
+        <figcaption class="mt-4">
+          <p class="font-display text-2xl font-bold leading-none">Eric</p>
+          <p class="text-[0.7rem] font-bold tracking-[0.2em] uppercase text-gold-deep mt-1.5">Videògraf</p>
+          <p class="text-ink-soft text-sm leading-relaxed mt-3">
+            Una boda són hores de coses petites que no tornen. La meva feina és que, d’aquí anys,
+            les pugueu tornar a viure com si hi fóssiu.
+          </p>
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────── QUÈ INCLOU ────────────────────── -->
+<section class="bg-white">
+  <div class="max-w-4xl mx-auto px-6 py-16 md:py-24">
+    <div class="text-center max-w-2xl mx-auto mb-12" data-reveal>
+      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold-deep mb-4">Què t’emportes</p>
+      <h2 class="font-display text-3xl md:text-4xl font-bold leading-tight">Tot pensat perquè no us hàgiu de preocupar de res</h2>
+    </div>
+    <ul class="grid sm:grid-cols-2 gap-x-10 gap-y-5 max-w-3xl mx-auto" data-reveal>
+      {[
+        'Cobertura completa del dia: dels preparatius fins al final de la festa',
+        'Galeria privada online amb totes les fotos editades',
+        'Vídeo de boda editat com una pel·lícula (foto + vídeo, si el voleu)',
+        'Els dos germans coordinats: un sol equip, sense fer-vos repetir res',
+        'Entrega ràpida: les fotos en un màxim de 60 dies',
+        'Ens movem per Tarragona, Lleida i Barcelona (i on faci falta)',
+      ].map((item) => (
+        <li class="flex items-start gap-3 text-ink/85 leading-relaxed">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 mt-0.5 shrink-0 text-gold" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
 <!-- ─────────────────────── COM FUNCIONA ──────────────────── -->
 <section class="bg-cream">
   <div class="max-w-4xl mx-auto px-6 py-16 md:py-24">
-    <h2 class="font-display text-3xl md:text-4xl font-bold text-center mb-12">Com funciona</h2>
+    <h2 class="font-display text-3xl md:text-4xl font-bold text-center mb-12" data-reveal>Com funciona</h2>
     <div class="grid md:grid-cols-3 gap-8">
       {steps.map((s) => (
         <div class="text-center md:text-left">
@@ -298,7 +408,7 @@ const faqs = [
 <!-- ───────────────────── GALERIA + VÍDEO ─────────────────── -->
 <section class="bg-white">
   <div class="max-w-6xl mx-auto px-6 py-16 md:py-24">
-    <div class="text-center max-w-2xl mx-auto mb-12">
+    <div class="text-center max-w-2xl mx-auto mb-12" data-reveal>
       <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold-deep mb-4">Bodes reals</p>
       <h2 class="font-display text-3xl md:text-4xl font-bold mb-4">Mira-ho tu mateix</h2>
       <p class="text-ink/75 leading-relaxed">
@@ -420,27 +530,37 @@ const faqs = [
 <!-- ───────────────────────── TESTIMONIS ──────────────────── -->
 <section class="bg-cream">
   <div class="max-w-5xl mx-auto px-6 py-16 md:py-24">
-    <h2 class="font-display text-3xl md:text-4xl font-bold text-center mb-12">El que diuen les parelles</h2>
-    <div class="grid md:grid-cols-3 gap-6 md:gap-8">
-      <blockquote class="bg-white p-7 leading-relaxed text-ink/85">
-        <p class="font-display italic text-lg mb-4">“El vídeo ha estat espectacular, com una pel·lícula. Si algun dia necessitem fotògraf o videògraf, repetim!”</p>
-        <footer class="text-xs font-bold tracking-[0.2em] uppercase text-ink">Laura &amp; Joel</footer>
-      </blockquote>
-      <blockquote class="bg-white p-7 leading-relaxed text-ink/85">
-        <p class="font-display italic text-lg mb-4">“Creatius, professionals i ràpids. Saben plasmar a la perfecció el que volíem. El dia B… increïble, sense paraules.”</p>
-        <footer class="text-xs font-bold tracking-[0.2em] uppercase text-ink">Jose &amp; Jordina</footer>
-      </blockquote>
-      <blockquote class="bg-white p-7 leading-relaxed text-ink/85">
-        <p class="font-display italic text-lg mb-4">“Va capturar cada moment amb una sensibilitat i un estil preciosos. Ens va fer sentir molt còmodes. Un autèntic plaer.”</p>
-        <footer class="text-xs font-bold tracking-[0.2em] uppercase text-ink">Luis &amp; Craig</footer>
-      </blockquote>
+    <div class="text-center mb-12" data-reveal>
+      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold-deep mb-4">Ens avalen les parelles</p>
+      <h2 class="font-display text-3xl md:text-4xl font-bold">El que diuen de nosaltres</h2>
     </div>
+    <div class="grid md:grid-cols-3 gap-6 md:gap-8">
+      {reviews.map((r) => (
+        <blockquote class="bg-white p-7 leading-relaxed text-ink/85 border-t-2 border-gold/50 flex flex-col" data-reveal>
+          <div class="flex gap-0.5 text-gold mb-4" aria-label="5 de 5 estrelles">
+            {[0, 1, 2, 3, 4].map(() => (
+              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 7.1-1.01L12 2z"/></svg>
+            ))}
+          </div>
+          <p class="font-display italic text-lg mb-5 flex-1">“{r.quote}”</p>
+          <footer class="flex items-center justify-between">
+            <span class="text-xs font-bold tracking-[0.2em] uppercase text-ink">{r.author}</span>
+            <span class="text-[0.65rem] text-ink-soft">via Google</span>
+          </footer>
+        </blockquote>
+      ))}
+    </div>
+    <p class="text-center mt-10" data-reveal>
+      <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener" class="text-xs font-bold tracking-[0.18em] uppercase text-gold-deep hover:text-gold transition-colors">
+        Llegeix totes les ressenyes a Google →
+      </a>
+    </p>
   </div>
 </section>
 
 <!-- ──────────────────── CTA AMB URGÈNCIA ─────────────────── -->
 <section class="bg-ink text-white">
-  <div class="max-w-2xl mx-auto px-6 py-16 md:py-20 text-center">
+  <div class="max-w-2xl mx-auto px-6 py-16 md:py-20 text-center" data-reveal>
     <h2 class="font-display text-3xl md:text-4xl font-bold mb-5 leading-tight">
       Cada temporada només agafem un nombre limitat de bodes.
     </h2>
@@ -472,7 +592,7 @@ const faqs = [
 <!-- ─────────────── CTA FINAL + FORMULARI + UBICACIÓ ──────── -->
 <section id="contacte" class="bg-cream scroll-mt-4">
   <div class="max-w-xl mx-auto px-6 py-16 md:py-24">
-    <div class="text-center mb-10">
+    <div class="text-center mb-10" data-reveal>
       <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold-deep mb-3">Parlem de la vostra boda</p>
       <h2 class="font-display text-3xl md:text-4xl font-bold mb-4">Demana disponibilitat</h2>
       <p class="text-ink/75 leading-relaxed">
@@ -596,7 +716,48 @@ const faqs = [
   <script is:inline async defer src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
 )}
 
+<style is:global>
+  /* Reveal-on-scroll. Gated darrere `.reveal-ready` (afegit per JS) perquè,
+     sense JS, res quedi amagat. Desactivat si l'usuari prefereix menys moviment. */
+  .reveal-ready [data-reveal] {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal-ready [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal-ready [data-reveal] {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+  }
+</style>
+
 <script>
+  // ── Reveal-on-scroll: fa aparèixer suaument els blocs marcats amb data-reveal ──
+  document.documentElement.classList.add('reveal-ready');
+  const revealEls = document.querySelectorAll<HTMLElement>('[data-reveal]');
+  if ('IntersectionObserver' in window) {
+    const ro = new IntersectionObserver(
+      (entries) => {
+        for (const en of entries) {
+          if (en.isIntersecting) {
+            en.target.classList.add('is-visible');
+            ro.unobserve(en.target);
+          }
+        }
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
+    );
+    revealEls.forEach((el) => ro.observe(el));
+  } else {
+    revealEls.forEach((el) => el.classList.add('is-visible'));
+  }
+
   // ── Vídeo facade: carrega l'iframe de YouTube només en fer clic ──
   document.querySelectorAll<HTMLButtonElement>('[data-video-facade]').forEach((btn) => {
     btn.addEventListener('click', () => {
