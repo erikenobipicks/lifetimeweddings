@@ -1,22 +1,70 @@
 ---
 import AdminLayout from '~/layouts/AdminLayout.astro';
-import { listLeads, deleteLead } from '~/lib/quotes';
+import { listLeads, deleteLead, createLead } from '~/lib/quotes';
+import type { Lang } from '~/i18n/ui';
 
-// Hard-delete via form POST to this same URL. Same pattern as /admin/[id]
-// (the quote detail page) so the front-end can use a plain <form> with
-// hidden inputs — no JS handler needed.
+// Hard-delete / manual-create via form POST to this same URL. Same pattern
+// as /admin/[id] (the quote detail page) so the front-end can use a plain
+// <form> with hidden inputs — no JS handler needed.
+let createError: string | null = null;
+// Preserve posted values on validation failure so the operator doesn't have
+// to retype everything (e.g. a missing required email).
+let formValues: Record<string, string> = {};
 if (Astro.request.method === 'POST') {
   const form = await Astro.request.formData();
   const action = String(form.get('action') ?? '');
-  const idRaw = Number(form.get('id') ?? '');
-  if (action === 'delete' && Number.isFinite(idRaw) && idRaw > 0) {
-    try {
-      await deleteLead(idRaw);
-      return Astro.redirect('/admin/leads?ok=deleted');
-    } catch (err) {
-      console.error('[admin.leads.delete] failed', { id: idRaw, err });
-      const msg = err instanceof Error ? err.message : 'error desconegut';
-      return Astro.redirect(`/admin/leads?error=${encodeURIComponent('No s\'ha pogut eliminar: ' + msg)}`);
+  if (action === 'delete') {
+    const idRaw = Number(form.get('id') ?? '');
+    if (Number.isFinite(idRaw) && idRaw > 0) {
+      try {
+        await deleteLead(idRaw);
+        return Astro.redirect('/admin/leads?ok=deleted');
+      } catch (err) {
+        console.error('[admin.leads.delete] failed', { id: idRaw, err });
+        const msg = err instanceof Error ? err.message : 'error desconegut';
+        return Astro.redirect(`/admin/leads?error=${encodeURIComponent('No s\'ha pogut eliminar: ' + msg)}`);
+      }
+    }
+  } else if (action === 'create') {
+    const get = (k: string) => String(form.get(k) ?? '').trim();
+    formValues = {
+      coupleName: get('coupleName'),
+      email: get('email'),
+      phone: get('phone'),
+      weddingDate: get('weddingDate'),
+      venueName: get('venueName'),
+      location: get('location'),
+      ceremonyType: get('ceremonyType'),
+      serviceInterest: get('serviceInterest'),
+      budgetRange: get('budgetRange'),
+      preferredLanguage: get('preferredLanguage') || 'ca',
+      notes: get('notes'),
+    };
+    if (!formValues.coupleName || !formValues.email) {
+      createError = 'Cal el nom de la parella i un email de contacte.';
+    } else {
+      try {
+        const { lead, deduplicated } = await createLead({
+          coupleName: formValues.coupleName,
+          email: formValues.email,
+          phone: formValues.phone || undefined,
+          weddingDate: formValues.weddingDate || undefined,
+          venueName: formValues.venueName || undefined,
+          location: formValues.location || undefined,
+          ceremonyType: formValues.ceremonyType || undefined,
+          serviceInterest: formValues.serviceInterest || undefined,
+          budgetRange: formValues.budgetRange || undefined,
+          preferredLanguage: formValues.preferredLanguage as Lang,
+          notes: formValues.notes || undefined,
+        });
+        return Astro.redirect(
+          `/admin/leads?ok=${deduplicated ? 'deduplicated' : 'created'}#lead-${lead.id}`,
+        );
+      } catch (err) {
+        console.error('[admin.leads.create] failed', { err });
+        const msg = err instanceof Error ? err.message : 'error desconegut';
+        createError = `No s'ha pogut crear el lead: ${msg}`;
+      }
     }
   }
 }
@@ -52,6 +100,13 @@ const labels: Record<string, string> = {
       >
         🧪 Test Telegram
       </button>
+      <button
+        type="button"
+        data-toggle-new-lead
+        class="bg-ink text-white px-3 py-1.5 font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors whitespace-nowrap"
+      >
+        + Nou lead
+      </button>
     </div>
   </div>
   <p id="tg-feedback" class="hidden mb-4 px-3 py-2 text-xs border"></p>
@@ -61,11 +116,114 @@ const labels: Record<string, string> = {
       ✓ Lead eliminat.
     </div>
   )}
+  {okFlag === 'created' && (
+    <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
+      ✓ Lead creat. Ja el pots convertir en pressupost des de la fila.
+    </div>
+  )}
+  {okFlag === 'deduplicated' && (
+    <div class="mb-4 px-4 py-3 bg-amber-50 border border-amber-200 text-amber-900 text-sm">
+      ⚠ Ja hi havia un lead amb aquest email en les últimes 24h — s'ha reutilitzat en lloc de duplicar-lo.
+    </div>
+  )}
   {errorMsg && (
     <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-900 text-sm">
       <strong>Error:</strong> {errorMsg}
     </div>
   )}
+
+  {/* Manual lead creation. Hidden by default (toggled by "+ Nou lead");
+      auto-opens when a submit left it with an error so the operator's
+      input + the message are both visible. */}
+  <div id="new-lead-form" class:list={['bg-white border border-line p-5 md:p-6 mb-6', !createError && 'hidden']}>
+    <h2 class="font-display text-lg font-bold mb-1">Nou lead manual</h2>
+    <p class="text-sm text-ink/70 mb-4">
+      Per a consultes rebudes per email, WhatsApp o telèfon (no venen del quiz). Només el nom i l'email són obligatoris.
+    </p>
+    {createError && (
+      <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-900 text-sm">{createError}</div>
+    )}
+    <form method="POST" class="space-y-4">
+      <input type="hidden" name="action" value="create" />
+      <div class="grid sm:grid-cols-2 gap-4">
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom de la parella *</span>
+          <input name="coupleName" required value={formValues.coupleName ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Email *</span>
+          <input name="email" type="email" required value={formValues.email ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Telèfon</span>
+          <input name="phone" value={formValues.phone ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Data de la boda</span>
+          <input name="weddingDate" type="date" value={formValues.weddingDate ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Finca / lloc (text lliure)</span>
+          <input name="venueName" value={formValues.venueName ?? ''} placeholder="Ex: El Catllar" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Zona</span>
+          <select name="location" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
+            <option value="">— Sense triar —</option>
+            <option value="tarragona" selected={formValues.location === 'tarragona'}>Tarragona/Reus</option>
+            <option value="barcelona" selected={formValues.location === 'barcelona'}>Barcelona</option>
+            <option value="lleida" selected={formValues.location === 'lleida'}>Lleida/Girona</option>
+            <option value="other_cat" selected={formValues.location === 'other_cat'}>Catalunya (altres)</option>
+            <option value="international" selected={formValues.location === 'international'}>Internacional</option>
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Tipus de cerimònia</span>
+          <select name="ceremonyType" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
+            <option value="">— Sense triar —</option>
+            <option value="civil" selected={formValues.ceremonyType === 'civil'}>Civil</option>
+            <option value="religious" selected={formValues.ceremonyType === 'religious'}>Religiosa</option>
+            <option value="symbolic" selected={formValues.ceremonyType === 'symbolic'}>Simbòlica</option>
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Interès</span>
+          <select name="serviceInterest" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
+            <option value="">— Sense triar —</option>
+            <option value="photo" selected={formValues.serviceInterest === 'photo'}>📸 Foto</option>
+            <option value="video" selected={formValues.serviceInterest === 'video'}>🎬 Vídeo</option>
+            <option value="both" selected={formValues.serviceInterest === 'both'}>💍 Ambdós</option>
+            <option value="undecided" selected={formValues.serviceInterest === 'undecided'}>🤔 Encara no ho saben</option>
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Pressupost aprox.</span>
+          <select name="budgetRange" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
+            <option value="">— Sense triar —</option>
+            <option value="low" selected={formValues.budgetRange === 'low'}>&lt; 1.500 €</option>
+            <option value="mid" selected={formValues.budgetRange === 'mid'}>1.500-2.500 €</option>
+            <option value="high" selected={formValues.budgetRange === 'high'}>2.500-3.500 €</option>
+            <option value="premium" selected={formValues.budgetRange === 'premium'}>&gt; 3.500 €</option>
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Idioma</span>
+          <select name="preferredLanguage" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
+            <option value="ca" selected={(formValues.preferredLanguage ?? 'ca') === 'ca'}>Català</option>
+            <option value="es" selected={formValues.preferredLanguage === 'es'}>Castellà</option>
+            <option value="en" selected={formValues.preferredLanguage === 'en'}>Anglès</option>
+          </select>
+        </label>
+      </div>
+      <label class="block">
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Notes / missatge original</span>
+        <textarea name="notes" rows="5" placeholder="Enganxa aquí el missatge original de la consulta." class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none resize-y">{formValues.notes ?? ''}</textarea>
+      </label>
+      <button type="submit" class="bg-ink text-white px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">
+        Crear lead
+      </button>
+    </form>
+  </div>
 
   {leads.length === 0 ? (
     <p class="text-ink/70 text-center py-16">Encara no hi ha leads del quiz.</p>
@@ -76,7 +234,7 @@ const labels: Record<string, string> = {
         the card, matching the bookings/quotes pattern. */}
     <ul class="md:hidden space-y-3">
       {leads.map((l) => (
-        <li class="bg-white border border-line">
+        <li id={`lead-${l.id}`} class="bg-white border border-line scroll-mt-24">
           <div class="p-4">
             <p class="font-bold leading-tight">{l.coupleName}</p>
             <p class="text-[0.7rem] text-ink/70 truncate">{l.email}</p>
@@ -89,6 +247,12 @@ const labels: Record<string, string> = {
               {l.weddingDate && <div><span class="text-ink/70">Data boda:</span><br/><strong>{l.weddingDate}</strong></div>}
               <div><span class="text-ink/70">Rebut:</span><br/><strong>{fmt(l.createdAt)}</strong></div>
             </div>
+            {l.notes && (
+              <details class="mt-3">
+                <summary class="text-[0.7rem] font-bold tracking-widest uppercase text-gold cursor-pointer">Notes / missatge</summary>
+                <p class="text-xs text-ink/80 whitespace-pre-wrap mt-2 leading-relaxed">{l.notes}</p>
+              </details>
+            )}
           </div>
           <div class="flex border-t border-line">
             {l.quoteId ? (
@@ -136,11 +300,17 @@ const labels: Record<string, string> = {
         </thead>
         <tbody>
           {leads.map((l) => (
-            <tr class="border-t border-line hover:bg-cream/50">
+            <tr id={`lead-${l.id}`} class="border-t border-line hover:bg-cream/50 scroll-mt-24">
               <td class="px-4 py-3">
                 <span class="font-bold">{l.coupleName}</span>
                 <div class="text-xs text-ink/70">{l.email}</div>
                 {l.phone && <div class="text-xs text-ink/70">{l.phone}</div>}
+                {l.notes && (
+                  <details class="mt-1">
+                    <summary class="text-[0.65rem] font-bold tracking-widest uppercase text-gold cursor-pointer">Notes</summary>
+                    <p class="text-xs text-ink/80 whitespace-pre-wrap mt-1 leading-relaxed max-w-md">{l.notes}</p>
+                  </details>
+                )}
               </td>
               <td class="px-4 py-3">{labels[l.serviceInterest ?? ''] ?? l.serviceInterest}</td>
               <td class="px-4 py-3">{labels[l.ceremonyType ?? ''] ?? l.ceremonyType}</td>
@@ -192,6 +362,23 @@ const labels: Record<string, string> = {
     </>
   )}
 </AdminLayout>
+
+<script is:inline>
+  // Toggle the manual "Nou lead" form. Left open automatically (no
+  // `hidden` class) when a submit came back with a validation error, so
+  // the button just needs to flip state on click either way.
+  (() => {
+    const btn = document.querySelector('[data-toggle-new-lead]');
+    const panel = document.getElementById('new-lead-form');
+    if (!btn || !panel) return;
+    btn.addEventListener('click', () => {
+      panel.classList.toggle('hidden');
+      if (!panel.classList.contains('hidden')) {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  })();
+</script>
 
 <script is:inline>
   // Test Telegram delivery. Surfaces the exact error (not_configured /
