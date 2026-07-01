@@ -198,6 +198,24 @@ export async function archiveQuote(id: number): Promise<void> {
   await db.execute({ sql: 'UPDATE quotes SET archived = 1 WHERE id = ?', args: [id] });
 }
 
+/** Wedding date (YYYY-MM-DD, as captured by the quiz's date input) per
+ *  quote, in one query. Returns a Map of quote_id → wedding_date; quotes
+ *  with no linked lead or no date typed are absent. Used by the quotes
+ *  list so the operator has the date at hand without opening each quote. */
+export async function listWeddingDatesByQuote(): Promise<Map<number, string>> {
+  await initSchema();
+  const res = await db.execute({
+    sql: `SELECT quote_id, wedding_date FROM leads
+          WHERE quote_id IS NOT NULL AND wedding_date IS NOT NULL AND wedding_date != ''`,
+    args: [],
+  });
+  const map = new Map<number, string>();
+  for (const row of res.rows) {
+    map.set(Number(row.quote_id), String(row.wedding_date));
+  }
+  return map;
+}
+
 /** Hard-delete a quote and its dependent rows. Irreversible. Use only for
  *  cleanup of test/demo data — archiving is preferred for real quotes
  *  because it keeps the historical record.
