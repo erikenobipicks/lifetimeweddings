@@ -339,6 +339,34 @@ export async function initSchema() {
       )`,
       `CREATE INDEX IF NOT EXISTS idx_quote_responses_quote
          ON quote_responses(quote_id, created_at DESC)`,
+
+      // Material delivery landing pages ("entrega") — a public page per
+      // wedding pointing at externally-hosted material (no self-hosting
+      // yet): an unlisted YouTube video, a time-limited download link
+      // (SwissTransfer) and a photo gallery link (FotoStudio). Optionally
+      // linked to the booking it came from; ON DELETE SET NULL (not
+      // CASCADE) because the delivery page is a durable artifact the couple
+      // may still be using even if the booking record is later removed.
+      `CREATE TABLE IF NOT EXISTS deliveries (
+        id TEXT PRIMARY KEY,
+        slug TEXT UNIQUE NOT NULL,
+        booking_id TEXT REFERENCES bookings(id) ON DELETE SET NULL,
+        couple_name_1 TEXT NOT NULL,
+        couple_name_2 TEXT NOT NULL,
+        wedding_date TEXT NOT NULL,
+        venue_name TEXT,
+        preferred_language TEXT NOT NULL DEFAULT 'ca'
+          CHECK (preferred_language IN ('ca', 'es', 'en')),
+        youtube_video_id TEXT,
+        swisstransfer_url TEXT,
+        swisstransfer_expires_at TEXT,
+        gallery_url TEXT,
+        archived INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_deliveries_slug ON deliveries(slug)`,
+      `CREATE INDEX IF NOT EXISTS idx_deliveries_booking ON deliveries(booking_id)`,
     ],
     'write',
   );

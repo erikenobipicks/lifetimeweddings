@@ -1,0 +1,221 @@
+---
+// Public material-delivery landing page. SSR (no prerender) — content
+// comes from the deliveries table at request time.
+//
+// The slug is the only secret protecting this page (couple names + wedding
+// date are often guessable) — same security model as /reserva/<slug> and
+// /contrato/<slug>. Always noindex,nofollow: shared privately via
+// WhatsApp/email only, never meant to appear in search.
+//
+// No self-hosted media yet: everything here is an embed/link to an
+// external service (YouTube unlisted video, SwissTransfer download,
+// FotoStudio gallery). Each section only renders when its field is set,
+// so a delivery can go out with just the video, just the gallery, etc.
+
+export const prerender = false;
+
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { type Lang } from '~/i18n/ui';
+import { SITE, waLink } from '~/data/site';
+import { getDeliveryBySlug } from '~/lib/deliveries';
+import { formatWeddingDateLong, formatExpiresShort } from '~/lib/bookings/format';
+import VideoEmbed from '~/components/reserva/VideoEmbed.astro';
+import ExternalGalleryEmbed from '~/components/quote/ExternalGalleryEmbed.astro';
+
+const slug = Astro.params.slug!;
+const delivery = await getDeliveryBySlug(slug);
+const available = delivery && !delivery.archived;
+
+if (!available) {
+  Astro.response.status = 404;
+}
+
+const lang: Lang = delivery ? delivery.preferredLanguage : 'ca';
+
+const TX = {
+  ca: {
+    title: 'El vostre material',
+    eyebrow: 'Lifetime Weddings',
+    heading: (n1: string, n2: string) => `${n1} i ${n2}`,
+    videoEyebrow: 'El vostre vídeo',
+    videoHeading: 'Reviviu el dia',
+    downloadHeading: 'Descàrrega en alta qualitat',
+    downloadBody: 'Aquí teniu el vídeo complet, llest per descarregar i guardar.',
+    downloadCta: 'Descarregar el vídeo',
+    downloadExpires: (date: string) => `Disponible fins al ${date} — descarregueu-lo abans que caduqui l'enllaç.`,
+    downloadExpired: 'Aquest enllaç de descàrrega ja ha caducat. Escriviu-nos i us en passem un de nou.',
+    galleryHeading: 'La vostra galeria',
+    galleryEyebrow: 'Fotografies',
+    galleryDescription: 'Totes les vostres fotografies, en alta resolució',
+    galleryNewTab: 'Obrir la galeria',
+    help: 'Si teniu qualsevol dubte o problema amb els enllaços, escriviu-nos.',
+    naTitle: 'Enllaç no disponible',
+    naBody: 'Aquest enllaç d\'entrega no existeix o ja no està actiu. Si creieu que és un error, escriviu-nos.',
+  },
+  es: {
+    title: 'Vuestro material',
+    eyebrow: 'Lifetime Weddings',
+    heading: (n1: string, n2: string) => `${n1} y ${n2}`,
+    videoEyebrow: 'Vuestro vídeo',
+    videoHeading: 'Revivid el día',
+    downloadHeading: 'Descarga en alta calidad',
+    downloadBody: 'Aquí tenéis el vídeo completo, listo para descargar y guardar.',
+    downloadCta: 'Descargar el vídeo',
+    downloadExpires: (date: string) => `Disponible hasta el ${date} — descargadlo antes de que caduque el enlace.`,
+    downloadExpired: 'Este enlace de descarga ya ha caducado. Escribidnos y os pasamos uno nuevo.',
+    galleryHeading: 'Vuestra galería',
+    galleryEyebrow: 'Fotografías',
+    galleryDescription: 'Todas vuestras fotografías, en alta resolución',
+    galleryNewTab: 'Abrir la galería',
+    help: 'Si tenéis cualquier duda o problema con los enlaces, escribidnos.',
+    naTitle: 'Enlace no disponible',
+    naBody: 'Este enlace de entrega no existe o ya no está activo. Si creéis que es un error, escribidnos.',
+  },
+  en: {
+    title: 'Your material',
+    eyebrow: 'Lifetime Weddings',
+    heading: (n1: string, n2: string) => `${n1} & ${n2}`,
+    videoEyebrow: 'Your film',
+    videoHeading: 'Relive the day',
+    downloadHeading: 'Download in high quality',
+    downloadBody: 'Here is the full film, ready to download and keep.',
+    downloadCta: 'Download the film',
+    downloadExpires: (date: string) => `Available until ${date} — download it before the link expires.`,
+    downloadExpired: 'This download link has expired. Message us and we\'ll send you a new one.',
+    galleryHeading: 'Your gallery',
+    galleryEyebrow: 'Photography',
+    galleryDescription: 'All your photographs, in high resolution',
+    galleryNewTab: 'Open the gallery',
+    help: 'If you have any questions or issues with the links, message us.',
+    naTitle: 'Link not available',
+    naBody: "This delivery link doesn't exist or is no longer active. If you think this is a mistake, message us.",
+  },
+}[lang];
+
+const weddingDateLong = delivery ? formatWeddingDateLong(delivery.weddingDate, lang) : '';
+const downloadExpired =
+  delivery?.swisstransferExpiresAt ? delivery.swisstransferExpiresAt.getTime() < Date.now() : false;
+const downloadExpiresShort =
+  delivery?.swisstransferExpiresAt ? formatExpiresShort(delivery.swisstransferExpiresAt, lang) : null;
+
+const whatsapp = waLink(
+  lang === 'es'
+    ? `Hola Lifetime, tengo una duda sobre el material entregado (${slug}).`
+    : lang === 'en'
+      ? `Hi Lifetime, I have a question about the delivered material (${slug}).`
+      : `Hola Lifetime, tinc un dubte sobre el material entregat (${slug}).`,
+);
+
+const title = delivery ? `${TX.heading(delivery.coupleName1, delivery.coupleName2)} · Lifetime` : `Lifetime · ${TX.title}`;
+---
+
+<BaseLayout
+  lang={lang}
+  title={title}
+  description={title}
+  canonicalPath={`/entrega/${slug}`}
+  noindex={true}
+  chromeless={true}
+>
+  <!-- Minimal header: logo only, no nav — same treatment as /reserva and
+       /cancellacio. Language is locked to the delivery's stored language. -->
+  <header class="px-6 md:px-12 py-5 border-b border-ink/10 bg-white">
+    <a href="/" class="inline-flex items-center gap-2">
+      <img src="/logos/logo-circle-color.png" alt="Lifetime Weddings" width="36" height="36" class="h-9 w-9" />
+      <span class="font-display text-base font-bold tracking-wide">Lifetime</span>
+    </a>
+  </header>
+
+  {!available ? (
+    <section class="px-6 md:px-12 py-32 md:py-40 bg-cream text-ink text-center">
+      <div class="max-w-xl mx-auto">
+        <h1 class="font-display text-3xl md:text-4xl font-bold mb-6">{TX.naTitle}</h1>
+        <p class="text-ink/75 leading-relaxed mb-8">{TX.naBody}</p>
+        <a
+          href={`mailto:${SITE.email}`}
+          class="inline-block bg-gold text-ink font-bold px-8 py-4 hover:bg-ink hover:text-white transition-colors"
+        >
+          {SITE.email}
+        </a>
+      </div>
+    </section>
+  ) : (
+    <>
+      <!-- Hero: couple names + date + (optional) venue. -->
+      <section class="px-6 md:px-12 py-20 md:py-28 bg-ink text-white text-center">
+        <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-4">{TX.eyebrow}</p>
+        <h1 class="font-display text-4xl md:text-5xl font-bold mb-4">
+          {TX.heading(delivery!.coupleName1, delivery!.coupleName2)}
+        </h1>
+        <p class="text-white/80">
+          {weddingDateLong}
+          {delivery!.venueName && <> · {delivery!.venueName}</>}
+        </p>
+      </section>
+
+      {delivery!.youtubeVideoId && (
+        <VideoEmbed
+          lang={lang}
+          youtubeId={delivery!.youtubeVideoId}
+          coupleName={TX.heading(delivery!.coupleName1, delivery!.coupleName2)}
+          venue={delivery!.venueName ?? ''}
+          eyebrow={TX.videoEyebrow}
+          heading={TX.videoHeading}
+        />
+      )}
+
+      {delivery!.swisstransferUrl && (
+        <section class="px-6 md:px-12 py-16 md:py-20 bg-cream text-ink">
+          <div class="max-w-2xl mx-auto text-center">
+            <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">{TX.downloadHeading}</h2>
+            <p class="text-ink/75 leading-relaxed mb-6">{TX.downloadBody}</p>
+            {downloadExpired ? (
+              <p class="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-800 text-sm inline-block">
+                {TX.downloadExpired}
+              </p>
+            ) : (
+              <>
+                <a
+                  href={delivery!.swisstransferUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-2 bg-ink text-white font-bold px-8 py-4 hover:bg-gold hover:text-ink transition-colors"
+                >
+                  {TX.downloadCta} <span aria-hidden="true">↓</span>
+                </a>
+                {downloadExpiresShort && (
+                  <p class="text-xs text-ink/60 mt-4">{TX.downloadExpires(downloadExpiresShort)}</p>
+                )}
+              </>
+            )}
+          </div>
+        </section>
+      )}
+
+      {delivery!.galleryUrl && (
+        <ExternalGalleryEmbed
+          lang={lang}
+          url={delivery!.galleryUrl}
+          heading={TX.galleryHeading}
+          eyebrow={TX.galleryEyebrow}
+          description={TX.galleryDescription}
+          newTabLabel={TX.galleryNewTab}
+        />
+      )}
+
+      <section class="px-6 md:px-12 py-10 bg-white text-center">
+        <p class="text-sm text-ink/70">
+          {TX.help}{' '}
+          <a href={whatsapp} target="_blank" rel="noopener" class="text-gold-deep font-bold hover:underline">
+            WhatsApp
+          </a>
+        </p>
+      </section>
+    </>
+  )}
+
+  <!-- Minimal footer: legal-only, no public nav. -->
+  <footer class="px-6 md:px-12 py-8 bg-ink text-white/70 text-center text-xs">
+    <p>© {new Date().getFullYear()} Lifetime Weddings · {SITE.address.city}</p>
+  </footer>
+</BaseLayout>
