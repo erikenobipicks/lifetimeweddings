@@ -403,6 +403,10 @@ export async function initSchema() {
   // we can keep both — region for pack recommendation, venue for the
   // operator to see at a glance whether the place is one we already know.
   await ensureColumn('leads', 'venue_name', 'TEXT');
+  // Free-text inquiry detail — preserves the couple's original message when
+  // a lead is entered manually (email/WhatsApp inquiries have no quiz
+  // answers to fall back on).
+  await ensureColumn('leads', 'notes', 'TEXT');
 
   // ─── /contrato post-deposit flow ───────────────────────────────────────
   // After the couple has filled /reserva and we've received the deposit,

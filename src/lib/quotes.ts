@@ -407,6 +407,10 @@ export interface Lead {
   /** UI language the lead was using when they submitted the form. Drives
    *  the default for /p/<token> language when admin creates the quote. */
   preferredLanguage: Lang;
+  /** Free-text inquiry detail. Null for quiz-originated leads (their
+   *  structured answers cover it); set when Eric manually enters an
+   *  email/WhatsApp inquiry so the original message isn't lost. */
+  notes: string | null;
 }
 
 export interface CreateLeadInput {
@@ -421,6 +425,7 @@ export interface CreateLeadInput {
   serviceInterest?: string;
   budgetRange?: string;
   preferredLanguage?: Lang;
+  notes?: string;
 }
 
 function rowToLead(r: any): Lead {
@@ -438,6 +443,7 @@ function rowToLead(r: any): Lead {
     budgetRange: r.budget_range ?? null,
     createdAt: r.created_at,
     preferredLanguage: langOrDefault(r.preferred_language),
+    notes: r.notes ?? null,
   };
 }
 
@@ -470,8 +476,8 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
 
   const now = new Date().toISOString();
   await db.execute({
-    sql: `INSERT INTO leads (quote_id, couple_name, email, phone, wedding_date, location, ceremony_type, service_interest, budget_range, created_at, preferred_language, venue_name)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    sql: `INSERT INTO leads (quote_id, couple_name, email, phone, wedding_date, location, ceremony_type, service_interest, budget_range, created_at, preferred_language, venue_name, notes)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       input.quoteId ?? null,
       input.coupleName,
@@ -485,6 +491,7 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
       now,
       input.preferredLanguage ?? 'ca',
       input.venueName ?? null,
+      input.notes ?? null,
     ],
   });
   const res = await db.execute({ sql: 'SELECT * FROM leads WHERE rowid = last_insert_rowid()', args: [] });
