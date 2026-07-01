@@ -1,0 +1,173 @@
+---
+// Admin: view/edit a single material-delivery landing page.
+import AdminLayout from '~/layouts/AdminLayout.astro';
+import { getDeliveryById } from '~/lib/deliveries';
+
+const id = Astro.params.id!;
+const delivery = await getDeliveryById(id);
+
+if (!delivery) {
+  return new Response('Not found', { status: 404 });
+}
+
+const okFlag = Astro.url.searchParams.get('ok');
+const errorMsg = Astro.url.searchParams.get('error');
+const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
+const publicUrl = `${siteUrl}/entrega/${delivery.slug}`;
+
+function ymd(d: Date | null): string {
+  return d ? d.toISOString().slice(0, 10) : '';
+}
+---
+
+<AdminLayout title={`${delivery.coupleName1} i ${delivery.coupleName2} · Entrega`}>
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+    <h1 class="font-display text-2xl sm:text-3xl font-bold">{delivery.coupleName1} i {delivery.coupleName2}</h1>
+    <a href="/admin/deliveries" class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold whitespace-nowrap">← Tornar al llistat</a>
+  </div>
+
+  {okFlag === 'created' && (
+    <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">✓ Entrega creada. Copia l'enllaç per enviar-lo a la parella.</div>
+  )}
+  {okFlag === 'updated' && (
+    <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">✓ Canvis desats.</div>
+  )}
+  {okFlag === 'archived' && (
+    <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">✓ Entrega arxivada — l'enllaç públic deixa de funcionar.</div>
+  )}
+  {okFlag === 'reactivated' && (
+    <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">✓ Entrega reactivada.</div>
+  )}
+  {errorMsg && (
+    <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-900 text-sm"><strong>Error:</strong> {errorMsg}</div>
+  )}
+
+  {/* Public link — the thing you actually share with the couple. */}
+  <div class="bg-white border border-line p-5 md:p-6 mb-6">
+    <p class="text-xs font-bold tracking-widest uppercase text-ink/70 mb-2">Enllaç públic</p>
+    <div class="flex flex-wrap items-center gap-3">
+      <code class="text-sm bg-cream px-3 py-2 border border-line break-all">{publicUrl}</code>
+      <button type="button" id="copy-link-btn" data-copy={publicUrl} class="text-gold text-xs font-bold tracking-widest uppercase hover:underline whitespace-nowrap">Copiar</button>
+      <a href={`/entrega/${delivery.slug}`} target="_blank" rel="noopener" class="text-ink/70 text-xs font-bold tracking-widest uppercase hover:text-gold whitespace-nowrap">Veure la pàgina ↗</a>
+    </div>
+    {delivery.archived && (
+      <p class="text-xs text-amber-800 mt-3">⚠ Aquesta entrega està arxivada — l'enllaç mostra "no disponible" fins que la reactivis.</p>
+    )}
+  </div>
+
+  <form method="POST" action={`/api/admin/deliveries/${delivery.id}/update`} class="space-y-8 bg-white border border-line p-6 md:p-8">
+    <input type="hidden" name="_action" value="update" />
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-3">Bàsics</legend>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom 1 *</span>
+          <input name="coupleName1" required value={delivery.coupleName1} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom 2 *</span>
+          <input name="coupleName2" required value={delivery.coupleName2} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Data de la boda *</span>
+          <input type="date" name="weddingDate" required value={ymd(delivery.weddingDate)} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Finca / lloc</span>
+          <input name="venueName" value={delivery.venueName ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Idioma de la pàgina *</span>
+          <select name="preferredLanguage" required class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
+            {[['ca', 'Català'], ['es', 'Castellano'], ['en', 'English']].map(([code, label]) => (
+              <option value={code} selected={delivery.preferredLanguage === code}>{label}</option>
+            ))}
+          </select>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-1">Vídeo</legend>
+      <p class="text-[11px] text-ink/70 -mt-2 mb-2">opcional · vídeo de YouTube ocult. Pots enganxar l'ID o l'URL sencera.</p>
+      <label class="block max-w-lg">
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Vídeo de YouTube (ID o URL)</span>
+        <input name="youtubeVideoId" value={delivery.youtubeVideoId ?? ''} placeholder="https://youtu.be/xxxxxxxxxxx" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+      </label>
+    </fieldset>
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-1">Descàrrega del vídeo</legend>
+      <p class="text-[11px] text-ink/70 -mt-2 mb-2">opcional · enllaç de SwissTransfer (o similar).</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Enllaç de descàrrega</span>
+          <input name="swisstransferUrl" value={delivery.swisstransferUrl ?? ''} placeholder="https://www.swisstransfer.com/d/…" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Caduca el</span>
+          <input type="date" name="swisstransferExpiresAt" value={ymd(delivery.swisstransferExpiresAt)} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-1">Galeria de fotos</legend>
+      <p class="text-[11px] text-ink/70 -mt-2 mb-2">opcional · enllaç de la galeria de FotoStudio.</p>
+      <label class="block max-w-lg">
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Enllaç de la galeria</span>
+        <input name="galleryUrl" value={delivery.galleryUrl ?? ''} placeholder="https://gallery.fotostudio.io/…" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+      </label>
+    </fieldset>
+
+    <div class="pt-4 border-t border-line">
+      <button type="submit" class="bg-ink text-white px-6 py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">
+        Desar canvis
+      </button>
+    </div>
+  </form>
+
+  <div class="mt-6 bg-white border border-line p-5 md:p-6 flex flex-wrap items-center gap-3">
+    {delivery.archived ? (
+      <form method="POST" action={`/api/admin/deliveries/${delivery.id}/update`}>
+        <input type="hidden" name="_action" value="reactivate" />
+        <button type="submit" class="border border-line px-4 py-2 text-xs font-bold tracking-widest uppercase text-ink/70 hover:border-gold hover:text-gold transition-colors">
+          Reactivar
+        </button>
+      </form>
+    ) : (
+      <form method="POST" action={`/api/admin/deliveries/${delivery.id}/update`}>
+        <input type="hidden" name="_action" value="archive" />
+        <button type="submit" class="border border-line px-4 py-2 text-xs font-bold tracking-widest uppercase text-ink/70 hover:border-amber-500 hover:text-amber-700 transition-colors">
+          Arxivar
+        </button>
+      </form>
+    )}
+    <form
+      method="POST"
+      action={`/api/admin/deliveries/${delivery.id}/update`}
+      onsubmit={`return confirm('⚠ Eliminar aquesta entrega DEFINITIVAMENT?\\n\\nNo es podrà recuperar.')`}
+    >
+      <input type="hidden" name="_action" value="delete" />
+      <button type="submit" class="border border-red-200 px-4 py-2 text-xs font-bold tracking-widest uppercase text-red-600 hover:bg-red-50 transition-colors">
+        🗑 Eliminar
+      </button>
+    </form>
+  </div>
+</AdminLayout>
+
+<script>
+  document.getElementById('copy-link-btn')?.addEventListener('click', async (e) => {
+    const btn = e.currentTarget as HTMLButtonElement;
+    const text = btn.dataset.copy!;
+    try {
+      await navigator.clipboard.writeText(text);
+      const old = btn.textContent;
+      btn.textContent = '✓ Copiat';
+      setTimeout(() => (btn.textContent = old), 1500);
+    } catch {
+      prompt('Copia aquest enllaç:', text);
+    }
+  });
+</script>

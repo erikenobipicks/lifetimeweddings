@@ -1,0 +1,134 @@
+---
+// Admin: create a new material-delivery landing page. Two ways in:
+//   - ?booking=<id> deep-link from the booking detail page — pre-fills
+//     couple/date/venue/language from the booking and links booking_id.
+//   - blank form — just the basics (couple name, date); everything else
+//     (video/download/gallery links) can be added later from the edit page.
+import AdminLayout from '~/layouts/AdminLayout.astro';
+import { getBookingById } from '~/lib/bookings/repository';
+
+const params = Astro.url.searchParams;
+const error = params.get('error');
+
+const bookingId = params.get('booking') ?? '';
+const sourceBooking = bookingId ? await getBookingById(bookingId) : null;
+
+// Preserved values from a failed submit take priority; otherwise fall back
+// to the booking pre-fill; otherwise blank.
+const prefill: Record<string, string> = {};
+if (sourceBooking) {
+  prefill.coupleName1 = sourceBooking.coupleName1;
+  prefill.coupleName2 = sourceBooking.coupleName2;
+  prefill.weddingDate = sourceBooking.weddingDate.toISOString().slice(0, 10);
+  prefill.venueName = sourceBooking.venueName;
+  prefill.preferredLanguage = sourceBooking.preferredLanguage;
+}
+function v(name: string): string {
+  return params.get(`v_${name}`) ?? prefill[name] ?? '';
+}
+
+// Suggested SwissTransfer expiry: today + 30 days, editable.
+const suggestedExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+---
+
+<AdminLayout title="Nova entrega">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+    <h1 class="font-display text-2xl sm:text-3xl font-bold">Nova entrega de material</h1>
+    <a href="/admin/deliveries" class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold whitespace-nowrap">← Tornar al llistat</a>
+  </div>
+
+  {error && (
+    <div class="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-800 text-sm">
+      <strong class="font-bold">Error:</strong> {error}
+    </div>
+  )}
+
+  {sourceBooking && (
+    <div class="mb-6 px-4 py-3 bg-cream border border-gold/40 text-sm">
+      Formulari precarregat des de la reserva
+      <a href={`/admin/bookings/${sourceBooking.id}`} class="text-gold underline font-bold">
+        {sourceBooking.coupleName1} i {sourceBooking.coupleName2}
+      </a>. Comprova les dades abans de crear.
+    </div>
+  )}
+  {bookingId && !sourceBooking && (
+    <div class="mb-6 px-4 py-3 bg-amber-50 border border-amber-200 text-amber-900 text-sm">
+      No s'ha trobat la reserva indicada — omple el formulari a mà.
+    </div>
+  )}
+
+  <form method="POST" action="/api/admin/deliveries/create" class="space-y-8 bg-white border border-line p-6 md:p-8">
+    {sourceBooking && <input type="hidden" name="bookingId" value={sourceBooking.id} />}
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-3">Bàsics</legend>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom 1 *</span>
+          <input name="coupleName1" required value={v('coupleName1')} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom 2 *</span>
+          <input name="coupleName2" required value={v('coupleName2')} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Data de la boda *</span>
+          <input type="date" name="weddingDate" required value={v('weddingDate')} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Finca / lloc</span>
+          <input name="venueName" value={v('venueName')} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Idioma de la pàgina *</span>
+          <select name="preferredLanguage" required class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
+            {[['ca', 'Català'], ['es', 'Castellano'], ['en', 'English']].map(([code, label]) => (
+              <option value={code} selected={v('preferredLanguage') === code || (!v('preferredLanguage') && code === 'ca')}>{label}</option>
+            ))}
+          </select>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-1">Vídeo</legend>
+      <p class="text-[11px] text-ink/70 -mt-2 mb-2">opcional · vídeo de YouTube ocult (no cal que sigui públic). Pots enganxar l'ID o l'URL sencera.</p>
+      <label class="block max-w-lg">
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Vídeo de YouTube (ID o URL)</span>
+        <input name="youtubeVideoId" value={v('youtubeVideoId')} placeholder="https://youtu.be/xxxxxxxxxxx" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+      </label>
+    </fieldset>
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-1">Descàrrega del vídeo</legend>
+      <p class="text-[11px] text-ink/70 -mt-2 mb-2">opcional · enllaç de SwissTransfer (o similar).</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Enllaç de descàrrega</span>
+          <input name="swisstransferUrl" value={v('swisstransferUrl')} placeholder="https://www.swisstransfer.com/d/…" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Caduca el</span>
+          <span class="block text-[11px] text-ink/70 mb-1">proposat: avui + 30 dies</span>
+          <input type="date" name="swisstransferExpiresAt" value={v('swisstransferExpiresAt') || suggestedExpiry} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-1">Galeria de fotos</legend>
+      <p class="text-[11px] text-ink/70 -mt-2 mb-2">opcional · enllaç de la galeria de FotoStudio.</p>
+      <label class="block max-w-lg">
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Enllaç de la galeria</span>
+        <input name="galleryUrl" value={v('galleryUrl')} placeholder="https://gallery.fotostudio.io/…" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+      </label>
+    </fieldset>
+
+    <div class="flex items-center gap-4 pt-4 border-t border-line">
+      <button type="submit" class="bg-ink text-white px-6 py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">
+        Crear entrega
+      </button>
+      <a href="/admin/deliveries" class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold">Cancel·lar</a>
+    </div>
+  </form>
+</AdminLayout>

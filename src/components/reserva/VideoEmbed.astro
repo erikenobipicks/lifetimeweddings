@@ -17,9 +17,15 @@ interface Props {
   coupleName: string;
   /** Where it was shot — venue + (optional) town. */
   venue: string;
+  /** Override the default "example trailer" eyebrow/heading — used by
+   *  /entrega, where the video is the couple's own delivered film rather
+   *  than a sample of past work. Defaults preserve the /reserva + /p
+   *  copy untouched. */
+  eyebrow?: string;
+  heading?: string;
 }
 
-const { lang, youtubeId, coupleName, venue } = Astro.props;
+const { lang, youtubeId, coupleName, venue, eyebrow, heading } = Astro.props;
 const t = useTranslations(lang);
 
 const thumb = videoThumb(youtubeId);
@@ -40,10 +46,10 @@ const gatedCta = t('consent.gated.cta');
 <section class="px-6 md:px-12 py-20 md:py-28 bg-white text-ink">
   <div class="max-w-4xl mx-auto">
     <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold-deep mb-3 text-center">
-      {t('reserva.video.eyebrow')}
+      {eyebrow ?? t('reserva.video.eyebrow')}
     </p>
     <h2 class="font-display text-3xl md:text-4xl font-bold text-center mb-10">
-      {t('reserva.video.heading')}
+      {heading ?? t('reserva.video.heading')}
     </h2>
 
     <div class="relative aspect-video bg-black overflow-hidden" data-reserva-video>
