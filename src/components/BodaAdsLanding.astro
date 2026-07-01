@@ -53,8 +53,11 @@ const ORDER = [
 
 const toWebp = (p: string) => p.replace(/\.jpe?g$/, '.webp');
 
-// Hero: una horitzontal forta d'una boda real.
+// Hero triat a mà: una foto de PARELLA amb els vestits de núvia i nuvi,
+// horitzontal i visualment potent (res de detalls com les sabates).
+const HERO_ID = 'vanesa-david/024';
 const heroImg =
+  (PHOTOS['vanesa-david']?.images ?? []).find((i) => i.id === HERO_ID) ??
   (PHOTOS['vanesa-david']?.images ?? []).find((i) => i.orientation === 'landscape') ??
   PHOTOS['vanesa-david']?.images?.[0];
 
@@ -179,7 +182,7 @@ const reviews = [
         sizes="100vw"
         alt="Parella el dia de la seva boda fotografiada per Lifetime Weddings"
         class="absolute inset-0 w-full h-full object-cover"
-        style="object-position: center 30%"
+        style="object-position: center 40%"
         loading="eager"
         fetchpriority="high"
         decoding="async"
