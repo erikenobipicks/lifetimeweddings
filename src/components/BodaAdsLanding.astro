@@ -744,21 +744,32 @@ const reviews = [
   // ── Reveal-on-scroll: fa aparèixer suaument els blocs marcats amb data-reveal ──
   document.documentElement.classList.add('reveal-ready');
   const revealEls = document.querySelectorAll<HTMLElement>('[data-reveal]');
+  const reveal = (el: Element) => el.classList.add('is-visible');
   if ('IntersectionObserver' in window) {
     const ro = new IntersectionObserver(
       (entries) => {
         for (const en of entries) {
           if (en.isIntersecting) {
-            en.target.classList.add('is-visible');
+            reveal(en.target);
             ro.unobserve(en.target);
           }
         }
       },
-      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
+      { threshold: 0, rootMargin: '0px 0px -10% 0px' },
     );
     revealEls.forEach((el) => ro.observe(el));
+    // Xarxa de seguretat: revela qualsevol bloc que ja sigui a la finestra,
+    // perquè res quedi mai amagat si l'observer no dispara (cas límit).
+    const revealInView = () => {
+      revealEls.forEach((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0) reveal(el);
+      });
+    };
+    window.addEventListener('load', revealInView);
+    setTimeout(revealInView, 1200);
   } else {
-    revealEls.forEach((el) => el.classList.add('is-visible'));
+    revealEls.forEach(reveal);
   }
 
   // ── Vídeo facade: carrega l'iframe de YouTube només en fer clic ──
