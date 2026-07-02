@@ -124,6 +124,29 @@ const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
       if (tkInput?.value) payload.captchaToken = tkInput.value;
       delete payload['cf-turnstile-response'];
 
+      // Meta Pixel + Conversions API. When the visitor accepted cookies the
+      // pixel is loaded (window.fbq exists); mint a shared eventID and forward
+      // it — plus the _fbp/_fbc cookies and source URL — to the server so the
+      // CAPI `Lead` dedupes with the browser Pixel `Lead` fired on success.
+      // If there's no consent, fbq is absent → nothing tracked, form still works.
+      let metaEventId = '';
+      if (typeof (window as any).fbq === 'function') {
+        metaEventId =
+          window.crypto && 'randomUUID' in window.crypto
+            ? window.crypto.randomUUID()
+            : String(Date.now()) + '-' + Math.round(Math.random() * 1e9);
+        payload.metaEventId = metaEventId;
+        payload.eventSourceUrl = location.href;
+        const readCookie = (name: string) => {
+          const m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
+          return m ? decodeURIComponent(m[1]) : '';
+        };
+        const fbp = readCookie('_fbp');
+        const fbc = readCookie('_fbc');
+        if (fbp) payload.fbp = fbp;
+        if (fbc) payload.fbc = fbc;
+      }
+
       const res = await fetch(form.action, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -136,6 +159,10 @@ const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
       ok?.classList.remove('hidden');
       // GA4 lead conversion (consent-aware no-op via lwTrack).
       (window as any).lwTrack?.('qualify_lead', { source: 'contact_form' });
+      // Meta Pixel Lead — deduped with the server-side CAPI via `metaEventId`.
+      if (metaEventId && typeof (window as any).fbq === 'function') {
+        (window as any).fbq('track', 'Lead', {}, { eventID: metaEventId });
+      }
       form.reset();
     } catch (error) {
       console.error('[contact] submit failed', error);

@@ -16,10 +16,10 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 import BodaAdsLanding from '~/components/BodaAdsLanding.astro';
 import CookieBanner from '~/components/CookieBanner.astro';
 
-// Meta Pixel ID. Pots sobreescriure'l amb la variable d'entorn
-// PUBLIC_META_PIXEL_ID (p. ex. per a un pixel de proves); si no, fa servir
-// el pixel de producció de Lifetime per defecte.
-const pixelId = import.meta.env.PUBLIC_META_PIXEL_ID || '715202033782556';
+// Pixel PROPI de la landing d'anuncis (separat del píxel general del web,
+// que és 929… i es carrega des del BaseLayout). Fixat a mà expressament
+// perquè la variable PUBLIC_META_PIXEL_ID (= píxel general) NO el canviï.
+const pixelId = '715202033782556';
 ---
 
 <BaseLayout
@@ -30,6 +30,7 @@ const pixelId = import.meta.env.PUBLIC_META_PIXEL_ID || '715202033782556';
   ogImage="/og-bodadslifetime.jpg"
   noindex
   chromeless
+  metaPixel={false}
 >
   <BodaAdsLanding />
   <CookieBanner lang="ca" />

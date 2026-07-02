@@ -12,6 +12,7 @@ import { sendNotification, sendTelegramNotification, sendAutoReplyToLead } from 
 import { createLead } from '~/lib/quotes';
 import { verifyTurnstile, clientIp } from '~/lib/captcha';
 import { pushLeadToFotostudio } from '~/lib/fotostudio';
+import { sendMetaCapiLead } from '~/lib/meta-capi';
 import { createRateLimiter, clientIpFrom } from '~/lib/rate-limit';
 
 // Captcha + honeypot already gate this, but a per-IP cap adds a cheap layer
@@ -32,6 +33,15 @@ const schema = z.object({
   consent: z.preprocess(blankToUndef, z.string().optional()),
   _language: z.preprocess(blankToUndef, z.enum(['ca', 'es', 'en']).optional()),
   captchaToken: z.preprocess(blankToUndef, z.string().optional()),
+  // Meta Conversions API deduplication + match quality. The browser Pixel
+  // fires `Lead` with this same id as `{eventID}`; we forward it (+ the _fbp/
+  // _fbc cookies and source URL) to the CAPI so Meta counts the lead once.
+  // Only present when the visitor accepted cookies (pixel loaded) — so its
+  // presence doubles as the consent signal for the server-side event.
+  metaEventId: z.preprocess(blankToUndef, z.string().max(100).optional()),
+  eventSourceUrl: z.preprocess(blankToUndef, z.string().max(500).optional()),
+  fbp: z.preprocess(blankToUndef, z.string().max(200).optional()),
+  fbc: z.preprocess(blankToUndef, z.string().max(400).optional()),
 });
 
 function esc(s: string | undefined | null): string {
@@ -167,6 +177,23 @@ export const POST: APIRoute = async ({ request }) => {
       venue: d.venue,
       language: lang,
     });
+
+    // Meta Conversions API (server-side Lead), deduped with the browser Pixel
+    // via the shared `metaEventId`. Only fires when the client sent one (i.e.
+    // the pixel was loaded → cookies accepted) and META_CAPI_TOKEN is set.
+    // Fail-soft: the helper never throws, so tracking can't break the lead.
+    if (d.metaEventId) {
+      await sendMetaCapiLead({
+        eventId: d.metaEventId,
+        email: d.email,
+        name: d.name,
+        eventSourceUrl: d.eventSourceUrl,
+        clientIp: clientIp(request),
+        userAgent: request.headers.get('user-agent') ?? undefined,
+        fbp: d.fbp,
+        fbc: d.fbc,
+      });
+    }
 
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,
