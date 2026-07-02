@@ -66,17 +66,34 @@ async function getLegacySlugMap(): Promise<Map<string, string>> {
   if (legacySlugMap) return legacySlugMap;
   const map = new Map<string, string>();
   const posts = await getCollection('blog');
+  const ids = new Set(posts.map((p) => p.id));
+
+  // A "language variant" is an entry like `<base>-ca` / `-es` / `-en` whose
+  // `<base>` is itself a post. Its body is just a translation of the canonical
+  // post, not a page of its own — and it shares the SAME `legacySlug` as the
+  // base. If a variant were allowed to own that legacySlug, whichever variant
+  // is iterated last would win, so the old Wix URL 301s to `<base>-en`, which
+  // has no /es/blog route → 404. So variants never claim the legacySlug; only
+  // the canonical base entry does (its slug is the one with a real route).
+  const baseOf = (id: string): string | null => {
+    const m = id.match(/-(ca|es|en)$/);
+    return m ? id.slice(0, id.length - m[0].length) : null;
+  };
+
   for (const p of posts) {
     const slug = p.id;
-    const legacy = p.data.legacySlug;
     // Always include the current slug (raw + normalized) so even
     // /post/<current-slug> redirects cleanly to /blog/<current-slug>.
     map.set(slug, slug);
     map.set(normalizeSlug(slug), slug);
-    if (legacy) {
-      map.set(legacy, slug);
-      map.set(normalizeSlug(legacy), slug);
-    }
+
+    const legacy = p.data.legacySlug;
+    if (!legacy) continue;
+    const base = baseOf(slug);
+    if (base !== null && ids.has(base)) continue; // variant → let the base own the legacySlug
+
+    map.set(legacy, slug);
+    map.set(normalizeSlug(legacy), slug);
   }
   legacySlugMap = map;
   return map;
