@@ -25,10 +25,6 @@ const COUPLE_MAP = [
   { pattern: /^(Pre_)?Josep&Eli/i, slug: 'josep-eli', couple: 'Elisabet & Josep' },
   { pattern: /^Pre_Josep_Eli/i, slug: 'josep-eli', couple: 'Elisabet & Josep' },
   { pattern: /^(Preboda_)?Marta_(i )?Adri/i, slug: 'marta-adria', couple: 'Marta & Adrià' },
-  // Elopement a Siurana (parella Maria & Robert) — alimenta la pàgina
-  // /elopement-siurana. Posa els JPG "Maria&Robert-*.JPG" a la carpeta font
-  // i torna a executar aquest script; es generarà el set 'elopement-siurana'.
-  { pattern: /^Maria&Robert/i, slug: 'elopement-siurana', couple: 'Maria & Robert' },
 ];
 
 const SIZES = [

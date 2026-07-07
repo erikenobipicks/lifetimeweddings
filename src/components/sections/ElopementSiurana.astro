@@ -21,7 +21,7 @@ import { useTranslations, type Lang } from '~/i18n/ui';
 import { getGbpRating } from '~/lib/gbp-rating';
 import { breadcrumbJsonLd } from '~/lib/seo';
 import { videoThumb, videoThumbFallback } from '~/data/videos';
-import { PHOTOS } from '~/data/photos.generated';
+import { ELOPEMENT_PHOTOS } from '~/data/elopement-photos';
 
 const VIDEO_ID = 'CWQlsIZB8t8';
 
@@ -34,9 +34,9 @@ const toWebp = (p: string): string => p.replace(/\.jpe?g$/i, '.webp');
 const isJpg = (p: string): boolean => /\.jpe?g$/i.test(p);
 
 // ── Images ───────────────────────────────────────────────────────────
-// Real elopement set (Maria & Robert) once processed; graceful fallback to
-// existing real Siurana photos meanwhile so the page always renders.
-const SET = PHOTOS['elopement-siurana']?.images ?? [];
+// Real elopement set (Maria & Robert), curated + web-optimised. First item is
+// the hero. Graceful fallback to existing real Siurana photos if ever empty.
+const SET = ELOPEMENT_PHOTOS;
 const hasReal = SET.length > 0;
 const PLACE = '/blog/sesion-preboda-siurana-picnic-pizza';
 const PLACEHOLDERS = [
@@ -46,7 +46,7 @@ const PLACEHOLDERS = [
   `${PLACE}/2d4f94_9193908ac3384bb7bfb47a3ce0d213df~mv2.webp`,
 ];
 
-const heroPhoto = SET.find((i) => i.orientation === 'landscape') ?? SET[0];
+const heroPhoto = SET[0];
 const heroSrc = heroPhoto ? heroPhoto.variants.lg : PLACEHOLDERS[0];
 const heroW = heroPhoto?.width ?? 1600;
 const heroH = heroPhoto?.height ?? 1067;
