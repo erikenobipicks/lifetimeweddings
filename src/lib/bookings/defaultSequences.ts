@@ -148,5 +148,33 @@ export const INSPIRATION_FORM: SequenceInput = {
   },
 };
 
+/** Basic-info form for collab / external (white-label) bookings — the
+ *  ones "not exclusively under the LifeTime Weddings name". Eric copies
+ *  the /formulari/<token> link and sends it himself (WhatsApp etc.); this
+ *  sequence is NEVER emailed automatically.
+ *
+ *  `enabled: false` keeps the cron from ever materialising it for a
+ *  booking, and generateFormLink() stamps sent_at so it can't be emailed
+ *  either. The subject/body are placeholders (never rendered) — only the
+ *  formKind + the /formulari page matter. */
+export const BASIC_INFO_FORM: SequenceInput = {
+  slug: 'formulari-basic-info',
+  enabled: false,
+  triggerKind: 'days_before_wedding',
+  triggerOffsetDays: 0,
+  formKind: 'basic_info',
+  serviceScope: 'any',
+  subject: {
+    ca: 'Dades bàsiques de la boda',
+    es: 'Datos básicos de la boda',
+    en: 'Basic wedding details',
+  },
+  bodyHtml: {
+    ca: '<p>Formulari manual — no s\'envia per correu.</p>',
+    es: '<p>Formulario manual — no se envía por correo.</p>',
+    en: '<p>Manual form — never emailed.</p>',
+  },
+};
+
 /** All starter templates. Add new defaults here. */
-export const DEFAULT_SEQUENCES: SequenceInput[] = [SECOND_PAYMENT_REMINDER, PRE_WEDDING_INFO, INSPIRATION_FORM];
+export const DEFAULT_SEQUENCES: SequenceInput[] = [SECOND_PAYMENT_REMINDER, PRE_WEDDING_INFO, INSPIRATION_FORM, BASIC_INFO_FORM];

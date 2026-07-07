@@ -1050,3 +1050,44 @@ export async function setBookingChecklistItem(
   });
   return state;
 }
+
+/** A single submitted form (basic-info, wedding_details, …), parsed. */
+export interface FormSubmissionRow {
+  id: number;
+  bookingId: string;
+  formKind: string;
+  data: Record<string, string>;
+  submittedAt: Date | null;
+}
+
+/** Latest submissions of a given form kind for a booking (newest first).
+ *  Used to show the couple's basic-info answers on the booking detail. */
+export async function listFormSubmissions(
+  bookingId: string,
+  formKind: string,
+): Promise<FormSubmissionRow[]> {
+  await initSchema();
+  const res = await db.execute({
+    sql: `SELECT id, booking_id, form_kind, data_json, submitted_at
+          FROM form_submissions
+          WHERE booking_id = ? AND form_kind = ?
+          ORDER BY submitted_at DESC, id DESC`,
+    args: [bookingId, formKind],
+  });
+  return res.rows.map((r) => {
+    let data: Record<string, string> = {};
+    try {
+      const parsed = JSON.parse(String(r.data_json ?? '{}'));
+      if (parsed && typeof parsed === 'object') {
+        for (const [k, v] of Object.entries(parsed)) data[k] = String(v);
+      }
+    } catch { /* leave empty on malformed json */ }
+    return {
+      id: Number(r.id),
+      bookingId: String(r.booking_id),
+      formKind: String(r.form_kind),
+      data,
+      submittedAt: fromIso(r.submitted_at),
+    };
+  });
+}
