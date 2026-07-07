@@ -26,7 +26,7 @@ La fotografía documental de boda (también la veréis llamada fotoperiodismo de
 
 El abrazo de tu padre justo antes de entrar. La carcajada de tu abuela en mitad del discurso. Esa mirada que os cruzáis sin daros cuenta mientras todo el mundo baila. Nada de eso se puede posar. Solo se puede estar ahí, atento, y capturarlo cuando sucede.
 
-<!-- [IMAGEN] archivo: fotografia-boda-documental-emocion-real.webp · alt: "Fotografía documental de boda: novia emocionada en un momento espontáneo durante la ceremonia" -->
+![Fotografía documental de boda: novia emocionada en un momento espontáneo durante la ceremonia](/blog/fotografia-boda-documental-vs-tradicional/emocion-real.webp)
 
 ### El fotógrafo invisible: capturar sin interrumpir
 
@@ -62,7 +62,7 @@ Esto casi nadie lo tiene en cuenta al elegir fotógrafo, y es fundamental. Con u
 
 Haced esta prueba mental: imaginad vuestro álbum dentro de dos décadas. Las poses envejecen porque responden a la moda del momento. Los momentos reales no envejecen nunca, porque la emoción no pasa de moda. La foto de tu abuelo riendo en la sobremesa valdrá infinitamente más dentro de veinte años que cualquier posado perfecto, sobre todo cuando algunas de las personas de esas fotos ya no estén. Esa es, sinceramente, la razón más profunda para elegir documental.
 
-<!-- [IMAGEN] archivo: fotografia-boda-documental-momento-familiar.webp · alt: "Momento familiar espontáneo capturado en estilo documental durante el banquete de una boda" -->
+![Momento familiar espontáneo capturado en estilo documental durante el banquete de una boda](/blog/fotografia-boda-documental-vs-tradicional/momento-familiar.webp)
 
 ## Mitos sobre la fotografía documental de boda
 
@@ -74,7 +74,7 @@ Claro que las habrá. Este es el malentendido más habitual. Un buen reportaje d
 
 El fotógrafo documental no publica todo lo que dispara: selecciona. Su trabajo es capturar la verdad de vuestro día con belleza, no pillaros en el peor ángulo posible. La luz, la composición y el momento se cuidan igual (o más) que en el estilo tradicional. Lo que cambia es que la belleza sale de lo real, no de lo fabricado. Y hay pocas cosas más favorecedoras que una persona riéndose de verdad.
 
-<!-- [IMAGEN] archivo: retrato-pareja-natural-boda-documental.webp · alt: "Retrato natural de pareja de novios paseando, sin posados forzados, estilo documental" -->
+![Retrato natural de pareja de novios paseando, sin posados forzados, estilo documental](/blog/fotografia-boda-documental-vs-tradicional/retrato-pareja.webp)
 
 ## Cómo saber qué estilo encaja con vosotros: 4 preguntas para decidir
 
