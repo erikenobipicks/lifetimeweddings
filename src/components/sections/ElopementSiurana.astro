@@ -51,12 +51,24 @@ const heroSrc = heroPhoto ? heroPhoto.variants.lg : PLACEHOLDERS[0];
 const heroW = heroPhoto?.width ?? 1600;
 const heroH = heroPhoto?.height ?? 1067;
 
-type GItem = { src: string; w: number; h: number; portrait: boolean };
+// Editorial images interspersed between the text blocks so the page has rhythm
+// and isn't a wall of copy. Kept OUT of the gallery so nothing repeats.
+const bandA = SET[1]; // full-bleed band after the intro
+const bandB = SET[2]; // full-bleed band before the final CTA
+const beautyImg = SET[3]; // side image in the "why it's beautiful" block
+const featureIds = new Set(
+  [heroPhoto, bandA, bandB, beautyImg].filter(Boolean).map((p) => (p as { id: string }).id),
+);
+
+type GItem = { src: string; w: number; h: number; orientation: 'landscape' | 'portrait' | 'square' };
 const galleryItems: GItem[] = hasReal
-  ? SET.filter((i) => i.id !== heroPhoto?.id)
-      .slice(0, 15)
-      .map((i) => ({ src: i.variants.md, w: i.width, h: i.height, portrait: i.orientation === 'portrait' }))
-  : PLACEHOLDERS.map((src) => ({ src, w: 1600, h: 1067, portrait: false }));
+  ? SET.filter((i) => !featureIds.has(i.id)).map((i) => ({
+      src: i.variants.md,
+      w: i.width,
+      h: i.height,
+      orientation: i.orientation,
+    }))
+  : PLACEHOLDERS.map((src) => ({ src, w: 1600, h: 1067, orientation: 'landscape' as const }));
 
 const langPath = lang === 'ca' ? '' : `/${lang}`;
 const contactoPath = `${langPath}/contacto`;
@@ -65,7 +77,7 @@ const contactoPath = `${langPath}/contacto`;
 type Copy = {
   meta: { title: string; description: string };
   hero: { eyebrow: string; h1: string; sub: string; ctaPrimary: string; ctaSecondary: string; heroAlt: string };
-  trust: { rating: string; deliveryValue: string; delivery: string; weddings: string };
+  trust: { rating: string; deliveryValue: string; delivery: string; weddingsValue: string; weddings: string };
   intro: { title: string; paras: string[] };
   beauty: { title: string; paras: string[] };
   why: { title: string; intro: string; bullets: string[] };
@@ -91,11 +103,11 @@ const COPY: Record<Lang, Copy> = {
       eyebrow: 'Elopement · Siurana, Priorat',
       h1: 'Un elopement a Siurana: només vosaltres dos, la muntanya i el sí',
       sub: 'Casar-vos sense el gran convit, en un dels llocs més bonics de Catalunya. Nosaltres ho guardem en foto i vídeo perquè el pugueu reviure per sempre.',
-      ctaPrimary: 'Parlem del vostre dia',
+      ctaPrimary: 'Parla amb nosaltres',
       ctaSecondary: 'Què és un elopement',
       heroAlt: 'Parella el dia del seu elopement als cingles de Siurana, fotografiats per Lifetime Weddings',
     },
-    trust: { rating: 'a Google · {n} ressenyes', deliveryValue: '1 setmana', delivery: 'de lliurament', weddings: 'bodes documentades' },
+    trust: { rating: 'a Google', deliveryValue: '1 setmana', delivery: 'de lliurament', weddingsValue: '20 anys', weddings: 'documentant bodes' },
     intro: {
       title: 'Què és un elopement?',
       paras: [
@@ -177,11 +189,11 @@ const COPY: Record<Lang, Copy> = {
     finalCta: {
       h2: 'Us imagineu casant-vos així?',
       body: 'Expliqueu-nos com voleu que sigui el vostre dia i mirem dates. Sense compromís.',
-      primary: 'Parlem pel WhatsApp',
+      primary: 'Parla amb nosaltres',
       secondary: 'Escriviu-nos',
     },
     whatsAppMessage:
-      'Hola! Estem pensant en un elopement (a Siurana o un altre lloc) i ens agradaria saber disponibilitat i com ho feu.',
+      'Hola! Ens agradaria fer un elopement i us volem explicar la nostra idea. En parlem?',
     breadcrumbCurrent: 'Elopement a Siurana',
   },
 
@@ -195,11 +207,11 @@ const COPY: Record<Lang, Copy> = {
       eyebrow: 'Elopement · Siurana, Priorat',
       h1: 'Un elopement en Siurana: solo vosotros dos, la montaña y el sí',
       sub: 'Casaros sin el gran banquete, en uno de los lugares más bonitos de Cataluña. Nosotros lo guardamos en foto y vídeo para que lo podáis revivir para siempre.',
-      ctaPrimary: 'Hablemos de vuestro día',
+      ctaPrimary: 'Habla con nosotros',
       ctaSecondary: 'Qué es un elopement',
       heroAlt: 'Pareja el día de su elopement en los acantilados de Siurana, fotografiados por Lifetime Weddings',
     },
-    trust: { rating: 'en Google · {n} reseñas', deliveryValue: '1 semana', delivery: 'de entrega', weddings: 'bodas documentadas' },
+    trust: { rating: 'en Google', deliveryValue: '1 semana', delivery: 'de entrega', weddingsValue: '20 años', weddings: 'documentando bodas' },
     intro: {
       title: '¿Qué es un elopement?',
       paras: [
@@ -281,11 +293,11 @@ const COPY: Record<Lang, Copy> = {
     finalCta: {
       h2: '¿Os imagináis casándoos así?',
       body: 'Contadnos cómo queréis que sea vuestro día y miramos fechas. Sin compromiso.',
-      primary: 'Hablemos por WhatsApp',
+      primary: 'Habla con nosotros',
       secondary: 'Escribidnos',
     },
     whatsAppMessage:
-      '¡Hola! Estamos pensando en un elopement (en Siurana u otro lugar) y nos gustaría saber disponibilidad y cómo lo hacéis.',
+      '¡Hola! Nos gustaría hacer un elopement y queremos contaros nuestra idea. ¿Hablamos?',
     breadcrumbCurrent: 'Elopement en Siurana',
   },
 
@@ -299,11 +311,11 @@ const COPY: Record<Lang, Copy> = {
       eyebrow: 'Elopement · Siurana, Priorat (Spain)',
       h1: 'An elopement in Siurana: just the two of you, the mountain, and the "yes"',
       sub: 'Getting married without the big reception, in one of the most beautiful spots in Catalonia. We keep it in photo and video so you can relive it forever.',
-      ctaPrimary: "Let's talk about your day",
+      ctaPrimary: 'Talk to us',
       ctaSecondary: 'What is an elopement',
       heroAlt: 'Couple on their elopement day on the cliffs of Siurana, photographed by Lifetime Weddings',
     },
-    trust: { rating: 'on Google · {n} reviews', deliveryValue: '1 week', delivery: 'delivery', weddings: 'weddings documented' },
+    trust: { rating: 'on Google', deliveryValue: '1 week', delivery: 'delivery', weddingsValue: '20 years', weddings: 'of weddings' },
     intro: {
       title: 'What is an elopement?',
       paras: [
@@ -385,11 +397,11 @@ const COPY: Record<Lang, Copy> = {
     finalCta: {
       h2: 'Can you picture getting married like this?',
       body: 'Tell us how you imagine your day and we\'ll check dates. No commitment.',
-      primary: 'Message us on WhatsApp',
+      primary: 'Talk to us',
       secondary: 'Write to us',
     },
     whatsAppMessage:
-      "Hi! We're thinking about an elopement (in Siurana or somewhere else) and we'd love to know availability and how you work.",
+      "Hi! We'd love to have an elopement and want to tell you our idea. Can we chat?",
     breadcrumbCurrent: 'Elopement in Siurana',
   },
 };
@@ -485,7 +497,7 @@ function renderBold(s: string): string {
     <div class="max-w-5xl mx-auto flex flex-col sm:flex-row gap-4 sm:gap-10 items-center justify-center text-center text-sm">
       <div class="flex items-center gap-2">
         <span class="text-gold font-bold">{rating.ratingValue.toFixed(1)}★</span>
-        <span class="opacity-85">{c.trust.rating.replace('{n}', String(rating.reviewCount))}</span>
+        <span class="opacity-85">{c.trust.rating}</span>
       </div>
       <div class="hidden sm:block w-px h-5 bg-white/20"></div>
       <div class="flex items-center gap-2">
@@ -494,7 +506,7 @@ function renderBold(s: string): string {
       </div>
       <div class="hidden sm:block w-px h-5 bg-white/20"></div>
       <div class="flex items-center gap-2">
-        <span class="text-gold font-bold">+150</span>
+        <span class="text-gold font-bold">{c.trust.weddingsValue}</span>
         <span class="opacity-85">{c.trust.weddings}</span>
       </div>
     </div>
@@ -510,24 +522,59 @@ function renderBold(s: string): string {
     </div>
   </Section>
 
-  <!-- Why it's beautiful -->
+  <!-- Full-bleed editorial band between text blocks -->
+  {bandA && (
+    <section class="relative h-[46vh] min-h-[300px] md:h-[68vh] overflow-hidden">
+      <picture>
+        {isJpg(bandA.variants.lg) && <source type="image/webp" srcset={toWebp(bandA.variants.lg)} />}
+        <img
+          src={bandA.variants.lg}
+          alt={c.hero.heroAlt}
+          class="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+          decoding="async"
+          width={bandA.width}
+          height={bandA.height}
+        />
+      </picture>
+    </section>
+  )}
+
+  <!-- Why it's beautiful (text + image side by side) -->
   <Section bg="cream">
-    <div class="max-w-3xl mx-auto px-2">
-      <h2 class="font-display text-2xl md:text-3xl font-bold mb-6">{c.beauty.title}</h2>
-      {c.beauty.paras.map((p) => (
-        <p class="text-ink/80 leading-relaxed mb-4 text-base md:text-lg" set:html={renderBold(p)} />
-      ))}
+    <div class="max-w-5xl mx-auto px-2 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+      <div>
+        <h2 class="font-display text-2xl md:text-3xl font-bold mb-6">{c.beauty.title}</h2>
+        {c.beauty.paras.map((p) => (
+          <p class="text-ink/80 leading-relaxed mb-4 text-base md:text-lg" set:html={renderBold(p)} />
+        ))}
+      </div>
+      {beautyImg && (
+        <picture class="block order-first md:order-none">
+          {isJpg(beautyImg.variants.md) && <source type="image/webp" srcset={toWebp(beautyImg.variants.md)} />}
+          <img
+            src={beautyImg.variants.md}
+            alt=""
+            aria-hidden="true"
+            class="w-full aspect-[4/5] object-cover"
+            loading="lazy"
+            decoding="async"
+            width={beautyImg.width}
+            height={beautyImg.height}
+          />
+        </picture>
+      )}
     </div>
   </Section>
 
-  <!-- Gallery -->
+  <!-- Gallery — mixed-size mosaic that tiles with no gaps -->
   <Section>
     <div class="max-w-6xl mx-auto px-2">
       <div class="max-w-2xl mb-8 md:mb-10">
         <h2 class="font-display text-2xl md:text-3xl font-bold mb-3">{c.gallery.title}</h2>
         <p class="text-ink/75 leading-relaxed">{c.gallery.intro}</p>
       </div>
-      <div class="columns-2 md:columns-3 gap-3 md:gap-4 [&>figure]:mb-3 md:[&>figure]:mb-4">
+      <div class="columns-2 md:columns-3 gap-2 md:gap-3 [&>figure]:mb-2 md:[&>figure]:mb-3">
         {galleryItems.map((g, i) => (
           <figure class="break-inside-avoid overflow-hidden">
             <picture>
@@ -535,7 +582,7 @@ function renderBold(s: string): string {
               <img
                 src={g.src}
                 alt={`${c.gallery.title} · ${i + 1}`}
-                class="w-full h-auto object-cover"
+                class="w-full h-auto object-cover align-top"
                 loading="lazy"
                 decoding="async"
                 width={g.w}
@@ -654,6 +701,24 @@ function renderBold(s: string): string {
       </div>
     </div>
   </Section>
+
+  <!-- Full-bleed editorial band before the final CTA -->
+  {bandB && (
+    <section class="relative h-[46vh] min-h-[300px] md:h-[68vh] overflow-hidden">
+      <picture>
+        {isJpg(bandB.variants.lg) && <source type="image/webp" srcset={toWebp(bandB.variants.lg)} />}
+        <img
+          src={bandB.variants.lg}
+          alt={c.hero.heroAlt}
+          class="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+          decoding="async"
+          width={bandB.width}
+          height={bandB.height}
+        />
+      </picture>
+    </section>
+  )}
 
   <!-- Final CTA -->
   <Section bg="cream">
