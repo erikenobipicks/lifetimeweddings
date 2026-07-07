@@ -1,0 +1,737 @@
+---
+// Elopement-in-Siurana landing — shared component used by
+// /elopement-siurana (CA), /es/elopement-siurana (ES), /en/elopement-siurana (EN).
+//
+// Evergreen, indexable service page (Schema.org Service + FAQPage +
+// Breadcrumb) targeting "elopement Siurana" / "fotografo elopement Tarragona"
+// and the international-traveller elopement niche. All copy keyed by `lang`.
+//
+// Photos come from the real Maria & Robert elopement. They are pulled from
+// PHOTOS['elopement-siurana'] (photos.generated.ts) once Eric drops the
+// "Maria&Robert-*.JPG" originals in the shared drive and re-runs
+// scripts/process-photos.mjs. Until then the gallery falls back to the
+// existing real Siurana photos so the page still renders — no code change is
+// needed when the real set lands.
+
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Section from '~/components/Section.astro';
+import StickyMobileCta from '~/components/StickyMobileCta.astro';
+import { SITE, WHATSAPP_BASE } from '~/data/site';
+import { useTranslations, type Lang } from '~/i18n/ui';
+import { getGbpRating } from '~/lib/gbp-rating';
+import { breadcrumbJsonLd } from '~/lib/seo';
+import { videoThumb, videoThumbFallback } from '~/data/videos';
+import { ELOPEMENT_PHOTOS } from '~/data/elopement-photos';
+
+const VIDEO_ID = 'CWQlsIZB8t8';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const rating = await getGbpRating();
+
+const toWebp = (p: string): string => p.replace(/\.jpe?g$/i, '.webp');
+const isJpg = (p: string): boolean => /\.jpe?g$/i.test(p);
+
+// ── Images ───────────────────────────────────────────────────────────
+// Real elopement set (Maria & Robert), curated + web-optimised. First item is
+// the hero. Graceful fallback to existing real Siurana photos if ever empty.
+const SET = ELOPEMENT_PHOTOS;
+const hasReal = SET.length > 0;
+const PLACE = '/blog/sesion-preboda-siurana-picnic-pizza';
+const PLACEHOLDERS = [
+  `${PLACE}/cover.webp`,
+  `${PLACE}/2d4f94_3a2fba1d9e0a480cb6c5316700a7ef11~mv2.webp`,
+  `${PLACE}/2d4f94_692031755d7a4c5f92fc711df6fd3e14~mv2.webp`,
+  `${PLACE}/2d4f94_9193908ac3384bb7bfb47a3ce0d213df~mv2.webp`,
+];
+
+const heroPhoto = SET[0];
+const heroSrc = heroPhoto ? heroPhoto.variants.lg : PLACEHOLDERS[0];
+const heroW = heroPhoto?.width ?? 1600;
+const heroH = heroPhoto?.height ?? 1067;
+
+type GItem = { src: string; w: number; h: number; portrait: boolean };
+const galleryItems: GItem[] = hasReal
+  ? SET.filter((i) => i.id !== heroPhoto?.id)
+      .slice(0, 15)
+      .map((i) => ({ src: i.variants.md, w: i.width, h: i.height, portrait: i.orientation === 'portrait' }))
+  : PLACEHOLDERS.map((src) => ({ src, w: 1600, h: 1067, portrait: false }));
+
+const langPath = lang === 'ca' ? '' : `/${lang}`;
+const contactoPath = `${langPath}/contacto`;
+
+// ── Per-language copy ────────────────────────────────────────────────
+type Copy = {
+  meta: { title: string; description: string };
+  hero: { eyebrow: string; h1: string; sub: string; ctaPrimary: string; ctaSecondary: string; heroAlt: string };
+  trust: { rating: string; deliveryValue: string; delivery: string; weddings: string };
+  intro: { title: string; paras: string[] };
+  beauty: { title: string; paras: string[] };
+  why: { title: string; intro: string; bullets: string[] };
+  gallery: { title: string; intro: string };
+  video: { title: string; intro: string; playLabel: string; moreLabel: string };
+  capture: { title: string; intro: string; bullets: string[] };
+  included: { title: string; bullets: string[] };
+  faqTitle: string;
+  faqs: { q: string; a: string }[];
+  finalCta: { h2: string; body: string; primary: string; secondary: string };
+  whatsAppMessage: string;
+  breadcrumbCurrent: string;
+};
+
+const COPY: Record<Lang, Copy> = {
+  ca: {
+    meta: {
+      title: 'Elopement a Siurana — fotògraf i videògraf | Lifetime Weddings',
+      description:
+        'Casar-vos només vosaltres dos a Siurana, entre cingles i poble medieval. Fotografia i vídeo d’elopement íntims, amb mirada d’autor. Ens movem per tot Catalunya.',
+    },
+    hero: {
+      eyebrow: 'Elopement · Siurana, Priorat',
+      h1: 'Un elopement a Siurana: només vosaltres dos, la muntanya i el sí',
+      sub: 'Casar-vos sense el gran convit, en un dels llocs més bonics de Catalunya. Nosaltres ho guardem en foto i vídeo perquè el pugueu reviure per sempre.',
+      ctaPrimary: 'Parlem del vostre dia',
+      ctaSecondary: 'Què és un elopement',
+      heroAlt: 'Parella el dia del seu elopement als cingles de Siurana, fotografiats per Lifetime Weddings',
+    },
+    trust: { rating: 'a Google · {n} ressenyes', deliveryValue: '1 setmana', delivery: 'de lliurament', weddings: 'bodes documentades' },
+    intro: {
+      title: 'Què és un elopement?',
+      paras: [
+        'Un elopement és casar-vos de veritat, però sense el gran convit. Només vosaltres dos —i, si voleu, un grapat de les persones que més estimeu— en un lloc que us digui alguna cosa.',
+        'Sense protocol, sense timing, sense 120 mirades a sobre ni la pressió d’agradar a tothom. El dia sencer és per a vosaltres: per mirar-vos, per respirar, per estar realment presents al moment que ho canvia tot.',
+        'No és una boda “a mitges”. És una altra manera d’entendre-la: més íntima, més calmada, més vosaltres.',
+      ],
+    },
+    beauty: {
+      title: 'Per què és tan bonic',
+      paras: [
+        'Perquè no actueu per a ningú. El que passa és de veritat: els nervis, el riure, les llàgrimes que no us aguanteu.',
+        'Perquè teniu temps. Un elopement no va amb rellotge. Podeu seure a mirar la vall en silenci o fer-vos un petó sense que ningú piqui de mans.',
+        'Perquè el lloc forma part de la història. A Siurana, la natura no és un decorat: és testimoni.',
+      ],
+    },
+    why: {
+      title: 'Per què Siurana',
+      intro: 'Siurana és d’aquells llocs que semblen fets perquè hi passi alguna cosa important.',
+      bullets: [
+        '**Cingles verticals** i vistes que et treuen l’alè, al cor del Priorat.',
+        '**Un poble medieval** de pedra, silenciós, com sortit d’una altra època.',
+        '**Postes de sol** que tenyeixen la roca de daurat — llum de somni per a la foto i el vídeo.',
+        '**Calma de veritat**: si trieu bé l’hora, tota la muntanya és per a vosaltres.',
+      ],
+    },
+    gallery: {
+      title: 'Un elopement real a Siurana',
+      intro: 'Algunes imatges d’una parella que va triar casar-se així: només ells, la muntanya i nosaltres per guardar-ho.',
+    },
+    video: {
+      title: 'El vídeo d’un elopement a Siurana',
+      intro: 'Mira com queda un elopement de veritat en aquest racó del Priorat.',
+      playLabel: 'Reproduir vídeo',
+      moreLabel: 'Més vídeos al nostre canal',
+    },
+    capture: {
+      title: 'Per què capturar-lo en foto I vídeo',
+      intro: 'Un elopement passa una sola vegada, i molt ràpid. No hi ha convidats que després us expliquin què es van perdre: sou vosaltres i el moment. Per això val la pena guardar-lo bé.',
+      bullets: [
+        '**La foto atura el temps**: la mirada, les mans que tremolen, la llum sobre la roca. Imatges per penjar a casa i mirar d’aquí 40 anys.',
+        '**El vídeo us torna el so i el moviment**: la vostra veu als vots, el vent, el riure, el silenci abans del “sí”. Reviureu el dia, no només el recordareu.',
+        '**Junts expliquen la història sencera.** Foto i vídeo pensats alhora, per un mateix equip, perquè res quedi fora.',
+      ],
+    },
+    included: {
+      title: 'Com ho fem',
+      bullets: [
+        'Us ajudem a pensar el dia: hora, recorregut i la millor llum a Siurana (o al lloc que trieu).',
+        'Cobertura de **foto i vídeo**, els dos germans, un sol equip coordinat.',
+        'Galeria privada online amb totes les fotos editades, **en una setmana**.',
+        'Vídeo editat com una pel·lícula, amb la vostra veu i el so del dia.',
+        'Ens movem per **tot Catalunya** (i on faci falta).',
+      ],
+    },
+    faqTitle: 'Dubtes sobre els elopements',
+    faqs: [
+      {
+        q: 'Un elopement és legal?',
+        a: 'La cerimònia a la muntanya sol ser simbòlica (la vivència, els vots, el moment). El tràmit legal el podeu fer al jutjat o notari a part, abans o després. Nosaltres ens encarreguem de capturar-ho tot; de la part legal us orientem, però qui casa oficialment és el jutge o notari.',
+      },
+      {
+        q: 'Quanta gent hi pot venir?',
+        a: 'Els que vulgueu: només vosaltres dos, o un grup petit de família i amics de veritat. La gràcia de l’elopement és precisament que és petit i íntim.',
+      },
+      {
+        q: 'Feu foto i vídeo alhora?',
+        a: 'Sí, és el que ens fa diferents. Som dos germans: un a la foto, l’altre al vídeo. Un sol equip coordinat, sense fer-vos repetir res.',
+      },
+      {
+        q: 'Només treballeu a Siurana?',
+        a: 'No. Siurana és un dels nostres llocs preferits per a elopements, però ens movem per tot Catalunya i on ens necessiteu. Si teniu un lloc especial, expliqueu-nos-el.',
+      },
+      {
+        q: 'Quan rebem les fotos i el vídeo?',
+        a: 'Les fotos molt ràpid: la galeria completa en una setmana. El vídeo una mica més, perquè el muntem amb calma perquè quedi com una pel·lícula.',
+      },
+    ],
+    finalCta: {
+      h2: 'Us imagineu casant-vos així?',
+      body: 'Expliqueu-nos com voleu que sigui el vostre dia i mirem dates. Sense compromís.',
+      primary: 'Parlem pel WhatsApp',
+      secondary: 'Escriviu-nos',
+    },
+    whatsAppMessage:
+      'Hola! Estem pensant en un elopement (a Siurana o un altre lloc) i ens agradaria saber disponibilitat i com ho feu.',
+    breadcrumbCurrent: 'Elopement a Siurana',
+  },
+
+  es: {
+    meta: {
+      title: 'Elopement en Siurana — fotógrafo y videógrafo | Lifetime Weddings',
+      description:
+        'Casaros solos los dos en Siurana, entre acantilados y pueblo medieval. Fotografía y vídeo de elopement íntimos, con mirada de autor. Nos movemos por toda Cataluña.',
+    },
+    hero: {
+      eyebrow: 'Elopement · Siurana, Priorat',
+      h1: 'Un elopement en Siurana: solo vosotros dos, la montaña y el sí',
+      sub: 'Casaros sin el gran banquete, en uno de los lugares más bonitos de Cataluña. Nosotros lo guardamos en foto y vídeo para que lo podáis revivir para siempre.',
+      ctaPrimary: 'Hablemos de vuestro día',
+      ctaSecondary: 'Qué es un elopement',
+      heroAlt: 'Pareja el día de su elopement en los acantilados de Siurana, fotografiados por Lifetime Weddings',
+    },
+    trust: { rating: 'en Google · {n} reseñas', deliveryValue: '1 semana', delivery: 'de entrega', weddings: 'bodas documentadas' },
+    intro: {
+      title: '¿Qué es un elopement?',
+      paras: [
+        'Un elopement es casaros de verdad, pero sin el gran banquete. Solo vosotros dos —y, si queréis, un puñado de las personas que más queréis— en un lugar que os diga algo.',
+        'Sin protocolo, sin timing, sin 120 miradas encima ni la presión de gustar a todos. El día entero es para vosotros: para miraros, para respirar, para estar de verdad presentes en el momento que lo cambia todo.',
+        'No es una boda “a medias”. Es otra forma de entenderla: más íntima, más tranquila, más vosotros.',
+      ],
+    },
+    beauty: {
+      title: 'Por qué es tan bonito',
+      paras: [
+        'Porque no actuáis para nadie. Lo que pasa es real: los nervios, la risa, las lágrimas que no os aguantáis.',
+        'Porque tenéis tiempo. Un elopement no va con reloj. Podéis sentaros a mirar el valle en silencio o besaros sin que nadie aplauda.',
+        'Porque el lugar forma parte de la historia. En Siurana, la naturaleza no es un decorado: es testigo.',
+      ],
+    },
+    why: {
+      title: 'Por qué Siurana',
+      intro: 'Siurana es de esos lugares que parecen hechos para que pase algo importante.',
+      bullets: [
+        '**Acantilados verticales** y vistas que quitan el aliento, en el corazón del Priorat.',
+        '**Un pueblo medieval** de piedra, silencioso, como salido de otra época.',
+        '**Puestas de sol** que tiñen la roca de dorado — luz de ensueño para la foto y el vídeo.',
+        '**Calma de verdad**: si elegís bien la hora, toda la montaña es para vosotros.',
+      ],
+    },
+    gallery: {
+      title: 'Un elopement real en Siurana',
+      intro: 'Algunas imágenes de una pareja que eligió casarse así: solo ellos, la montaña y nosotros para guardarlo.',
+    },
+    video: {
+      title: 'El vídeo de un elopement en Siurana',
+      intro: 'Mira cómo queda un elopement de verdad en este rincón del Priorat.',
+      playLabel: 'Reproducir vídeo',
+      moreLabel: 'Más vídeos en nuestro canal',
+    },
+    capture: {
+      title: 'Por qué capturarlo en foto Y vídeo',
+      intro: 'Un elopement pasa una sola vez, y muy rápido. No hay invitados que luego os cuenten lo que se perdieron: sois vosotros y el momento. Por eso vale la pena guardarlo bien.',
+      bullets: [
+        '**La foto detiene el tiempo**: la mirada, las manos que tiemblan, la luz sobre la roca. Imágenes para colgar en casa y mirar dentro de 40 años.',
+        '**El vídeo os devuelve el sonido y el movimiento**: vuestra voz en los votos, el viento, la risa, el silencio antes del “sí”. Reviviréis el día, no solo lo recordaréis.',
+        '**Juntos cuentan la historia entera.** Foto y vídeo pensados a la vez, por un mismo equipo, para que nada quede fuera.',
+      ],
+    },
+    included: {
+      title: 'Cómo lo hacemos',
+      bullets: [
+        'Os ayudamos a pensar el día: hora, recorrido y la mejor luz en Siurana (o en el lugar que elijáis).',
+        'Cobertura de **foto y vídeo**, los dos hermanos, un solo equipo coordinado.',
+        'Galería privada online con todas las fotos editadas, **en una semana**.',
+        'Vídeo editado como una película, con vuestra voz y el sonido del día.',
+        'Nos movemos por **toda Cataluña** (y donde haga falta).',
+      ],
+    },
+    faqTitle: 'Dudas sobre los elopements',
+    faqs: [
+      {
+        q: '¿Un elopement es legal?',
+        a: 'La ceremonia en la montaña suele ser simbólica (la vivencia, los votos, el momento). El trámite legal lo podéis hacer en el juzgado o notaría aparte, antes o después. Nosotros nos encargamos de capturarlo todo; de la parte legal os orientamos, pero quien casa oficialmente es el juez o notario.',
+      },
+      {
+        q: '¿Cuánta gente puede venir?',
+        a: 'Los que queráis: solo vosotros dos, o un grupo pequeño de familia y amigos de verdad. La gracia del elopement es precisamente que es pequeño e íntimo.',
+      },
+      {
+        q: '¿Hacéis foto y vídeo a la vez?',
+        a: 'Sí, es lo que nos hace diferentes. Somos dos hermanos: uno en la foto, el otro en el vídeo. Un solo equipo coordinado, sin haceros repetir nada.',
+      },
+      {
+        q: '¿Solo trabajáis en Siurana?',
+        a: 'No. Siurana es uno de nuestros lugares favoritos para elopements, pero nos movemos por toda Cataluña y donde nos necesitéis. Si tenéis un lugar especial, contádnoslo.',
+      },
+      {
+        q: '¿Cuándo recibimos las fotos y el vídeo?',
+        a: 'Las fotos muy rápido: la galería completa en una semana. El vídeo un poco más, porque lo montamos con calma para que quede como una película.',
+      },
+    ],
+    finalCta: {
+      h2: '¿Os imagináis casándoos así?',
+      body: 'Contadnos cómo queréis que sea vuestro día y miramos fechas. Sin compromiso.',
+      primary: 'Hablemos por WhatsApp',
+      secondary: 'Escribidnos',
+    },
+    whatsAppMessage:
+      '¡Hola! Estamos pensando en un elopement (en Siurana u otro lugar) y nos gustaría saber disponibilidad y cómo lo hacéis.',
+    breadcrumbCurrent: 'Elopement en Siurana',
+  },
+
+  en: {
+    meta: {
+      title: 'Elopement in Siurana, Spain — photographer & videographer | Lifetime Weddings',
+      description:
+        'Elope just the two of you in Siurana, among cliffs and a medieval village in the Priorat. Intimate elopement photo + video with an editorial eye. We travel across Catalonia.',
+    },
+    hero: {
+      eyebrow: 'Elopement · Siurana, Priorat (Spain)',
+      h1: 'An elopement in Siurana: just the two of you, the mountain, and the "yes"',
+      sub: 'Getting married without the big reception, in one of the most beautiful spots in Catalonia. We keep it in photo and video so you can relive it forever.',
+      ctaPrimary: "Let's talk about your day",
+      ctaSecondary: 'What is an elopement',
+      heroAlt: 'Couple on their elopement day on the cliffs of Siurana, photographed by Lifetime Weddings',
+    },
+    trust: { rating: 'on Google · {n} reviews', deliveryValue: '1 week', delivery: 'delivery', weddings: 'weddings documented' },
+    intro: {
+      title: 'What is an elopement?',
+      paras: [
+        'An elopement is really getting married — just without the big reception. Only the two of you (and, if you want, a handful of the people you love most), somewhere that means something to you.',
+        'No protocol, no timeline, no 120 pairs of eyes on you, no pressure to please everyone. The whole day is yours: to look at each other, to breathe, to be truly present in the moment that changes everything.',
+        "It isn't a wedding done by halves. It's a different way of understanding it: more intimate, calmer, more you.",
+      ],
+    },
+    beauty: {
+      title: 'Why it is so beautiful',
+      paras: [
+        "Because you're not performing for anyone. What happens is real: the nerves, the laughter, the tears you can't hold back.",
+        "Because you have time. An elopement doesn't run on a clock. You can sit and watch the valley in silence, or kiss without anyone clapping.",
+        'Because the place is part of the story. In Siurana, nature is not a backdrop — it is a witness.',
+      ],
+    },
+    why: {
+      title: 'Why Siurana',
+      intro: 'Siurana is one of those places that feel made for something important to happen.',
+      bullets: [
+        '**Sheer cliffs** and breathtaking views, in the heart of the Priorat wine region.',
+        '**A medieval stone village**, silent, like something out of another era.',
+        '**Sunsets** that turn the rock golden — dream light for both photo and video.',
+        '**Real calm**: pick the right hour and the whole mountain is yours.',
+      ],
+    },
+    gallery: {
+      title: 'A real elopement in Siurana',
+      intro: 'A few images from a couple who chose to marry this way: just them, the mountain, and us there to keep it.',
+    },
+    video: {
+      title: 'The film of an elopement in Siurana',
+      intro: 'See how a real elopement looks in this corner of the Priorat.',
+      playLabel: 'Play video',
+      moreLabel: 'More videos on our channel',
+    },
+    capture: {
+      title: 'Why capture it in photo AND video',
+      intro: "An elopement happens once, and fast. There are no guests to tell you afterwards what they saw — it's just you and the moment. That's why it's worth keeping properly.",
+      bullets: [
+        '**Photo stops time**: the look, the trembling hands, the light on the rock. Images to hang at home and look at in 40 years.',
+        '**Video gives you back the sound and movement**: your voice in the vows, the wind, the laughter, the silence before the "yes". You relive the day, not just remember it.',
+        '**Together they tell the whole story.** Photo and video planned as one, by one team, so nothing is left out.',
+      ],
+    },
+    included: {
+      title: 'How it works',
+      bullets: [
+        'We help you plan the day: timing, route, and the best light in Siurana (or wherever you choose).',
+        '**Photo and video** coverage, both brothers, one coordinated team.',
+        'Private online gallery with every edited photo, **within a week**.',
+        'A film edited like a movie, with your voice and the sound of the day.',
+        'We travel across **all of Catalonia** (and wherever you need us).',
+      ],
+    },
+    faqTitle: 'Common questions about elopements',
+    faqs: [
+      {
+        q: 'Is an elopement legal?',
+        a: 'The ceremony on the mountain is usually symbolic (the experience, the vows, the moment). The legal paperwork can be done at a registry office or notary separately, before or after. We take care of documenting everything; we can point you in the right direction for the legal side, but the official marriage is done by the judge or notary.',
+      },
+      {
+        q: 'How many people can come?',
+        a: 'As many as you want: just the two of you, or a small group of close family and friends. The beauty of an elopement is precisely that it stays small and intimate.',
+      },
+      {
+        q: 'Do you shoot photo and video together?',
+        a: "Yes — it's what sets us apart. We're two brothers: one on photo, the other on video. One coordinated team, without making you repeat anything.",
+      },
+      {
+        q: 'Do you only work in Siurana?',
+        a: 'No. Siurana is one of our favourite elopement spots, but we travel across all of Catalonia and wherever you need us. If you have a special place in mind, tell us about it.',
+      },
+      {
+        q: 'When do we get the photos and video?',
+        a: 'Photos very fast: the full gallery within a week. The film takes a little longer, because we edit it carefully so it feels like a movie.',
+      },
+    ],
+    finalCta: {
+      h2: 'Can you picture getting married like this?',
+      body: 'Tell us how you imagine your day and we\'ll check dates. No commitment.',
+      primary: 'Message us on WhatsApp',
+      secondary: 'Write to us',
+    },
+    whatsAppMessage:
+      "Hi! We're thinking about an elopement (in Siurana or somewhere else) and we'd love to know availability and how you work.",
+    breadcrumbCurrent: 'Elopement in Siurana',
+  },
+};
+
+const c = COPY[lang];
+const waLink = `${WHATSAPP_BASE}&text=${encodeURIComponent(c.whatsAppMessage)}`;
+const canonicalUrl = `${SITE.url}${langPath}/elopement-siurana`;
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: t('schema.breadcrumb.home'), url: `${SITE.url}${langPath}/` },
+    { name: c.breadcrumbCurrent, url: canonicalUrl },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: c.meta.title.split(' | ')[0],
+    description: c.meta.description,
+    provider: { '@type': 'LocalBusiness', name: 'Lifetime Weddings', url: SITE.url },
+    areaServed: { '@type': 'Place', name: 'Siurana, Priorat, Tarragona, Catalonia, Spain' },
+    serviceType: 'Elopement photography and videography',
+    url: canonicalUrl,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: c.faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+
+/** Render a copy snippet that may contain **bold** markers, HTML-escaped first. */
+function renderBold(s: string): string {
+  const escaped = s.replace(/[<>&]/g, (ch) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[ch] as string));
+  return escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+}
+---
+
+<BaseLayout
+  lang={lang}
+  title={c.meta.title}
+  description={c.meta.description}
+  canonicalPath="/elopement-siurana"
+  jsonLd={jsonLd}
+  ogImage={heroSrc}
+  ogType="article"
+>
+  <!-- Hero -->
+  <section class="relative h-[78vh] min-h-[520px] overflow-hidden">
+    <picture>
+      {isJpg(heroSrc) && <source type="image/webp" srcset={toWebp(heroSrc)} />}
+      <img
+        src={heroSrc}
+        alt={c.hero.heroAlt}
+        class="absolute inset-0 w-full h-full object-cover"
+        style="object-position: center 42%"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+        width={heroW}
+        height={heroH}
+      />
+    </picture>
+    <div class="absolute inset-0 bg-gradient-to-b from-black/45 via-black/30 to-black/75"></div>
+    <div class="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-6">
+      <p class="text-xs font-bold tracking-[0.24em] uppercase text-gold mb-4">{c.hero.eyebrow}</p>
+      <h1 class="font-display text-3xl md:text-5xl font-bold max-w-4xl leading-tight">{c.hero.h1}</h1>
+      <p class="mt-5 max-w-2xl text-base md:text-lg leading-relaxed opacity-95">{c.hero.sub}</p>
+      <div class="mt-8 flex flex-col sm:flex-row gap-3">
+        <a
+          href={waLink}
+          target="_blank"
+          rel="noopener"
+          class="inline-block bg-gold text-ink border-2 border-gold px-8 py-3.5 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white hover:border-ink transition-colors"
+        >
+          {c.hero.ctaPrimary}
+        </a>
+        <a
+          href="#que-es"
+          class="inline-block border-2 border-white/80 text-white px-8 py-3.5 text-sm font-bold tracking-[0.14em] uppercase hover:bg-white/10 transition-colors"
+        >
+          {c.hero.ctaSecondary}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust bar -->
+  <section class="bg-ink text-white py-6 px-6 border-y border-gold/20">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row gap-4 sm:gap-10 items-center justify-center text-center text-sm">
+      <div class="flex items-center gap-2">
+        <span class="text-gold font-bold">{rating.ratingValue.toFixed(1)}★</span>
+        <span class="opacity-85">{c.trust.rating.replace('{n}', String(rating.reviewCount))}</span>
+      </div>
+      <div class="hidden sm:block w-px h-5 bg-white/20"></div>
+      <div class="flex items-center gap-2">
+        <span class="text-gold font-bold">{c.trust.deliveryValue}</span>
+        <span class="opacity-85">{c.trust.delivery}</span>
+      </div>
+      <div class="hidden sm:block w-px h-5 bg-white/20"></div>
+      <div class="flex items-center gap-2">
+        <span class="text-gold font-bold">+150</span>
+        <span class="opacity-85">{c.trust.weddings}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- What is an elopement -->
+  <Section id="que-es">
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-6">{c.intro.title}</h2>
+      {c.intro.paras.map((p) => (
+        <p class="text-ink/80 leading-relaxed mb-4 text-base md:text-lg" set:html={renderBold(p)} />
+      ))}
+    </div>
+  </Section>
+
+  <!-- Why it's beautiful -->
+  <Section bg="cream">
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-6">{c.beauty.title}</h2>
+      {c.beauty.paras.map((p) => (
+        <p class="text-ink/80 leading-relaxed mb-4 text-base md:text-lg" set:html={renderBold(p)} />
+      ))}
+    </div>
+  </Section>
+
+  <!-- Gallery -->
+  <Section>
+    <div class="max-w-6xl mx-auto px-2">
+      <div class="max-w-2xl mb-8 md:mb-10">
+        <h2 class="font-display text-2xl md:text-3xl font-bold mb-3">{c.gallery.title}</h2>
+        <p class="text-ink/75 leading-relaxed">{c.gallery.intro}</p>
+      </div>
+      <div class="columns-2 md:columns-3 gap-3 md:gap-4 [&>figure]:mb-3 md:[&>figure]:mb-4">
+        {galleryItems.map((g, i) => (
+          <figure class="break-inside-avoid overflow-hidden">
+            <picture>
+              {isJpg(g.src) && <source type="image/webp" srcset={toWebp(g.src)} />}
+              <img
+                src={g.src}
+                alt={`${c.gallery.title} · ${i + 1}`}
+                class="w-full h-auto object-cover"
+                loading="lazy"
+                decoding="async"
+                width={g.w}
+                height={g.h}
+              />
+            </picture>
+          </figure>
+        ))}
+      </div>
+    </div>
+  </Section>
+
+  <!-- Video (click-to-load facade, consent-aware) -->
+  <Section bg="ink">
+    <div class="max-w-4xl mx-auto px-2">
+      <div class="text-center mb-8 md:mb-10">
+        <h2 class="font-display text-2xl md:text-3xl font-bold text-white mb-3">{c.video.title}</h2>
+        <p class="text-white/75 leading-relaxed max-w-2xl mx-auto">{c.video.intro}</p>
+      </div>
+      <div class="relative aspect-video bg-black overflow-hidden shadow-xl" data-yt-embed data-yt-id={VIDEO_ID}>
+        <button
+          type="button"
+          class="absolute inset-0 w-full h-full group focus:outline-none focus:ring-2 focus:ring-gold"
+          aria-label={`${c.video.playLabel}: ${c.video.title}`}
+          data-yt-toggle
+        >
+          <img
+            src={videoThumb(VIDEO_ID)}
+            data-fallback={videoThumbFallback(VIDEO_ID)}
+            alt={c.video.title}
+            class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+            decoding="async"
+            width="1280"
+            height="720"
+          />
+          <span class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors"></span>
+          <span class="absolute inset-0 flex items-center justify-center">
+            <span class="w-16 h-16 md:w-20 md:h-20 bg-white/90 rounded-full flex items-center justify-center group-hover:bg-white transition-colors shadow-lg">
+              <svg viewBox="0 0 24 24" class="w-7 h-7 md:w-8 md:h-8 fill-ink ml-1" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+            </span>
+          </span>
+        </button>
+      </div>
+      <div class="text-center mt-8">
+        <a href={SITE.social.youtube} target="_blank" rel="noopener" class="inline-block text-xs md:text-sm font-bold tracking-[0.18em] uppercase text-gold hover:text-white transition-colors">
+          {c.video.moreLabel} →
+        </a>
+      </div>
+    </div>
+  </Section>
+
+  <!-- Why photo AND video -->
+  <Section bg="cream">
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-5">{c.capture.title}</h2>
+      <p class="text-ink/75 leading-relaxed mb-6 text-base md:text-lg">{c.capture.intro}</p>
+      <ul class="space-y-4">
+        {c.capture.bullets.map((b) => (
+          <li class="flex gap-3">
+            <span class="text-gold-deep font-bold flex-shrink-0 mt-1">·</span>
+            <span class="text-ink/85 leading-relaxed" set:html={renderBold(b)} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  </Section>
+
+  <!-- Why Siurana -->
+  <Section>
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-5">{c.why.title}</h2>
+      <p class="text-ink/75 leading-relaxed mb-6 text-base md:text-lg">{c.why.intro}</p>
+      <ul class="space-y-4">
+        {c.why.bullets.map((b) => (
+          <li class="flex gap-3">
+            <span class="text-gold-deep font-bold flex-shrink-0 mt-1">·</span>
+            <span class="text-ink/85 leading-relaxed" set:html={renderBold(b)} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  </Section>
+
+  <!-- How it works / included -->
+  <Section bg="cream">
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-6">{c.included.title}</h2>
+      <ul class="space-y-4">
+        {c.included.bullets.map((b) => (
+          <li class="flex gap-3">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 mt-0.5 shrink-0 text-gold" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+            <span class="text-ink/85 leading-relaxed" set:html={renderBold(b)} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  </Section>
+
+  <!-- FAQ -->
+  <Section>
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-8">{c.faqTitle}</h2>
+      <div class="divide-y divide-line border-y border-line">
+        {c.faqs.map((f) => (
+          <details class="group">
+            <summary class="flex items-start justify-between gap-4 py-5 md:py-6 cursor-pointer list-none select-none">
+              <span class="text-base md:text-lg leading-snug pr-2" style="font-weight: 500;">{f.q}</span>
+              <span aria-hidden="true" class="shrink-0 w-6 h-6 mt-1 flex items-center justify-center text-gold-deep transition-transform duration-200 group-open:rotate-45">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+              </span>
+            </summary>
+            <p class="pb-5 md:pb-6 pr-10 text-ink/75 leading-relaxed text-[0.95rem]" set:html={renderBold(f.a)} />
+          </details>
+        ))}
+      </div>
+    </div>
+  </Section>
+
+  <!-- Final CTA -->
+  <Section bg="cream">
+    <div class="max-w-2xl mx-auto px-2 text-center">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-5">{c.finalCta.h2}</h2>
+      <p class="text-ink/75 leading-relaxed mb-8 text-base md:text-lg">{c.finalCta.body}</p>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <a
+          href={waLink}
+          target="_blank"
+          rel="noopener"
+          class="inline-block bg-gold text-ink border-2 border-gold px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white hover:border-ink transition-colors"
+        >
+          {c.finalCta.primary}
+        </a>
+        <a
+          href={contactoPath}
+          class="inline-block border-2 border-ink text-ink px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white transition-colors"
+        >
+          {c.finalCta.secondary}
+        </a>
+      </div>
+    </div>
+  </Section>
+
+  <StickyMobileCta
+    lang={lang}
+    whatsAppHref={waLink}
+    secondaryHref={contactoPath}
+    primaryLabel={c.finalCta.primary}
+    secondaryLabel={c.finalCta.secondary}
+  />
+</BaseLayout>
+
+{/* Click-to-load YouTube — no iframe until the visitor taps play. */}
+<script is:inline define:vars={{
+  gatedTitle: t('consent.gated.title'),
+  gatedBody: t('consent.gated.body'),
+  gatedCta: t('consent.gated.cta'),
+}}>
+  (() => {
+    function consentRejected() {
+      try {
+        const raw = localStorage.getItem('lifetime.cookies.v1');
+        if (!raw) return false;
+        return JSON.parse(raw)?.choice === 'reject';
+      } catch { return false; }
+    }
+    function showGatedMessage(wrap) {
+      const div = document.createElement('div');
+      div.className = 'absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-ink/90 text-white';
+      div.innerHTML =
+        '<p class="font-display text-lg font-bold mb-2">' + gatedTitle +
+        '</p><p class="text-sm text-white/80 max-w-md mb-4">' + gatedBody +
+        '</p><button type="button" data-cookie-reopen class="bg-gold text-ink text-xs font-bold tracking-[0.15em] uppercase px-5 py-2.5 hover:brightness-110 transition">' +
+        gatedCta + '</button>';
+      wrap.replaceChildren(div);
+      const btn = div.querySelector('[data-cookie-reopen]');
+      if (btn) btn.addEventListener('click', () => document.dispatchEvent(new CustomEvent('consent:reopen')));
+    }
+    document.querySelectorAll('[data-yt-embed]').forEach((wrap) => {
+      const btn = wrap.querySelector('[data-yt-toggle]');
+      const img = wrap.querySelector('img[data-fallback]');
+      const id = wrap.getAttribute('data-yt-id');
+      if (img) img.addEventListener('error', () => { img.src = img.dataset.fallback; }, { once: true });
+      if (!btn || !id) return;
+      btn.addEventListener('click', () => {
+        if (consentRejected()) { showGatedMessage(wrap); return; }
+        const iframe = document.createElement('iframe');
+        iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+        iframe.title = btn.getAttribute('aria-label') || 'Video';
+        iframe.className = 'absolute inset-0 w-full h-full';
+        iframe.setAttribute('frameborder', '0');
+        iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+        iframe.setAttribute('allowfullscreen', '');
+        iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+        wrap.replaceChildren(iframe);
+      });
+    });
+  })();
+</script>
