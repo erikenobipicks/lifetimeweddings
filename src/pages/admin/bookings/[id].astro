@@ -7,7 +7,7 @@
 //   - Bottom: form_response display if the couple already submitted.
 import AdminLayout from '~/layouts/AdminLayout.astro';
 import PackPaymentTools from '~/components/admin/PackPaymentTools.astro';
-import { getBookingById, getFormResponseForBooking, listPayments, listBookingChanges } from '~/lib/bookings/repository';
+import { getBookingById, getFormResponseForBooking, listPayments, listBookingChanges, listFormSubmissions } from '~/lib/bookings/repository';
 import type { BookingStatus } from '~/lib/bookings/types';
 import { publicVideos, fullVideos } from '~/data/videos';
 import { getBankTransferDetails, isStripeTestMode } from '~/lib/payments/config';
@@ -26,6 +26,13 @@ const booking = await getBookingById(id);
 if (!booking) return new Response('Not found', { status: 404 });
 
 const formResponse = await getFormResponseForBooking(booking.id);
+
+// Basic-info form (collab / external bookings only): the couple's answers,
+// if they've filled the shareable link. Newest first; we show the latest.
+const basicInfoSubmissions = booking.kind !== 'own'
+  ? await listFormSubmissions(booking.id, 'basic_info')
+  : [];
+const latestBasicInfo = basicInfoSubmissions[0] ?? null;
 
 // Payments ledger + pending balance. Total to settle = effective price
 // (pack − discount). Pending can go negative if overpaid.
@@ -1206,6 +1213,72 @@ const ibanPlaceholder = transfer.isPlaceholder;
     </section>
   )}
 
+  {/* ── Basic-info form (collab / external bookings only) ──────────────
+      For weddings not exclusively under the LifeTime brand: generate a
+      shareable link (no email sent) so Eric can collect the four basics
+      via WhatsApp. */}
+  {booking.kind !== 'own' && (
+    <section class="mt-10 bg-white border border-line p-5 md:p-8" id="basic-info-form">
+      <div class="mb-4">
+        <h2 class="font-display text-xl md:text-2xl font-bold">Formulari bàsic</h2>
+        <p class="text-sm text-ink/65 mt-1">
+          Per bodes que no són exclusivament amb el nom Lifetime. Genera un enllaç i envia'l tu
+          (WhatsApp, etc.) — no s'envia cap correu. Demana: noms, data, lloc de la cerimònia, restaurant i telèfon.
+        </p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3 p-4 bg-cream/60 border border-gold/30">
+        <button
+          type="button"
+          data-basic-form-btn
+          data-booking-id={booking.id}
+          class="bg-ink text-white text-xs font-bold tracking-widest uppercase px-5 py-2.5 hover:bg-gold hover:text-ink transition-colors whitespace-nowrap"
+        >
+          🔗 Generar enllaç
+        </button>
+        <div class="flex-1 flex flex-col sm:flex-row gap-2">
+          <input
+            type="text"
+            data-basic-form-url
+            readonly
+            placeholder="L'enllaç apareixerà aquí…"
+            class="flex-1 min-w-0 px-3 py-2 border border-line bg-white text-sm font-mono text-ink/80 focus:border-gold focus:outline-none"
+          />
+          <button
+            type="button"
+            data-basic-form-copy
+            hidden
+            class="border border-ink/20 text-ink text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-cream transition-colors whitespace-nowrap"
+          >Copiar</button>
+        </div>
+      </div>
+      <p class="text-[0.7rem] text-ink/55 mt-2">Cada cop que generes l'enllaç, l'anterior deixa de funcionar.</p>
+
+      {latestBasicInfo && (
+        <div class="mt-6 border border-line bg-cream/40 p-4">
+          <p class="text-[0.7rem] font-bold tracking-widest uppercase text-gold-deep mb-3">
+            Resposta rebuda{latestBasicInfo.submittedAt ? ` · ${fmtDateTime(latestBasicInfo.submittedAt)}` : ''}
+          </p>
+          <dl class="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+            {[
+              ['Nuvi/a 1', latestBasicInfo.data.couple_name_1],
+              ['Nuvi/a 2', latestBasicInfo.data.couple_name_2],
+              ['Data', latestBasicInfo.data.wedding_date],
+              ['Cerimònia', latestBasicInfo.data.ceremony_location],
+              ['Restaurant', latestBasicInfo.data.restaurant],
+              ['Telèfon', latestBasicInfo.data.contact_phone],
+            ].filter(([, v]) => v).map(([label, value]) => (
+              <div>
+                <dt class="text-[0.7rem] uppercase tracking-widest text-ink/55">{label}</dt>
+                <dd class="text-ink/90 font-medium">{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )}
+    </section>
+  )}
+
   <!-- ── Communicacions ─────────────────────────────────────────────── -->
   <!-- Email-sequence queue for this booking. Lets Eric see what's been
        sent / is pending, force-send something now, or cancel an upcoming
@@ -1538,4 +1611,46 @@ const ibanPlaceholder = transfer.isPlaceholder;
   document.querySelectorAll<HTMLInputElement>('input[name="discountType"]').forEach((r) => r.addEventListener('change', updateDiscountPreview));
   packPriceInput?.addEventListener('input', updateDiscountPreview);
   updateDiscountPreview();
+
+  // Basic-info form: generate a shareable /formulari link (no email) and
+  // surface it for copying. Each click mints a fresh token server-side.
+  const basicBtn = document.querySelector<HTMLButtonElement>('[data-basic-form-btn]');
+  const basicUrlInput = document.querySelector<HTMLInputElement>('[data-basic-form-url]');
+  const basicCopyBtn = document.querySelector<HTMLButtonElement>('[data-basic-form-copy]');
+  if (basicBtn && basicUrlInput) {
+    basicBtn.addEventListener('click', async () => {
+      const bookingId = basicBtn.dataset.bookingId;
+      if (!bookingId) return;
+      const original = basicBtn.textContent;
+      basicBtn.disabled = true;
+      basicBtn.textContent = 'Generant…';
+      try {
+        const res = await fetch(`/api/admin/bookings/${bookingId}/basic-form-link`, { method: 'POST' });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok || !body.url) throw new Error(body.detail ?? body.error ?? `HTTP ${res.status}`);
+        basicUrlInput.value = body.url;
+        if (basicCopyBtn) basicCopyBtn.hidden = false;
+        basicBtn.textContent = '↻ Regenerar';
+      } catch (err) {
+        console.error('[basic-form-link]', err);
+        alert('No s\'ha pogut generar l\'enllaç. Torna-ho a provar.');
+        basicBtn.textContent = original;
+      } finally {
+        basicBtn.disabled = false;
+      }
+    });
+  }
+  if (basicCopyBtn && basicUrlInput) {
+    basicCopyBtn.addEventListener('click', async () => {
+      if (!basicUrlInput.value) return;
+      try {
+        await navigator.clipboard.writeText(basicUrlInput.value);
+        const old = basicCopyBtn.textContent;
+        basicCopyBtn.textContent = '✓ Copiat';
+        setTimeout(() => { basicCopyBtn.textContent = old; }, 1500);
+      } catch {
+        basicUrlInput.select();
+      }
+    });
+  }
 </script>

@@ -24,7 +24,7 @@ const FROM_HELLO = process.env.EMAIL_FROM_HELLO ?? 'Lifetime Weddings <hola@life
 const SITE_URL = process.env.PUBLIC_SITE_URL ?? SITE.url;
 
 export type TriggerKind = 'days_after_deposit' | 'days_before_wedding' | 'days_after_wedding';
-export type FormKind = 'timeline' | 'guest_list' | 'music' | 'wedding_details' | 'inspiration'; // expand as Eric adds forms
+export type FormKind = 'timeline' | 'guest_list' | 'music' | 'wedding_details' | 'inspiration' | 'basic_info'; // expand as Eric adds forms
 
 // Which couples a sequence targets, by service type:
 //   'any'   — everyone (the default; pre-migration rows behave this way too)
@@ -476,6 +476,66 @@ export async function fastForwardSchedule(id: number): Promise<void> {
     sql: `UPDATE email_schedules SET scheduled_for = ?, sent_at = NULL WHERE id = ?`,
     args: [ymd(new Date()), id],
   });
+}
+
+/** Look up a sequence by its stable slug. Used by the manual "generate
+ *  form link" flow to resolve a form kind (e.g. 'formulari-basic-info')
+ *  to its id without hard-coding the numeric id. */
+export async function getSequenceBySlug(slug: string): Promise<EmailSequence | null> {
+  await initSchema();
+  const res = await db.execute({ sql: 'SELECT * FROM email_sequences WHERE slug = ?', args: [slug] });
+  if (res.rows.length === 0) return null;
+  return mapSequence(res.rows[0] as unknown as Record<string, unknown>);
+}
+
+/** Generate (or refresh) a shareable form link for a booking WITHOUT
+ *  sending any email. Used for the basic-info form on collab / external
+ *  (white-label) bookings, where Eric copies the link and sends it
+ *  himself (WhatsApp etc.) — no Lifetime-branded email goes out.
+ *
+ *  Mechanics: creates or reactivates the (booking, sequence) schedule with
+ *  a fresh form_token and stamps `sent_at = now`. Stamping sent_at keeps
+ *  the daily cron from ever emailing it (sendDueEmails filters sent_at IS
+ *  NULL), while the token still resolves on /formulari/<token>.
+ *
+ *  Returns the fresh form_token so the caller can build the URL. Throws if
+ *  the sequence has no form_kind (a link would render nothing). */
+export async function generateFormLink(bookingId: string, sequenceId: number): Promise<string> {
+  await initSchema();
+  const seq = await getSequenceById(sequenceId);
+  if (!seq) throw new Error(`Sequence ${sequenceId} not found`);
+  if (!seq.formKind) throw new Error(`Sequence ${sequenceId} has no form_kind — cannot generate a link`);
+  const now = toIso(new Date());
+  const today = ymd(new Date());
+  const token = randomUUID();
+
+  const existing = await db.execute({
+    sql: 'SELECT id FROM email_schedules WHERE booking_id = ? AND sequence_id = ?',
+    args: [bookingId, sequenceId],
+  });
+
+  if (existing.rows.length === 0) {
+    await db.execute({
+      sql: `INSERT INTO email_schedules (
+        booking_id, sequence_id, scheduled_for, form_token, sent_at, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?)`,
+      args: [bookingId, sequenceId, today, token, now, now],
+    });
+  } else {
+    // Refresh the token (invalidates any previous link) and re-stamp
+    // sent_at so the cron never picks it up. Clear cancelled_at defensively.
+    const id = Number((existing.rows[0] as Record<string, unknown>).id);
+    await db.execute({
+      sql: `UPDATE email_schedules SET
+              form_token = ?,
+              sent_at = ?,
+              cancelled_at = NULL,
+              last_error = NULL
+            WHERE id = ?`,
+      args: [token, now, id],
+    });
+  }
+  return token;
 }
 
 export async function getScheduleByToken(token: string): Promise<EmailScheduleRow | null> {

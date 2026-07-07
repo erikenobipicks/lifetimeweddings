@@ -47,6 +47,7 @@ const formTitles: Record<string, Record<L, string>> = {
   timeline: { ca: 'Timeline del dia', es: 'Timeline del día', en: 'Wedding-day timeline' },
   guest_list: { ca: 'Llista de convidats', es: 'Lista de invitados', en: 'Guest list' },
   music: { ca: 'Música', es: 'Música', en: 'Music' },
+  basic_info: { ca: 'Dades de la boda', es: 'Datos de la boda', en: 'Wedding details' },
 };
 const title = formKind ? (formTitles[formKind]?.[lang] ?? 'Formulari') : 'Formulari';
 const invalid = !schedule || !booking || !formKind;
@@ -54,9 +55,45 @@ if (invalid) Astro.response.status = 404;
 
 const isWeddingDetails = formKind === 'wedding_details';
 const isInspiration = formKind === 'inspiration';
+const isBasicInfo = formKind === 'basic_info';
 const name1 = booking?.coupleName1 ?? '';
 const name2 = booking?.coupleName2 ?? '';
 const venueName = booking?.venueName ?? '';
+
+// Basic-info form copy (collab / external bookings). Kept inline like the
+// other forms; three langs.
+const TB = {
+  ca: {
+    intro: 'Només necessitem quatre dades per organitzar-nos. Es replena en un minut.',
+    name1: 'Nom del primer nuvi/a', name2: 'Nom del segon nuvi/a',
+    date: 'Data de la boda', ceremony: 'Lloc de la cerimònia',
+    restaurant: 'Restaurant / banquet', restaurantHint: 'Si és al mateix lloc que la cerimònia, torna-ho a posar.',
+    phone: 'Telèfon de contacte del dia', phoneHint: 'Per si necessitem localitzar-vos el dia de la boda.',
+    optional: 'opcional', submit: 'Enviar', sending: 'Enviant…',
+    errorMsg: 'Hi ha hagut un error. Torna-ho a provar.',
+    thanksH: 'Rebut, gràcies!', thanksP: 'Ja tenim les vostres dades. Ens posem en contacte si ens falta res.',
+  },
+  es: {
+    intro: 'Solo necesitamos cuatro datos para organizarnos. Se rellena en un minuto.',
+    name1: 'Nombre del primer novio/a', name2: 'Nombre del segundo novio/a',
+    date: 'Fecha de la boda', ceremony: 'Lugar de la ceremonia',
+    restaurant: 'Restaurante / banquete', restaurantHint: 'Si es en el mismo sitio que la ceremonia, vuélvelo a poner.',
+    phone: 'Teléfono de contacto del día', phoneHint: 'Por si necesitamos localizaros el día de la boda.',
+    optional: 'opcional', submit: 'Enviar', sending: 'Enviando…',
+    errorMsg: 'Ha habido un error. Inténtalo de nuevo.',
+    thanksH: '¡Recibido, gracias!', thanksP: 'Ya tenemos vuestros datos. Nos ponemos en contacto si nos falta algo.',
+  },
+  en: {
+    intro: 'We just need four details to get organised. Takes a minute.',
+    name1: 'First partner\'s name', name2: 'Second partner\'s name',
+    date: 'Wedding date', ceremony: 'Ceremony location',
+    restaurant: 'Restaurant / reception', restaurantHint: 'If it\'s the same place as the ceremony, just repeat it.',
+    phone: 'Contact phone for the day', phoneHint: 'In case we need to reach you on the wedding day.',
+    optional: 'optional', submit: 'Send', sending: 'Sending…',
+    errorMsg: 'Something went wrong. Please try again.',
+    thanksH: 'Got it, thank you!', thanksP: 'We have your details now. We\'ll get in touch if anything is missing.',
+  },
+}[lang];
 
 // Operator-proposed wedding-day timeline, shown read-only at the top of the
 // wedding_details form so the couple can see the plan while adding details.
@@ -367,8 +404,8 @@ const TX = {
         </>
       ) : alreadySubmitted ? (
         <>
-          <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">{isWeddingDetails ? TX.thanksH : isInspiration ? TI.thanksH : 'Gràcies!'}</h1>
-          <p class="text-ink/75 leading-relaxed">{isWeddingDetails ? TX.thanksP : isInspiration ? TI.thanksP : 'Ja hem rebut les vostres respostes. Si voleu modificar alguna cosa, escriviu-nos.'}</p>
+          <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">{isWeddingDetails ? TX.thanksH : isInspiration ? TI.thanksH : isBasicInfo ? TB.thanksH : 'Gràcies!'}</h1>
+          <p class="text-ink/75 leading-relaxed">{isWeddingDetails ? TX.thanksP : isInspiration ? TI.thanksP : isBasicInfo ? TB.thanksP : 'Ja hem rebut les vostres respostes. Si voleu modificar alguna cosa, escriviu-nos.'}</p>
         </>
       ) : isWeddingDetails ? (
         <>
@@ -731,6 +768,66 @@ const TX = {
           <div id="wd-thanks" class="hidden">
             <h2 class="font-display text-3xl md:text-4xl font-bold mb-3">{TI.thanksH}</h2>
             <p class="text-ink/75 leading-relaxed">{TI.thanksP}</p>
+          </div>
+        </>
+      ) : isBasicInfo ? (
+        <>
+          <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">{title}</h1>
+          <p class="text-ink/75 leading-relaxed mb-10">{TB.intro}</p>
+
+          <form id="wd-form" data-token={token} class="space-y-6 max-w-xl">
+            <div class="grid sm:grid-cols-2 gap-5">
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TB.name1}</span>
+                <input name="couple_name_1" type="text" required value={name1}
+                       class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TB.name2}</span>
+                <input name="couple_name_2" type="text" required value={name2}
+                       class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+            </div>
+
+            <label class="block">
+              <span class="text-sm font-bold text-ink/80">{TB.date}</span>
+              <input name="wedding_date" type="date" required
+                     class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+            </label>
+
+            <label class="block">
+              <span class="text-sm font-bold text-ink/80">{TB.ceremony}</span>
+              <input name="ceremony_location" type="text" required value={venueName}
+                     class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+            </label>
+
+            <label class="block">
+              <span class="text-sm font-bold text-ink/80">{TB.restaurant}</span>
+              <span class="block text-xs text-ink/70 mb-1">{TB.restaurantHint}</span>
+              <input name="restaurant" type="text" required
+                     class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+            </label>
+
+            <label class="block">
+              <span class="text-sm font-bold text-ink/80">{TB.phone}</span>
+              <span class="block text-xs text-ink/70 mb-1">{TB.phoneHint}</span>
+              <input name="contact_phone" type="tel" inputmode="tel"
+                     class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+            </label>
+
+            <p id="wd-error" class="hidden text-sm text-red-600">{TB.errorMsg}</p>
+
+            <button
+              type="submit"
+              id="wd-submit"
+              class="bg-ink text-white text-sm font-bold tracking-widest uppercase px-8 py-3 hover:bg-gold hover:text-ink transition-colors"
+              data-sending={TB.sending}
+            >{TB.submit}</button>
+          </form>
+
+          <div id="wd-thanks" class="hidden">
+            <h2 class="font-display text-3xl md:text-4xl font-bold mb-3">{TB.thanksH}</h2>
+            <p class="text-ink/75 leading-relaxed">{TB.thanksP}</p>
           </div>
         </>
       ) : (
