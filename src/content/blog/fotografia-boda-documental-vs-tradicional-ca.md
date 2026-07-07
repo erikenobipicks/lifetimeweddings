@@ -26,7 +26,7 @@ La fotografia documental de casament (també la veureu anomenada fotoperiodisme 
 
 L'abraçada del teu pare just abans d'entrar. La riallada de la teva àvia enmig del discurs. Aquella mirada que us creueu sense adonar-vos-en mentre tothom balla. Res d'això no es pot posar. Només s'hi pot ser, atent, i capturar-ho quan passa.
 
-<!-- [IMATGE] arxiu: fotografia-casament-documental-emocio-real.webp · alt: "Fotografia documental de casament: núvia emocionada en un moment espontani durant la cerimònia" -->
+![Fotografia documental de casament: núvia emocionada en un moment espontani durant la cerimònia](/blog/fotografia-boda-documental-vs-tradicional/emocion-real.webp)
 
 ### El fotògraf invisible: capturar sense interrompre
 
@@ -62,7 +62,7 @@ Això gairebé ningú no ho té en compte a l'hora de triar fotògraf, i és fon
 
 Feu aquesta prova mental: imagineu el vostre àlbum d'aquí a dues dècades. Els posats envelleixen perquè responen a la moda del moment. Els moments reals no envelleixen mai, perquè l'emoció no passa de moda. La foto del teu avi rient a la sobretaula valdrà infinitament més d'aquí a vint anys que qualsevol posat perfecte, sobretot quan algunes de les persones d'aquelles fotos ja no hi siguin. Aquesta és, sincerament, la raó més profunda per triar documental.
 
-<!-- [IMATGE] arxiu: fotografia-casament-documental-moment-familiar.webp · alt: "Moment familiar espontani capturat en estil documental durant el banquet d'un casament" -->
+![Moment familiar espontani capturat en estil documental durant el banquet d'un casament](/blog/fotografia-boda-documental-vs-tradicional/momento-familiar.webp)
 
 ## Mites sobre la fotografia documental de casament
 
@@ -74,7 +74,7 @@ Feu aquesta prova mental: imagineu el vostre àlbum d'aquí a dues dècades. Els
 
 El fotògraf documental no publica tot el que dispara: selecciona. La seva feina és capturar la veritat del vostre dia amb bellesa, no enxampar-vos en el pitjor angle possible. La llum, la composició i el moment es cuiden igual (o més) que en l'estil tradicional. El que canvia és que la bellesa surt d'allò real, no d'allò fabricat. I hi ha poques coses més afavoridores que una persona rient de veritat.
 
-<!-- [IMATGE] arxiu: retrat-parella-natural-casament-documental.webp · alt: "Retrat natural de parella de nuvis passejant, sense posats forçats, estil documental" -->
+![Retrat natural de parella de nuvis passejant, sense posats forçats, estil documental](/blog/fotografia-boda-documental-vs-tradicional/retrato-pareja.webp)
 
 ## Com saber quin estil encaixa amb vosaltres: 4 preguntes per decidir
 

@@ -26,7 +26,7 @@ Documentary wedding photography (you'll also see it called wedding photojournali
 
 Your father's hug just before you walk in. Your grandmother's laugh in the middle of a speech. That look you exchange without realising while everyone is dancing. None of that can be posed. You can only be there, alert, and capture it as it happens.
 
-<!-- [IMAGE] file: documentary-wedding-real-emotion.webp · alt: "Documentary wedding photography: emotional bride in a spontaneous moment during the ceremony" -->
+![Documentary wedding photography: emotional bride in a spontaneous moment during the ceremony](/blog/fotografia-boda-documental-vs-tradicional/emocion-real.webp)
 
 ### The invisible photographer: capturing without interrupting
 
@@ -62,7 +62,7 @@ Almost nobody takes this into account when choosing a photographer, and it's fun
 
 Do this mental test: imagine your album two decades from now. Poses age because they follow the fashion of the moment. Real moments never age, because emotion never goes out of style. The photo of your grandfather laughing after lunch will be worth infinitely more twenty years from now than any perfect pose, especially when some of the people in those photos are no longer here. That is, honestly, the deepest reason to choose documentary.
 
-<!-- [IMAGE] file: documentary-wedding-family-moment.webp · alt: "Spontaneous family moment captured in documentary style during a wedding reception" -->
+![Spontaneous family moment captured in documentary style during a wedding reception](/blog/fotografia-boda-documental-vs-tradicional/momento-familiar.webp)
 
 ## Myths about documentary wedding photography
 
@@ -74,7 +74,7 @@ Of course there will. This is the most common misunderstanding. A good documenta
 
 The documentary photographer doesn't publish everything they shoot: they select. Their job is to capture the truth of your day beautifully, not to catch you at the worst possible angle. Light, composition and timing are looked after just as much (or more) than in the traditional style. What changes is that the beauty comes from the real, not the manufactured. And there are few things more flattering than a person genuinely laughing.
 
-<!-- [IMAGE] file: natural-couple-portrait-documentary-wedding.webp · alt: "Natural portrait of a wedding couple walking, no forced posing, documentary style" -->
+![Natural portrait of a wedding couple walking, no forced posing, documentary style](/blog/fotografia-boda-documental-vs-tradicional/retrato-pareja.webp)
 
 ## How to know which style fits you: 4 questions to decide
 
