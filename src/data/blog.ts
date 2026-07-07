@@ -9,6 +9,11 @@ export interface BlogPost {
   slug: string;
   legacySlug: string;
   title: string;
+  /** Optional per-language title. When present, the post page uses it for the
+   *  <title>, the <h1> and the BlogPosting headline in that language; when
+   *  absent it falls back to `title`. Descriptions are localised separately
+   *  via each Markdown variant's frontmatter. */
+  titleByLang?: Partial<Record<'ca' | 'es' | 'en', string>>;
   author: 'eric' | 'ferran' | null;
   publishedAt: string | null; // ISO date
   updatedAt: string; // ISO date
@@ -23,6 +28,22 @@ export const BLOG_CATEGORIES: Record<BlogCategory, { es: string; ca: string; en:
 };
 
 export const BLOG_POSTS: BlogPost[] = [
+  {
+    slug: 'fotografia-boda-documental-vs-tradicional',
+    legacySlug: 'fotografia-boda-documental-vs-tradicional',
+    title: 'Fotografía de boda documental vs tradicional: cuál va con vosotros (guía honesta)',
+    titleByLang: {
+      es: 'Fotografía de boda documental vs tradicional: cuál va con vosotros (guía honesta)',
+      ca: 'Fotografia de casament documental vs tradicional: quina va amb vosaltres (guia honesta)',
+      en: 'Documentary vs traditional wedding photography: which one is for you (an honest guide)',
+    },
+    author: 'ferran',
+    publishedAt: '2026-07-07',
+    updatedAt: '2026-07-07',
+    readingTime: 8,
+    category: 'fotografia',
+    cover: '/blog/fotografia-boda-documental-vs-tradicional/cover.webp',
+  },
   {
     slug: 'bodas-en-otono-en-tarragona',
     legacySlug: 'bodas-en-otono-en-tarragona',
