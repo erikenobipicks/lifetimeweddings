@@ -350,6 +350,68 @@ export function venueServiceJsonLd(args: {
   };
 }
 
+// ─── WebPage node ────────────────────────────────────────────────────────────
+// Generic WebPage node for cluster/landing pages (pillar + children). Anchors
+// the page in the graph (isPartOf the WebSite, about the LocalBusiness) and
+// carries the hero as `primaryImageOfPage` (an ImageObject) so Google has an
+// explicit representative image with dimensions + attribution.
+export function webPageJsonLd(args: {
+  pageUrl: string;
+  name: string;
+  description: string;
+  lang: Lang;
+  primaryImage?: { url: string; width?: number; height?: number; caption?: string };
+}) {
+  const img = args.primaryImage;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${args.pageUrl}#webpage`,
+    url: args.pageUrl,
+    name: args.name,
+    description: args.description,
+    inLanguage: args.lang,
+    isPartOf: { '@id': ID.website },
+    about: { '@id': ID.business },
+    ...(img
+      ? {
+          primaryImageOfPage: {
+            '@type': 'ImageObject',
+            contentUrl: abs(img.url),
+            ...(img.width ? { width: img.width } : {}),
+            ...(img.height ? { height: img.height } : {}),
+            ...(img.caption ? { caption: img.caption, description: img.caption } : {}),
+            creator: { '@id': ID.business },
+            copyrightHolder: { '@id': ID.business },
+            acquireLicensePage: `${SITE.url}/legal`,
+          },
+        }
+      : {}),
+  };
+}
+
+// ─── Elopement-specific Service node ─────────────────────────────────────────
+// Sister of venueServiceJsonLd / zoneServiceJsonLd for the elopement cluster.
+// `areaServed` is the list of places the locality page targets. Same provider
+// reference (#business) and no fixed price (quote depends on the day).
+export function elopementServiceJsonLd(args: {
+  areaName: string;
+  areaServed: string[];
+  canonicalUrl: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: `Fotografia i vídeo d'elopement a ${args.areaName}`,
+    serviceType: 'Elopement photography and videography',
+    provider: { '@id': ID.business },
+    areaServed: args.areaServed.map((a) => ({ '@type': 'Place', name: a })),
+    audience: { '@type': 'Audience', audienceType: 'Engaged couples' },
+    url: args.canonicalUrl,
+    image: abs('/og-default.jpg'),
+  };
+}
+
 // ─── FAQPage builder ────────────────────────────────────────────────────────
 // Generic FAQPage block — pass an array of question/answer pairs.
 // Lifts a chunk of SERP real estate via FAQ rich results when the underlying
