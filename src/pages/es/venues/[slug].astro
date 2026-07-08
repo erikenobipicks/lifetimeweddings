@@ -11,6 +11,7 @@ import StickyMobileCta from '~/components/StickyMobileCta.astro';
 import { VENUES } from '~/data/venues';
 import { VENUES_I18N } from '~/data/venues.i18n';
 import { WEDDINGS, weddingCover, weddingGallery } from '~/data/weddings';
+import { PHOTOS } from '~/data/photos.generated';
 import { SITE, WHATSAPP_BASE } from '~/data/site';
 import { useTranslations } from '~/i18n/ui';
 import { breadcrumbJsonLd, venueServiceJsonLd, faqPageJsonLd } from '~/lib/seo';
@@ -26,9 +27,13 @@ const { venue, copy } = Astro.props;
 const lang = 'es' as const;
 const t = useTranslations(lang);
 
-const realWedding = WEDDINGS.find((w) => w.slug === venue.realWeddingSlug);
-const gallery = realWedding ? weddingGallery(realWedding) : [];
-const cover = realWedding ? weddingCover(realWedding) : null;
+const realWedding = venue.realWeddingSlug ? WEDDINGS.find((w) => w.slug === venue.realWeddingSlug) : undefined;
+const isPortfolio = !realWedding;
+const portfolioPics = isPortfolio
+  ? (venue.portfolioIndices ?? []).map((i) => PHOTOS['generic']?.images[i - 1]).filter(Boolean)
+  : [];
+const gallery = realWedding ? weddingGallery(realWedding) : portfolioPics;
+const cover = realWedding ? weddingCover(realWedding) : (portfolioPics[0]?.variants.md ?? null);
 const coverLarge = gallery[0]?.variants.lg ?? cover ?? '/og-default.jpg';
 const totalPhotos = gallery.length;
 
@@ -62,6 +67,7 @@ const jsonLd = [
 function galleryAlt(i: number): string {
   const nn = String(i).padStart(2, '0');
   const count = String(totalPhotos).padStart(2, '0');
+  if (isPortfolio) return `${venue.name} · Lifetime Weddings · ${nn}`;
   return `Boda en ${venue.name} · ${venue.realWeddingCouple} · Foto ${nn} de ${count}`;
 }
 
@@ -84,7 +90,7 @@ const waLink = `${WHATSAPP_BASE}&text=${waMessage}`;
       <source type="image/webp" srcset={webp(coverLarge)} />
       <img
         src={coverLarge}
-        alt={`${venue.name} · ${venue.realWeddingCouple}`}
+        alt={isPortfolio ? venue.name : `${venue.name} · ${venue.realWeddingCouple}`}
         class="absolute inset-0 w-full h-full object-cover"
         loading="eager"
         fetchpriority="high"
@@ -129,7 +135,7 @@ const waLink = `${WHATSAPP_BASE}&text=${waMessage}`;
 
   <Section>
     <div class="max-w-3xl mx-auto px-2">
-      <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">Una boda real en {venue.name}</h2>
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">{isPortfolio ? `Casarse en ${venue.name}` : `Una boda real en ${venue.name}`}</h2>
       <p class="text-ink/75 leading-relaxed text-base md:text-lg">{copy.realWeddingIntro}</p>
       {copy.extraResource && (
         <p class="mt-4">

@@ -14,7 +14,8 @@ import { getGbpRating } from '~/lib/gbp-rating';
 import { breadcrumbJsonLd, faqPageJsonLd, webPageJsonLd } from '~/lib/seo';
 import { VENUES } from '~/data/venues';
 import { WEDDINGS, weddingCover } from '~/data/weddings';
-import { VENUES_PILLAR, OTHER_VENUES } from '~/data/venues-pillar';
+import { PHOTOS } from '~/data/photos.generated';
+import { VENUES_PILLAR } from '~/data/venues-pillar';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
@@ -27,11 +28,22 @@ const canonicalPath = '/venues';
 const canonicalUrl = `${SITE.url}${langPath}${canonicalPath}`;
 const toWebp = (p: string): string => p.replace(/\.jpe?g$/i, '.webp');
 
-// Real venue cards (cover from the real wedding each one leans on).
-const ourVenues = VENUES.map((v) => {
+const GEN = PHOTOS['generic']?.images ?? [];
+
+// Venues with a real wedding gallery.
+const ourVenues = VENUES.filter((v) => v.realWeddingSlug).map((v) => {
   const w = WEDDINGS.find((x) => x.slug === v.realWeddingSlug);
   return { slug: v.slug, name: v.name, region: v.region, couple: v.realWeddingCouple, cover: w ? weddingCover(w) : null };
 }).filter((v) => v.cover);
+
+// Venues we cover but don't have a real gallery for yet — placeholder
+// portfolio imagery, each linking to its own fiche.
+const otherVenues = VENUES.filter((v) => !v.realWeddingSlug && v.portfolioIndices?.length).map((v) => ({
+  slug: v.slug,
+  name: v.name,
+  region: v.region,
+  cover: GEN[(v.portfolioIndices as number[])[0] - 1]?.variants.md ?? null,
+}));
 
 const hero = ourVenues[0]?.cover ?? '/og-default.jpg';
 
@@ -49,8 +61,7 @@ const jsonLd = [
     '@type': 'ItemList',
     name: c.breadcrumbCurrent,
     itemListElement: [
-      ...ourVenues.map((v, i) => ({ '@type': 'ListItem', position: i + 1, name: v.name, url: `${SITE.url}${langPath}/venues/${v.slug}` })),
-      ...OTHER_VENUES.map((v, i) => ({ '@type': 'ListItem', position: ourVenues.length + i + 1, name: v.name })),
+      ...[...ourVenues, ...otherVenues].map((v, i) => ({ '@type': 'ListItem', position: i + 1, name: v.name, url: `${SITE.url}${langPath}/venues/${v.slug}` })),
     ],
   },
 ];
@@ -99,13 +110,15 @@ const jsonLd = [
   <Section>
     <div class="max-w-4xl mx-auto px-2">
       <div class="max-w-2xl mb-8"><h2 class="font-display text-2xl md:text-3xl font-bold mb-3">{c.otherTitle}</h2><p class="text-ink/75 leading-relaxed">{c.otherIntro}</p></div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {OTHER_VENUES.map((v) => (
-          <a href={`${langPath}/fotograf-boda-${v.citySlug}`} class="group block border border-line p-5 hover:border-gold transition-colors">
-            <p class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-gold-deep mb-1">{v.area}</p>
-            <h3 class="font-display text-lg font-bold text-ink mb-2 group-hover:text-gold-deep transition-colors">{v.name}</h3>
-            <p class="text-sm text-ink/75 leading-relaxed mb-3">{v.blurb[lang]}</p>
-            <p class="text-sm font-semibold text-ink/60">{c.coverHere} →</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+        {otherVenues.map((v) => (
+          <a href={`${langPath}/venues/${v.slug}`} class="group block">
+            <div class="relative overflow-hidden aspect-[4/5] mb-4">
+              {v.cover && (<picture><source type="image/webp" srcset={toWebp(v.cover)} /><img src={v.cover} alt={`${v.name} · Lifetime Weddings`} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" decoding="async" width="800" height="1000" /></picture>)}
+              <span class="absolute top-3 left-3 bg-ink/80 text-white text-[0.62rem] font-bold tracking-[0.12em] uppercase px-2.5 py-1">{v.region}</span>
+            </div>
+            <h3 class="font-display text-xl font-bold text-ink group-hover:text-gold-deep transition-colors mb-1">{v.name}</h3>
+            <p class="text-sm text-ink/70">{c.coverHere} →</p>
           </a>
         ))}
       </div>

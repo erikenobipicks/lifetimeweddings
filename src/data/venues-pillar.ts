@@ -1,34 +1,8 @@
 import type { Lang } from '~/i18n/ui';
 
-// Copy + curated data for the venues pillar page /venues.
-// Ties together the 6 real venue landings (/venues/<slug>, which have real
-// galleries) and a curated, honest list of other top venues in the area we
-// cover — each linking to the relevant city photo page rather than faking a
-// gallery we don't have.
-
-export interface OtherVenue {
-  name: string;
-  /** City slug for the /fotograf-boda-<slug> link. */
-  citySlug: string;
-  /** Short blurb per language handled via `blurb`. */
-  blurb: Record<Lang, string>;
-  area: string;
-}
-
-export const OTHER_VENUES: OtherVenue[] = [
-  { name: 'Parc Samà', citySlug: 'cambrils', area: 'Cambrils · Baix Camp',
-    blurb: { ca: 'Jardins colonials del s. XIX amb llac i palmeres. Un dels espais més romàntics de la Costa Daurada.', es: 'Jardines coloniales del s. XIX con lago y palmeras. Uno de los espacios más románticos de la Costa Daurada.', en: '19th-century colonial gardens with a lake and palms. One of the most romantic venues on the Costa Daurada.' } },
-  { name: 'Castell de Tamarit', citySlug: 'tarragona', area: 'Tarragona · Costa Daurada',
-    blurb: { ca: 'Un castell medieval sobre una platja verge. Cerimònies amb el mar de fons.', es: 'Un castillo medieval sobre una playa virgen. Ceremonias con el mar de fondo.', en: 'A medieval castle above a wild beach. Ceremonies with the sea behind you.' } },
-  { name: 'Mas Passamaner', citySlug: 'reus', area: 'La Selva del Camp · Baix Camp',
-    blurb: { ca: 'Casa modernista amb jardins i piscina. Elegància del Baix Camp, a prop de Reus.', es: 'Casa modernista con jardines y piscina. Elegancia del Baix Camp, cerca de Reus.', en: 'A modernist mansion with gardens and pool. Baix Camp elegance, close to Reus.' } },
-  { name: 'Termes de Montbrió', citySlug: 'reus', area: 'Montbrió del Camp · Baix Camp',
-    blurb: { ca: 'Hotel-balneari amb un parc botànic centenari. Espais amplis per a bodes grans.', es: 'Hotel-balneario con un parque botánico centenario. Espacios amplios para bodas grandes.', en: 'A spa-hotel with a century-old botanical park. Roomy spaces for larger weddings.' } },
-  { name: 'Monestir de Poblet i cellers de la Conca', citySlug: 'montblanc', area: 'Conca de Barberà',
-    blurb: { ca: 'Entorn UNESCO entre vinyes i cellers modernistes. Bodes amb ànima de vi.', es: 'Entorno UNESCO entre viñas y bodegas modernistas. Bodas con alma de vino.', en: 'A UNESCO setting among vineyards and modernist wineries. Weddings with a wine soul.' } },
-  { name: 'Castell de la Suda (Parador de Tortosa)', citySlug: 'tortosa', area: "Tortosa · Terres de l'Ebre",
-    blurb: { ca: 'Castell sobre el riu Ebre amb vistes panoràmiques. Història i horitzó.', es: 'Castillo sobre el río Ebro con vistas panorámicas. Historia y horizonte.', en: 'A castle above the river Ebro with panoramic views. History and horizon.' } },
-];
+// Copy for the venues pillar page /venues. Ties together the real venue
+// landings (with galleries) and the portfolio-only venues we cover — both
+// read from VENUES in the component, so this file only carries the page copy.
 
 export interface VenuesPillarCopy {
   meta: { title: string; description: string };
