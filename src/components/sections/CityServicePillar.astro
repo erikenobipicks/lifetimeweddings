@@ -1,0 +1,190 @@
+---
+// Pillar template for the two city clusters:
+//   photo -> /fotograf-boda-tarragona-lleida
+//   video -> /videograf-boda-tarragona-lleida
+// Lists every city child of the service and cross-links to the sister pillar.
+
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Section from '~/components/Section.astro';
+import StickyMobileCta from '~/components/StickyMobileCta.astro';
+import LeadQualifyForm from '~/components/sections/LeadQualifyForm.astro';
+import { SITE, WHATSAPP_BASE } from '~/data/site';
+import { useTranslations, type Lang } from '~/i18n/ui';
+import { getGbpRating } from '~/lib/gbp-rating';
+import { breadcrumbJsonLd, faqPageJsonLd, webPageJsonLd, cityServiceJsonLd } from '~/lib/seo';
+import { CITIES, PHOTO_PILLAR, VIDEO_PILLAR } from '~/data/cities';
+import type { Service } from '~/data/cities/types';
+import { PHOTOS } from '~/data/photos.generated';
+
+interface Props { service: Service; lang: Lang }
+const { service, lang } = Astro.props;
+const t = useTranslations(lang);
+const isVideo = service === 'video';
+const c = (isVideo ? VIDEO_PILLAR : PHOTO_PILLAR)[lang];
+const rating = await getGbpRating();
+
+const langPath = lang === 'ca' ? '' : `/${lang}`;
+const base = isVideo ? 'videograf-boda' : 'fotograf-boda';
+const canonicalPath = `/${base}-tarragona-lleida`;
+const canonicalUrl = `${SITE.url}${langPath}${canonicalPath}`;
+const toWebp = (p: string): string => p.replace(/\.jpe?g$/i, '.webp');
+const GEN = PHOTOS['generic']?.images ?? [];
+
+const sisterPath = isVideo ? `${langPath}/fotograf-boda-tarragona-lleida` : `${langPath}/videograf-boda-tarragona-lleida`;
+const sisterLabel = isVideo
+  ? (lang === 'es' ? 'Fotografía de boda' : lang === 'en' ? 'Wedding photography' : 'Fotografia de boda')
+  : (lang === 'es' ? 'Vídeo de boda' : lang === 'en' ? 'Wedding video' : 'Vídeo de boda');
+const venuesPath = `${langPath}/venues`;
+
+const cards = CITIES.map((city) => {
+  const cc = city.copy[service][lang];
+  const pic = GEN[(isVideo ? [...city.imageIndices].reverse() : city.imageIndices)[0] - 1];
+  return {
+    href: `${langPath}/${base}-${city.slug}`,
+    title: cc.cardTitle,
+    blurb: cc.cardBlurb,
+    province: city.province,
+    img: pic?.variants.md,
+    w: pic?.width ?? 960,
+    h: pic?.height ?? 640,
+  };
+});
+const hero = GEN[isVideo ? 6 : 0];
+
+const waLink = `${WHATSAPP_BASE}&text=${encodeURIComponent(c.whatsAppMessage)}`;
+const serviceType = isVideo ? 'Wedding videography' : 'Wedding photography';
+
+const jsonLd = [
+  webPageJsonLd({ pageUrl: canonicalUrl, name: c.meta.title, description: c.meta.description, lang, primaryImage: hero ? { url: hero.variants.lg, width: hero.width, height: hero.height, caption: c.hero.heroAlt } : undefined }),
+  cityServiceJsonLd({ name: c.meta.title.split(' | ')[0], serviceType, areaName: 'Tarragona i Lleida', areaServed: ['Tarragona', 'Lleida', 'Camp de Tarragona', 'Costa Daurada', "Terres de l'Ebre", 'Segrià', 'Catalunya'], canonicalUrl }),
+  faqPageJsonLd(c.faqs.map((f) => ({ question: f.q, answer: f.a }))),
+  breadcrumbJsonLd([
+    { name: t('schema.breadcrumb.home'), url: `${SITE.url}${langPath}/` },
+    { name: c.breadcrumbCurrent, url: canonicalUrl },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: c.childrenTitle,
+    itemListElement: cards.map((card, i) => ({ '@type': 'ListItem', position: i + 1, name: card.title, url: `${SITE.url}${card.href}` })),
+  },
+];
+
+function renderBold(s: string): string {
+  const escaped = s.replace(/[<>&]/g, (ch) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[ch] as string));
+  return escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+}
+---
+
+<BaseLayout lang={lang} title={c.meta.title} description={c.meta.description} canonicalPath={canonicalPath} jsonLd={jsonLd} ogImage={hero ? hero.variants.lg : '/og-default.jpg'} ogType="article">
+  <!-- Hero -->
+  <section class="relative h-[72vh] min-h-[500px] overflow-hidden">
+    {hero && (
+      <picture><source type="image/webp" srcset={toWebp(hero.variants.lg)} /><img src={hero.variants.lg} alt={c.hero.heroAlt} class="absolute inset-0 w-full h-full object-cover" style="object-position:center 42%" loading="eager" fetchpriority="high" decoding="async" width={hero.width} height={hero.height} /></picture>
+    )}
+    <div class="absolute inset-0 bg-gradient-to-b from-black/45 via-black/30 to-black/75"></div>
+    <div class="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-6">
+      <p class="text-xs font-bold tracking-[0.24em] uppercase text-gold mb-4">{c.hero.eyebrow}</p>
+      <h1 class="font-display text-3xl md:text-5xl font-bold max-w-4xl leading-tight">{c.hero.h1}</h1>
+      <p class="mt-5 max-w-2xl text-base md:text-lg leading-relaxed opacity-95">{c.hero.sub}</p>
+      <div class="mt-8 flex flex-col sm:flex-row gap-3">
+        <a href="#ciutats" class="inline-block bg-gold text-ink border-2 border-gold px-8 py-3.5 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white hover:border-ink transition-colors">{c.childrenTitle}</a>
+        <a href="#contacte" class="inline-block border-2 border-white/80 text-white px-8 py-3.5 text-sm font-bold tracking-[0.14em] uppercase hover:bg-white/10 transition-colors">{c.formTitle}</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust bar -->
+  <section class="bg-ink text-white py-6 px-6 border-y border-gold/20">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row gap-4 sm:gap-10 items-center justify-center text-center text-sm">
+      <div class="flex items-center gap-2"><span class="text-gold font-bold">{rating.ratingValue.toFixed(1)}★</span><span class="opacity-85">Google · {rating.reviewCount}</span></div>
+      <div class="hidden sm:block w-px h-5 bg-white/20"></div>
+      <div class="flex items-center gap-2"><span class="text-gold font-bold">2</span><span class="opacity-85">{lang === 'es' ? 'hermanos · foto + vídeo' : lang === 'en' ? 'brothers · photo + video' : 'germans · foto + vídeo'}</span></div>
+      <div class="hidden sm:block w-px h-5 bg-white/20"></div>
+      <div class="flex items-center gap-2"><span class="text-gold font-bold">Reus</span><span class="opacity-85">{lang === 'es' ? 'sin recargo en la zona' : lang === 'en' ? 'no surcharge in the area' : 'sense recàrrec a la zona'}</span></div>
+    </div>
+  </section>
+
+  <!-- Intro -->
+  <Section>
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-6">{c.intro.title}</h2>
+      {c.intro.paras.map((p) => (<p class="text-ink/80 leading-relaxed mb-4 text-base md:text-lg" set:html={renderBold(p)} />))}
+    </div>
+  </Section>
+
+  <!-- Why local -->
+  <Section bg="cream">
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-5">{c.why.title}</h2>
+      <p class="text-ink/75 leading-relaxed mb-6 text-base md:text-lg">{c.why.intro}</p>
+      <ul class="space-y-4">{c.why.bullets.map((b) => (<li class="flex gap-3"><span class="text-gold-deep font-bold flex-shrink-0 mt-1">·</span><span class="text-ink/85 leading-relaxed" set:html={renderBold(b)} /></li>))}</ul>
+    </div>
+  </Section>
+
+  <!-- City grid -->
+  <Section id="ciutats">
+    <div class="max-w-6xl mx-auto px-2">
+      <div class="max-w-2xl mb-10"><h2 class="font-display text-2xl md:text-3xl font-bold mb-3">{c.childrenTitle}</h2><p class="text-ink/75 leading-relaxed">{c.childrenIntro}</p></div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+        {cards.map((card) => (
+          <a href={card.href} class="group block">
+            <div class="relative overflow-hidden aspect-[4/5] mb-4">
+              {card.img && (<picture><source type="image/webp" srcset={toWebp(card.img)} /><img src={card.img} alt={card.title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" decoding="async" width={card.w} height={card.h} /></picture>)}
+              <span class="absolute top-3 left-3 bg-ink/80 text-white text-[0.62rem] font-bold tracking-[0.12em] uppercase px-2.5 py-1">{card.province}</span>
+            </div>
+            <h3 class="font-display text-xl font-bold text-ink group-hover:text-gold-deep transition-colors mb-1">{card.title}</h3>
+            <p class="text-sm text-ink/70 leading-relaxed">{card.blurb}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </Section>
+
+  <!-- Cross-links -->
+  <Section bg="cream">
+    <div class="max-w-4xl mx-auto px-2 text-center">
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <a href={sisterPath} class="inline-block bg-ink text-white px-6 py-3 text-sm font-semibold hover:bg-gold hover:text-ink transition-colors">{sisterLabel} →</a>
+        <a href={venuesPath} class="inline-block border-2 border-ink text-ink px-6 py-3 text-sm font-semibold hover:bg-ink hover:text-white transition-colors">{lang === 'es' ? 'Mejores espacios de boda' : lang === 'en' ? 'Best wedding venues' : 'Millors espais de boda'} →</a>
+      </div>
+    </div>
+  </Section>
+
+  <!-- Process -->
+  <Section>
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-6">{c.process.title}</h2>
+      <ul class="space-y-4">{c.process.bullets.map((b) => (<li class="flex gap-3"><svg viewBox="0 0 24 24" class="w-5 h-5 mt-0.5 shrink-0 text-gold" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg><span class="text-ink/85 leading-relaxed" set:html={renderBold(b)} /></li>))}</ul>
+    </div>
+  </Section>
+
+  <!-- Form -->
+  <LeadQualifyForm lang={lang} heading={c.formTitle} intro={c.formIntro} />
+
+  <!-- FAQ -->
+  <Section>
+    <div class="max-w-3xl mx-auto px-2">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-8">{c.faqTitle}</h2>
+      <div class="divide-y divide-line border-y border-line">
+        {c.faqs.map((f) => (
+          <details class="group"><summary class="flex items-start justify-between gap-4 py-5 md:py-6 cursor-pointer list-none select-none"><span class="text-base md:text-lg leading-snug pr-2" style="font-weight:500;">{f.q}</span><span aria-hidden="true" class="shrink-0 w-6 h-6 mt-1 flex items-center justify-center text-gold-deep transition-transform duration-200 group-open:rotate-45"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg></span></summary><p class="pb-5 md:pb-6 pr-10 text-ink/75 leading-relaxed text-[0.95rem]" set:html={renderBold(f.a)} /></details>
+        ))}
+      </div>
+    </div>
+  </Section>
+
+  <!-- Final CTA -->
+  <Section bg="cream">
+    <div class="max-w-2xl mx-auto px-2 text-center">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-5">{c.finalCta.h2}</h2>
+      <p class="text-ink/75 leading-relaxed mb-8 text-base md:text-lg">{c.finalCta.body}</p>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <a href={waLink} target="_blank" rel="noopener" class="inline-block bg-gold text-ink border-2 border-gold px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white hover:border-ink transition-colors">{lang === 'es' ? 'Habla con nosotros' : lang === 'en' ? 'Talk to us' : 'Parla amb nosaltres'}</a>
+        <a href="#contacte" class="inline-block border-2 border-ink text-ink px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white transition-colors">{lang === 'es' ? 'Escribidnos' : lang === 'en' ? 'Write to us' : 'Escriviu-nos'}</a>
+      </div>
+    </div>
+  </Section>
+
+  <StickyMobileCta lang={lang} whatsAppHref={waLink} secondaryHref="#contacte" primaryLabel="WhatsApp" />
+</BaseLayout>

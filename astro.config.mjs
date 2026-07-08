@@ -9,6 +9,16 @@ export default defineConfig({
   site: 'https://www.lifetime.photo',
   trailingSlash: 'never',
   output: 'server',
+  // The old /zones geographic pages were superseded by the richer, trilingual
+  // photo cluster at /fotograf-boda-<city>. 301 the legacy URLs so their SEO
+  // equity flows to the new pages (costa-daurada -> the pillar, no 1:1 city).
+  redirects: {
+    '/zones': '/fotograf-boda-tarragona-lleida',
+    '/zones/tarragona': '/fotograf-boda-tarragona',
+    '/zones/reus': '/fotograf-boda-reus',
+    '/zones/lleida': '/fotograf-boda-lleida',
+    '/zones/costa-daurada': '/fotograf-boda-tarragona-lleida',
+  },
   adapter: node({ mode: 'standalone' }),
   // Disable Astro's built-in CSRF origin check. It defaults to `true` and
   // rejects POSTs with `multipart/form-data`, `application/x-www-form-urlencoded`

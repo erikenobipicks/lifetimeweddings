@@ -412,6 +412,30 @@ export function elopementServiceJsonLd(args: {
   };
 }
 
+// ─── City service node (photo / video per city) ─────────────────────────────
+// One block per /fotograf-boda-<city> or /videograf-boda-<city>. `serviceType`
+// distinguishes photography vs videography so the two clusters emit distinct
+// Service nodes. Same #business provider, no fixed price.
+export function cityServiceJsonLd(args: {
+  name: string;
+  serviceType: string;
+  areaName: string;
+  areaServed: string[];
+  canonicalUrl: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: args.name,
+    serviceType: args.serviceType,
+    provider: { '@id': ID.business },
+    areaServed: args.areaServed.map((a) => ({ '@type': 'Place', name: a })),
+    audience: { '@type': 'Audience', audienceType: 'Engaged couples' },
+    url: args.canonicalUrl,
+    image: abs('/og-default.jpg'),
+  };
+}
+
 // ─── FAQPage builder ────────────────────────────────────────────────────────
 // Generic FAQPage block — pass an array of question/answer pairs.
 // Lifts a chunk of SERP real estate via FAQ rich results when the underlying

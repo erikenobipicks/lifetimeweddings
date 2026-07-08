@@ -1,0 +1,7 @@
+---
+export const prerender = true;
+import CityLanding from '~/components/sections/CityLanding.astro';
+import { getCity } from '~/data/cities';
+const city = getCity('tortosa')!;
+---
+<CityLanding city={city} service="photo" lang="es" />
