@@ -37,7 +37,9 @@ export interface VenueLocaleMap {
   en: VenueLocaleCopy;
 }
 
-export const VENUES_I18N: Record<string, VenueLocaleMap> = {
+import { EXTRA_VENUES_I18N } from './venues-extra';
+
+const CORE_VENUES_I18N: Record<string, VenueLocaleMap> = {
   // ─── Mas La Boella ──────────────────────────────────────────────────
   'mas-la-boella': {
     es: {
@@ -736,6 +738,9 @@ export const VENUES_I18N: Record<string, VenueLocaleMap> = {
     },
   },
 };
+
+// Merge in the portfolio-only venues' translations.
+export const VENUES_I18N: Record<string, VenueLocaleMap> = { ...CORE_VENUES_I18N, ...EXTRA_VENUES_I18N };
 
 /** Convenience getter — returns null if the venue is not registered for this locale. */
 export function venueCopyFor(slug: string, lang: 'es' | 'en'): VenueLocaleCopy | null {

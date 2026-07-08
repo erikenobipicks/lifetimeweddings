@@ -20,10 +20,18 @@ export interface Venue {
   /** City/region for SEO and breadcrumb context. */
   region: string;
   /** Slug of a real wedding from src/data/weddings.ts. Drives the
-   *  gallery and the "una boda real a..." block. */
-  realWeddingSlug: string;
-  /** Pareja display name, free text — "Cristina & Daniel". */
-  realWeddingCouple: string;
+   *  gallery and the "una boda real a..." block. Omit for venues we
+   *  cover but don't yet have a real gallery for — those fall back to
+   *  `portfolioIndices` and an honest "space we cover" framing. */
+  realWeddingSlug?: string;
+  /** Pareja display name, free text — "Cristina & Daniel". Omit when
+   *  there's no real wedding. */
+  realWeddingCouple?: string;
+  /** Indices into PHOTOS['generic'] (1-based) used as placeholder
+   *  portfolio imagery for venues without a real gallery yet. These get
+   *  neutral, honest alt text — never a faked "real wedding here". Swap
+   *  for a real wedding gallery later by setting `realWeddingSlug`. */
+  portfolioIndices?: number[];
   /** When did the real wedding happen — used in FAQ copy. Free text. */
   realWeddingSeason?: string;
   /** Direct link to an extra resource (e.g. video trailer in /videos)
@@ -50,7 +58,9 @@ export interface Venue {
   finalCtaBody: string;
 }
 
-export const VENUES: Venue[] = [
+import { EXTRA_VENUES } from './venues-extra';
+
+const CORE_VENUES: Venue[] = [
   // ─── Mas La Boella ──────────────────────────────────────────────────
   {
     slug: 'mas-la-boella',
@@ -431,6 +441,9 @@ export const VENUES: Venue[] = [
       "Mireu si tenim la vostra data lliure. Resposta en menys d'un dia. Sense compromís, sense formularis llargs — només una conversa per WhatsApp.",
   },
 ];
+
+// Real-gallery venues first, then the portfolio-only venues we cover.
+export const VENUES: Venue[] = [...CORE_VENUES, ...EXTRA_VENUES];
 
 /** Find a venue by slug, or null if not registered. */
 export function venueBySlug(slug: string): Venue | null {
