@@ -29,6 +29,21 @@ export const BLOG_CATEGORIES: Record<BlogCategory, { es: string; ca: string; en:
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    slug: 'sesion-de-fotos-de-pareja',
+    legacySlug: 'sesion-de-fotos-de-pareja',
+    title: 'Sesión de fotos de pareja: no hace falta casarse para tener fotos que enamoran',
+    titleByLang: {
+      es: 'Sesión de fotos de pareja: no hace falta casarse para tener fotos que enamoran',
+      ca: 'Sessió de fotos de parella: no cal casar-se per tenir fotos que enamoren',
+    },
+    author: 'eric',
+    publishedAt: '2026-07-08',
+    updatedAt: '2026-07-08',
+    readingTime: 7,
+    category: 'fotografia',
+    cover: '/blog/sesion-de-fotos-de-pareja/cover.webp',
+  },
+  {
     slug: 'fotografia-boda-documental-vs-tradicional',
     legacySlug: 'fotografia-boda-documental-vs-tradicional',
     title: 'Fotografía de boda documental vs tradicional: cuál va con vosotros (guía honesta)',
