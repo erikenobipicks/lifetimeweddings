@@ -38,7 +38,11 @@ function extractViolation(parsed: any): Record<string, any> | null {
  *     gstatic.com/_/translate_http and translate.google(apis).com
  *  Still logged (so they're visible in the logs); just no Telegram ping. */
 function isNonActionable(blocked: string): boolean {
-  const b = blocked.toLowerCase();
+  // Chrome includes an explicit :port in blocked-uri for the translate
+  // stylesheets (e.g. "gstatic.com:443/_/translate_http/…"), which broke
+  // the substring matches below. Strip the ":<port>" from the authority so
+  // the host+path rules match whether or not the port is present.
+  const b = blocked.toLowerCase().replace(/:\d+\//, '/');
   if (/^(chrome|moz|safari|safari-web|ms-browser)-extension:/.test(b)) return true;
   if (b.includes('gstatic.com/_/translate')) return true;
   if (b.includes('translate.googleapis.com')) return true;
