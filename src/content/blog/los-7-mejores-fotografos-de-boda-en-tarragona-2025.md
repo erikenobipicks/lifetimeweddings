@@ -12,7 +12,7 @@ Si te casas en Tarragona o alrededores y estás buscando fotógrafos de boda en 
 
 ### 1. Lifetime Weddings – Fotografía natural y emocional en Tarragona
 
-Si buscas fotos auténticas, emotivas y con un toque muy natural… Lifetime Weddings es una apuesta segura, con decenas de reseñas positivas en Google y reconocido por su enfoque natural y cercano en múltiples portales especializados en bodas. Ferran y Eric capturan bodas de una manera súper cercana, sin posados forzados y priorizando la conexión con la pareja. Su estudio está en Reus, pero se desplazan por toda Cataluña. Además de fotografía, ofrecen vídeo, dron y álbumes artesanales.
+Si buscas fotos auténticas, emotivas y con un toque muy natural… Lifetime Weddings es una apuesta segura, con decenas de reseñas positivas en Google y reconocido por su enfoque natural y cercano en múltiples portales especializados en bodas. Ferran y Eric capturan bodas de una manera súper cercana, sin posados forzados y priorizando la conexión con la pareja. Su estudio está en Reus, pero se desplazan por toda Cataluña. Además de fotografía, ofrecen vídeo, dron y álbumes artesanales. Puedes ver cómo trabajan en la zona en su página de [fotógrafo de bodas en Tarragona](/es/fotograf-boda-tarragona).
 
 Algo que valoran mucho sus parejas es la transparencia: siempre entregan reportajes completos y reales para que las parejas puedan ver el resultado final de un día entero. Han realizado sesiones editoriales para inspirar, pero nunca las usan como reclamo principal porque saben que una boda real tiene momentos espontáneos, emoción y situaciones imprevisibles que no se pueden falsear. Además, invierten mucho esfuerzo en redes sociales, creando reels originales que marcan la diferencia.
 

@@ -12,7 +12,7 @@ If you're getting married in Tarragona or nearby and looking for wedding photogr
 
 ### 1. Lifetime Weddings — Natural and emotional wedding photography in Tarragona
 
-If you're after authentic, emotional photos with a very natural feel… Lifetime Weddings is a safe bet, with dozens of positive Google reviews and recognition on multiple specialised wedding platforms for their natural, close approach. Ferran and Eric shoot weddings in a warm, human way — no forced poses, always prioritising the connection with the couple. Their studio is in Reus, but they travel across Catalonia. Besides photo, they offer video, drone and handcrafted albums.
+If you're after authentic, emotional photos with a very natural feel… Lifetime Weddings is a safe bet, with dozens of positive Google reviews and recognition on multiple specialised wedding platforms for their natural, close approach. Ferran and Eric shoot weddings in a warm, human way — no forced poses, always prioritising the connection with the couple. Their studio is in Reus, but they travel across Catalonia. Besides photo, they offer video, drone and handcrafted albums. You can see how they work in the area on their [wedding photographer in Tarragona](/en/fotograf-boda-tarragona) page.
 
 Something their couples really value is transparency: they always deliver complete, real-life coverage so couples can see the final result of a whole day. They've shot editorial sessions for inspiration, but never use those as the main hook because they know a real wedding has spontaneous moments, emotion and unpredictable situations you can't fake. They also invest heavily in social media, creating original reels that stand out.
 
