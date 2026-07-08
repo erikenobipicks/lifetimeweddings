@@ -1,0 +1,296 @@
+---
+// Lead-qualifying contact form used across the elopement cluster (pillar +
+// locality pages). Captures the fields Eric wants to triage a lead fast:
+// session type, guest count, budget, desired location and how they found us —
+// on top of name/email/date/message. Posts as JSON to /api/contact (which
+// accepts these optional fields). Self-contained per-language copy so it
+// drops onto any page without touching the global i18n dictionary.
+import Section from '../Section.astro';
+import type { Lang } from '~/i18n/ui';
+
+interface Props {
+  lang: Lang;
+  /** Prefill the "desired location" field (e.g. "Siurana"). */
+  locationPrefill?: string;
+  /** Anchor id for in-page CTA links. */
+  id?: string;
+  /** Section heading + intro. Falls back to per-language defaults. */
+  heading?: string;
+  intro?: string;
+}
+const { lang, locationPrefill = '', id = 'contacte', heading, intro } = Astro.props;
+const turnstileSitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
+
+type FormCopy = {
+  heading: string;
+  intro: string;
+  name: string;
+  email: string;
+  sessionType: string;
+  sessionOptions: string[];
+  guests: string;
+  guestsOptions: string[];
+  budget: string;
+  budgetOptions: string[];
+  location: string;
+  date: string;
+  datePlaceholder: string;
+  source: string;
+  sourceOptions: string[];
+  message: string;
+  messagePlaceholder: string;
+  choose: string;
+  consent: string;
+  submit: string;
+  microcopy: string;
+  success: string;
+  error: string;
+};
+
+const COPY: Record<Lang, FormCopy> = {
+  ca: {
+    heading: 'Expliqueu-nos el vostre dia',
+    intro: 'Quatre dades i us responem amb disponibilitat i un pressupost real. Sense compromís.',
+    name: 'El vostre nom',
+    email: 'Email',
+    sessionType: 'Quin tipus de sessió voleu',
+    sessionOptions: ['Elopement (només vosaltres)', 'Boda íntima', 'Micro-wedding', 'Sessió pre-boda', 'Encara no ho sé'],
+    guests: 'Quants convidats sereu',
+    guestsOptions: ['Només nosaltres dos', '2–10', '10–30', 'Més de 30'],
+    budget: 'Pressupost aproximat',
+    budgetOptions: ['Fins a 1.500 €', '1.500–2.500 €', '2.500–4.000 €', 'Més de 4.000 €', 'No ho sé encara'],
+    location: 'Ubicació desitjada',
+    date: 'Data (o època) aproximada',
+    datePlaceholder: 'Ex.: setembre 2026, encara oberta…',
+    source: 'Com ens heu trobat',
+    sourceOptions: ['Google', 'Instagram', 'Pinterest', 'Recomanació', 'Ja us coneixia', 'Altres'],
+    message: 'Voleu explicar-nos alguna cosa més?',
+    messagePlaceholder: 'La vostra idea, dubtes, el lloc que teniu al cap…',
+    choose: 'Trieu una opció',
+    consent: 'Accepto la política de privacitat i que ens poseu en contacte.',
+    submit: 'Enviar',
+    microcopy: 'Us responem personalment, normalment el mateix dia.',
+    success: 'Rebut! Us escrivim molt aviat. Gràcies 🤍',
+    error: 'Alguna cosa ha fallat. Proveu de nou o escriviu-nos pel WhatsApp.',
+  },
+  es: {
+    heading: 'Contadnos vuestro día',
+    intro: 'Cuatro datos y os respondemos con disponibilidad y un presupuesto real. Sin compromiso.',
+    name: 'Vuestro nombre',
+    email: 'Email',
+    sessionType: 'Qué tipo de sesión queréis',
+    sessionOptions: ['Elopement (solo vosotros)', 'Boda íntima', 'Micro-wedding', 'Sesión pre-boda', 'Aún no lo sé'],
+    guests: 'Cuántos invitados seréis',
+    guestsOptions: ['Solo nosotros dos', '2–10', '10–30', 'Más de 30'],
+    budget: 'Presupuesto aproximado',
+    budgetOptions: ['Hasta 1.500 €', '1.500–2.500 €', '2.500–4.000 €', 'Más de 4.000 €', 'No lo sé aún'],
+    location: 'Ubicación deseada',
+    date: 'Fecha (o época) aproximada',
+    datePlaceholder: 'Ej.: septiembre 2026, aún abierta…',
+    source: 'Cómo nos habéis encontrado',
+    sourceOptions: ['Google', 'Instagram', 'Pinterest', 'Recomendación', 'Ya os conocía', 'Otros'],
+    message: '¿Queréis contarnos algo más?',
+    messagePlaceholder: 'Vuestra idea, dudas, el lugar que tenéis en mente…',
+    choose: 'Elegid una opción',
+    consent: 'Acepto la política de privacidad y que os pongáis en contacto.',
+    submit: 'Enviar',
+    microcopy: 'Os respondemos personalmente, normalmente el mismo día.',
+    success: '¡Recibido! Os escribimos muy pronto. Gracias 🤍',
+    error: 'Algo ha fallado. Probad de nuevo o escribidnos por WhatsApp.',
+  },
+  en: {
+    heading: 'Tell us about your day',
+    intro: 'A few details and we reply with availability and a real quote. No commitment.',
+    name: 'Your name',
+    email: 'Email',
+    sessionType: 'What kind of session',
+    sessionOptions: ['Elopement (just the two of you)', 'Intimate wedding', 'Micro-wedding', 'Pre-wedding session', 'Not sure yet'],
+    guests: 'How many guests',
+    guestsOptions: ['Just the two of us', '2–10', '10–30', 'More than 30'],
+    budget: 'Approximate budget',
+    budgetOptions: ['Up to €1,500', '€1,500–2,500', '€2,500–4,000', 'More than €4,000', 'Not sure yet'],
+    location: 'Desired location',
+    date: 'Approximate date (or season)',
+    datePlaceholder: 'e.g. September 2026, still open…',
+    source: 'How you found us',
+    sourceOptions: ['Google', 'Instagram', 'Pinterest', 'Recommendation', 'I already knew you', 'Other'],
+    message: 'Anything else you want to tell us?',
+    messagePlaceholder: 'Your idea, questions, the place you have in mind…',
+    choose: 'Choose an option',
+    consent: 'I accept the privacy policy and to be contacted.',
+    submit: 'Send',
+    microcopy: 'We reply personally, usually the same day.',
+    success: 'Got it! We’ll be in touch very soon. Thank you 🤍',
+    error: 'Something went wrong. Try again or message us on WhatsApp.',
+  },
+};
+
+const c = COPY[lang];
+const selectClass =
+  'w-full px-4 py-3 border border-line bg-white focus:border-gold focus:outline-none transition-colors';
+---
+
+<Section id={id} bg="cream">
+  <div class="max-w-xl mx-auto">
+    <div class="text-center mb-8">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-3">{heading ?? c.heading}</h2>
+      <p class="text-ink/75 leading-relaxed">{intro ?? c.intro}</p>
+    </div>
+
+    <form class="grid gap-5 text-left" data-lead-form action="/api/contact" method="POST" novalidate>
+      <input type="hidden" name="_language" value={lang} />
+      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+
+      <div class="grid md:grid-cols-2 gap-5">
+        <div>
+          <label for="lq-name" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{c.name} *</label>
+          <input id="lq-name" name="name" type="text" required autocomplete="name" class={selectClass} />
+        </div>
+        <div>
+          <label for="lq-email" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{c.email} *</label>
+          <input id="lq-email" name="email" type="email" required autocomplete="email" class={selectClass} />
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-5">
+        <div>
+          <label for="lq-session" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{c.sessionType}</label>
+          <select id="lq-session" name="session_type" class={selectClass}>
+            <option value="">{c.choose}</option>
+            {c.sessionOptions.map((o) => <option value={o}>{o}</option>)}
+          </select>
+        </div>
+        <div>
+          <label for="lq-guests" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{c.guests}</label>
+          <select id="lq-guests" name="guests" class={selectClass}>
+            <option value="">{c.choose}</option>
+            {c.guestsOptions.map((o) => <option value={o}>{o}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-5">
+        <div>
+          <label for="lq-budget" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{c.budget}</label>
+          <select id="lq-budget" name="budget" class={selectClass}>
+            <option value="">{c.choose}</option>
+            {c.budgetOptions.map((o) => <option value={o}>{o}</option>)}
+          </select>
+        </div>
+        <div>
+          <label for="lq-location" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{c.location}</label>
+          <input id="lq-location" name="location_pref" type="text" value={locationPrefill} class={selectClass} />
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-5">
+        <div>
+          <label for="lq-date" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{c.date}</label>
+          <input id="lq-date" name="wedding_date" type="text" placeholder={c.datePlaceholder} class={selectClass} />
+        </div>
+        <div>
+          <label for="lq-source" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{c.source}</label>
+          <select id="lq-source" name="source" class={selectClass}>
+            <option value="">{c.choose}</option>
+            {c.sourceOptions.map((o) => <option value={o}>{o}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label for="lq-message" class="block text-xs font-bold tracking-[0.1em] uppercase mb-2">{c.message}</label>
+        <textarea id="lq-message" name="message" rows="4" placeholder={c.messagePlaceholder} class={`${selectClass} resize-y`}></textarea>
+      </div>
+
+      <label class="flex items-start gap-2 text-sm text-ink/75">
+        <input type="checkbox" name="consent" required class="mt-1 accent-gold" />
+        <span>{c.consent}</span>
+      </label>
+
+      {turnstileSitekey && (
+        <div class="cf-turnstile flex justify-center" data-sitekey={turnstileSitekey} data-theme="light" data-size="flexible"></div>
+      )}
+
+      <div class="flex flex-col items-center gap-3">
+        <button
+          type="submit"
+          class="border-2 border-ink bg-ink text-white px-14 py-4 text-xs font-bold tracking-[0.18em] uppercase hover:bg-gold hover:text-ink hover:border-gold transition-colors"
+        >
+          {c.submit}
+        </button>
+        <p class="text-xs text-ink/70">{c.microcopy}</p>
+      </div>
+
+      <p class="hidden text-center font-display italic text-gold-deep" data-lead-success>{c.success}</p>
+      <p class="hidden text-center text-red-600" data-lead-error>{c.error}</p>
+    </form>
+  </div>
+</Section>
+
+{turnstileSitekey && (
+  <script is:inline async defer src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
+)}
+
+<script>
+  // Same JSON-POST pattern as ContactForm: intercept submit, POST JSON to
+  // /api/contact, swap inline success/error, fire consent-aware tracking.
+  const form = document.querySelector<HTMLFormElement>('[data-lead-form]');
+  const ok = document.querySelector<HTMLElement>('[data-lead-success]');
+  const err = document.querySelector<HTMLElement>('[data-lead-error]');
+  const submitBtn = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    ok?.classList.add('hidden');
+    err?.classList.add('hidden');
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      const payload: Record<string, string> = {};
+      for (const [k, v] of new FormData(form).entries()) payload[k] = String(v);
+
+      const tkInput = form.querySelector<HTMLInputElement>('input[name="cf-turnstile-response"]');
+      if (tkInput?.value) payload.captchaToken = tkInput.value;
+      delete payload['cf-turnstile-response'];
+
+      let metaEventId = '';
+      if (typeof (window as any).fbq === 'function') {
+        metaEventId =
+          window.crypto && 'randomUUID' in window.crypto
+            ? window.crypto.randomUUID()
+            : String(Date.now()) + '-' + Math.round(Math.random() * 1e9);
+        payload.metaEventId = metaEventId;
+        payload.eventSourceUrl = location.href;
+        const readCookie = (name: string) => {
+          const m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
+          return m ? decodeURIComponent(m[1]) : '';
+        };
+        const fbp = readCookie('_fbp');
+        const fbc = readCookie('_fbc');
+        if (fbp) payload.fbp = fbp;
+        if (fbc) payload.fbc = fbc;
+      }
+
+      const res = await fetch(form.action, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const detail = await res.text().catch(() => '');
+        throw new Error('HTTP ' + res.status + (detail ? ' ' + detail : ''));
+      }
+      ok?.classList.remove('hidden');
+      (window as any).lwTrack?.('qualify_lead', { source: 'elopement_form' });
+      if (metaEventId && typeof (window as any).fbq === 'function') {
+        (window as any).fbq('track', 'Lead', {}, { eventID: metaEventId });
+      }
+      form.reset();
+    } catch (error) {
+      console.error('[lead] submit failed', error);
+      err?.classList.remove('hidden');
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+</script>

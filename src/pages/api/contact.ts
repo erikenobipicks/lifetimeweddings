@@ -31,6 +31,14 @@ const schema = z.object({
   venue: z.preprocess(blankToUndef, z.string().max(200).optional()),
   message: z.preprocess(blankToUndef, z.string().max(5000).optional()),
   consent: z.preprocess(blankToUndef, z.string().optional()),
+  // Lead-qualifying fields (optional — only the elopement/cluster landing
+  // forms send them; the plain ContactForm omits them). Kept short + free-text
+  // so the same endpoint stays backward-compatible.
+  session_type: z.preprocess(blankToUndef, z.string().max(80).optional()),
+  budget: z.preprocess(blankToUndef, z.string().max(80).optional()),
+  guests: z.preprocess(blankToUndef, z.string().max(80).optional()),
+  location_pref: z.preprocess(blankToUndef, z.string().max(200).optional()),
+  source: z.preprocess(blankToUndef, z.string().max(120).optional()),
   _language: z.preprocess(blankToUndef, z.enum(['ca', 'es', 'en']).optional()),
   captchaToken: z.preprocess(blankToUndef, z.string().optional()),
   // Meta Conversions API deduplication + match quality. The browser Pixel
@@ -121,7 +129,7 @@ export const POST: APIRoute = async ({ request }) => {
         coupleName: d.name,
         email: d.email,
         weddingDate: d.wedding_date,
-        location: d.venue,
+        location: d.location_pref ?? d.venue,
         preferredLanguage: lang,
       });
       deduplicated = result.deduplicated;
@@ -144,8 +152,13 @@ export const POST: APIRoute = async ({ request }) => {
         <ul>
           <li><strong>Nom:</strong> ${esc(d.name)}</li>
           <li><strong>Email:</strong> <a href="mailto:${esc(d.email)}">${esc(d.email)}</a></li>
+          ${d.session_type ? `<li><strong>Tipus de sessió:</strong> ${esc(d.session_type)}</li>` : ''}
           ${d.wedding_date ? `<li><strong>Data boda:</strong> ${esc(d.wedding_date)}</li>` : ''}
-          ${d.venue ? `<li><strong>Lloc:</strong> ${esc(d.venue)}</li>` : ''}
+          ${d.location_pref ? `<li><strong>Ubicació desitjada:</strong> ${esc(d.location_pref)}</li>` : ''}
+          ${d.venue ? `<li><strong>Lloc / venue:</strong> ${esc(d.venue)}</li>` : ''}
+          ${d.guests ? `<li><strong>Nº convidats:</strong> ${esc(d.guests)}</li>` : ''}
+          ${d.budget ? `<li><strong>Pressupost:</strong> ${esc(d.budget)}</li>` : ''}
+          ${d.source ? `<li><strong>Com ens ha trobat:</strong> ${esc(d.source)}</li>` : ''}
           <li><strong>Idioma:</strong> ${esc(lang)}</li>
           <li><strong>Hora:</strong> ${esc(when)}</li>
         </ul>
@@ -155,8 +168,9 @@ export const POST: APIRoute = async ({ request }) => {
       replyTo: d.email,
     });
 
+    const place = d.location_pref ?? d.venue;
     await sendTelegramNotification(
-      `💌 <b>Nou contacte</b>\n${esc(d.name)}\n📧 ${esc(d.email)}${d.wedding_date ? `\n📅 ${esc(d.wedding_date)}` : ''}${d.venue ? `\n📍 ${esc(d.venue)}` : ''}`,
+      `💌 <b>Nou contacte</b>\n${esc(d.name)}\n📧 ${esc(d.email)}${d.session_type ? `\n🎞️ ${esc(d.session_type)}` : ''}${d.wedding_date ? `\n📅 ${esc(d.wedding_date)}` : ''}${place ? `\n📍 ${esc(place)}` : ''}${d.guests ? `\n👥 ${esc(d.guests)}` : ''}${d.budget ? `\n💰 ${esc(d.budget)}` : ''}${d.source ? `\n🔎 ${esc(d.source)}` : ''}`,
     );
 
     // Auto-reply to the lead. No ceremony/service captured in this form, so
@@ -174,7 +188,7 @@ export const POST: APIRoute = async ({ request }) => {
       coupleName: d.name,
       email: d.email,
       weddingDate: d.wedding_date,
-      venue: d.venue,
+      venue: d.venue ?? d.location_pref,
       language: lang,
     });
 

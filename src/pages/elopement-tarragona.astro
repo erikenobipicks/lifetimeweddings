@@ -1,0 +1,7 @@
+---
+export const prerender = true;
+import ElopementLanding from '~/components/sections/ElopementLanding.astro';
+import { getElopement } from '~/data/elopements';
+const page = getElopement('tarragona')!;
+---
+<ElopementLanding page={page} lang="ca" />
