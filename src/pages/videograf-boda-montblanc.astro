@@ -1,0 +1,7 @@
+---
+export const prerender = true;
+import CityLanding from '~/components/sections/CityLanding.astro';
+import { getCity } from '~/data/cities';
+const city = getCity('montblanc')!;
+---
+<CityLanding city={city} service="video" lang="ca" />
