@@ -11,7 +11,7 @@ export const TORTOSA_PHOTO: Record<Lang, CityServiceCopy> = {
   ca: {
     meta: {
       title: `Fotògraf de boda a Tortosa | Lifetime Weddings`,
-      description: `Fotògraf de boda a Tortosa i les Terres de l'Ebre. Retrats al Castell de la Suda, la Catedral de Santa Maria i els Reials Col·legis, amb la llum del riu Ebre. Estil documental i natural.`,
+      description: `Fotògraf de boda a Tortosa i les Terres de l'Ebre. Retrats al Castell de la Suda i la Catedral de Santa Maria amb la llum del riu Ebre. Mirada documental.`,
     },
     hero: {
       eyebrow: `Fotografia de boda · Tortosa · Terres de l'Ebre`,
@@ -118,7 +118,7 @@ export const TORTOSA_PHOTO: Record<Lang, CityServiceCopy> = {
   es: {
     meta: {
       title: `Fotógrafo de boda en Tortosa | Lifetime Weddings`,
-      description: `Fotógrafo de boda en Tortosa y las Terres de l'Ebre. Retratos en el Castillo de la Suda, la Catedral de Santa María y los Reials Col·legis, con la luz del río Ebro. Estilo documental y natural.`,
+      description: `Fotógrafo de boda en Tortosa y las Terres de l'Ebre. Retratos en el Castillo de la Suda y la Catedral con la luz del río Ebro. Estilo documental y natural.`,
     },
     hero: {
       eyebrow: `Fotografía de boda · Tortosa · Terres de l'Ebre`,
@@ -225,7 +225,7 @@ export const TORTOSA_PHOTO: Record<Lang, CityServiceCopy> = {
   en: {
     meta: {
       title: `Wedding photographer in Tortosa | Lifetime Weddings`,
-      description: `Wedding photographer in Tortosa and the Terres de l'Ebre. Portraits at the Suda Castle, Santa Maria Cathedral and the Reials Col·legis, in the light of the river Ebre. Documentary, natural style.`,
+      description: `Wedding photographer in Tortosa and the Terres de l'Ebre. Portraits at the Suda Castle and the Cathedral in the light of the river Ebre. Documentary style.`,
     },
     hero: {
       eyebrow: `Wedding photography · Tortosa · Terres de l'Ebre`,

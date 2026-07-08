@@ -13,7 +13,7 @@ export const LLEIDA_VIDEO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Vídeo de boda a Lleida | Lifetime Weddings',
       description:
-        'Vídeo de boda a Lleida i Terres de Lleida: paisatge cinematogràfic, drone sobre els camps de fruiters en flor d\'Aitona i Alcarràs, la Seu Vella i so real de cerimònia. Som de Reus, viatgem a Ponent.',
+        'Vídeo de boda a Lleida: paisatge de cinema, drone sobre els camps en flor d’Aitona i Alcarràs, la Seu Vella i so real de cerimònia. Som de Reus, a Ponent.',
     },
     hero: {
       eyebrow: 'Vídeo de boda · Terres de Lleida',
@@ -119,7 +119,7 @@ export const LLEIDA_VIDEO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Vídeo de boda en Lleida | Lifetime Weddings',
       description:
-        'Vídeo de boda en Lleida y Tierras de Lleida: paisaje cinematográfico, drone sobre los campos de frutales en flor de Aitona y Alcarràs, la Seu Vella y sonido real de ceremonia. Somos de Reus, viajamos a Ponent.',
+        'Vídeo de boda en Lleida: paisaje de cine, drone sobre campos en flor de Aitona y Alcarràs, la Seu Vella y sonido real de ceremonia. Somos de Reus, a Ponent.',
     },
     hero: {
       eyebrow: 'Vídeo de boda · Tierras de Lleida',
@@ -225,7 +225,7 @@ export const LLEIDA_VIDEO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Wedding videographer in Lleida | Lifetime Weddings',
       description:
-        'Wedding videographer in Lleida and the Terres de Lleida: cinematic landscape, drone over the fruit-blossom fields of Aitona and Alcarràs, the Seu Vella and real ceremony sound. Based in Reus, we travel to western Catalonia.',
+        'Wedding videographer in Lleida: cinematic landscape, a drone over fruit blossom of Aitona and Alcarràs, the Seu Vella and real ceremony sound. Based in Reus.',
     },
     hero: {
       eyebrow: 'Wedding film · Terres de Lleida',

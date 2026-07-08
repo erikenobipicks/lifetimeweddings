@@ -6,6 +6,24 @@ interface Props { lang: Lang }
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 const year = new Date().getFullYear();
+
+// Wedding-photography landing pages by city. Surfaced in the footer so the
+// whole geo cluster is one click from every page: this fixes the orphan-page
+// problem (nothing else linked to the cluster) and keeps every city landing
+// within 2 clicks of the home. Photo landings are the priority keyword
+// targets; each city page then links onward to its video sister page, the
+// venues hub and the Tarragona/Lleida pillar.
+const ZONE_CITIES = [
+  { slug: 'tarragona', name: 'Tarragona' },
+  { slug: 'reus', name: 'Reus' },
+  { slug: 'lleida', name: 'Lleida' },
+  { slug: 'cambrils', name: 'Cambrils' },
+  { slug: 'salou', name: 'Salou' },
+  { slug: 'montblanc', name: 'Montblanc' },
+  { slug: 'tortosa', name: 'Tortosa' },
+];
+const zonesLabel =
+  lang === 'ca' ? 'Fotògraf de boda per zones' : lang === 'es' ? 'Fotógrafo de boda por zonas' : 'Wedding photographer by area';
 ---
 
 <footer class="bg-ink text-white/80 py-10 px-6 text-center text-sm">
@@ -31,6 +49,16 @@ const year = new Date().getFullYear();
       <span class="mx-2 opacity-70" aria-hidden="true">·</span>
       {lang === 'ca' ? 'Pagament fraccionat disponible' : lang === 'es' ? 'Pago fraccionado disponible' : 'Split payment available'}
     </p>
+
+    <nav aria-label={zonesLabel} class="text-xs opacity-90 mt-1 leading-relaxed">
+      <span class="opacity-70">{zonesLabel}:</span>
+      {ZONE_CITIES.map((c, i) => (
+        <>
+          {i > 0 && <span class="mx-1.5 opacity-70" aria-hidden="true">·</span>}
+          <a href={localePath(lang, `/fotograf-boda-${c.slug}`)} class="hover:text-gold">{c.name}</a>
+        </>
+      ))}
+    </nav>
 
     <nav aria-label="Legal" class="text-xs opacity-90">
       <a href={localePath(lang, '/legal')} class="hover:text-gold">{t('footer.legal')}</a>

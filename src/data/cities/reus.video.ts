@@ -13,7 +13,7 @@ export const REUS_VIDEO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Vídeo de boda a Reus | Lifetime Weddings',
       description:
-        'Vídeo de boda a Reus, la capital del modernisme. Dos germans de Reus: cinema documental, so real de la cerimònia i moviment per l’arquitectura de Domènech i Montaner. Sense recàrrec al Baix Camp.',
+        'Vídeo de boda a Reus. Dos germans de Reus: cinema documental, so real de la cerimònia i moviment per l’arquitectura modernista, sense recàrrec al Baix Camp.',
     },
     hero: {
       eyebrow: 'Vídeo de boda · Reus · Baix Camp',
@@ -125,7 +125,7 @@ export const REUS_VIDEO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Vídeo de boda en Reus | Lifetime Weddings',
       description:
-        'Vídeo de boda en Reus, la capital del modernismo. Dos hermanos de Reus: cine documental, sonido real de la ceremonia y movimiento por la arquitectura de Domènech i Montaner. Sin recargo en el Baix Camp.',
+        'Vídeo de boda en Reus. Dos hermanos de Reus: cine documental, sonido real de la ceremonia y movimiento por la arquitectura, sin recargo en el Baix Camp.',
     },
     hero: {
       eyebrow: 'Vídeo de boda · Reus · Baix Camp',
@@ -237,7 +237,7 @@ export const REUS_VIDEO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Wedding videographer in Reus | Lifetime Weddings',
       description:
-        'Wedding videographer in Reus, the capital of Catalan Modernisme. Two brothers, born here: documentary film, real ceremony sound and movement through the architecture of Domènech i Montaner. No travel fee across the Baix Camp.',
+        'Wedding videographer in Reus. Two brothers from here: documentary film, real sound and movement through Modernista Reus, no travel fee in the Baix Camp.',
     },
     hero: {
       eyebrow: 'Wedding film · Reus · Baix Camp',

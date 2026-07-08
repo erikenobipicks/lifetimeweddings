@@ -13,7 +13,7 @@ export const TARRAGONA_VIDEO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Vídeo de boda a Tarragona | Lifetime Weddings',
       description:
-        'Vídeo de boda a Tarragona: cinema honest, moviment i el so real dels vots. Rodem a la Part Alta, el Balcó del Mediterrani i el Serrallo, amb dron on es pot. Som germans de Reus. Tràiler i film complet.',
+        'Vídeo de boda a Tarragona: cinema honest, moviment i so real a la Part Alta, el Balcó del Mediterrani i el Serrallo, amb dron on es pot. Tràiler i film.',
     },
     hero: {
       eyebrow: 'Vídeo de boda · Tarragona',
@@ -124,7 +124,7 @@ export const TARRAGONA_VIDEO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Vídeo de boda en Tarragona | Lifetime Weddings',
       description:
-        'Vídeo de boda en Tarragona: cine honesto, movimiento y el sonido real de los votos. Rodamos en la Part Alta, el Balcó del Mediterrani y el Serrallo, con dron donde se puede. Somos hermanos de Reus. Tráiler y película completa.',
+        'Vídeo de boda en Tarragona: cine honesto, movimiento y sonido en la Part Alta, el Balcó del Mediterrani y el Serrallo, con dron si se puede. Tráiler y film.',
     },
     hero: {
       eyebrow: 'Vídeo de boda · Tarragona',
@@ -235,7 +235,7 @@ export const TARRAGONA_VIDEO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Wedding videographer in Tarragona | Lifetime Weddings',
       description:
-        'Wedding videographer in Tarragona: honest cinema, movement and the real sound of the vows. We film in the Old Town, the Mediterranean Balcony and El Serrallo, with drone where allowed. Two brothers from Reus. Trailer and full film.',
+        'Wedding videographer in Tarragona: honest cinema, movement and real sound in the Old Town, Mediterranean Balcony and El Serrallo. Trailer and full film.',
     },
     hero: {
       eyebrow: 'Wedding film · Tarragona',

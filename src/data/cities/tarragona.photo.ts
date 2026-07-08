@@ -12,7 +12,7 @@ export const TARRAGONA_PHOTO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Fotògraf de boda a Tarragona | Lifetime Weddings',
       description:
-        'Fotògraf de boda a Tarragona: fotoperiodisme, llum natural i retrats a la Part Alta, el Balcó del Mediterrani i el Serrallo. Som germans de Reus, treballem a tot el Camp de Tarragona. Galeria en una setmana.',
+        'Fotògraf de boda a Tarragona: fotoperiodisme i llum natural a la Part Alta, el Balcó del Mediterrani i el Serrallo. Germans de Reus, galeria en una setmana.',
     },
     hero: {
       eyebrow: 'Fotografia de boda · Tarragona',
@@ -123,7 +123,7 @@ export const TARRAGONA_PHOTO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Fotógrafo de boda en Tarragona | Lifetime Weddings',
       description:
-        'Fotógrafo de boda en Tarragona: fotoperiodismo, luz natural y retratos en la Part Alta, el Balcó del Mediterrani y el Serrallo. Somos hermanos de Reus y trabajamos en todo el Camp de Tarragona. Galería en una semana.',
+        'Fotógrafo de boda en Tarragona: fotoperiodismo y luz natural en la Part Alta, el Balcó del Mediterrani y el Serrallo. Hermanos de Reus, galería en una semana.',
     },
     hero: {
       eyebrow: 'Fotografía de boda · Tarragona',
@@ -234,7 +234,7 @@ export const TARRAGONA_PHOTO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Wedding photographer in Tarragona | Lifetime Weddings',
       description:
-        'Wedding photographer in Tarragona: photojournalism, natural light and portraits in the Old Town, the Mediterranean Balcony and El Serrallo. Two brothers from Reus, working across the whole Camp de Tarragona. Gallery in one week.',
+        'Wedding photographer in Tarragona: photojournalism, natural light and portraits in the Old Town, the Mediterranean Balcony and El Serrallo. Gallery in a week.',
     },
     hero: {
       eyebrow: 'Wedding photography · Tarragona',

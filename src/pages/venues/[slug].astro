@@ -89,6 +89,18 @@ const waMessage = encodeURIComponent(
   `Hola! Ens casem i estem mirant si tenim disponibilitat per ${venue.name}.`,
 );
 const waLink = `${WHATSAPP_BASE}&text=${waMessage}`;
+
+// Contextual link to the matching city-cluster landing. A couple browsing a
+// venue page is high-intent and often still searching "fotògraf de casaments
+// a <ciutat>", so linking there passes topical relevance and keeps the venue
+// pages wired into the geo cluster (they were otherwise only reachable from
+// /venues). Every venue currently sits in the Tarragona area; the Lleida
+// branch is ready for when a Lleida venue (e.g. La Boscana) is added.
+// TODO: point the Lleida branch at a dedicated /fotograf-boda-lleida-driven
+// venue once one exists; for now it falls back to the Tarragona+Lleida pillar.
+const zoneLink = venue.region.includes('Lleida')
+  ? { href: '/fotograf-boda-tarragona-lleida', label: 'fotògraf de casaments a Tarragona i Lleida' }
+  : { href: '/fotograf-boda-tarragona', label: 'fotògraf de casaments a Tarragona' };
 ---
 
 <BaseLayout
@@ -183,6 +195,13 @@ const waLink = `${WHATSAPP_BASE}&text=${waMessage}`;
           </a>
         </p>
       )}
+      <p class="mt-4 text-ink/75 leading-relaxed">
+        Documentem casaments per tota la zona. Si encara heu de triar qui us farà el reportatge, vegeu com treballem com a
+        <a
+          href={zoneLink.href}
+          class="border-b border-gold text-ink font-semibold hover:text-gold transition-colors"
+        >{zoneLink.label}</a>.
+      </p>
     </div>
   </Section>
 
