@@ -13,7 +13,7 @@ export const REUS_PHOTO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Fotògraf de boda a Reus | Lifetime Weddings',
       description:
-        'Fotògraf de boda a Reus, la capital del modernisme. Dos germans de Reus: fotografia documental a l’Institut Pere Mata, la Casa Navàs i el Mercadal. Sense recàrrec de desplaçament al Baix Camp.',
+        'Fotògraf de boda a Reus. Dos germans de la ciutat: fotografia documental a l’Institut Pere Mata, la Casa Navàs i el Mercadal, sense recàrrec al Baix Camp.',
     },
     hero: {
       eyebrow: 'Fotografia de boda · Reus · Baix Camp',
@@ -125,7 +125,7 @@ export const REUS_PHOTO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Fotógrafo de boda en Reus | Lifetime Weddings',
       description:
-        'Fotógrafo de boda en Reus, la capital del modernismo. Dos hermanos de Reus: fotografía documental en el Institut Pere Mata, la Casa Navàs y el Mercadal. Sin recargo de desplazamiento en el Baix Camp.',
+        'Fotógrafo de boda en Reus. Dos hermanos de Reus: fotografía documental en el Institut Pere Mata, la Casa Navàs y el Mercadal, sin recargo en el Baix Camp.',
     },
     hero: {
       eyebrow: 'Fotografía de boda · Reus · Baix Camp',
@@ -237,7 +237,7 @@ export const REUS_PHOTO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Wedding photographer in Reus | Lifetime Weddings',
       description:
-        'Wedding photographer in Reus, the capital of Catalan Modernisme. Two brothers, born here: documentary photography at the Institut Pere Mata, Casa Navàs and the Mercadal. No travel fee across the Baix Camp.',
+        'Wedding photographer in Reus. Two brothers from here: documentary photos at the Institut Pere Mata, Casa Navàs and Mercadal, no travel fee in the Baix Camp.',
     },
     hero: {
       eyebrow: 'Wedding photography · Reus · Baix Camp',

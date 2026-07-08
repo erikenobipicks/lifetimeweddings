@@ -13,7 +13,7 @@ export const CAMBRILS_VIDEO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Vídeo de boda a Cambrils | Lifetime Weddings',
       description:
-        'Vídeo de boda a Cambrils, a la Costa Daurada. Films cinematogràfics amb mar, els jardins del Parc Samà, so real de la cerimònia i dron per la costa on es permet.',
+        'Vídeo de boda a Cambrils, a la Costa Daurada. Films cinematogràfics amb mar, els jardins del Parc Samà, so real de la cerimònia i vistes de dron per la costa.',
     },
     hero: {
       eyebrow: 'Costa Daurada · Baix Camp',
@@ -124,7 +124,7 @@ export const CAMBRILS_VIDEO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Vídeo de boda en Cambrils | Lifetime Weddings',
       description:
-        'Vídeo de boda en Cambrils, en la Costa Daurada. Films cinematográficos con mar, los jardines del Parc Samà, sonido real de la ceremonia y dron por la costa donde se permite.',
+        'Vídeo de boda en Cambrils, en la Costa Daurada. Films cinematográficos con mar, los jardines del Parc Samà, sonido real de la ceremonia y dron por la costa.',
     },
     hero: {
       eyebrow: 'Costa Daurada · Baix Camp',
@@ -235,7 +235,7 @@ export const CAMBRILS_VIDEO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Wedding videographer in Cambrils | Lifetime Weddings',
       description:
-        'Wedding videographer in Cambrils, on the Costa Daurada. Cinematic films with the sea, the Parc Samà gardens, real ceremony sound and drone along the coast where permitted.',
+        'Wedding videographer in Cambrils, on the Costa Daurada. Cinematic films with the sea, the Parc Samà gardens, real ceremony sound and drone along the coast.',
     },
     hero: {
       eyebrow: 'Costa Daurada · Baix Camp',

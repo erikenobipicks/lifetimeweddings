@@ -14,7 +14,7 @@ export const MONTBLANC_PHOTO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Fotògraf de boda a Montblanc | Lifetime Weddings',
       description:
-        'Fotògraf de boda a Montblanc i la Conca de Barberà. Pedra medieval, muralla, Pont Vell i llum daurada de vinya. Reportatge natural i sense presses. Demana pressupost.',
+        'Fotògraf de boda a Montblanc i la Conca de Barberà. Muralla medieval, Pont Vell i llum daurada de vinya. Reportatge natural i sense pressa. Demana pressupost.',
     },
     hero: {
       eyebrow: 'Conca de Barberà · Tarragona',
@@ -119,7 +119,7 @@ export const MONTBLANC_PHOTO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Fotógrafo de boda en Montblanc | Lifetime Weddings',
       description:
-        'Fotógrafo de boda en Montblanc y la Conca de Barberà. Piedra medieval, muralla, Pont Vell y luz dorada de viñedo. Reportaje natural y sin prisas. Pide presupuesto.',
+        'Fotógrafo de boda en Montblanc y la Conca de Barberà. Muralla medieval, Pont Vell y luz dorada de viñedo. Reportaje natural y sin prisas. Pide presupuesto.',
     },
     hero: {
       eyebrow: 'Conca de Barberà · Tarragona',
@@ -224,7 +224,7 @@ export const MONTBLANC_PHOTO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Wedding photographer in Montblanc | Lifetime Weddings',
       description:
-        'Wedding photographer in Montblanc and the Conca de Barberà. Medieval stone, town walls, the old bridge and golden vineyard light. Natural, unhurried reportage. Ask for a quote.',
+        'Wedding photographer in Montblanc and the Conca de Barberà. Medieval town walls, the old bridge and golden vineyard light. Natural, unhurried reportage.',
     },
     hero: {
       eyebrow: 'Conca de Barberà · Tarragona',

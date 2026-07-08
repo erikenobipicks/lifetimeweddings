@@ -14,7 +14,7 @@ export const MONTBLANC_VIDEO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Vídeo de boda a Montblanc | Lifetime Weddings',
       description:
-        'Vídeo de boda a Montblanc i la Conca de Barberà. Cinema entre pedra medieval, so real de la cerimònia i dron sobre muralla i vinyes on es permet. Demana pressupost.',
+        'Vídeo de boda a Montblanc i la Conca de Barberà. Cinema entre pedra medieval, so real de la cerimònia i dron sobre muralla i vinyes on la normativa ho permet.',
     },
     hero: {
       eyebrow: 'Conca de Barberà · Tarragona',
@@ -119,7 +119,7 @@ export const MONTBLANC_VIDEO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Vídeo de boda en Montblanc | Lifetime Weddings',
       description:
-        'Vídeo de boda en Montblanc y la Conca de Barberà. Cine entre piedra medieval, sonido real de la ceremonia y dron sobre muralla y viñedos donde se permite. Pide presupuesto.',
+        'Vídeo de boda en Montblanc y la Conca de Barberà. Cine de piedra medieval, sonido real de la ceremonia y dron sobre muralla y viñedos donde se permite.',
     },
     hero: {
       eyebrow: 'Conca de Barberà · Tarragona',
@@ -224,7 +224,7 @@ export const MONTBLANC_VIDEO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Wedding videographer in Montblanc | Lifetime Weddings',
       description:
-        'Wedding videographer in Montblanc and the Conca de Barberà. Cinema among medieval stone, real ceremony sound and drone over walls and vineyards where permitted. Ask for a quote.',
+        'Wedding videographer in Montblanc and the Conca de Barberà. Medieval stone, real ceremony sound and drone over town walls and vineyards where permitted.',
     },
     hero: {
       eyebrow: 'Conca de Barberà · Tarragona',

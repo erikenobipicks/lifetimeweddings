@@ -11,7 +11,7 @@ export const TORTOSA_VIDEO: Record<Lang, CityServiceCopy> = {
   ca: {
     meta: {
       title: `Vídeo de boda a Tortosa | Lifetime Weddings`,
-      description: `Vídeo de boda a Tortosa i les Terres de l'Ebre. Cinema del Castell de la Suda i el riu Ebre, so real de la cerimònia i dron sobre l'Ebre on es permet. Estil cinematogràfic i natural.`,
+      description: `Vídeo de boda a Tortosa i les Terres de l'Ebre. Cinema del Castell de la Suda i el riu Ebre, so real de la cerimònia i dron sobre l'Ebre on es permet.`,
     },
     hero: {
       eyebrow: `Vídeo de boda · Tortosa · Terres de l'Ebre`,
@@ -118,7 +118,7 @@ export const TORTOSA_VIDEO: Record<Lang, CityServiceCopy> = {
   es: {
     meta: {
       title: `Vídeo de boda en Tortosa | Lifetime Weddings`,
-      description: `Vídeo de boda en Tortosa y las Terres de l'Ebre. Cine del Castillo de la Suda y el río Ebro, sonido real de la ceremonia y dron sobre el Ebro donde se permite. Estilo cinematográfico y natural.`,
+      description: `Vídeo de boda en Tortosa y las Terres de l'Ebre. Cine del Castillo de la Suda y el río Ebro, sonido real de la ceremonia y dron sobre el Ebro donde se puede.`,
     },
     hero: {
       eyebrow: `Vídeo de boda · Tortosa · Terres de l'Ebre`,
@@ -225,7 +225,7 @@ export const TORTOSA_VIDEO: Record<Lang, CityServiceCopy> = {
   en: {
     meta: {
       title: `Wedding videographer in Tortosa | Lifetime Weddings`,
-      description: `Wedding videographer in Tortosa and the Terres de l'Ebre. Cinematic film of the Suda Castle and the river Ebre, real ceremony sound and drone over the Ebre where permitted. Cinematic, natural style.`,
+      description: `Wedding videographer in Tortosa and the Terres de l'Ebre. Cinematic film of the Suda Castle and river Ebre, real ceremony sound and drone where permitted.`,
     },
     hero: {
       eyebrow: `Wedding film · Tortosa · Terres de l'Ebre`,

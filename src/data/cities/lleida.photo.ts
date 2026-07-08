@@ -13,7 +13,7 @@ export const LLEIDA_PHOTO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Fotògraf de boda a Lleida | Lifetime Weddings',
       description:
-        'Fotògraf de boda a Lleida i Terres de Lleida: camps de fruiters en flor a Aitona i Alcarràs, la Seu Vella i cels immensos del secà. Som de Reus, viatgem a Ponent. Estil documental i natural.',
+        'Fotògraf de boda a Lleida: camps de fruiters en flor a Aitona i Alcarràs, la Seu Vella i els cels del secà. Som de Reus, viatgem a Ponent. Estil documental.',
     },
     hero: {
       eyebrow: 'Fotografia de boda · Terres de Lleida',
@@ -119,7 +119,7 @@ export const LLEIDA_PHOTO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Fotógrafo de boda en Lleida | Lifetime Weddings',
       description:
-        'Fotógrafo de boda en Lleida y Tierras de Lleida: campos de frutales en flor en Aitona y Alcarràs, la Seu Vella y los cielos inmensos del secano. Somos de Reus, viajamos a Ponent. Estilo documental y natural.',
+        'Fotógrafo de boda en Lleida: campos de frutales en flor en Aitona y Alcarràs, la Seu Vella y los grandes cielos del secano. Somos de Reus, viajamos a Ponent.',
     },
     hero: {
       eyebrow: 'Fotografía de boda · Tierras de Lleida',
@@ -225,7 +225,7 @@ export const LLEIDA_PHOTO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Wedding photographer in Lleida | Lifetime Weddings',
       description:
-        'Wedding photographer in Lleida and the Terres de Lleida: fruit-blossom fields in Aitona and Alcarràs, the Seu Vella and the vast skies of the dry plains. Based in Reus, we travel to western Catalonia. Documentary, natural style.',
+        'Wedding photographer in Lleida: fruit-blossom fields in Aitona and Alcarràs, the Seu Vella and vast dry-plain skies. Based in Reus, documentary style.',
     },
     hero: {
       eyebrow: 'Wedding photography · Terres de Lleida',

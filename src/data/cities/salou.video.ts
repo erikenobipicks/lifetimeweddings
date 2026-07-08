@@ -18,7 +18,7 @@ export const SALOU_VIDEO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Vídeo de boda a Salou | Lifetime Weddings',
       description:
-        'Vídeo de boda a Salou i el Cap de Salou. Cinema de costa, so real de la cerimònia i dron sobre les cales on està permès. Bodes internacionals i multiculturals benvingudes.',
+        'Vídeo de boda a Salou i el Cap de Salou. Cinema de costa, so real de la cerimònia i dron sobre les cales on està permès. Bodes internacionals benvingudes.',
     },
     hero: {
       eyebrow: 'Vídeo de boda · Salou · Costa Daurada',
@@ -130,7 +130,7 @@ export const SALOU_VIDEO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Vídeo de boda en Salou | Lifetime Weddings',
       description:
-        'Vídeo de boda en Salou y el Cap de Salou. Cine de costa, sonido real de la ceremonia y dron sobre las calas donde está permitido. Bodas internacionales y multiculturales bienvenidas.',
+        'Vídeo de boda en Salou y Cap de Salou. Cine de costa, sonido real de la ceremonia y dron sobre las calas donde se permite. Bodas internacionales bienvenidas.',
     },
     hero: {
       eyebrow: 'Vídeo de boda · Salou · Costa Dorada',
@@ -242,7 +242,7 @@ export const SALOU_VIDEO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Wedding videographer in Salou | Lifetime Weddings',
       description:
-        'Wedding videographer in Salou and Cap de Salou. Cinematic coast, real ceremony sound and drone over the coves where permitted. International and multicultural weddings welcome.',
+        'Wedding videographer in Salou and Cap de Salou. Cinematic coast, real ceremony sound and drone over the coves where permitted. International weddings welcome.',
     },
     hero: {
       eyebrow: 'Wedding film · Salou · Costa Daurada',

@@ -16,7 +16,7 @@ export const SALOU_PHOTO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Fotògraf de boda a Salou | Lifetime Weddings',
       description:
-        'Fotògraf de boda a Salou i el Cap de Salou. Retrats a les cales de pins, llum de palmera al Passeig Jaume I i primera hora a la Platja de Llevant. Bodes internacionals benvingudes.',
+        'Fotògraf de boda a Salou i el Cap de Salou. Retrats a les cales de pins, llum al Passeig Jaume I i primera hora a la Platja de Llevant. Us hi esperem.',
     },
     hero: {
       eyebrow: 'Fotografia de boda · Salou · Costa Daurada',
@@ -128,7 +128,7 @@ export const SALOU_PHOTO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Fotógrafo de boda en Salou | Lifetime Weddings',
       description:
-        'Fotógrafo de boda en Salou y el Cap de Salou. Retratos en las calas de pinos, luz de palmera en el Passeig Jaume I y primera hora en la Platja de Llevant. Bodas internacionales bienvenidas.',
+        'Fotógrafo de boda en Salou y el Cap de Salou. Retratos en las calas de pinos, luz en el Passeig Jaume I y primera hora en la Platja de Llevant. Escríbenos.',
     },
     hero: {
       eyebrow: 'Fotografía de boda · Salou · Costa Dorada',
@@ -240,7 +240,7 @@ export const SALOU_PHOTO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Wedding photographer in Salou | Lifetime Weddings',
       description:
-        'Wedding photographer in Salou and Cap de Salou. Portraits in the pine-backed coves, palm-lined light on Passeig Jaume I and first light on Platja de Llevant. International weddings welcome.',
+        'Wedding photographer in Salou and Cap de Salou. Portraits in the pine-backed coves, palm light on Passeig Jaume I and dawn on Platja de Llevant. Get in touch.',
     },
     hero: {
       eyebrow: 'Wedding photography · Salou · Costa Daurada',

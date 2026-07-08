@@ -235,7 +235,7 @@ export const CAMBRILS_PHOTO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Wedding photographer in Cambrils | Lifetime Weddings',
       description:
-        'Wedding photographer in Cambrils, on the Costa Daurada. Sea light, portraits in the Parc Samà gardens and the texture of the fishing port. We are brothers from Reus, ten minutes away.',
+        'Wedding photographer in Cambrils, on the Costa Daurada. Sea light, portraits in the Parc Samà gardens and the fishing port. Brothers from Reus nearby.',
     },
     hero: {
       eyebrow: 'Costa Daurada · Baix Camp',
