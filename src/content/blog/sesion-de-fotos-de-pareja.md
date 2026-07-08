@@ -10,6 +10,8 @@ Y es una pena, porque no es verdad.
 
 No hace falta casarse para tener fotos preciosas de los dos. No hace falta un aniversario redondo, ni una excusa, ni un motivo que suene "importante". Hace falta, simplemente, que os apetezca teneros bien guardados. Y hoy os vamos a contar por qué una **sesión de fotos de pareja** es uno de los mejores regalos que os podéis hacer (o que le podéis hacer a quien queréis), y qué hacéis después con esas fotos para que no se queden en una carpeta del móvil.
 
+![Primer plano de los ojos de una pareja en una sesión de fotos, mirada íntima](/blog/sesion-de-fotos-de-pareja/mirada.webp)
+
 ## No hace falta una boda (ni una excusa) para teneros bien guardados
 
 Un aniversario. Un embarazo. Que acabáis de estrenar piso. Que hace diez años que estáis juntos, o diez meses. Que os habéis puesto guapos hoy. O nada de eso: simplemente que os queréis y os apetece.
@@ -27,6 +29,8 @@ Aquí es donde mucha gente se sorprende. Unas buenas fotos de pareja no acaban "
 - **Para vuestras redes sociales.** Publicaciones que de verdad os representan, no la foto movida que os hizo un camarero. Contenido bonito para Instagram que además es 100 % vuestro.
 - **Como recuerdo tangible.** Un álbum, un print para la mesita de noche, una copia para vuestros padres. Cosas que se tocan y que quedan.
 - **Como regalo.** Y aquí merece la pena pararse.
+
+![Sesión de fotos de pareja urbana ante un mural, ideal para redes sociales](/blog/sesion-de-fotos-de-pareja/mural.webp)
 
 ## El regalo que no se queda en un cajón
 
@@ -50,6 +54,8 @@ Una sesión de pareja bien hecha no es plantarse rígidos delante de la cámara.
 
 Sin misterios: primero hablamos un rato para conocer vuestro rollo y qué os apetece. Elegimos juntos una localización que os diga algo. El día de la sesión pasamos aproximadamente una hora u hora y media tranquilos, sin prisa, y os guiamos en todo momento. Después recibís una galería con las fotos editadas, listas para imprimir, compartir o poner de fondo de pantalla esa misma tarde.
 
+![Pareja sentada y relajada en una sesión de fotos natural, sin posar](/blog/sesion-de-fotos-de-pareja/carretera.webp)
+
 ## Ideas de dónde hacerlas (Tarragona y alrededores)
 
 Vivimos en una zona preciosa para esto, y cada sitio le da un carácter distinto a vuestras fotos:
@@ -60,11 +66,15 @@ Vivimos en una zona preciosa para esto, y cada sitio le da un carácter distinto
 - **La montaña**, para parejas a las que les va la naturaleza y la calma.
 - **Vuestra propia casa.** Sí, en serio: una sesión en casa, en pijama, con café y vuestro perro, es de lo más íntimo y real que se puede hacer.
 
+![Sesión de fotos de pareja junto a una cascada, un beso en un entorno natural](/blog/sesion-de-fotos-de-pareja/cascada.webp)
+
 ## Nuestra mirada en Lifetime Weddings
 
 En Lifetime Weddings no hacemos fotos de catálogo, ni en las bodas ni en las sesiones de pareja. Nos gusta lo natural, lo que emociona, lo que dentro de años os hará sonreír al verlo. Si os ha resonado esta idea, echad un vistazo a [nuestro trabajo](/es#portfolio) y, cuando queráis regalaros (o regalar) una sesión, [escribidnos](/es/contacto) y lo montamos. Y si lo que os ronda la cabeza es una [pedida de mano](/es/peticion-de-mano), también os ayudamos con eso.
 
 Porque no hace falta esperar a un día importante para tener fotos importantes. A veces el mejor momento es, simplemente, hoy.
+
+![Pareja abrazada en la playa al atardecer durante una sesión de fotos](/blog/sesion-de-fotos-de-pareja/platja.webp)
 
 ## Preguntas frecuentes sobre sesiones de fotos de pareja
 

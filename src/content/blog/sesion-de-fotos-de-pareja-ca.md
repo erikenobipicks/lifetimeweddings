@@ -10,6 +10,8 @@ I és una llàstima, perquè no és veritat.
 
 No cal casar-se per tenir fotos precioses dels dos. No cal un aniversari rodó, ni una excusa, ni un motiu que soni "important". Cal, simplement, que us vingui de gust tenir-vos ben guardats. I avui us explicarem per què una **sessió de fotos de parella** és un dels millors regals que us podeu fer (o que podeu fer a qui estimeu), i què feu després amb aquestes fotos perquè no es quedin en una carpeta del mòbil.
 
+![Primer pla dels ulls d'una parella en una sessió de fotos, mirada íntima](/blog/sesion-de-fotos-de-pareja/mirada.webp)
+
 ## No cal una boda (ni una excusa) per tenir-vos ben guardats
 
 Un aniversari. Un embaràs. Que acabeu d'estrenar pis. Que fa deu anys que esteu junts, o deu mesos. Que us heu posat guapos avui. O res de tot això: simplement que us estimeu i us ve de gust.
@@ -27,6 +29,8 @@ Aquí és on molta gent se sorprèn. Unes bones fotos de parella no acaben "a l'
 - **Per a les vostres xarxes socials.** Publicacions que de veritat us representen, no la foto moguda que us va fer un cambrer. Contingut bonic per a Instagram que a més és 100 % vostre.
 - **Com a record tangible.** Un àlbum, un print per a la tauleta de nit, una còpia per als vostres pares. Coses que es toquen i que queden.
 - **Com a regal.** I aquí val la pena aturar-se.
+
+![Sessió de fotos de parella urbana davant d'un mural, ideal per a xarxes socials](/blog/sesion-de-fotos-de-pareja/mural.webp)
 
 ## El regal que no es queda en un calaix
 
@@ -50,6 +54,8 @@ Una sessió de parella ben feta no és plantar-se rígids davant de la càmera. 
 
 Sense misteris: primer parlem una estona per conèixer el vostre rotllo i què us ve de gust. Triem junts una localització que us digui alguna cosa. El dia de la sessió passem aproximadament una hora o hora i mitja tranquils, sense pressa, i us guiem en tot moment. Després rebeu una galeria amb les fotos editades, a punt per imprimir, compartir o posar de fons de pantalla aquella mateixa tarda.
 
+![Parella asseguda i relaxada en una sessió de fotos natural, sense posar](/blog/sesion-de-fotos-de-pareja/carretera.webp)
+
 ## Idees d'on fer-les (Tarragona i rodalies)
 
 Vivim en una zona preciosa per a això, i cada lloc dona un caràcter diferent a les vostres fotos:
@@ -60,11 +66,15 @@ Vivim en una zona preciosa per a això, i cada lloc dona un caràcter diferent a
 - **La muntanya**, per a parelles a qui els va la natura i la calma.
 - **Casa vostra.** Sí, de debò: una sessió a casa, en pijama, amb cafè i el vostre gos, és de les coses més íntimes i reals que es poden fer.
 
+![Sessió de fotos de parella vora una cascada, un petó en un entorn natural](/blog/sesion-de-fotos-de-pareja/cascada.webp)
+
 ## La nostra mirada a Lifetime Weddings
 
 A Lifetime Weddings no fem fotos de catàleg, ni a les bodes ni a les sessions de parella. Ens agrada allò natural, allò que emociona, allò que d'aquí a anys us farà somriure en veure-ho. Si us ha ressonat aquesta idea, feu un cop d'ull al [nostre treball](/#portfolio) i, quan us vulgueu regalar (o regalar) una sessió, [escriviu-nos](/contacto) i ho muntem. I si el que us ronda pel cap és una [petició de mà](/peticion-de-mano), també us ajudem amb això.
 
 Perquè no cal esperar a un dia important per tenir fotos importants. De vegades, el millor moment és, simplement, avui.
+
+![Parella abraçada a la platja al capvespre durant una sessió de fotos](/blog/sesion-de-fotos-de-pareja/platja.webp)
 
 ## Preguntes freqüents sobre sessions de fotos de parella
 
