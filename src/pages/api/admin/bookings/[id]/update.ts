@@ -256,6 +256,23 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
     return back('?ok=timeline:saved#horaris');
   }
 
+  // Quick team assignment from the ficha summary card. Patches ONLY the two
+  // team fields into the existing timeline (unlike save_timeline, which
+  // rewrites the whole object from its form) so the rest survives.
+  if (action === 'save_team') {
+    const s = (k: string) => {
+      const v = form.get(k);
+      return typeof v === 'string' ? v.trim().slice(0, 80) : '';
+    };
+    const t: DayTimeline = {
+      ...(booking.dayTimeline ?? {}),
+      photographer: s('photographer'),
+      videographer: s('videographer'),
+    };
+    await saveDayTimeline(id, t);
+    return back('?ok=team:saved');
+  }
+
   // ── Payments ledger ──────────────────────────────────────────────────────
   if (action === 'payment_add') {
     const cents = eurosStringToCents(String(form.get('amountEuros') ?? ''));

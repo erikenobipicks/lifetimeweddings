@@ -53,6 +53,36 @@ const err = params.get('error');
 // Wedding-day timeline ("horaris"). Operator-authored; empty object when not
 // filled yet so the form binds cleanly.
 const tl = booking.dayTimeline ?? {};
+
+// ── Summary-card helpers ─────────────────────────────────────────────────
+// Countdown in whole days from today (Madrid) to the wedding; negative when
+// already celebrated. Both sides are YYYY-MM-DD so the diff is exact days.
+const daysToWedding = Math.round((Date.parse(weddingDateIso) - Date.parse(todayIso)) / 86400000);
+const countdownText =
+  daysToWedding === 0 ? '🎉 AVUI'
+  : daysToWedding === 1 ? 'demà'
+  : daysToWedding > 1 ? `d'aquí ${daysToWedding} dies`
+  : daysToWedding === -1 ? 'ahir'
+  : `fa ${-daysToWedding} dies`;
+const weddingWeekday = booking.weddingDate.toLocaleDateString('ca-ES', { timeZone: 'Europe/Madrid', weekday: 'long' });
+const weddingLong = booking.weddingDate.toLocaleDateString('ca-ES', { timeZone: 'Europe/Madrid', day: 'numeric', month: 'long', year: 'numeric' });
+
+// WhatsApp deep-link for the couple's phone. Bare 9-digit numbers are
+// assumed Spanish (+34); anything longer is used as-is.
+const waPhone = (() => {
+  const digits = (booking.couplePhonePrimary ?? '').replace(/\D/g, '');
+  if (!digits) return null;
+  return `https://wa.me/${digits.length === 9 ? `34${digits}` : digits}`;
+})();
+
+const SERVICE_LABEL: Record<string, string> = { photo: 'Foto', video: 'Vídeo', combo: 'Foto + vídeo' };
+const ownershipChip =
+  booking.kind === 'external'
+    ? { label: booking.collaboratorName ? `Per a ${booking.collaboratorName}` : 'Per a un altre estudi', classes: 'bg-purple-100 text-purple-800' }
+    : booking.kind === 'collab'
+      ? { label: booking.collaboratorName ? `LW + ${booking.collaboratorName}` : 'LW + col·laborador', classes: 'bg-sky-100 text-sky-800' }
+      : null;
+
 /** Build a Google Maps link: an explicit pasted URL wins, else a search
  *  link derived from the address. Returns null when we have neither. */
 function mapsHref(address?: string, url?: string): string | null {
@@ -114,6 +144,21 @@ const inspirationRows = inspiration
       asLink: f.asLink === true && /^https?:\/\//i.test(inspiration.data[f.key]),
     }))
   : [];
+
+// Sticky quick-nav: only sections that actually render for this booking.
+const navItems = [
+  { href: '#pagaments', label: '💶 Pagaments', show: true },
+  { href: '#horaris', label: '🕐 Horaris', show: true },
+  { href: '#seguiment', label: '✅ Seguiment', show: booking.status === 'form_submitted' },
+  { href: '#dades-parella', label: '📋 Dades parella', show: !!formResponse },
+  { href: '#editar', label: '✏️ Editar', show: true },
+  { href: '#info-boda', label: '💒 Info boda', show: !!weddingDetails },
+  { href: '#inspiracio', label: '🎵 Inspiració', show: !!inspiration },
+  { href: '#basic-info-form', label: '📝 Form bàsic', show: booking.kind !== 'own' },
+  { href: '#comunicacions', label: '📧 Emails', show: true },
+  { href: '#addendum', label: '📅 Canvi data/preu', show: true },
+  { href: '#cancellacio', label: '🚫 Cancel·lació', show: true },
+].filter((i) => i.show);
 
 // Pre-filled Google Calendar "Add event" URL for this booking. Opens
 // the operator's calendar with title/location/details/dates ready —
@@ -190,9 +235,15 @@ const ibanPlaceholder = transfer.isPlaceholder;
       >
         📦 Crear entrega
       </a>
-      <span class:list={['inline-block text-xs font-bold tracking-widest uppercase px-3 py-1.5 whitespace-nowrap', STATUS_BADGE[booking.status]]}>
-        {STATUS_LABEL[booking.status]}
-      </span>
+      {booking.cancelledAt ? (
+        <span class="inline-block text-xs font-bold tracking-widest uppercase px-3 py-1.5 whitespace-nowrap bg-rose-100 text-rose-700">
+          Cancel·lada
+        </span>
+      ) : (
+        <span class:list={['inline-block text-xs font-bold tracking-widest uppercase px-3 py-1.5 whitespace-nowrap', STATUS_BADGE[booking.status]]}>
+          {STATUS_LABEL[booking.status]}
+        </span>
+      )}
     </div>
   </div>
 
@@ -206,6 +257,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
       {ok === 'payment:added' && 'Pagament registrat.'}
       {ok === 'reminder:sent' && 'Recordatori de pagament enviat a la parella.'}
       {ok === 'timeline:saved' && 'Horaris del dia desats.'}
+      {ok === 'team:saved' && 'Equip assignat (fotògraf / videògraf).'}
       {ok === 'payment:dumped' && 'Trams afegits al llibre de pagaments.'}
       {ok === 'payment:deleted' && 'Pagament eliminat.'}
       {ok === 'change:saved' && 'Canvi desat. Pots descarregar l\'addendum a baix.'}
@@ -225,6 +277,108 @@ const ibanPlaceholder = transfer.isPlaceholder;
       <strong>Error:</strong> {err}
     </div>
   )}
+
+  <!-- ── Resum d'un cop d'ull ─────────────────────────────────────────── -->
+  <div class="bg-white border border-line p-5 mb-4">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4 text-sm">
+      <div>
+        <p class="text-[11px] font-bold tracking-widest uppercase text-ink/70 mb-1">📅 Data</p>
+        <p class="font-bold capitalize">{weddingWeekday}</p>
+        <p>{weddingLong}</p>
+        <p class:list={['text-xs mt-0.5 font-semibold', daysToWedding >= 0 && daysToWedding <= 14 ? 'text-amber-700' : 'text-ink/60']}>{countdownText}</p>
+      </div>
+      <div class="min-w-0">
+        <p class="text-[11px] font-bold tracking-widest uppercase text-ink/70 mb-1">📍 Lloc</p>
+        <p class="font-bold break-words">{booking.venueName}</p>
+        {booking.venueCity && <p class="text-ink/70">{booking.venueCity}</p>}
+        {mapsHref(`${booking.venueName}${booking.venueCity ? `, ${booking.venueCity}` : ''}`) && (
+          <a href={mapsHref(`${booking.venueName}${booking.venueCity ? `, ${booking.venueCity}` : ''}`)!} target="_blank" rel="noopener" class="text-xs text-gold font-bold hover:underline">Maps ↗</a>
+        )}
+      </div>
+      <div>
+        <p class="text-[11px] font-bold tracking-widest uppercase text-ink/70 mb-1">💶 Economia</p>
+        <p><span class="text-ink/60">Total:</span> <strong class="text-gold">{fmtEur(totalCents)}</strong></p>
+        <p><span class="text-ink/60">Cobrat:</span> <strong class="text-emerald-700">{fmtEur(paidCents)}</strong></p>
+        {booking.cancelledAt ? (
+          <p class="text-xs text-rose-700 font-semibold">Cancel·lada · retingut {fmtEur(booking.cancellationRetainedCents ?? booking.depositCents)}</p>
+        ) : pendingCents > 0 ? (
+          <p><span class="text-ink/60">Pendent:</span> <strong class="text-amber-800">{fmtEur(pendingCents)}</strong></p>
+        ) : totalCents > 0 ? (
+          <p class="text-emerald-700 font-semibold">✓ Liquidat</p>
+        ) : null}
+      </div>
+      <div class="min-w-0">
+        <p class="text-[11px] font-bold tracking-widest uppercase text-ink/70 mb-1">👥 Contacte</p>
+        <p class="truncate"><a href={`mailto:${booking.coupleEmailPrimary}`} class="hover:text-gold underline decoration-dotted underline-offset-2">{booking.coupleEmailPrimary}</a></p>
+        {booking.couplePhonePrimary && (
+          <p>
+            {booking.couplePhonePrimary}
+            {waPhone && <a href={waPhone} target="_blank" rel="noopener" class="ml-2 text-xs text-emerald-700 font-bold hover:underline">WhatsApp ↗</a>}
+          </p>
+        )}
+        <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+          <span class="text-[0.6rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded-sm bg-cream border border-gold/30 text-ink/70">{booking.preferredLanguage.toUpperCase()}</span>
+          {(booking.serviceType && SERVICE_LABEL[booking.serviceType]) && (
+            <span class="text-[0.6rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded-sm bg-cream border border-gold/30 text-ink/70">{SERVICE_LABEL[booking.serviceType]}</span>
+          )}
+          {ownershipChip && (
+            <span class:list={['text-[0.6rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded-sm', ownershipChip.classes]}>{ownershipChip.label}</span>
+          )}
+        </div>
+      </div>
+    </div>
+
+    {/* Equip: assignació ràpida de qui cobreix la boda (clau quan hi ha
+        dues bodes el mateix dia o és per a un altre estudi). Desa NOMÉS
+        aquests dos camps (save_team); la resta d'Horaris no es toca. */}
+    <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="mt-4 pt-4 border-t border-line flex flex-wrap items-end gap-3">
+      <input type="hidden" name="_action" value="save_team" />
+      <label class="block">
+        <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">📷 Fotògraf</span>
+        <input name="photographer" list="team-names" value={tl.photographer ?? ''} placeholder="—" class="mt-1 w-36 px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+      </label>
+      <label class="block">
+        <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">🎥 Videògraf</span>
+        <input name="videographer" list="team-names" value={tl.videographer ?? ''} placeholder="—" class="mt-1 w-36 px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+      </label>
+      <datalist id="team-names">
+        <option value="Ferran"></option>
+        <option value="Eric"></option>
+        <option value="Ferran + Eric"></option>
+      </datalist>
+      <button type="submit" class="border border-line text-xs font-bold tracking-widest uppercase px-4 py-2.5 hover:border-gold hover:text-gold transition-colors">
+        Desar equip
+      </button>
+      {!tl.photographer && !tl.videographer && (
+        <span class="text-xs text-amber-700 self-center">Sense assignar</span>
+      )}
+    </form>
+  </div>
+
+  <!-- ── Navegació ràpida (sticky) ────────────────────────────────────── -->
+  <nav
+    aria-label="Seccions de la fitxa"
+    class="sticky top-[52px] sm:top-[60px] z-30 mb-6 bg-cream/95 backdrop-blur border border-line px-3 py-2 flex gap-x-4 gap-y-1 overflow-x-auto whitespace-nowrap text-[0.7rem] font-bold tracking-widest uppercase"
+  >
+    {navItems.map((item) => (
+      <a href={item.href} class="text-ink/70 hover:text-gold transition-colors py-1">{item.label}</a>
+    ))}
+  </nav>
+
+  <script>
+    // Les seccions replegades (<details>) s'obren soles quan s'hi salta
+    // per àncora — des de la nav ràpida o des d'un redirect ?ok=...#seccio.
+    function openTargetDetails() {
+      const id = location.hash.slice(1);
+      if (!id) return;
+      const el = document.getElementById(id);
+      if (!el) return;
+      const details = el.querySelector('details') ?? el.closest('details');
+      if (details) details.open = true;
+    }
+    openTargetDetails();
+    window.addEventListener('hashchange', openTargetDetails);
+  </script>
 
   <!-- Sidebar: URL + accions ràpides -->
   <div class="bg-white border border-line p-5 mb-6">
@@ -422,7 +576,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
 
   {/* Pressupost i pagaments — operator bookkeeping. Total = inversió
       efectiva (preu − descompte); el pendent = total − suma de pagaments. */}
-  <div id="pagaments" class="bg-white border border-line p-5 md:p-6 mb-6 scroll-mt-24">
+  <div id="pagaments" class="bg-white border border-line p-5 md:p-6 mb-6 scroll-mt-32">
     <h2 class="font-display text-lg font-bold mb-4">Pressupost i pagaments</h2>
 
     <div class="grid grid-cols-3 gap-3 mb-5">
@@ -548,7 +702,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
 
   {/* Horaris del dia — operator-authored wedding-day timeline. Map links
       are derived from the address (or an explicit pasted Google Maps URL). */}
-  <div id="horaris" class="bg-white border border-line p-5 md:p-6 mb-6 scroll-mt-24">
+  <div id="horaris" class="bg-white border border-line p-5 md:p-6 mb-6 scroll-mt-32">
     <h2 class="font-display text-lg font-bold mb-1">Horaris del dia</h2>
     <p class="text-xs text-ink/70 mb-4 leading-relaxed">
       Nuvis: <strong>{booking.coupleName1}</strong> i <strong>{booking.coupleName2}</strong>.
@@ -678,8 +832,14 @@ const ibanPlaceholder = transfer.isPlaceholder;
 
   {/* Canvi de data / preu → addendum. Edita el valor i genera un PDF
       d'addendum (sense firma). Queda registrat a l'historial. */}
-  <div id="addendum" class="bg-white border border-line p-5 md:p-6 mb-6 scroll-mt-24">
-    <h2 class="font-display text-lg font-bold mb-1">Canvi de data / preu</h2>
+  <div id="addendum" class="bg-white border border-line p-5 md:p-6 mb-6 scroll-mt-32">
+    <details class="group" open={ok === 'change:saved'}>
+    <summary class="cursor-pointer list-none flex items-center gap-2">
+      <span class="text-ink/40 text-xs transition-transform group-open:rotate-90" aria-hidden="true">▶</span>
+      <h2 class="font-display text-lg font-bold">Canvi de data / preu</h2>
+      {changes.length > 0 && <span class="text-[11px] font-bold text-ink/50">({changes.length})</span>}
+    </summary>
+    <div class="mt-3">
     <p class="text-sm text-ink/70 mb-4">
       Actualitza la data i/o l’import i es genera un <strong>addendum en PDF</strong> per enviar a la parella.
       No modifica el contracte original.
@@ -737,15 +897,23 @@ const ibanPlaceholder = transfer.isPlaceholder;
     ) : (
       <p class="text-sm text-ink/60 italic">Cap canvi registrat encara.</p>
     )}
+    </div>
+    </details>
   </div>
 
   {/* Cancel·lació (Fase B) — cancelar la boda i enviar l'acord de
       cancel·lació a la parella perquè el signi online. */}
   <div id="cancellacio" class:list={[
-    'border p-5 md:p-6 mb-6 scroll-mt-24',
+    'border p-5 md:p-6 mb-6 scroll-mt-32',
     booking.cancelledAt ? 'bg-red-50 border-red-200' : 'bg-white border-line',
   ]}>
-    <h2 class="font-display text-lg font-bold mb-1">Cancel·lació</h2>
+    <details class="group" open={!!booking.cancelledAt || ok === 'cancelled' || ok === 'uncancelled'}>
+    <summary class="cursor-pointer list-none flex items-center gap-2">
+      <span class="text-ink/40 text-xs transition-transform group-open:rotate-90" aria-hidden="true">▶</span>
+      <h2 class="font-display text-lg font-bold">Cancel·lació</h2>
+      {booking.cancelledAt && <span class="text-[0.6rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded-sm bg-rose-100 text-rose-700">Cancel·lada</span>}
+    </summary>
+    <div class="mt-3">
 
     {!booking.cancelledAt ? (
       <>
@@ -803,6 +971,8 @@ const ibanPlaceholder = transfer.isPlaceholder;
         </form>
       </>
     )}
+    </div>
+    </details>
   </div>
 
   {/* Workflow checklist — shown once the booking has form-submitted (we
@@ -811,7 +981,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
       checks are sourced from the booking columns (read-only) for a
       single unified view of the post-booking flow. */}
   {booking.status === 'form_submitted' && (
-    <section class="bg-white border border-line p-5 md:p-6 mb-6">
+    <section id="seguiment" class="bg-white border border-line p-5 md:p-6 mb-6 scroll-mt-32">
       <div class="flex items-center justify-between gap-3 mb-4">
         <h2 class="font-display text-xl font-bold">Seguiment de la boda</h2>
         <span class="text-[11px] font-bold tracking-widest uppercase text-ink/70">
@@ -871,7 +1041,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
   )}
 
   {formResponse && (
-    <section class="bg-emerald-50 border border-emerald-200 p-5 md:p-6 mb-6">
+    <section id="dades-parella" class="bg-emerald-50 border border-emerald-200 p-5 md:p-6 mb-6 scroll-mt-32">
       <h2 class="font-display text-xl font-bold mb-4">Dades enviades per la parella</h2>
       <p class="text-xs text-ink/70 mb-5">Enviades el {fmtDateTime(formResponse.submittedAt)} · IP: {formResponse.ipAddress ?? '—'}</p>
 
@@ -952,7 +1122,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
   )}
 
   <!-- Edit form -->
-  <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="space-y-10 bg-white border border-line p-6 md:p-8">
+  <form id="editar" method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="space-y-10 bg-white border border-line p-6 md:p-8 scroll-mt-32">
     <input type="hidden" name="_action" value="update" />
 
     {booking.status !== 'draft' && (
@@ -1115,9 +1285,17 @@ const ibanPlaceholder = transfer.isPlaceholder;
       </div>
     </fieldset>
 
-    <fieldset class="space-y-4">
-      <legend class="font-display text-xl font-bold mb-1">Caramel / Incentiu</legend>
-      <p class="text-[11px] text-ink/70 -mt-2 mb-3">opcional · apareix a la proposta per motivar la parella a confirmar. Si queda buit, no es mostra res.</p>
+    {/* Replegat per defecte: només s'usa en propostes puntuals. Els inputs
+        d'un <details> tancat també s'envien amb el formulari, així que no
+        es perd res en desar. */}
+    <details class="group" open={!!(booking.incentiveBody || booking.incentiveOriginalPriceCents || booking.incentiveDeadline)}>
+      <summary class="cursor-pointer list-none flex items-center gap-2">
+        <span class="text-ink/40 text-xs transition-transform group-open:rotate-90" aria-hidden="true">▶</span>
+        <span class="font-display text-xl font-bold">Caramel / Incentiu</span>
+        <span class="text-[11px] text-ink/50">opcional</span>
+      </summary>
+      <div class="space-y-4 mt-3">
+      <p class="text-[11px] text-ink/70 mb-3">opcional · apareix a la proposta per motivar la parella a confirmar. Si queda buit, no es mostra res.</p>
       <label class="block">
         <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Missatge del caramel</span>
         <textarea name="incentiveBody" rows="3" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">{booking.incentiveBody ?? ''}</textarea>
@@ -1134,7 +1312,8 @@ const ibanPlaceholder = transfer.isPlaceholder;
           <input type="date" name="incentiveDeadline" value={yyyymmdd(booking.incentiveDeadline)} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
       </div>
-    </fieldset>
+      </div>
+    </details>
 
     <fieldset>
       <legend class="font-display text-xl font-bold mb-3">Vigència</legend>
@@ -1154,7 +1333,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
 
   <!-- ── Respostes del formulari pre-boda ───────────────────────────── -->
   {weddingDetails && (
-    <section class="mt-10 bg-white border border-line p-5 md:p-8">
+    <section id="info-boda" class="mt-10 bg-white border border-line p-5 md:p-8 scroll-mt-32">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
         <div>
           <h2 class="font-display text-xl md:text-2xl font-bold">Informació de la boda</h2>
@@ -1191,7 +1370,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
 
   <!-- ── Respostes del formulari d'inspiració ───────────────────────── -->
   {inspiration && (
-    <section class="mt-10 bg-white border border-line p-5 md:p-8">
+    <section id="inspiracio" class="mt-10 bg-white border border-line p-5 md:p-8 scroll-mt-32">
       <div class="mb-5">
         <h2 class="font-display text-xl md:text-2xl font-bold">Inspiració i música</h2>
         <p class="text-sm text-ink/65 mt-1">Respostes del formulari d'inspiració · enviat {fmtDateTime(inspiration.submittedAt)}</p>
@@ -1218,7 +1397,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
       shareable link (no email sent) so Eric can collect the four basics
       via WhatsApp. */}
   {booking.kind !== 'own' && (
-    <section class="mt-10 bg-white border border-line p-5 md:p-8" id="basic-info-form">
+    <section class="mt-10 bg-white border border-line p-5 md:p-8 scroll-mt-32" id="basic-info-form">
       <div class="mb-4">
         <h2 class="font-display text-xl md:text-2xl font-bold">Formulari bàsic</h2>
         <p class="text-sm text-ink/65 mt-1">
@@ -1283,7 +1462,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
   <!-- Email-sequence queue for this booking. Lets Eric see what's been
        sent / is pending, force-send something now, or cancel an upcoming
        row. Triggered automatically when the deposit is marked paid. -->
-  <section class="mt-10 bg-white border border-line p-5 md:p-8">
+  <section id="comunicacions" class="mt-10 bg-white border border-line p-5 md:p-8 scroll-mt-32">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
       <div>
         <h2 class="font-display text-xl md:text-2xl font-bold">Comunicacions</h2>
