@@ -113,17 +113,14 @@ export const NOVIOS: NoviosSite[] = [
     dateISO: '2027-07-30T18:00:00+02:00',
     place: 'Castell del Tallat',
     email: 'hola@lifetime.photo',
-    // Photos live in public/photos/eric-cassandra/ (add the files + run
-    // scripts/process-photos.mjs to generate the web variants). The picks
-    // below assume the processed order 001→005 as: platja (parella),
-    // proposta (genoll), mans amb anell, mans allargades, petó B/N.
-    // Re-check the ids once the images are processed.
+    // Photos live in public/photos/eric-cassandra/ — generate the web
+    // variants from the Drive "Pedida de mano" folder with:
+    //   node scripts/process-couple.mjs --slug eric-cassandra \
+    //     --name "Eric & Cassandra" --src "Z:/…/Pedida de mano"
+    // With no explicit picks the page auto-selects: hero = first landscape,
+    // story = first portrait, gallery = the rest. Pin specific shots here
+    // (by id suffix, e.g. hero: '004') once the images are in.
     photoSet: 'eric-cassandra',
-    photos: {
-      hero: '001',
-      story: '002',
-      gallery: ['003', '004', '005'],
-    },
     intro:
       "De la sorra i les onades al capvespre, fins al capdamunt de la Serra del Tallat: hem decidit fer-ho oficial. Ens fa molta il·lusió celebrar-ho amb vosaltres.",
     story: {
@@ -198,6 +195,7 @@ export const NOVIOS: NoviosSite[] = [
         'La proposta, a la platja',
         'El sí',
         "L'anell",
+        'Nosaltres',
       ],
     },
     info: {
