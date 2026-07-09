@@ -18,6 +18,7 @@ const MANIFEST = 'src/data/photos.generated.ts';
 const COUPLE_MAP = [
   { pattern: /^Aaron&Marta/i, slug: 'aaron-marta', couple: 'Aaron & Marta' },
   { pattern: /^Cristina_Daniel/i, slug: 'cristina-daniel', couple: 'Cristina & Daniel' },
+  { pattern: /^(Pre_|Preboda_)?Eric[&_ ]+(i )?Cassandra/i, slug: 'eric-cassandra', couple: 'Eric & Cassandra' },
   { pattern: /^Idoya&Pau/i, slug: 'idoya-pau', couple: 'Idoya & Pau' },
   { pattern: /^Javi&Olaya/i, slug: 'javi-olaya', couple: 'Javi & Olaya' },
   { pattern: /^Jennifer&Albert/i, slug: 'jennifer-albert', couple: 'Jennifer & Albert' },
