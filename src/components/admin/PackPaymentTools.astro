@@ -67,6 +67,12 @@ const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madr
   <div class="bg-cream/60 border border-gold/30 p-4 md:p-5">
     <p class="text-xs font-bold tracking-widest uppercase text-ink/70 mb-1">💶 Calculadora de pagament</p>
     <p class="text-[11px] text-ink/70 mb-3">Suma automàticament <strong>Inversió total + add-ons</strong>. La part en <strong>efectiu</strong> es queda fora de la factura (estalvi del 21 % sobre aquell tram). Apreta el botó <strong>↻</strong> al costat d'un camp per completar-lo amb el que falta. <em>Inserir text al pla de pagament</em> copia el desglossament al camp de termes de pagament.</p>
+    <p class="text-[11px] text-ink/80 bg-amber-50 border border-amber-200 px-2.5 py-1.5 mb-3">
+      🛈 Això és un <strong>simulador</strong>: no desa res per si sol i <strong>no modifica el pressupost total</strong>.
+      El total real és el camp <strong>«Inversió total»</strong> d'aquí sobre (cal «Desar canvis»), o el «Canviar la inversió total»
+      de la secció <a href="#pagaments" class="underline font-bold">Pressupost i pagaments</a> — que és també on es registren els
+      <strong>pagaments rebuts</strong>.
+    </p>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
       <label class="block">
@@ -443,7 +449,7 @@ const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madr
       }
       if (
         !confirm(
-          `Es crearan ${count} fila(es) al llibre de pagaments amb la data indicada. Pots eliminar-les després. Continuar?`,
+          `Es crearan ${count} fila(es) al llibre de pagaments amb la data indicada — compten com a pagaments JA REBUTS (afecten el "pendent de cobrar"). Pots eliminar-les després. Continuar?`,
         )
       )
         return;

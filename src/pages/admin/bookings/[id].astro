@@ -378,6 +378,14 @@ const ibanPlaceholder = transfer.isPlaceholder;
     }
     openTargetDetails();
     window.addEventListener('hashchange', openTargetDetails);
+
+    // Botó ↻ del formulari de pagaments: omple l'import amb el pendent.
+    const fillPending = document.getElementById('fill-pending-btn');
+    fillPending?.addEventListener('click', () => {
+      const input = document.getElementById('payment-amount-input') as HTMLInputElement | null;
+      const amount = (fillPending as HTMLElement).dataset.pending;
+      if (input && amount) input.value = amount;
+    });
   </script>
 
   <!-- Sidebar: URL + accions ràpides -->
@@ -607,11 +615,24 @@ const ibanPlaceholder = transfer.isPlaceholder;
       </div>
     </div>
 
-    {totalCents === 0 && (
-      <p class="text-xs text-ink/70 mb-4">
-        Encara no has posat l’<strong>Inversió total</strong>. Edita-la al bloc d’edició de més avall perquè el pendent quadri.
-      </p>
-    )}
+    {/* Canvi ràpid del total sense baixar al formulari d'edició. Envia
+        NOMÉS packPriceEuros; el handler d'update és un patch parcial, així
+        que descompte i la resta de camps no es toquen. */}
+    <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="flex flex-wrap items-end gap-3 mb-5 pb-5 border-b border-line">
+      <input type="hidden" name="_action" value="update" />
+      <label class="block">
+        <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Canviar la inversió total (€)</span>
+        <input name="packPriceEuros" inputmode="decimal" placeholder={eurosFromCents(booking.packPriceCents)} class="mt-1 w-36 px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+      </label>
+      <button type="submit" class="border border-line text-xs font-bold tracking-widest uppercase px-4 py-2.5 hover:border-gold hover:text-gold transition-colors">
+        Desar total
+      </button>
+      <span class="text-[0.7rem] text-ink/60 self-center">
+        {totalCents === 0
+          ? '⚠ Sense total, el pendent no quadra. Posa aquí el preu contractat.'
+          : 'És el mateix camp «Inversió total» del formulari d’edició.'}
+      </span>
+    </form>
 
     {/* Manual nudge: send the second-payment reminder email right now,
         without waiting for the automatic 14-days-before-wedding send.
@@ -670,11 +691,24 @@ const ibanPlaceholder = transfer.isPlaceholder;
       </div>
     )}
 
+    <p class="text-xs font-bold tracking-widest uppercase text-ink/70 mb-2">💰 Registrar un pagament rebut</p>
     <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="flex flex-wrap items-end gap-3">
       <input type="hidden" name="_action" value="payment_add" />
       <label class="block">
         <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Import (€)</span>
-        <input name="amountEuros" inputmode="decimal" required placeholder="0" class="mt-1 w-28 px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        <div class="mt-1 flex">
+          <input id="payment-amount-input" name="amountEuros" inputmode="decimal" required placeholder="0" class="w-28 px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+          {pendingCents > 0 && (
+            <button
+              type="button"
+              id="fill-pending-btn"
+              data-pending={(pendingCents / 100).toFixed(2).replace('.', ',')}
+              title={`Omplir amb el pendent (${fmtEur(pendingCents)})`}
+              class="px-2 border border-l-0 border-line bg-cream hover:bg-gold hover:text-ink text-sm transition-colors"
+            >↻</button>
+          )}
+        </div>
+        {pendingCents > 0 && <span class="block text-[0.65rem] text-ink/50 mt-0.5">↻ = posar el pendent ({fmtEur(pendingCents)})</span>}
       </label>
       <label class="block">
         <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Data</span>
