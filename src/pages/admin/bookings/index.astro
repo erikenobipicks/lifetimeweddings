@@ -34,7 +34,13 @@ function ownership(b: Booking): { label: string; classes: string } | null {
   return null;
 }
 
-const statusFilter = (Astro.url.searchParams.get('status') ?? '') as BookingStatus | '';
+// The `status` param carries either a real BookingStatus tab *or* the
+// synthetic 'cancelled' view. Cancellation lives in its own field
+// (cancelledAt), not in the status enum, so we treat it as a separate
+// filter dimension layered on top of status.
+const statusParam = Astro.url.searchParams.get('status') ?? '';
+const viewCancelled = statusParam === 'cancelled';
+const statusFilter = (viewCancelled ? '' : statusParam) as BookingStatus | '';
 const yearFilterRaw = Astro.url.searchParams.get('year') ?? '';
 const yearFilter = /^\d{4}$/.test(yearFilterRaw) ? Number(yearFilterRaw) : null;
 const includeArchived = Astro.url.searchParams.get('archived') === '1';
@@ -45,7 +51,12 @@ const ok = Astro.url.searchParams.get('ok');
 // today); 'past' = already celebrated; 'all' = everything.
 type WhenKey = 'upcoming' | 'past' | 'all';
 const whenRaw = Astro.url.searchParams.get('when') ?? '';
-const whenKey: WhenKey = whenRaw === 'past' || whenRaw === 'all' ? whenRaw : 'upcoming';
+// The Cancel·lades view spans all dates by default (a wedding cancelled in
+// the past is just as relevant as an upcoming one); the working lists still
+// default to upcoming.
+const whenDefault: WhenKey = viewCancelled ? 'all' : 'upcoming';
+const whenKey: WhenKey =
+  whenRaw === 'past' || whenRaw === 'all' || whenRaw === 'upcoming' ? whenRaw : whenDefault;
 // Compare by YYYY-MM-DD in Europe/Madrid so a wedding "today" still counts as
 // upcoming and TZ never shifts the boundary by a day.
 const todayYmd = new Intl.DateTimeFormat('en-CA', {
@@ -82,6 +93,9 @@ allYears.add(new Date().getFullYear() + 1);
 const yearOptions = [...allYears].sort((a, b) => a - b);
 
 const filtered = all
+  // Cancelled bookings live in their own "Cancel·lades" view; keep them out
+  // of every other list so they can't masquerade as active reservations.
+  .filter((b) => (viewCancelled ? !!b.cancelledAt : !b.cancelledAt))
   .filter((b) => (statusFilter ? b.status === statusFilter : true))
   .filter((b) => (yearFilter ? b.weddingDate.getFullYear() === yearFilter : true))
   .filter((b) => (whenKey === 'all' ? true : whenKey === 'past' ? isPastWedding(b) : !isPastWedding(b)));
@@ -135,6 +149,11 @@ const STATUS_BADGE: Record<BookingStatus, { label: string; classes: string }> = 
   archived:        { label: 'Arxivat',   classes: 'bg-gray-200 text-gray-500' },
 };
 
+// Cancellation is orthogonal to status (a cancelled booking keeps whatever
+// stage it was at). In the list we surface it as its own badge so a
+// cancelled wedding can never be mistaken for a live "Reservat" one.
+const CANCELLED_BADGE = { label: 'Cancel·lada', classes: 'bg-rose-100 text-rose-700' };
+
 /** Compact one-line wedding date with weekday, e.g. "ds. 14 març 2026".
  *  Weekday matters for wedding planning, and keeping it on one line stops the
  *  column from wrapping into a tall 4-line cell. */
@@ -160,18 +179,26 @@ function fmtRelative(d: Date | null): string {
 
 const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
 
-const STATUS_TABS: { key: '' | BookingStatus; label: string }[] = [
+// Count of cancelled bookings (respecting the active year filter) — drives
+// the badge on the Cancel·lades tab so it's discoverable at a glance.
+const cancelledCount = all
+  .filter((b) => !!b.cancelledAt)
+  .filter((b) => (yearFilter ? b.weddingDate.getFullYear() === yearFilter : true)).length;
+
+const STATUS_TABS: { key: '' | BookingStatus | 'cancelled'; label: string; count?: number }[] = [
   { key: '',               label: 'Tot' },
   { key: 'draft',          label: 'Draft' },
   { key: 'sent',           label: 'Enviats' },
   { key: 'viewed',         label: 'Vistos' },
   { key: 'form_submitted', label: 'Reservats' },
+  { key: 'cancelled',      label: 'Cancel·lades', count: cancelledCount },
 ];
 
 // Time tabs: keep already-celebrated weddings in their own view so they
 // don't overlap with the working (upcoming) list. Counts come from the
 // status+year-filtered set so the numbers match what each tab will show.
 const baseScoped = all
+  .filter((b) => (viewCancelled ? !!b.cancelledAt : !b.cancelledAt))
   .filter((b) => (statusFilter ? b.status === statusFilter : true))
   .filter((b) => (yearFilter ? b.weddingDate.getFullYear() === yearFilter : true));
 const upcomingCount = baseScoped.filter((b) => !isPastWedding(b)).length;
@@ -214,10 +241,10 @@ const WHEN_TABS: { key: WhenKey; label: string; count: number }[] = [
       // Preserve status / year / archived; let each time-view pick its own
       // natural default sort, so we don't carry an explicit sort across.
       const params = new URLSearchParams();
-      if (statusFilter) params.set('status', statusFilter);
+      if (statusParam) params.set('status', statusParam);
       if (yearFilter) params.set('year', String(yearFilter));
       if (includeArchived) params.set('archived', '1');
-      if (tab.key !== 'upcoming') params.set('when', tab.key);
+      if (tab.key !== whenDefault) params.set('when', tab.key);
       const qs = params.toString();
       const isActive = tab.key === whenKey;
       return (
@@ -244,7 +271,7 @@ const WHEN_TABS: { key: WhenKey; label: string; count: number }[] = [
       if (whenKey !== 'upcoming') params.set('when', whenKey);
       if (sortKey !== defaultSort) params.set('sort', sortKey);
       const qs = params.toString();
-      const isActive = (tab.key === '' && !statusFilter) || tab.key === statusFilter;
+      const isActive = (tab.key === '' && !statusParam) || tab.key === statusParam;
       return (
         <a
           href={qs ? `/admin/bookings?${qs}` : '/admin/bookings'}
@@ -253,13 +280,13 @@ const WHEN_TABS: { key: WhenKey; label: string; count: number }[] = [
             isActive ? 'bg-ink text-white border-ink' : 'border-line text-ink/70 hover:text-gold hover:border-gold',
           ]}
         >
-          {tab.label}
+          {tab.label}{typeof tab.count === 'number' && <span class="opacity-70"> ({tab.count})</span>}
         </a>
       );
     })}
     <span class="hidden md:block flex-1"></span>
     <form method="GET" class="contents">
-      {statusFilter && <input type="hidden" name="status" value={statusFilter} />}
+      {statusParam && <input type="hidden" name="status" value={statusParam} />}
       {includeArchived && <input type="hidden" name="archived" value="1" />}
       {whenKey !== 'upcoming' && <input type="hidden" name="when" value={whenKey} />}
       <label class="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-ink/70">
@@ -308,7 +335,7 @@ const WHEN_TABS: { key: WhenKey; label: string; count: number }[] = [
     />
     {(() => {
       const params = new URLSearchParams();
-      if (statusFilter) params.set('status', statusFilter);
+      if (statusParam) params.set('status', statusParam);
       if (yearFilter) params.set('year', String(yearFilter));
       if (whenKey !== 'upcoming') params.set('when', whenKey);
       if (sortKey !== defaultSort) params.set('sort', sortKey);
@@ -346,7 +373,7 @@ const WHEN_TABS: { key: WhenKey; label: string; count: number }[] = [
         the table where the extra columns earn their space. */}
     <ul class="md:hidden space-y-3" id="bookings-cards">
       {bookings.map((b) => {
-        const badge = STATUS_BADGE[b.status];
+        const badge = b.cancelledAt ? CANCELLED_BADGE : STATUS_BADGE[b.status];
         const couple = `${b.coupleName1} & ${b.coupleName2}`;
         return (
           <li
@@ -417,7 +444,7 @@ const WHEN_TABS: { key: WhenKey; label: string; count: number }[] = [
         </thead>
         <tbody>
           {bookings.map((b) => {
-            const badge = STATUS_BADGE[b.status];
+            const badge = b.cancelledAt ? CANCELLED_BADGE : STATUS_BADGE[b.status];
             const couple = `${b.coupleName1} & ${b.coupleName2}`;
             return (
               <tr
