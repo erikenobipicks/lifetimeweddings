@@ -392,6 +392,11 @@ const WHEN_TABS: { key: WhenKey; label: string; count: number }[] = [
                       <span class:list={['text-[0.6rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded-sm', ownership(b)!.classes]}>{ownership(b)!.label}</span>
                     )}
                     <span class:list={['text-[0.6rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded-sm', consentFor(b).classes]} title={consentFor(b).title}>{consentFor(b).label}</span>
+                    {(b.dayTimeline?.photographer || b.dayTimeline?.videographer) && (
+                      <span class="text-[0.6rem] text-ink/60 whitespace-nowrap">
+                        {b.dayTimeline?.photographer ? `📷 ${b.dayTimeline.photographer}` : ''}{b.dayTimeline?.photographer && b.dayTimeline?.videographer ? ' · ' : ''}{b.dayTimeline?.videographer ? `🎥 ${b.dayTimeline.videographer}` : ''}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <span class:list={['shrink-0 text-[0.6rem] font-bold tracking-widest uppercase px-2 py-1 rounded-sm', badge.classes]}>
@@ -464,6 +469,11 @@ const WHEN_TABS: { key: WhenKey; label: string; count: number }[] = [
                     <span class="text-[0.6rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded-sm bg-cream border border-gold/30 text-ink/70">{serviceLabelFor(b)}</span>
                     {ownership(b) && (
                       <span class:list={['text-[0.6rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded-sm', ownership(b)!.classes]}>{ownership(b)!.label}</span>
+                    )}
+                    {(b.dayTimeline?.photographer || b.dayTimeline?.videographer) && (
+                      <span class="text-[0.6rem] text-ink/60 whitespace-nowrap">
+                        {b.dayTimeline?.photographer ? `📷 ${b.dayTimeline.photographer}` : ''}{b.dayTimeline?.photographer && b.dayTimeline?.videographer ? ' · ' : ''}{b.dayTimeline?.videographer ? `🎥 ${b.dayTimeline.videographer}` : ''}
+                      </span>
                     )}
                     {b.source && <span class="text-[0.6rem] text-ink/50">· {b.source}</span>}
                   </div>
