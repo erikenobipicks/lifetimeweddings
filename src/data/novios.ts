@@ -40,6 +40,9 @@ export interface InfoItem {
   icon: 'dress' | 'bed' | 'gift';
   title: string;
   text: string;
+  /** Optional call-to-action link (e.g. a Bizum / gift link). */
+  href?: string;
+  cta?: string;
 }
 
 /** Optional explicit photo picks (image id suffix, e.g. "018"). When
@@ -103,39 +106,44 @@ export const NOVIOS: NoviosSite[] = [
   {
     slug: 'demo',
     lang: 'ca',
-    couple: { a: 'Vanesa', b: 'David' },
-    hashtag: '#VanesaiDavid',
+    couple: { a: 'Eric', b: 'Cassandra' },
+    hashtag: '#EriciCassandra',
     eyebrow: 'Ens casem',
-    dateLabel: '12 de juny de 2027',
-    dateISO: '2027-06-12T17:30:00+02:00',
-    place: 'Tarragona',
+    dateLabel: '30 de juliol de 2027',
+    dateISO: '2027-07-30T18:00:00+02:00',
+    place: 'Castell del Tallat',
     email: 'hola@lifetime.photo',
-    photoSet: 'vanesa-david',
+    // Photos live in public/photos/eric-cassandra/ (add the files + run
+    // scripts/process-photos.mjs to generate the web variants). The picks
+    // below assume the processed order 001→005 as: platja (parella),
+    // proposta (genoll), mans amb anell, mans allargades, petó B/N.
+    // Re-check the ids once the images are processed.
+    photoSet: 'eric-cassandra',
     photos: {
-      hero: '018',
-      story: '012',
-      gallery: ['023', '030', '020', '036'],
+      hero: '001',
+      story: '002',
+      gallery: ['003', '004', '005'],
     },
     intro:
-      "Després d'anys de camins, postes de sol i sobretaules que no s'acabaven mai, hem decidit fer-ho oficial. Ens fa molta il·lusió compartir aquest dia amb vosaltres.",
+      "De la sorra i les onades al capvespre, fins al capdamunt de la Serra del Tallat: hem decidit fer-ho oficial. Ens fa molta il·lusió celebrar-ho amb vosaltres.",
     story: {
       eyebrow: "Una mica d'història",
       heading: 'Com hem arribat fins aquí',
       beats: [
         {
-          year: '2018',
+          year: '2019',
           title: 'El primer "hola"',
-          text: "Ens vam conèixer entre amics comuns una nit qualsevol que va acabar sent de les que es recorden. La resta, ja ho sabeu, va venir sol.",
+          text: "Ens vam conèixer quan menys ho esperàvem i, sense adonar-nos-en, ja no vam voler separar-nos. La resta va venir sola.",
         },
         {
-          year: '2021',
-          title: 'La nostra primera casa',
-          text: "Vam decidir compartir sostre, plantes que sobreviuen de miracle i una tetera que fem servir cada matí. Petites rutines que ho són tot.",
+          year: '2022',
+          title: 'El nostre lloc',
+          text: 'Vam fer del mar el nostre refugi: passejades a la platja, postes de sol i plans senzills que ho eren tot.',
         },
         {
           year: '2026',
-          title: 'La pregunta',
-          text: "En un dels nostres racons preferits, entre vinyes i mar, va arribar la pregunta. Es va dir que sí abans que acabés la frase.",
+          title: 'La proposta, a la platja',
+          text: "Amb els peus a la sorra i el sol baixant sobre l'aigua, va arribar la pregunta i un anell. Va dir que sí entre llàgrimes, abans que acabés la frase.",
         },
       ],
     },
@@ -144,22 +152,22 @@ export const NOVIOS: NoviosSite[] = [
       heading: 'El gran dia',
       stops: [
         {
-          time: '17.30 h',
+          time: '18.00 h',
           title: 'Cerimònia',
-          text: 'Ens donarem el sí envoltats de les persones que estimem, amb el Camp de Tarragona de testimoni.',
+          text: 'Ens donarem el sí dalt de la Serra del Tallat, al costat del santuari, amb tot el paisatge de l’Urgell als peus.',
         },
         {
-          time: '18.30 h',
+          time: '19.00 h',
           title: 'Còctel de benvinguda',
-          text: "Vermut, bombolles i les primeres abraçades llargues al jardí, mentre es pon el sol.",
+          text: "Vermut, bombolles i les primeres abraçades llargues mentre es pon el sol sobre les muntanyes.",
         },
         {
-          time: '21.00 h',
+          time: '21.30 h',
           title: 'Sopar',
-          text: 'Menú de proximitat pensat per compartir i allargar la sobretaula tant com calgui.',
+          text: 'Menú de proximitat pensat per compartir i allargar la sobretaula tant com calgui, sota les estrelles.',
         },
         {
-          time: '23.30 h',
+          time: '00.00 h',
           title: 'Ball i festa',
           text: 'Fins que el cos aguanti, o fins que surti el sol — el que arribi abans.',
         },
@@ -172,14 +180,14 @@ export const NOVIOS: NoviosSite[] = [
         {
           kind: 'ceremony',
           title: 'Cerimònia',
-          text: "A l'aire lliure, en un dels racons amb més vistes del Camp de Tarragona, entre vinyes i amb el Mediterrani al fons.",
-          addr: 'Camp de Tarragona · Tarragona',
+          text: "Al Castell del Tallat, dalt de la serra, al costat del santuari de Santa Maria del Tallat. Un dels miradors amb més vistes de l'Urgell i la Conca de Barberà.",
+          addr: 'Santuari del Tallat · Serra del Tallat (Vallbona de les Monges, Lleida)',
         },
         {
           kind: 'party',
           title: 'Còctel, sopar i festa',
-          text: 'Al mateix recinte, amb aparcament dins de la finca per a tots els convidats. No cal desplaçar-se: ho tindrem tot a tocar.',
-          addr: 'A tocar de la cerimònia · Tarragona',
+          text: 'Tot al mateix recinte: no cal desplaçar-se. Aparcament per a tots els convidats i el capvespre de la serra com a teló de fons.',
+          addr: 'Al mateix Castell del Tallat',
         },
       ],
     },
@@ -187,10 +195,9 @@ export const NOVIOS: NoviosSite[] = [
       eyebrow: 'Abans del gran dia',
       heading: 'La nostra preboda',
       captions: [
-        'Capvespre al Camp de Tarragona',
-        'Vora el mar',
-        'Els nostres camins',
-        'Entre vinyes',
+        'La proposta, a la platja',
+        'El sí',
+        "L'anell",
       ],
     },
     info: {
@@ -200,17 +207,19 @@ export const NOVIOS: NoviosSite[] = [
         {
           icon: 'dress',
           title: 'Codi de vestimenta',
-          text: 'Elegant i còmode. Hi haurà gespa i grava, així que millor deixar els talons més fins a casa.',
+          text: 'Elegant i còmode. Serem dalt de la serra i a la nit refresca, així que porteu una capeta d’abric. Hi haurà grava, millor deixar els talons més fins a casa.',
         },
         {
           icon: 'bed',
           title: 'Allotjament',
-          text: 'Estem preparant una selecció d’hotels a Tarragona amb tarifa especial. La compartirem aquí en les properes setmanes.',
+          text: 'Estem preparant una selecció d’allotjaments a prop (Vallbona de les Monges, Montblanc i Tàrrega). La compartirem aquí en les properes setmanes.',
         },
         {
           icon: 'gift',
           title: 'Regal',
-          text: 'El teu "sí, hi seré" ja és el millor regal. Si vols tenir un detall, aviat obrirem una llista de viatge.',
+          text: 'El teu "sí, hi seré" ja és el millor regal. Si vols tenir un detall amb nosaltres, ens pots fer un Bizum aquí:',
+          cta: 'Fer un Bizum',
+          href: 'https://bizum.es',
         },
       ],
     },
@@ -233,7 +242,7 @@ export const NOVIOS: NoviosSite[] = [
     footerContact: 'Qualsevol dubte, escriu-nos a',
     demo: true,
     footerNote:
-      'Aquesta pàgina és una mostra de disseny: el text i les dates són exemples i les fotografies són d’una sessió de preboda real. Serveix per il·lustrar com pot ser la vostra web de boda personalitzada.',
+      'Aquesta pàgina és una mostra de disseny per il·lustrar com pot ser la vostra web de boda personalitzada.',
   },
 ];
 
