@@ -113,6 +113,23 @@ const schedules = await listSchedulesForBooking(booking.id);
 const allSequences = await listSequences(true);
 const sequencesById = new Map(allSequences.map((s) => [s.id, s] as const));
 
+// Second-payment reminder email: the sequence fires N days before the wedding
+// (default 14). We surface its date + status right in the payments box, since
+// the email queue only materialises once the deposit is marked paid — so
+// before that the operator otherwise has no way to see when it'll go out.
+const paymentReminderSeq = allSequences.find(
+  (s) => s.triggerKind === 'days_before_wedding' && /pagament|pago|payment/i.test(s.slug),
+);
+const reminderOffsetDays = paymentReminderSeq?.triggerOffsetDays ?? 14;
+const reminderExpectedIso = (() => {
+  const d = new Date(`${weddingDateIso}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - reminderOffsetDays);
+  return d.toISOString().slice(0, 10);
+})();
+const reminderSchedule = paymentReminderSeq
+  ? schedules.find((s) => s.sequenceId === paymentReminderSeq.id)
+  : undefined;
+
 // Pre-wedding questionnaire ("wedding_details") answers, if the couple has
 // submitted them. Rendered grouped below so Eric can read the prep
 // addresses, key people, supplier instagrams (copy-paste), etc.
@@ -612,6 +629,40 @@ const ibanPlaceholder = transfer.isPlaceholder;
           pendingCents > 0 ? 'text-amber-800' : pendingCents < 0 ? 'text-red-700' : 'text-emerald-700',
         ]}>{fmtEur(Math.abs(pendingCents))}</div>
         {pendingCents === 0 && totalCents > 0 && <div class="text-[0.65rem] text-emerald-700 mt-0.5">✓ Liquidat</div>}
+      </div>
+    </div>
+
+    {/* Pla de pagament + data del recordatori del 2n pagament. El pla viu al
+        camp «Termes de pagament» (l'omple la calculadora); el recordatori
+        és un email automàtic que surt uns dies abans de la boda. */}
+    <div class="grid sm:grid-cols-2 gap-3 mb-5">
+      <div class="bg-cream/50 border border-line p-3">
+        <p class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70 mb-1">📋 Pla de pagament</p>
+        {booking.paymentTerms ? (
+          <p class="text-sm text-ink whitespace-pre-line">{booking.paymentTerms}</p>
+        ) : (
+          <p class="text-sm text-ink/60 italic">
+            Encara no definit. Genera'l amb la <strong>calculadora de pagament</strong> (bloc «Pack» del formulari d'edició) i prem <em>«Inserir text al pla de pagament»</em>.
+          </p>
+        )}
+      </div>
+      <div class="bg-cream/50 border border-line p-3">
+        <p class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70 mb-1">✉ Recordatori 2n pagament</p>
+        {reminderSchedule ? (
+          <p class="text-sm text-ink">
+            <strong>{reminderSchedule.scheduledFor}</strong>
+            {reminderSchedule.sentAt instanceof Date
+              ? <span class="text-emerald-700"> · ✅ enviat</span>
+              : reminderSchedule.cancelledAt instanceof Date
+                ? <span class="text-ink/60"> · cancel·lat</span>
+                : <span class="text-blue-700"> · pendent</span>}
+          </p>
+        ) : (
+          <>
+            <p class="text-sm text-ink">≈ <strong>{reminderExpectedIso}</strong> <span class="text-ink/60">({reminderOffsetDays} dies abans de la boda)</span></p>
+            <p class="text-[0.7rem] text-ink/60 mt-0.5">Es programarà sol quan marquis el <strong>dipòsit com a pagat</strong>. Demana l'import <strong>pendent</strong> ({fmtEur(Math.max(0, pendingCents))}).</p>
+          </>
+        )}
       </div>
     </div>
 
