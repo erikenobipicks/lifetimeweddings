@@ -297,10 +297,11 @@ export async function listBookings(opts: { includeArchived?: boolean } = {}): Pr
   return res.rows.map((r) => rowToBooking(r as unknown as Record<string, unknown>));
 }
 
-/** Non-archived bookings whose wedding falls within the next `withinDays`
- *  days (inclusive of today) and that haven't had the pre-wedding Telegram
- *  digest sent yet. Drives the cron sweep that fires ~2 days before each
- *  wedding. `todayYmd` is the cron's notion of "today" (UTC YYYY-MM-DD). */
+/** Non-archived, non-cancelled bookings whose wedding falls within the next
+ *  `withinDays` days (inclusive of today) and that haven't had the
+ *  pre-wedding Telegram digest sent yet. Drives the cron sweep that fires
+ *  ~2 days before each wedding. `todayYmd` is the cron's notion of "today"
+ *  (UTC YYYY-MM-DD). */
 export async function listBookingsForPreweddingDigest(
   todayYmd: string,
   withinDays: number,
@@ -312,6 +313,7 @@ export async function listBookingsForPreweddingDigest(
   const res = await db.execute({
     sql: `SELECT * FROM bookings
           WHERE status != 'archived'
+            AND cancelled_at IS NULL
             AND prewedding_telegram_sent_at IS NULL
             AND substr(wedding_date, 1, 10) >= ?
             AND substr(wedding_date, 1, 10) <= ?
