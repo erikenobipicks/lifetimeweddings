@@ -51,6 +51,7 @@ export default defineConfig({
         !page.includes('/packs') &&
         !page.includes('/ofertes') &&
         !page.includes('/showcase/') &&
+        !page.includes('/novios/') &&
         !page.includes('/reserva/') &&
         !page.includes('/preview-weddings/') &&
         !page.includes('/sitemap-images'),
