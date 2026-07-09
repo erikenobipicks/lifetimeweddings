@@ -1,0 +1,284 @@
+---
+export const prerender = false;
+
+// One-time helper to backfill economics (total price + amount already
+// collected) onto existing bookings from the "Bodas - Contrataciones"
+// spreadsheet. It does NOT create bookings — it only matches rows to bookings
+// that already exist and fills in their price + a single "collected so far"
+// payment. Kept deliberately simple and disposable: paste the prepared lines,
+// preview the matches, apply once.
+//
+// Paste format, one wedding per line (pipe-separated):
+//   YYYY-MM-DD | Parella | PreuTotal | Cobrat
+//   2026-05-16 | Montse i Alfredo | 1210 | 1210
+// Date also accepts DD/MM/YYYY. The 4th field (cobrat) is optional; when
+// omitted or 0 no payment is recorded, only the price is set.
+
+import AdminLayout from '~/layouts/AdminLayout.astro';
+import { listBookings, listPayments, updateBooking, addPayment } from '~/lib/bookings/repository';
+import type { Booking } from '~/lib/bookings/types';
+import { eurosStringToCents, formatEuros } from '~/lib/payments/money';
+
+// Tag written on the payment we insert, so re-running never double-counts.
+const IMPORT_NOTE = 'Import inicial (full de contractacions)';
+
+const DIACRITIC = /[\u0300-\u036f]/g;
+function normalize(s: string): string {
+  return s.normalize('NFD').replace(DIACRITIC, '').toLowerCase();
+}
+/** Name tokens for fuzzy disambiguation, dropping the "i"/"y"/"&" joiners. */
+function nameTokens(s: string): string[] {
+  return normalize(s)
+    .split(/[^a-z0-9]+/)
+    .filter((t) => t.length > 1 && !['i', 'y', 'el', 'la'].includes(t));
+}
+const ymd = (d: Date): string => d.toISOString().slice(0, 10);
+
+function parseDateYmd(raw: string): string | null {
+  const s = raw.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (!m) return null;
+  let [, d, mo, y] = m;
+  if (y.length === 2) y = `20${y}`;
+  return `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}`;
+}
+
+type RowStatus =
+  | 'ok' // matched, will set price (+ payment)
+  | 'already' // matched but the import payment already exists (price still synced)
+  | 'cancelled' // matched booking is cancelled → skipped
+  | 'no_match'
+  | 'ambiguous'
+  | 'parse_error';
+
+interface ParsedRow {
+  line: string;
+  status: RowStatus;
+  dateYmd: string | null;
+  coupleRaw: string;
+  priceCents: number | null;
+  cobratCents: number | null;
+  booking: Booking | null;
+  note: string; // human explanation for the preview
+}
+
+async function parseAndMatch(raw: string): Promise<ParsedRow[]> {
+  const bookings = await listBookings({ includeArchived: false });
+  const lines = raw.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const out: ParsedRow[] = [];
+
+  for (const line of lines) {
+    const parts = line.split('|').map((p) => p.trim());
+    const [dateStr = '', coupleRaw = '', priceStr = '', cobratStr = ''] = parts;
+    const dateYmd = parseDateYmd(dateStr);
+    const priceCents = priceStr ? eurosStringToCents(priceStr) : NaN;
+    const cobratCents = cobratStr ? eurosStringToCents(cobratStr) : 0;
+
+    if (!dateYmd || Number.isNaN(priceCents)) {
+      out.push({
+        line, status: 'parse_error', dateYmd, coupleRaw,
+        priceCents: null, cobratCents: null, booking: null,
+        note: !dateYmd ? 'Data no vàlida' : 'Preu no vàlid',
+      });
+      continue;
+    }
+
+    const sameDate = bookings.filter((b) => ymd(b.weddingDate) === dateYmd);
+    let booking: Booking | null = null;
+    let status: RowStatus = 'no_match';
+    let note = '';
+
+    if (sameDate.length === 0) {
+      note = 'Cap reserva amb aquesta data a la web';
+    } else if (sameDate.length === 1) {
+      booking = sameDate[0];
+    } else {
+      // Multiple weddings share this date → pick the best name overlap.
+      const want = new Set(nameTokens(coupleRaw));
+      let best: Booking | null = null;
+      let bestScore = 0;
+      let tie = false;
+      for (const b of sameDate) {
+        const have = nameTokens(`${b.coupleName1} ${b.coupleName2}`);
+        const score = have.filter((t) => want.has(t)).length;
+        if (score > bestScore) { bestScore = score; best = b; tie = false; }
+        else if (score === bestScore && score > 0) tie = true;
+      }
+      if (best && bestScore > 0 && !tie) booking = best;
+      else { status = 'ambiguous'; note = `${sameDate.length} reserves en aquesta data — desambigua a mà`; }
+    }
+
+    if (booking) {
+      if (booking.cancelledAt) {
+        status = 'cancelled';
+        note = 'Reserva anul·lada — s’omet';
+      } else {
+        const payments = await listPayments(booking.id);
+        const alreadyImported = payments.some((p) => p.note === IMPORT_NOTE);
+        status = alreadyImported ? 'already' : 'ok';
+        note = alreadyImported ? 'Ja importat abans (preu es re-sincronitza)' : '';
+      }
+    }
+
+    out.push({ line, status, dateYmd, coupleRaw, priceCents, cobratCents, booking, note });
+  }
+  return out;
+}
+
+type Mode = 'input' | 'preview' | 'done';
+let mode: Mode = 'input';
+let raw = '';
+let rows: ParsedRow[] = [];
+let error: string | null = null;
+let result: { priced: number; paid: number; skipped: number; errors: string[] } | null = null;
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const action = String(form.get('action') ?? '');
+  raw = String(form.get('raw') ?? '');
+
+  if (!raw.trim()) {
+    error = 'Enganxa almenys una línia.';
+  } else if (action === 'preview') {
+    rows = await parseAndMatch(raw);
+    mode = 'preview';
+  } else if (action === 'apply') {
+    rows = await parseAndMatch(raw);
+    let priced = 0;
+    let paid = 0;
+    let skipped = 0;
+    const errors: string[] = [];
+    for (const r of rows) {
+      if ((r.status !== 'ok' && r.status !== 'already') || !r.booking) { skipped++; continue; }
+      try {
+        if (r.priceCents != null && r.priceCents !== r.booking.packPriceCents) {
+          await updateBooking(r.booking.id, { packPriceCents: r.priceCents });
+          priced++;
+        }
+        if (r.status === 'ok' && r.cobratCents && r.cobratCents > 0) {
+          await addPayment({
+            bookingId: r.booking.id,
+            amountCents: r.cobratCents,
+            method: null,
+            note: IMPORT_NOTE,
+          });
+          paid++;
+        }
+      } catch (e) {
+        errors.push(`${r.coupleRaw} (${r.dateYmd}): ${e instanceof Error ? e.message : String(e)}`);
+      }
+    }
+    result = { priced, paid, skipped, errors };
+    mode = 'done';
+  }
+}
+
+const BADGE: Record<RowStatus, { label: string; cls: string }> = {
+  ok: { label: 'S’aplica', cls: 'bg-emerald-100 text-emerald-800' },
+  already: { label: 'Ja importat', cls: 'bg-sky-100 text-sky-800' },
+  cancelled: { label: 'Anul·lada', cls: 'bg-rose-100 text-rose-700' },
+  no_match: { label: 'Sense reserva', cls: 'bg-amber-100 text-amber-800' },
+  ambiguous: { label: 'Ambigu', cls: 'bg-amber-100 text-amber-800' },
+  parse_error: { label: 'Error format', cls: 'bg-red-100 text-red-700' },
+};
+const applicable = rows.filter((r) => r.status === 'ok' || r.status === 'already').length;
+const placeholder = `2026-05-16 | Montse i Alfredo | 1210 | 1210
+2026-07-04 | Dani i Marilyn | 1512,50 | 700`;
+---
+
+<AdminLayout title="Aplicar economies (import únic)">
+  <div class="max-w-5xl mx-auto">
+    <nav class="text-xs text-ink/70 mb-4"><a href="/admin/bookings" class="hover:text-gold">← Reserves</a></nav>
+    <h1 class="font-display text-2xl font-bold mb-2">Aplicar preus i cobraments (import únic)</h1>
+    <p class="text-sm text-ink/70 mb-6">
+      Enganxa una línia per boda: <code class="bg-cream px-1">DATA | Parella | Preu total | Cobrat</code>.
+      Data en <code class="bg-cream px-1">AAAA-MM-DD</code> o <code class="bg-cream px-1">DD/MM/AAAA</code>.
+      Es fa <strong>match amb la reserva que ja existeix</strong> per la data (i el nom si n’hi ha
+      diverses el mateix dia). No crea reserves noves. El cobrat s’afegeix com un pagament únic
+      («{IMPORT_NOTE}»); re-executar-ho no el duplica.
+    </p>
+
+    {error && <p class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm">{error}</p>}
+
+    {mode === 'input' && (
+      <form method="POST" class="bg-white border border-line p-6">
+        <input type="hidden" name="action" value="preview" />
+        <label class="block text-sm font-semibold mb-2" for="raw">Dades</label>
+        <textarea id="raw" name="raw" rows="12" placeholder={placeholder}
+          class="w-full font-mono text-xs p-3 border border-line focus:border-gold focus:outline-none">{raw}</textarea>
+        <button type="submit" class="mt-4 bg-gold text-ink font-bold px-6 py-3 text-xs tracking-[0.15em] uppercase hover:bg-ink hover:text-white transition-colors">
+          Previsualitzar
+        </button>
+      </form>
+    )}
+
+    {mode === 'preview' && (
+      <div>
+        <div class="overflow-x-auto border border-line mb-5 bg-white">
+          <table class="w-full text-sm">
+            <thead class="bg-cream text-[0.7rem] uppercase tracking-wider text-ink/70">
+              <tr>
+                <th class="text-left p-2">Estat</th>
+                <th class="text-left p-2">Data</th>
+                <th class="text-left p-2">Parella (full)</th>
+                <th class="text-left p-2">Reserva a la web</th>
+                <th class="text-right p-2">Preu ara → nou</th>
+                <th class="text-right p-2">Cobrat a afegir</th>
+                <th class="text-left p-2">Nota</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr class="border-t border-line">
+                  <td class="p-2 whitespace-nowrap"><span class:list={['inline-block text-[0.65rem] font-bold tracking-wider uppercase px-2 py-1 rounded-sm', BADGE[r.status].cls]}>{BADGE[r.status].label}</span></td>
+                  <td class="p-2 whitespace-nowrap">{r.dateYmd ?? '—'}</td>
+                  <td class="p-2">{r.coupleRaw || '—'}</td>
+                  <td class="p-2 text-ink/70">{r.booking ? `${r.booking.coupleName1} & ${r.booking.coupleName2}` : '—'}</td>
+                  <td class="p-2 text-right whitespace-nowrap">
+                    {r.booking && r.priceCents != null ? (
+                      r.priceCents === r.booking.packPriceCents
+                        ? <span class="text-ink/50">{formatEuros(r.priceCents)} (igual)</span>
+                        : <span><span class="text-ink/50 line-through">{formatEuros(r.booking.packPriceCents)}</span> → <strong>{formatEuros(r.priceCents)}</strong></span>
+                    ) : '—'}
+                  </td>
+                  <td class="p-2 text-right whitespace-nowrap">{r.status === 'ok' && r.cobratCents ? formatEuros(r.cobratCents) : '—'}</td>
+                  <td class="p-2 text-ink/70 text-xs">{r.note}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <form method="POST" class="flex items-center gap-3">
+          <input type="hidden" name="action" value="apply" />
+          <textarea name="raw" class="hidden">{raw}</textarea>
+          <button type="submit" disabled={applicable === 0}
+            class="bg-gold text-ink font-bold px-6 py-3 text-xs tracking-[0.15em] uppercase hover:bg-ink hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+            Aplicar {applicable} {applicable === 1 ? 'boda' : 'bodes'}
+          </button>
+          <a href="/admin/bookings/apply-economics" class="text-sm text-ink/70 hover:text-gold">Tornar a editar</a>
+        </form>
+      </div>
+    )}
+
+    {mode === 'done' && result && (
+      <div class="bg-white border border-line p-6">
+        <p class="text-lg font-bold mb-3">Fet</p>
+        <ul class="text-sm space-y-1 mb-4">
+          <li>💶 Preus actualitzats: <strong>{result.priced}</strong></li>
+          <li>✅ Cobraments afegits: <strong>{result.paid}</strong></li>
+          <li>↪️ Omeses: <strong>{result.skipped}</strong></li>
+          {result.errors.length > 0 && <li class="text-red-700">⚠️ Errors: <strong>{result.errors.length}</strong></li>}
+        </ul>
+        {result.errors.length > 0 && (
+          <pre class="text-xs bg-red-50 border border-red-200 p-3 overflow-x-auto whitespace-pre-wrap">{result.errors.join('\n')}</pre>
+        )}
+        <div class="mt-4 flex gap-3">
+          <a href="/admin/bookings" class="bg-ink text-white font-bold px-6 py-3 text-xs tracking-[0.15em] uppercase hover:bg-gold hover:text-ink transition-colors">Veure reserves</a>
+          <a href="/admin/bookings/apply-economics" class="text-sm text-ink/70 hover:text-gold self-center">Aplicar-ne més</a>
+        </div>
+      </div>
+    )}
+  </div>
+</AdminLayout>
