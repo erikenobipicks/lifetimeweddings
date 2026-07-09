@@ -1649,5 +1649,166 @@ export const PHOTOS: Record<string, PhotoSet> = {
         "orientation": "portrait"
       }
     ]
+  },
+  "eric-cassandra": {
+    "couple": "Eric & Cassandra",
+    "images": [
+      {
+        "id": "eric-cassandra/001",
+        "couple": "eric-cassandra",
+        "variants": {
+          "sm": "/photos/eric-cassandra/001-sm.jpg",
+          "md": "/photos/eric-cassandra/001-md.jpg",
+          "lg": "/photos/eric-cassandra/001-lg.jpg"
+        },
+        "width": 1600,
+        "height": 1067,
+        "orientation": "landscape"
+      },
+      {
+        "id": "eric-cassandra/002",
+        "couple": "eric-cassandra",
+        "variants": {
+          "sm": "/photos/eric-cassandra/002-sm.jpg",
+          "md": "/photos/eric-cassandra/002-md.jpg",
+          "lg": "/photos/eric-cassandra/002-lg.jpg"
+        },
+        "width": 1143,
+        "height": 1600,
+        "orientation": "portrait"
+      },
+      {
+        "id": "eric-cassandra/003",
+        "couple": "eric-cassandra",
+        "variants": {
+          "sm": "/photos/eric-cassandra/003-sm.jpg",
+          "md": "/photos/eric-cassandra/003-md.jpg",
+          "lg": "/photos/eric-cassandra/003-lg.jpg"
+        },
+        "width": 1067,
+        "height": 1600,
+        "orientation": "portrait"
+      },
+      {
+        "id": "eric-cassandra/004",
+        "couple": "eric-cassandra",
+        "variants": {
+          "sm": "/photos/eric-cassandra/004-sm.jpg",
+          "md": "/photos/eric-cassandra/004-md.jpg",
+          "lg": "/photos/eric-cassandra/004-lg.jpg"
+        },
+        "width": 1600,
+        "height": 1067,
+        "orientation": "landscape"
+      },
+      {
+        "id": "eric-cassandra/005",
+        "couple": "eric-cassandra",
+        "variants": {
+          "sm": "/photos/eric-cassandra/005-sm.jpg",
+          "md": "/photos/eric-cassandra/005-md.jpg",
+          "lg": "/photos/eric-cassandra/005-lg.jpg"
+        },
+        "width": 1600,
+        "height": 1067,
+        "orientation": "landscape"
+      },
+      {
+        "id": "eric-cassandra/006",
+        "couple": "eric-cassandra",
+        "variants": {
+          "sm": "/photos/eric-cassandra/006-sm.jpg",
+          "md": "/photos/eric-cassandra/006-md.jpg",
+          "lg": "/photos/eric-cassandra/006-lg.jpg"
+        },
+        "width": 1200,
+        "height": 1200,
+        "orientation": "landscape"
+      },
+      {
+        "id": "eric-cassandra/007",
+        "couple": "eric-cassandra",
+        "variants": {
+          "sm": "/photos/eric-cassandra/007-sm.jpg",
+          "md": "/photos/eric-cassandra/007-md.jpg",
+          "lg": "/photos/eric-cassandra/007-lg.jpg"
+        },
+        "width": 1068,
+        "height": 1600,
+        "orientation": "portrait"
+      },
+      {
+        "id": "eric-cassandra/008",
+        "couple": "eric-cassandra",
+        "variants": {
+          "sm": "/photos/eric-cassandra/008-sm.jpg",
+          "md": "/photos/eric-cassandra/008-md.jpg",
+          "lg": "/photos/eric-cassandra/008-lg.jpg"
+        },
+        "width": 1067,
+        "height": 1600,
+        "orientation": "portrait"
+      },
+      {
+        "id": "eric-cassandra/009",
+        "couple": "eric-cassandra",
+        "variants": {
+          "sm": "/photos/eric-cassandra/009-sm.jpg",
+          "md": "/photos/eric-cassandra/009-md.jpg",
+          "lg": "/photos/eric-cassandra/009-lg.jpg"
+        },
+        "width": 1067,
+        "height": 1600,
+        "orientation": "portrait"
+      },
+      {
+        "id": "eric-cassandra/010",
+        "couple": "eric-cassandra",
+        "variants": {
+          "sm": "/photos/eric-cassandra/010-sm.jpg",
+          "md": "/photos/eric-cassandra/010-md.jpg",
+          "lg": "/photos/eric-cassandra/010-lg.jpg"
+        },
+        "width": 1600,
+        "height": 1067,
+        "orientation": "landscape"
+      },
+      {
+        "id": "eric-cassandra/011",
+        "couple": "eric-cassandra",
+        "variants": {
+          "sm": "/photos/eric-cassandra/011-sm.jpg",
+          "md": "/photos/eric-cassandra/011-md.jpg",
+          "lg": "/photos/eric-cassandra/011-lg.jpg"
+        },
+        "width": 1600,
+        "height": 1067,
+        "orientation": "landscape"
+      },
+      {
+        "id": "eric-cassandra/012",
+        "couple": "eric-cassandra",
+        "variants": {
+          "sm": "/photos/eric-cassandra/012-sm.jpg",
+          "md": "/photos/eric-cassandra/012-md.jpg",
+          "lg": "/photos/eric-cassandra/012-lg.jpg"
+        },
+        "width": 1068,
+        "height": 1600,
+        "orientation": "portrait"
+      },
+      {
+        "id": "eric-cassandra/013",
+        "couple": "eric-cassandra",
+        "variants": {
+          "sm": "/photos/eric-cassandra/013-sm.jpg",
+          "md": "/photos/eric-cassandra/013-md.jpg",
+          "lg": "/photos/eric-cassandra/013-lg.jpg"
+        },
+        "width": 900,
+        "height": 1600,
+        "orientation": "portrait"
+      }
+    ]
   }
 };

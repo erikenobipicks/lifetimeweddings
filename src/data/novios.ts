@@ -117,10 +117,15 @@ export const NOVIOS: NoviosSite[] = [
     // variants from the Drive "Pedida de mano" folder with:
     //   node scripts/process-couple.mjs --slug eric-cassandra \
     //     --name "Eric & Cassandra" --src "Z:/…/Pedida de mano"
-    // With no explicit picks the page auto-selects: hero = first landscape,
-    // story = first portrait, gallery = the rest. Pin specific shots here
-    // (by id suffix, e.g. hero: '004') once the images are in.
+    // Curated picks (ids map to the processed order 001→013):
+    //   004 = beach at sunset · 007 = the kiss · 005 = the proposal
+    //   010 = B&W embrace · 009 = hands + ring · 012 = B&W kiss
     photoSet: 'eric-cassandra',
+    photos: {
+      hero: '004',
+      story: '007',
+      gallery: ['005', '010', '013', '012'],
+    },
     intro:
       "De la sorra i les onades al capvespre, fins al capdamunt de la Serra del Tallat: hem decidit fer-ho oficial. Ens fa molta il·lusió celebrar-ho amb vosaltres.",
     story: {
@@ -193,9 +198,9 @@ export const NOVIOS: NoviosSite[] = [
       heading: 'La nostra preboda',
       captions: [
         'La proposta, a la platja',
-        'El sí',
         "L'anell",
         'Nosaltres',
+        'El petó',
       ],
     },
     info: {
