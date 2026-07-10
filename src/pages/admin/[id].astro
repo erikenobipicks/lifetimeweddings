@@ -14,6 +14,8 @@ import {
   setServiceInterest,
   skipQuoteFollowUp,
   restoreQuoteFollowUp,
+  markQuoteRejected,
+  unmarkQuoteRejected,
   type ServiceInterest,
 } from '~/lib/quotes';
 import { PACKS, EXTRAS } from '~/data/packs';
@@ -68,6 +70,14 @@ if (Astro.request.method === 'POST') {
   if (action === 'restore-followup') {
     await restoreQuoteFollowUp(id);
     return Astro.redirect(`/admin/${id}?ok=followup-restored`);
+  }
+  if (action === 'reject-quote') {
+    await markQuoteRejected(id);
+    return Astro.redirect(`/admin/${id}?ok=rejected`);
+  }
+  if (action === 'unreject-quote') {
+    await unmarkQuoteRejected(id);
+    return Astro.redirect(`/admin/${id}?ok=unrejected`);
   }
   if (action === 'set-service-interest') {
     const siRaw = String(form.get('service_interest') ?? '');
@@ -149,13 +159,18 @@ function humanSecs(n: number): string {
   )}
   {okMsg && (
     <div class="mb-6 px-4 py-3 bg-green-50 border border-green-200 text-green-900 text-sm">
-      <strong class="font-bold">✓</strong> {okMsg === 'discount' ? 'Descompte aplicat.' : okMsg === 'discount-cleared' ? 'Descompte eliminat.' : okMsg === 'closed' ? 'Pressupost tancat.' : okMsg === 'reopened' ? 'Pressupost reobert.' : okMsg === 'service-updated' ? 'Servei actualitzat. La parella veurà el configurador filtrat segons aquesta elecció.' : okMsg === 'followup-skipped' ? 'Recordatori desactivat — el cron ja no l\'enviarà a aquesta parella.' : okMsg === 'followup-restored' ? 'Recordatori restaurat — el cron tornarà a considerar-lo.' : 'Fet.'}
+      <strong class="font-bold">✓</strong> {okMsg === 'discount' ? 'Descompte aplicat.' : okMsg === 'discount-cleared' ? 'Descompte eliminat.' : okMsg === 'closed' ? 'Pressupost tancat.' : okMsg === 'reopened' ? 'Pressupost reobert.' : okMsg === 'service-updated' ? 'Servei actualitzat. La parella veurà el configurador filtrat segons aquesta elecció.' : okMsg === 'followup-skipped' ? 'Recordatori desactivat — el cron ja no l\'enviarà a aquesta parella.' : okMsg === 'followup-restored' ? 'Recordatori restaurat — el cron tornarà a considerar-lo.' : okMsg === 'rejected' ? 'Pressupost marcat com a rebutjat.' : okMsg === 'unrejected' ? 'Rebuig desfet.' : 'Fet.'}
     </div>
   )}
   <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6 sm:mb-8">
     <div class="min-w-0">
       <p class="text-xs font-bold tracking-widest uppercase text-gold mb-1">Pressupost</p>
-      <h1 class="font-display text-2xl sm:text-3xl font-bold break-words">{quote.coupleName}</h1>
+      <h1 class="font-display text-2xl sm:text-3xl font-bold break-words">
+        {quote.coupleName}
+        {quote.rejectedAt && (
+          <span class="align-middle ml-2 inline-block text-[0.6rem] font-bold tracking-widest uppercase px-2 py-1 rounded-sm bg-rose-100 text-rose-700">Rebutjat</span>
+        )}
+      </h1>
       {quote.coupleEmail && <p class="text-ink/70 break-all">{quote.coupleEmail}</p>}
     </div>
     <a href="/admin" class="text-xs text-ink/70 hover:text-gold whitespace-nowrap">← Tornar</a>
@@ -534,6 +549,17 @@ function humanSecs(n: number): string {
   </div>
 
   <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-6">
+    {quote.rejectedAt ? (
+      <form method="POST">
+        <input type="hidden" name="action" value="unreject-quote" />
+        <button type="submit" class="text-xs text-ink/70 hover:text-gold underline">↩︎ Desfer rebuig</button>
+      </form>
+    ) : (
+      <form method="POST" onsubmit="return confirm('Marcar aquest pressupost com a REBUTJAT?\n\nLa parella ha confirmat que no accepten. Deixarà de rebre el recordatori automàtic i sortirà amb l\\'etiqueta \"Rebutjat\".')">
+        <input type="hidden" name="action" value="reject-quote" />
+        <button type="submit" class="text-xs text-red-600 hover:underline">✕ Marcar rebutjat</button>
+      </form>
+    )}
     <form method="POST" onsubmit="return confirm('Arxivar aquest pressupost? No es veurà al llistat però es pot recuperar.')">
       <input type="hidden" name="action" value="archive" />
       <button type="submit" class="text-xs text-ink/70 hover:text-gold underline">📦 Arxivar</button>
