@@ -92,6 +92,7 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
                   </p>
                   {q.coupleEmail && <p class="text-[0.7rem] text-ink/70 truncate ml-7">{q.coupleEmail}</p>}
                 </div>
+                {q.rejectedAt && <span class="shrink-0 text-[0.6rem] font-bold uppercase tracking-widest bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded-sm">Rebutjat</span>}
                 {q.archived && <span class="shrink-0 text-[0.6rem] bg-ink/10 text-ink/70 px-1.5 py-0.5 rounded-sm">ARXIVAT</span>}
               </div>
               <div class="grid grid-cols-3 gap-2 text-[0.7rem] text-ink/70 ml-7">
@@ -156,6 +157,7 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
                 <td class={`px-4 py-3 text-lg ${t.color}`}>{t.icon}</td>
                 <td class="px-4 py-3">
                   <a href={`/admin/${q.id}`} class="font-bold hover:text-gold">{q.coupleName}</a>
+                  {q.rejectedAt && <span class="text-[0.65rem] font-bold uppercase tracking-widest bg-rose-100 text-rose-700 px-1.5 py-0.5 ml-1 rounded-sm">Rebutjat</span>}
                   {q.coupleEmail && <div class="text-xs text-ink/70">{q.coupleEmail}</div>}
                   {q.archived && <span class="text-[0.65rem] bg-ink/10 text-ink/70 px-1.5 py-0.5 ml-1">ARXIVAT</span>}
                 </td>

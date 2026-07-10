@@ -420,6 +420,11 @@ export async function initSchema() {
   // a "just checking in" email would be noise). The cron filter skips
   // any row with this set; an admin action can clear it again.
   await ensureColumn('quotes', 'follow_up_skipped_at', 'TEXT');
+  // Explicitly rejected by the couple ("no acceptem"). Distinct from
+  // `archived` (operational hide) — this is a business outcome, so it stays
+  // visible with a "Rebutjat" badge, drops out of the follow-up cron, and
+  // is countable for win/loss stats. Nullable; null = not rejected.
+  await ensureColumn('quotes', 'rejected_at', 'TEXT');
   // Preferred language for the couple. Drives /p/<token> localisation and
   // is pre-filled on the lead row when contact/quiz tell us via `lang`.
   // Nullable — pre-existing rows default to 'ca' at read time in the

@@ -80,6 +80,11 @@ export interface Quote {
    *  and another "just checking in" email would be noise. The cron
    *  excludes rows where this is set. */
   followUpSkippedAt: string | null;
+  /** ISO timestamp when the couple confirmed they won't go ahead ("no
+   *  acceptem"). Distinct from archived: a business outcome. Rejected
+   *  quotes drop out of the follow-up cron and show a "Rebutjat" badge.
+   *  null = not rejected. */
+  rejectedAt: string | null;
 }
 
 export interface QuoteStats {
@@ -136,6 +141,7 @@ function rowToQuote(r: any): Quote {
     sentAt: r.sent_at ?? null,
     followUpSentAt: r.follow_up_sent_at ?? null,
     followUpSkippedAt: r.follow_up_skipped_at ?? null,
+    rejectedAt: r.rejected_at ?? null,
     serviceInterest: serviceInterestOrDefault(r.service_interest),
   };
 }
@@ -578,6 +584,7 @@ export async function listQuotesPendingFollowUp(daysSince = 7): Promise<Quote[]>
             AND sent_at <= ?
             AND follow_up_sent_at IS NULL
             AND follow_up_skipped_at IS NULL
+            AND rejected_at IS NULL
           ORDER BY sent_at ASC`,
     args: [cutoff],
   });
@@ -601,6 +608,25 @@ export async function restoreQuoteFollowUp(id: number): Promise<void> {
   await initSchema();
   await db.execute({
     sql: 'UPDATE quotes SET follow_up_skipped_at = NULL WHERE id = ?',
+    args: [id],
+  });
+}
+
+/** Mark a quote as rejected by the couple ("no acceptem"). Also stops the
+ *  follow-up cron from ever pinging them again. Idempotent. */
+export async function markQuoteRejected(id: number, at: Date = new Date()): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: 'UPDATE quotes SET rejected_at = ? WHERE id = ?',
+    args: [at.toISOString(), id],
+  });
+}
+
+/** Undo a rejection (e.g. the couple came back). */
+export async function unmarkQuoteRejected(id: number): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: 'UPDATE quotes SET rejected_at = NULL WHERE id = ?',
     args: [id],
   });
 }
