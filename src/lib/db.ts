@@ -367,6 +367,31 @@ export async function initSchema() {
       )`,
       `CREATE INDEX IF NOT EXISTS idx_deliveries_slug ON deliveries(slug)`,
       `CREATE INDEX IF NOT EXISTS idx_deliveries_booking ON deliveries(booking_id)`,
+
+      // Video-only collaboration landings ("/videograf/<slug>"). Each row is a
+      // private link Eric sends to a photographer who offers him as their
+      // videographer: language, whether to show the video packs + quote, which
+      // trailer/full film to feature, and — crucially — the referring
+      // photographer's contact so every CTA on that link routes back to them
+      // (they keep the couple). No FK: these are standalone share links.
+      `CREATE TABLE IF NOT EXISTS video_links (
+        id TEXT PRIMARY KEY,
+        slug TEXT UNIQUE NOT NULL,
+        label TEXT,
+        lang TEXT NOT NULL DEFAULT 'ca'
+          CHECK (lang IN ('ca', 'es', 'en')),
+        show_quote INTEGER NOT NULL DEFAULT 1,
+        trailer_id TEXT,
+        full_id TEXT,
+        photographer_name TEXT,
+        photographer_contact_type TEXT
+          CHECK (photographer_contact_type IN ('whatsapp', 'email', 'web')),
+        photographer_contact_value TEXT,
+        archived INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_video_links_slug ON video_links(slug)`,
     ],
     'write',
   );

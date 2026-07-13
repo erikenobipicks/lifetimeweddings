@@ -1,0 +1,179 @@
+---
+// Admin listing of /videograf/<slug> collaboration links.
+import AdminLayout from '~/layouts/AdminLayout.astro';
+import { listVideoLinks, setVideoLinkArchived, deleteVideoLink } from '~/lib/videoLinks';
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const action = String(form.get('action') ?? '');
+  const id = String(form.get('id') ?? '');
+  if (id) {
+    try {
+      if (action === 'archive') await setVideoLinkArchived(id, true);
+      else if (action === 'reactivate') await setVideoLinkArchived(id, false);
+      else if (action === 'delete') await deleteVideoLink(id);
+      return Astro.redirect(`/admin/videograf?ok=${action}d`);
+    } catch (err) {
+      console.error('[admin.videograf.action] failed', { action, id, err });
+      const msg = err instanceof Error ? err.message : 'error desconegut';
+      return Astro.redirect(`/admin/videograf?error=${encodeURIComponent(msg)}`);
+    }
+  }
+}
+
+const includeArchived = Astro.url.searchParams.get('archived') === '1';
+const okFlag = Astro.url.searchParams.get('ok');
+const errorMsg = Astro.url.searchParams.get('error');
+const newSlug = Astro.url.searchParams.get('nou');
+const links = await listVideoLinks({ includeArchived });
+
+const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
+const langLabel: Record<string, string> = { ca: 'CA', es: 'ES', en: 'EN' };
+
+function fmtDate(d: Date): string {
+  return d.toLocaleDateString('ca-ES', { timeZone: 'Europe/Madrid', day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+function title(l: { label: string | null; photographerName: string | null; slug: string }): string {
+  return l.label || l.photographerName || l.slug;
+}
+---
+
+<AdminLayout title="Enllaços de vídeo">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
+    <h1 class="font-display text-2xl sm:text-3xl font-bold">Enllaços de vídeo</h1>
+    <div class="flex items-center gap-3">
+      <a
+        href={includeArchived ? '/admin/videograf' : '/admin/videograf?archived=1'}
+        class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold transition-colors whitespace-nowrap"
+      >
+        {includeArchived ? '✕ Ocultar arxivats' : '📦 Mostrar arxivats'}
+      </a>
+      <a
+        href="/admin/videograf/new"
+        class="bg-ink text-white px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors whitespace-nowrap"
+      >
+        + Nou enllaç
+      </a>
+    </div>
+  </div>
+
+  <p class="text-sm text-ink/70 mb-6 max-w-3xl">
+    Landings privades només de vídeo per enviar a un fotògraf que t'ofereix com a videògraf.
+    Si hi poses un fotògraf, tots els botons de contacte porten a ell.
+  </p>
+
+  {okFlag && (
+    <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
+      ✓ Fet.{newSlug && <> Enllaç creat: <code class="font-mono">{siteUrl}/videograf/{newSlug}</code></>}
+    </div>
+  )}
+  {errorMsg && (
+    <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-900 text-sm">
+      <strong>Error:</strong> {errorMsg}
+    </div>
+  )}
+
+  {links.length === 0 ? (
+    <p class="text-ink/70 text-center py-16">
+      Encara no hi ha cap enllaç. <a href="/admin/videograf/new" class="text-gold underline">Crea'n un</a>.
+    </p>
+  ) : (
+    <>
+    {/* Mobile cards */}
+    <ul class="md:hidden space-y-3">
+      {links.map((l) => (
+        <li class:list={['bg-white border border-line', l.archived && 'opacity-60']}>
+          <div class="p-4">
+            <p class="font-bold leading-tight flex items-center gap-2 flex-wrap">
+              {title(l)}
+              <span class="text-[0.6rem] bg-ink/10 text-ink/70 px-1.5 py-0.5 rounded-sm">{langLabel[l.lang]}</span>
+              {l.showQuote
+                ? <span class="text-[0.6rem] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-sm">Pressupost</span>
+                : <span class="text-[0.6rem] font-bold uppercase tracking-wider bg-ink/10 text-ink/60 px-1.5 py-0.5 rounded-sm">Portfolio</span>}
+              {l.archived && <span class="text-[0.6rem] bg-ink/10 text-ink/70 px-1.5 py-0.5 rounded-sm">ARXIVAT</span>}
+            </p>
+            {l.photographerName && <p class="text-[0.7rem] text-ink/70 mt-1">📷 Contacte → {l.photographerName}</p>}
+            <p class="text-[0.7rem] text-ink/50 mt-1">Creat {fmtDate(l.createdAt)}</p>
+          </div>
+          <div class="flex border-t border-line">
+            <button type="button" data-copy={`${siteUrl}/videograf/${l.slug}`} class="flex-1 text-center text-gold text-[0.7rem] font-bold tracking-widest uppercase px-4 py-3 hover:bg-cream">
+              Copiar enllaç
+            </button>
+            <a href={`${siteUrl}/videograf/${l.slug}`} target="_blank" rel="noopener" class="flex-1 text-center text-ink/70 text-[0.7rem] font-bold tracking-widest uppercase px-4 py-3 border-l border-line hover:bg-cream">
+              Obrir →
+            </a>
+            <form method="POST" class="flex-1 border-l border-line" onsubmit="return confirm('Eliminar aquest enllaç definitivament?')">
+              <input type="hidden" name="action" value="delete" />
+              <input type="hidden" name="id" value={l.id} />
+              <button type="submit" class="w-full text-center text-red-600 text-[0.7rem] font-bold tracking-widest uppercase px-4 py-3 hover:bg-red-50">🗑</button>
+            </form>
+          </div>
+        </li>
+      ))}
+    </ul>
+
+    <div class="hidden md:block overflow-x-auto bg-white border border-line">
+      <table class="w-full text-sm">
+        <thead class="bg-cream text-[0.7rem] font-bold tracking-widest uppercase">
+          <tr>
+            <th class="text-left px-4 py-3">Enllaç</th>
+            <th class="text-center px-4 py-3">Idioma</th>
+            <th class="text-center px-4 py-3">Mode</th>
+            <th class="text-left px-4 py-3">Contacte → fotògraf</th>
+            <th class="text-left px-4 py-3">Creat</th>
+            <th class="text-right px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {links.map((l) => (
+            <tr class:list={['border-t border-line hover:bg-cream/50', l.archived && 'opacity-50']}>
+              <td class="px-4 py-3">
+                <span class="font-bold">{title(l)}</span>
+                {l.archived && <span class="text-[0.65rem] bg-ink/10 text-ink/70 px-1.5 py-0.5 ml-1">ARXIVAT</span>}
+                <div class="text-xs text-ink/50 font-mono">/videograf/{l.slug}</div>
+              </td>
+              <td class="px-4 py-3 text-center">{langLabel[l.lang]}</td>
+              <td class="px-4 py-3 text-center">
+                {l.showQuote
+                  ? <span class="text-[0.65rem] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-sm">Pressupost</span>
+                  : <span class="text-[0.65rem] font-bold uppercase tracking-wider bg-ink/10 text-ink/60 px-2 py-0.5 rounded-sm">Portfolio</span>}
+              </td>
+              <td class="px-4 py-3 text-ink/70">{l.photographerName ?? '—'}</td>
+              <td class="px-4 py-3 text-ink/70">{fmtDate(l.createdAt)}</td>
+              <td class="px-4 py-3 text-right whitespace-nowrap">
+                <button type="button" data-copy={`${siteUrl}/videograf/${l.slug}`} class="text-gold text-xs font-bold tracking-widest uppercase hover:underline mr-3">
+                  Copiar
+                </button>
+                <a href={`${siteUrl}/videograf/${l.slug}`} target="_blank" rel="noopener" class="text-ink/70 text-xs font-bold tracking-widest uppercase hover:text-gold mr-3">
+                  Obrir
+                </a>
+                <form method="POST" class="inline" onsubmit="return confirm('Eliminar aquest enllaç definitivament?')">
+                  <input type="hidden" name="action" value="delete" />
+                  <input type="hidden" name="id" value={l.id} />
+                  <button type="submit" class="text-red-600 text-xs font-bold tracking-widest uppercase hover:underline">🗑</button>
+                </form>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    </>
+  )}
+</AdminLayout>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const text = btn.dataset.copy!;
+      try {
+        await navigator.clipboard.writeText(text);
+        const old = btn.textContent;
+        btn.textContent = '✓ Copiat';
+        setTimeout(() => (btn.textContent = old), 1500);
+      } catch {
+        prompt('Copia aquest enllaç:', text);
+      }
+    });
+  });
+</script>
