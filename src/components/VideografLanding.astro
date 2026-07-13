@@ -13,8 +13,9 @@
 // YouTube iframe (which sets cookies) only loads if cookies weren't rejected.
 import Section from './Section.astro';
 import { useTranslations, localePath, type Lang } from '~/i18n/ui';
-import { SITE, waLink } from '~/data/site';
+import { waLink } from '~/data/site';
 import { TEAM } from '~/data/team';
+import { PACKS } from '~/data/packs';
 import {
   videoThumb,
   videoThumbFallback,
@@ -31,6 +32,12 @@ interface Props {
 const { lang, showQuote, trailer, full } = Astro.props;
 const t = useTranslations(lang);
 const eric = TEAM.find((m) => m.id === 'eric')!;
+
+// Video-only packs, cheapest first ("550 €" → 550). Shown only when the
+// quote option is on, so this stays a pure portfolio page otherwise.
+const videoPacks = PACKS
+  .filter((p) => p.type === 'video')
+  .sort((a, b) => Number(a.price.replace(/[^\d]/g, '')) - Number(b.price.replace(/[^\d]/g, '')));
 
 // Consent-gate copy (shared with the rest of the site's video cards).
 const gatedTitle = t('consent.gated.title');
@@ -53,6 +60,11 @@ const COPY: Record<Lang, {
   waCta: string;
   waMessage: string;
   igCta: string;
+  packsEyebrow: string;
+  packsTitle: string;
+  packsIntro: string;
+  packsPicked: string;
+  packsFootnote: string;
 }> = {
   ca: {
     eyebrow: 'Vídeo de boda',
@@ -69,6 +81,11 @@ const COPY: Record<Lang, {
     waCta: 'Escriu per WhatsApp',
     waMessage: 'Hola Eric! He vist el teu vídeo i m’agradaria informació per a la meva boda.',
     igCta: 'Veure més a Instagram',
+    packsEyebrow: 'Packs de vídeo',
+    packsTitle: 'Tria el teu pack',
+    packsIntro: 'Tots són packs només de vídeo. El pressupost final depèn de la data i el lloc — demana’l sense compromís.',
+    packsPicked: 'El més escollit',
+    packsFootnote: 'Preus amb IVA inclòs. Cada boda és diferent: si vols una combinació a mida, escriu-me.',
   },
   es: {
     eyebrow: 'Vídeo de boda',
@@ -85,6 +102,11 @@ const COPY: Record<Lang, {
     waCta: 'Escríbenos por WhatsApp',
     waMessage: '¡Hola Eric! He visto tu vídeo y me gustaría información para mi boda.',
     igCta: 'Ver más en Instagram',
+    packsEyebrow: 'Packs de vídeo',
+    packsTitle: 'Elige tu pack',
+    packsIntro: 'Todos son packs solo de vídeo. El presupuesto final depende de la fecha y el lugar — pídelo sin compromiso.',
+    packsPicked: 'El más elegido',
+    packsFootnote: 'Precios con IVA incluido. Cada boda es diferente: si quieres una combinación a medida, escríbeme.',
   },
   en: {
     eyebrow: 'Wedding video',
@@ -101,6 +123,11 @@ const COPY: Record<Lang, {
     waCta: 'Message on WhatsApp',
     waMessage: 'Hi Eric! I saw your video and I’d love some info for my wedding.',
     igCta: 'See more on Instagram',
+    packsEyebrow: 'Video packages',
+    packsTitle: 'Choose your package',
+    packsIntro: 'All packages are video-only. The final quote depends on date and venue — ask with no commitment.',
+    packsPicked: 'Most chosen',
+    packsFootnote: 'Prices include VAT. Every wedding is different — message me for a tailored combination.',
   },
 };
 
@@ -212,26 +239,65 @@ const wa = waLink(c.waMessage);
 
 {/* ── Optional quote CTA ──────────────────────────────────────────────── */}
 {showQuote ? (
-  <Section bg="ink">
-    <div class="max-w-2xl mx-auto text-center">
-      <h2 class="font-display text-3xl md:text-4xl font-bold mb-4">{c.quoteTitle}</h2>
-      <p class="text-white/75 text-lg leading-relaxed mb-8">{c.quoteBody}</p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a
-          href={quizHref}
-          class="inline-block bg-gold text-ink border-2 border-gold px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-white hover:border-white transition-colors"
-        >
-          {c.quoteCta}
-        </a>
-        <a
-          href={wa}
-          target="_blank"
-          rel="noopener"
-          class="inline-block border-2 border-white/40 text-white px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-white hover:text-ink hover:border-white transition-colors"
-        >
-          {c.waCta}
-        </a>
-      </div>
+  <Section bg="cream" id="packs">
+    <div class="max-w-3xl mx-auto text-center mb-12 md:mb-14">
+      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold-deep mb-3">{c.packsEyebrow}</p>
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-4">{c.packsTitle}</h2>
+      <p class="text-ink/75 leading-relaxed">{c.packsIntro}</p>
+    </div>
+
+    <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-6 md:gap-8 items-stretch">
+      {videoPacks.map((p) => {
+        const picked = p.highlight === 'picked-video';
+        return (
+          <article class:list={[
+            'relative flex flex-col p-7 md:p-8 bg-white transition-shadow',
+            picked
+              ? 'border-2 border-gold shadow-[0_8px_24px_rgba(201,169,110,0.15)]'
+              : 'border border-line',
+          ]}>
+            {picked && (
+              <span class="absolute -top-3 right-5 bg-gold text-ink text-[0.65rem] font-bold tracking-[0.16em] uppercase px-3 py-1 rounded-full">
+                {c.packsPicked}
+              </span>
+            )}
+            {p.subtitle && (
+              <p class="text-[0.7rem] italic tracking-[0.06em] text-gold-deep mb-2">{p.subtitle[lang]}</p>
+            )}
+            <h3 class="font-display text-xl mb-2" style="font-weight: 500; letter-spacing: -0.01em;">{p.name[lang]}</h3>
+            <p class="pack-price text-2xl md:text-[1.75rem] text-gold-deep mb-5">{p.price}</p>
+            <p class="text-xs font-bold tracking-[0.12em] uppercase text-ink/70 mb-3">{t('dossier.includes')}</p>
+            <ul class="space-y-2 text-sm text-ink/75 mb-6 flex-1">
+              {p.includes[lang].map((it) => (
+                <li class="flex gap-2"><span class="text-gold-deep">✓</span><span>{it}</span></li>
+              ))}
+            </ul>
+            <a
+              href={quizHref}
+              class:list={[
+                'block text-center border-2 px-6 py-3 text-xs font-bold tracking-[0.15em] uppercase transition-colors',
+                picked
+                  ? 'bg-gold border-gold text-ink hover:bg-ink hover:border-ink hover:text-white'
+                  : 'bg-ink border-ink text-white hover:bg-gold hover:text-ink hover:border-gold',
+              ]}
+            >
+              {c.quoteCta}
+            </a>
+          </article>
+        );
+      })}
+    </div>
+
+    <div class="max-w-2xl mx-auto text-center mt-12">
+      <p class="text-ink/70 text-sm mb-5">{c.packsFootnote}</p>
+      <a
+        href={wa}
+        target="_blank"
+        rel="noopener"
+        class="inline-block border-2 border-ink text-ink px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-ink hover:text-white transition-colors"
+      >
+        {c.waCta}
+      </a>
     </div>
   </Section>
 ) : (
