@@ -1,0 +1,71 @@
+---
+// Private, chromeless video-only landing (no photography navigation), to send
+// to a photographer who offers Eric Blasco as their videographer. It shows the
+// trailer, the full film and who's behind the camera — nothing else.
+//
+//   `chromeless` → no Header/Footer/menu (BaseLayout).
+//   `noindex`    → not indexed; also excluded from the sitemap (astro.config).
+//
+// Controlled entirely by the query string so a single URL can be tailored per
+// recipient without a redeploy:
+//   ?lang=es|en        → language (default ca; no header switcher here).
+//   ?pressupost=0       → hide the quote CTA (portfolio-only). Shown by default.
+//   ?trailer=<ytId>     → override the flagship trailer (must be in the catalog).
+//   ?full=<ytId>        → override the full film (must be in the catalog).
+//
+// Since `chromeless` drops the global CookieBanner, we render it explicitly so
+// the consent-gated video players behave like everywhere else on the site.
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import CookieBanner from '~/components/CookieBanner.astro';
+import VideografLanding from '~/components/VideografLanding.astro';
+import { videos, publicVideos, fullVideos, type Video } from '~/data/videos';
+import type { Lang } from '~/i18n/ui';
+
+const url = Astro.url;
+
+const langParam = url.searchParams.get('lang');
+const lang: Lang = langParam === 'es' || langParam === 'en' ? langParam : 'ca';
+
+const pParam = (url.searchParams.get('pressupost') ?? '').toLowerCase();
+const showQuote = !(pParam === '0' || pParam === 'no' || pParam === 'false' || pParam === 'off');
+
+// Only ever embed an id that exists in the catalog — never an arbitrary one
+// from the query. Falls back to the first trailer / first full film.
+function pick(id: string | null, pool: Video[]): Video | null {
+  if (id) {
+    const found = videos.find((v) => v.youtubeId === id);
+    if (found) return found;
+  }
+  return pool[0] ?? null;
+}
+const trailer = pick(url.searchParams.get('trailer'), publicVideos);
+const full = pick(url.searchParams.get('full'), fullVideos);
+
+const META: Record<Lang, { title: string; description: string }> = {
+  ca: {
+    title: 'Vídeo de boda · Eric Blasco',
+    description: 'Vídeo de boda documental per l’Eric Blasco. Tràiler, pel·lícula sencera i qui hi ha darrere la càmera.',
+  },
+  es: {
+    title: 'Vídeo de boda · Eric Blasco',
+    description: 'Vídeo de boda documental por Eric Blasco. Tráiler, película completa y quién está detrás de la cámara.',
+  },
+  en: {
+    title: 'Wedding video · Eric Blasco',
+    description: 'Documentary wedding video by Eric Blasco. Trailer, full film and who’s behind the camera.',
+  },
+};
+const meta = META[lang];
+---
+
+<BaseLayout
+  lang={lang}
+  title={meta.title}
+  description={meta.description}
+  canonicalPath="/videograf"
+  noindex
+  chromeless
+>
+  {trailer && <VideografLanding lang={lang} showQuote={showQuote} trailer={trailer} full={full} />}
+  <CookieBanner lang={lang} />
+</BaseLayout>

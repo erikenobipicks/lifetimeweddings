@@ -54,6 +54,9 @@ export default defineConfig({
         !page.includes('/novios/') &&
         !page.includes('/reserva/') &&
         !page.includes('/preview-weddings/') &&
+        // Exact `/videograf` is a private, noindex share page — but keep the
+        // public `/videograf-boda-<city>` SEO pages (endsWith avoids catching them).
+        !page.endsWith('/videograf') &&
         !page.includes('/sitemap-images'),
     }),
   ],
