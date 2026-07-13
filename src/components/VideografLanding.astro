@@ -1,0 +1,322 @@
+---
+// Standalone, chromeless landing focused ONLY on video — no photography
+// navigation. Meant to be sent privately to a photographer who offers Eric
+// Blasco as their videographer, so they can share the trailer, the full
+// film and who's behind the camera without exposing the rest of the site.
+//
+// Rendered by src/pages/videograf.astro inside BaseLayout `chromeless`
+// + `noindex`. The optional quote CTA is toggled by the page via `showQuote`
+// (query string `?pressupost=0` hides it).
+//
+// The video players reuse the exact consent-gated, click-to-load facade from
+// VideosPage.astro: thumbnail + play button until the visitor clicks, and the
+// YouTube iframe (which sets cookies) only loads if cookies weren't rejected.
+import Section from './Section.astro';
+import { useTranslations, localePath, type Lang } from '~/i18n/ui';
+import { SITE, waLink } from '~/data/site';
+import { TEAM } from '~/data/team';
+import {
+  videoThumb,
+  videoThumbFallback,
+  type Video,
+} from '~/data/videos';
+
+interface Props {
+  lang: Lang;
+  showQuote: boolean;
+  trailer: Video;
+  full: Video | null;
+}
+
+const { lang, showQuote, trailer, full } = Astro.props;
+const t = useTranslations(lang);
+const eric = TEAM.find((m) => m.id === 'eric')!;
+
+// Consent-gate copy (shared with the rest of the site's video cards).
+const gatedTitle = t('consent.gated.title');
+const gatedBody = t('consent.gated.body');
+const gatedCta = t('consent.gated.cta');
+
+// Page copy lives inline (trilingual) so this private landing stays fully
+// self-contained and doesn't bloat the global i18n dictionary.
+const COPY: Record<Lang, {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  trailerLabel: string;
+  fullLabel: string;
+  whoLabel: string;
+  playAria: string;
+  quoteTitle: string;
+  quoteBody: string;
+  quoteCta: string;
+  waCta: string;
+  waMessage: string;
+  igCta: string;
+}> = {
+  ca: {
+    eyebrow: 'Vídeo de boda',
+    title: 'La teva boda, convertida en pel·lícula',
+    subtitle:
+      'Vídeo de boda documental. Sense posats ni escenes dirigides — només el que passa de veritat, muntat després amb calma.',
+    trailerLabel: 'El tràiler',
+    fullLabel: 'La pel·lícula sencera',
+    whoLabel: 'Qui hi ha darrere la càmera',
+    playAria: 'Reproduir vídeo',
+    quoteTitle: 'Vols vídeo per a la teva boda?',
+    quoteBody: 'Explica’m com serà el vostre dia i et preparo un pressupost a mida.',
+    quoteCta: 'Demana pressupost',
+    waCta: 'Escriu per WhatsApp',
+    waMessage: 'Hola Eric! He vist el teu vídeo i m’agradaria informació per a la meva boda.',
+    igCta: 'Veure més a Instagram',
+  },
+  es: {
+    eyebrow: 'Vídeo de boda',
+    title: 'Tu boda, convertida en película',
+    subtitle:
+      'Vídeo de boda documental. Sin posados ni escenas dirigidas — solo lo que pasa de verdad, montado después con calma.',
+    trailerLabel: 'El tráiler',
+    fullLabel: 'La película completa',
+    whoLabel: 'Quién está detrás de la cámara',
+    playAria: 'Reproducir vídeo',
+    quoteTitle: '¿Quieres vídeo para tu boda?',
+    quoteBody: 'Cuéntame cómo será vuestro día y te preparo un presupuesto a medida.',
+    quoteCta: 'Pide presupuesto',
+    waCta: 'Escríbenos por WhatsApp',
+    waMessage: '¡Hola Eric! He visto tu vídeo y me gustaría información para mi boda.',
+    igCta: 'Ver más en Instagram',
+  },
+  en: {
+    eyebrow: 'Wedding video',
+    title: 'Your wedding, turned into a film',
+    subtitle:
+      'Documentary wedding video. No posing, no staged scenes — just what really happens, shaped later in the edit.',
+    trailerLabel: 'The trailer',
+    fullLabel: 'The full film',
+    whoLabel: 'Who’s behind the camera',
+    playAria: 'Play video',
+    quoteTitle: 'Want video for your wedding?',
+    quoteBody: 'Tell me about your day and I’ll put together a tailored quote.',
+    quoteCta: 'Request a quote',
+    waCta: 'Message on WhatsApp',
+    waMessage: 'Hi Eric! I saw your video and I’d love some info for my wedding.',
+    igCta: 'See more on Instagram',
+  },
+};
+
+const c = COPY[lang];
+const quizHref = localePath(lang, '/quiz');
+const wa = waLink(c.waMessage);
+---
+
+{/* ── Hero + flagship trailer ─────────────────────────────────────────── */}
+<Section bg="ink" class="pt-24 md:pt-28">
+  <div class="max-w-3xl mx-auto text-center">
+    <p class="text-xs font-bold tracking-[0.24em] uppercase text-gold mb-4">{c.eyebrow}</p>
+    <h1 class="font-display text-4xl md:text-6xl font-bold leading-[1.05] mb-5">{c.title}</h1>
+    <p class="text-white/75 text-lg leading-relaxed">{c.subtitle}</p>
+  </div>
+
+  <div class="max-w-5xl mx-auto mt-12 md:mt-16">
+    <p class="text-[0.7rem] font-bold tracking-[0.22em] uppercase text-gold/90 mb-3">{c.trailerLabel}</p>
+    <button
+      type="button"
+      class="relative block w-full aspect-video bg-black overflow-hidden focus:outline-none focus:ring-2 focus:ring-gold"
+      data-video-id={trailer.youtubeId}
+      data-video-title={`${c.trailerLabel} · ${trailer.coupleName}`}
+      aria-label={`${c.playAria} — ${trailer.coupleName}`}
+    >
+      <img
+        src={videoThumb(trailer.youtubeId)}
+        data-fallback={videoThumbFallback(trailer.youtubeId)}
+        alt={`${trailer.coupleName} · ${trailer.venue}`}
+        class="absolute inset-0 w-full h-full object-cover"
+        loading="eager"
+        decoding="async"
+      />
+      <span class="absolute inset-0 bg-black/20 hover:bg-black/30 transition-colors"></span>
+      <span class="absolute inset-0 flex items-center justify-center">
+        <span class="w-20 h-20 md:w-24 md:h-24 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-xl">
+          <svg viewBox="0 0 24 24" class="w-8 h-8 md:w-10 md:h-10 fill-ink ml-1" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        </span>
+      </span>
+    </button>
+    <p class="text-white/60 text-sm mt-3 text-center">{trailer.coupleName} · {trailer.venue}</p>
+  </div>
+</Section>
+
+{/* ── Full film ───────────────────────────────────────────────────────── */}
+{full && (
+  <Section bg="white">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-8 md:mb-10">
+        <h2 class="font-display text-3xl md:text-4xl font-bold">{c.fullLabel}</h2>
+      </div>
+      <button
+        type="button"
+        class="relative block w-full aspect-video bg-black overflow-hidden focus:outline-none focus:ring-2 focus:ring-gold"
+        data-video-id={full.youtubeId}
+        data-video-title={`${c.fullLabel} · ${full.coupleName}`}
+        aria-label={`${c.playAria} — ${full.coupleName}`}
+      >
+        <img
+          src={videoThumb(full.youtubeId)}
+          data-fallback={videoThumbFallback(full.youtubeId)}
+          alt={`${full.coupleName} · ${full.venue}`}
+          class="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+          decoding="async"
+        />
+        <span class="absolute inset-0 bg-black/15 hover:bg-black/25 transition-colors"></span>
+        <span class="absolute inset-0 flex items-center justify-center">
+          <span class="w-16 h-16 md:w-20 md:h-20 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-lg">
+            <svg viewBox="0 0 24 24" class="w-7 h-7 md:w-8 md:h-8 fill-ink ml-1" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          </span>
+        </span>
+      </button>
+      <p class="text-ink/60 text-sm mt-3 text-center">{full.coupleName} · {full.venue}</p>
+    </div>
+  </Section>
+)}
+
+{/* ── Who's behind the camera (Eric Blasco) ───────────────────────────── */}
+<Section bg="cream">
+  <div class="max-w-5xl mx-auto grid md:grid-cols-[minmax(0,320px)_1fr] gap-8 md:gap-14 items-center">
+    <div class="mx-auto md:mx-0 w-56 md:w-full">
+      <img
+        src={eric.photo}
+        alt={eric.name}
+        class="w-full aspect-[4/5] object-cover shadow-lg"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+    <div>
+      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold-deep mb-3">{c.whoLabel}</p>
+      <h2 class="font-display text-3xl md:text-4xl font-bold">{eric.name}</h2>
+      <p class="text-ink/60 font-semibold mb-5">{eric.role[lang]}</p>
+      <div class="space-y-3 text-ink/80 leading-relaxed">
+        {eric.bio[lang].map((p) => <p>{p}</p>)}
+      </div>
+      <a
+        href={eric.instagram}
+        target="_blank"
+        rel="noopener"
+        class="inline-block mt-6 text-sm font-bold tracking-[0.14em] uppercase text-gold-deep hover:text-ink transition-colors"
+      >
+        {c.igCta} →
+      </a>
+    </div>
+  </div>
+</Section>
+
+{/* ── Optional quote CTA ──────────────────────────────────────────────── */}
+{showQuote ? (
+  <Section bg="ink">
+    <div class="max-w-2xl mx-auto text-center">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-4">{c.quoteTitle}</h2>
+      <p class="text-white/75 text-lg leading-relaxed mb-8">{c.quoteBody}</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a
+          href={quizHref}
+          class="inline-block bg-gold text-ink border-2 border-gold px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-white hover:border-white transition-colors"
+        >
+          {c.quoteCta}
+        </a>
+        <a
+          href={wa}
+          target="_blank"
+          rel="noopener"
+          class="inline-block border-2 border-white/40 text-white px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-white hover:text-ink hover:border-white transition-colors"
+        >
+          {c.waCta}
+        </a>
+      </div>
+    </div>
+  </Section>
+) : (
+  <Section bg="ink">
+    <div class="max-w-2xl mx-auto text-center">
+      <a
+        href={wa}
+        target="_blank"
+        rel="noopener"
+        class="inline-block border-2 border-white/40 text-white px-8 py-4 text-sm font-bold tracking-[0.14em] uppercase hover:bg-white hover:text-ink hover:border-white transition-colors"
+      >
+        {c.waCta}
+      </a>
+    </div>
+  </Section>
+)}
+
+<script is:inline define:vars={{ gatedTitle, gatedBody, gatedCta }}>
+  // Lazy-load: the YouTube iframe (heavy, sets cookies) is swapped in only
+  // when the user clicks. Thumbnail + play button until then. If the user
+  // explicitly rejected cookies, the click shows a "blocked" message
+  // pointing back to the cookie preferences instead of loading. Mirrors
+  // VideosPage.astro so behaviour is identical across the site.
+  function consentRejected() {
+    try {
+      const raw = localStorage.getItem('lifetime.cookies.v1');
+      if (!raw) return false;
+      return JSON.parse(raw)?.choice === 'reject';
+    } catch {
+      return false;
+    }
+  }
+
+  function buildGated() {
+    const wrap = document.createElement('div');
+    wrap.className =
+      'relative block w-full aspect-video bg-ink/90 text-white flex flex-col items-center justify-center text-center p-6';
+    wrap.innerHTML =
+      '<p class="font-display text-lg font-bold mb-2">' +
+      gatedTitle +
+      '</p><p class="text-sm text-white/80 max-w-md mb-4">' +
+      gatedBody +
+      '</p><button type="button" data-cookie-reopen class="bg-gold text-ink text-xs font-bold tracking-[0.15em] uppercase px-5 py-2.5 hover:brightness-110 transition">' +
+      gatedCta +
+      '</button>';
+    const btn = wrap.querySelector('[data-cookie-reopen]');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        document.dispatchEvent(new CustomEvent('consent:reopen'));
+      });
+    }
+    return wrap;
+  }
+
+  document.querySelectorAll('[data-video-id]').forEach((btn) => {
+    const img = btn.querySelector('img[data-fallback]');
+    if (img) {
+      img.addEventListener(
+        'error',
+        () => {
+          const fallback = img.dataset.fallback;
+          if (fallback && img.src !== fallback) img.src = fallback;
+        },
+        { once: true },
+      );
+    }
+
+    btn.addEventListener('click', () => {
+      if (consentRejected()) {
+        btn.replaceWith(buildGated());
+        return;
+      }
+      const id = btn.dataset.videoId;
+      const title = btn.dataset.videoTitle ?? '';
+      if (!id) return;
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+      iframe.title = title;
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.setAttribute('allowfullscreen', '');
+      iframe.className = 'absolute inset-0 w-full h-full';
+      const wrap = document.createElement('div');
+      wrap.className = 'relative block w-full aspect-video bg-black overflow-hidden';
+      wrap.appendChild(iframe);
+      btn.replaceWith(wrap);
+    });
+  });
+</script>
