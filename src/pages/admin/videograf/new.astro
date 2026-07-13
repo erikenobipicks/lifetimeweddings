@@ -1,0 +1,111 @@
+---
+// Admin: create a new /videograf/<slug> collaboration link. Pick language,
+// whether to show the video packs + quote, which trailer/full film to feature,
+// and — optionally — the referring photographer's contact (when set, every CTA
+// on the link routes back to them).
+import AdminLayout from '~/layouts/AdminLayout.astro';
+import { publicVideos, fullVideos } from '~/data/videos';
+
+const params = Astro.url.searchParams;
+const error = params.get('error');
+function v(name: string): string {
+  return params.get(`v_${name}`) ?? '';
+}
+// Default show_quote to ON unless a failed submit explicitly left it off.
+const hadSubmit = params.has('error');
+const quoteChecked = hadSubmit ? v('showQuote') === '1' : true;
+---
+
+<AdminLayout title="Nou enllaç de vídeo">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+    <h1 class="font-display text-2xl sm:text-3xl font-bold">Nou enllaç de vídeo</h1>
+    <a href="/admin/videograf" class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold whitespace-nowrap">← Tornar al llistat</a>
+  </div>
+
+  {error && (
+    <div class="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-800 text-sm">
+      <strong class="font-bold">Error:</strong> {error}
+    </div>
+  )}
+
+  <form method="POST" action="/api/admin/videograf/create" class="space-y-8 bg-white border border-line p-6 md:p-8">
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-3">Bàsics</legend>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block md:col-span-2">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom intern de l'enllaç</span>
+          <span class="block text-[11px] text-ink/70 mb-1">només per reconèixer-lo al llistat (p. ex. el nom del fotògraf o estudi). No es mostra a la pàgina.</span>
+          <input name="label" value={v('label')} placeholder="Ferry Photographer" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Idioma de la pàgina *</span>
+          <select name="lang" required class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
+            {[['ca', 'Català'], ['es', 'Castellano'], ['en', 'English']].map(([code, label]) => (
+              <option value={code} selected={v('lang') === code || (!v('lang') && code === 'ca')}>{label}</option>
+            ))}
+          </select>
+        </label>
+        <label class="flex items-center gap-3 mt-6 md:mt-8">
+          <input type="checkbox" name="showQuote" value="1" checked={quoteChecked} class="w-4 h-4 accent-gold" />
+          <span class="text-sm font-semibold">Mostrar packs de vídeo + pressupost</span>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-1">Vídeos destacats</legend>
+      <p class="text-[11px] text-ink/70 -mt-2 mb-2">opcional · si no en tries cap, s'agafa el primer del catàleg.</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Tràiler</span>
+          <select name="trailerId" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
+            <option value="">— El primer per defecte</option>
+            {publicVideos.map((vid) => (
+              <option value={vid.youtubeId} selected={v('trailerId') === vid.youtubeId}>{vid.coupleName} · {vid.venue}</option>
+            ))}
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Pel·lícula sencera</span>
+          <select name="fullId" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
+            <option value="">— La primera per defecte</option>
+            {fullVideos.map((vid) => (
+              <option value={vid.youtubeId} selected={v('fullId') === vid.youtubeId}>{vid.coupleName} · {vid.venue}</option>
+            ))}
+          </select>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-1">Fotògraf que recomana</legend>
+      <p class="text-[11px] text-ink/70 -mt-2 mb-2">opcional · si l'omples, TOTS els botons de contacte i "Demana pressupost" porten a ell (així la parella sempre acaba amb el fotògraf).</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom del fotògraf</span>
+          <input name="photographerName" value={v('photographerName')} placeholder="Ferran Blasco" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Tipus de contacte</span>
+          <select name="photographerContactType" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
+            {[['', '— Cap'], ['whatsapp', 'WhatsApp'], ['email', 'Email'], ['web', 'Web']].map(([code, label]) => (
+              <option value={code} selected={v('photographerContactType') === code}>{label}</option>
+            ))}
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Valor del contacte</span>
+          <span class="block text-[11px] text-ink/70 mb-1">telèfon, email o URL segons el tipus</span>
+          <input name="photographerContactValue" value={v('photographerContactValue')} placeholder="+34 600 00 00 00" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+      </div>
+    </fieldset>
+
+    <div class="flex items-center gap-4 pt-4 border-t border-line">
+      <button type="submit" class="bg-ink text-white px-6 py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">
+        Crear enllaç
+      </button>
+      <a href="/admin/videograf" class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold">Cancel·lar</a>
+    </div>
+  </form>
+</AdminLayout>
