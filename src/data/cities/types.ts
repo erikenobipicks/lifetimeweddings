@@ -54,6 +54,9 @@ export interface CityServiceCopy {
   };
   /** Optional mid-funnel CTA band. */
   midCta?: { title: string; body: string; label: string };
+  /** Optional: heading for a real-testimonials block (rendered from
+   *  TESTIMONIALS, with Review schema). Present → the section shows. */
+  reviewsTitle?: string;
   gallery: { title: string; intro: string };
   faqTitle: string;
   faqs: CityFaq[];

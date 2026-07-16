@@ -19,6 +19,7 @@ import { getGbpRating } from '~/lib/gbp-rating';
 import { breadcrumbJsonLd, faqPageJsonLd, webPageJsonLd, cityServiceJsonLd } from '~/lib/seo';
 import { PHOTOS } from '~/data/photos.generated';
 import { WEDDINGS, weddingCover } from '~/data/weddings';
+import { TESTIMONIALS } from '~/data/testimonials';
 import { CITIES } from '~/data/cities';
 import type { CityPage, Service } from '~/data/cities/types';
 import { videoThumb, videoThumbFallback } from '~/data/videos';
@@ -98,6 +99,7 @@ const jsonLd = [
     areaName: city.name,
     areaServed: city.areaServed,
     canonicalUrl,
+    reviews: c.reviewsTitle ? TESTIMONIALS.map((tt) => ({ author: tt.author, body: tt.quote[lang] })) : undefined,
   }),
   faqPageJsonLd(c.faqs.map((f) => ({ question: f.q, answer: f.a }))),
   breadcrumbJsonLd([
@@ -299,6 +301,28 @@ const galleryAlt = (i: number) => `${c.breadcrumbCurrent} · Lifetime Weddings �
               <p class="font-display font-bold text-ink group-hover:text-gold-deep transition-colors">{w.couple}</p>
               <p class="text-sm text-ink/60">{ui.viewGallery} →</p>
             </a>
+          ))}
+        </div>
+      </div>
+    </Section>
+  )}
+
+  <!-- Real client reviews (optional) -->
+  {c.reviewsTitle && (
+    <Section bg="cream">
+      <div class="max-w-5xl mx-auto px-2">
+        <div class="flex items-center justify-center gap-2 mb-2">
+          <span class="text-gold text-lg">★★★★★</span>
+          <span class="text-ink/70 text-sm font-semibold">{rating.ratingValue.toFixed(1)} · Google · {rating.reviewCount}</span>
+        </div>
+        <h2 class="font-display text-2xl md:text-3xl font-bold text-center mb-10">{c.reviewsTitle}</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {TESTIMONIALS.map((tt) => (
+            <figure class="bg-white border border-line p-6 flex flex-col">
+              <span class="text-gold text-sm mb-3" aria-hidden="true">★★★★★</span>
+              <blockquote class="text-ink/80 leading-relaxed text-[0.95rem] flex-1">{tt.quote[lang]}</blockquote>
+              <figcaption class="mt-4 font-display font-bold text-ink">— {tt.author}</figcaption>
+            </figure>
           ))}
         </div>
       </div>
