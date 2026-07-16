@@ -123,7 +123,7 @@ export const TARRAGONA_PHOTO: Record<Lang, CityServiceCopy> = {
     meta: {
       title: 'Fotógrafo de boda en Tarragona | Lifetime Weddings',
       description:
-        'Fotógrafo de boda en Tarragona: fotoperiodismo y luz natural en la Part Alta, el Balcó del Mediterrani y el Serrallo. Hermanos de Reus, galería en una semana.',
+        'Fotógrafos de boda en Tarragona y el Camp de Tarragona: Reus, Cambrils, la Costa Daurada, masías como Mas La Boella, Orangerie o Parc Samà. Hermanos de Reus, foto+vídeo.',
     },
     hero: {
       eyebrow: 'Fotografía de boda · Tarragona',
@@ -140,6 +140,7 @@ export const TARRAGONA_PHOTO: Record<Lang, CityServiceCopy> = {
         `Somos **Ferran y Eric**, dos hermanos de **Reus**. Ferran hace la fotografía y Eric el vídeo, y entre los dos cubrimos el **Camp de Tarragona** cada temporada. Tarragona ciudad es, seguramente, donde más hemos disparado: la conocemos con el sol de la mañana y con la luz naranja de las siete de la tarde, y sabemos qué calles de la **Part Alta** quedan vacías a qué hora.`,
         `Trabajamos desde el **fotoperiodismo**: no dirigimos la boda, la acompañamos. Nos interesa la mano del abuelo que tiembla al ponerte el pendiente, el hermano que se emociona antes que nadie, la luz que entra por la ventana mientras acabas de vestirte. Hacemos retratos, claro, y nos gusta hacerlos bien y con calma, pero la columna vertebral del reportaje son los **momentos que no se repiten**.`,
         `Ser de aquí lo cambia todo. Sabemos que en agosto la Part Alta se llena de turistas a media mañana y que conviene hacer los retratos temprano, que el viento del Balcó despeina en diez segundos y que el Serrallo huele a algo concreto que sale en las fotos. Y si además queréis movimiento y sonido, Eric **os hace el vídeo de la boda en Tarragona** el mismo día, coordinados, sin pisarnos.`,
+        `Y aunque **Tarragona ciudad** es nuestra base natural, cubrimos **todo el Camp de Tarragona sin recargo de desplazamiento**: bodas en **Reus**, en **Cambrils** y la **Costa Daurada**, y en las masías y fincas de toda la zona. Si buscáis **fotógrafos de bodas en Tarragona** que se conozcan de verdad cada espacio —de **Mas La Boella** a **l'Orangerie** o **Parc Samà**—, estáis en el sitio.`,
       ],
     },
     spots: {
@@ -191,6 +192,57 @@ export const TARRAGONA_PHOTO: Record<Lang, CityServiceCopy> = {
         '**Galería en una semana**: recibís una selección de adelanto muy pronto y la galería completa editada en unos siete días.',
       ],
     },
+    areaVenues: {
+      title: 'Espacios y masías donde fotografiamos bodas en la zona',
+      intro:
+        'No solo la ciudad. Estos son algunos de los espacios donde solemos trabajar en el Camp de Tarragona y la Costa Daurada; si os casáis en uno de ellos, ya nos lo conocemos de memoria.',
+      items: [
+        {
+          name: 'Mas La Boella',
+          body: 'Una finca de olivos con hotel y restaurante con estrella, entre Reus y Tarragona. Jardines, pérgola y una luz de tarde preciosa; aquí documentamos la boda de **Cristina & Daniel**.',
+          href: '/venues/mas-la-boella',
+        },
+        {
+          name: "L'Orangerie de Clos Barenys",
+          body: 'Un invernadero de cristal y jardines románticos cerca de Vila-seca, ideal para bodas elegantes con mucha vegetación y luz difusa. Aquí grabamos la boda de **Elisabet & Josep**.',
+          href: '/venues/orangerie-clos-barenys',
+        },
+        {
+          name: 'Masia Can Martí',
+          body: 'Una masía catalana de piedra rodeada de campo, perfecta para bodas de día con aire de casa de familia. Documentamos allí la boda de **Jennifer & Albert**.',
+          href: '/venues/masia-can-marti',
+        },
+        {
+          name: 'Parc Samà (Cambrils)',
+          body: 'Jardines coloniales del siglo XIX con lago, palmeras y una torre de cuento: uno de los espacios más bonitos de la Costa Daurada para una ceremonia al aire libre.',
+          href: '/venues/parc-sama',
+        },
+        {
+          name: 'Castell de Tamarit',
+          body: 'Un castillo medieval sobre una playa virgen, a un paso de Tarragona. Piedra, mar y horizonte en el mismo plano.',
+          href: '/venues/castell-de-tamarit',
+        },
+        {
+          name: 'Mas Folch y otras fincas del Baix Camp',
+          body: 'Trabajamos también en **Mas Folch** y en muchas otras masías y restaurantes de Cambrils, Reus y la Costa Daurada. Decidnos vuestro espacio y os contamos cómo lo fotografiaríamos.',
+        },
+        {
+          name: 'Fotógrafo de boda en Reus',
+          body: 'Reus es nuestra ciudad: la capital del modernismo, con el Institut Pere Mata y la Casa Navàs. Si os casáis allí, tenéis toda la información en nuestra página de Reus.',
+          href: '/fotograf-boda-reus',
+        },
+        {
+          name: 'Fotógrafo de boda en Cambrils',
+          body: 'La Costa Daurada, el puerto pesquero y las calas de Cap Salou. Si vuestra boda es junto al mar en Cambrils, aquí tenéis los detalles.',
+          href: '/fotograf-boda-cambrils',
+        },
+      ],
+    },
+    midCta: {
+      title: '¿Os casáis en Tarragona o alrededores?',
+      body: 'Cada temporada reservamos un número limitado de bodas para poder cuidarlas de verdad. Si ya tenéis fecha, es mejor mirarlo pronto.',
+      label: 'Consultad vuestra fecha',
+    },
     gallery: {
       title: 'Fotografías de boda en el Camp de Tarragona',
       intro:
@@ -217,6 +269,10 @@ export const TARRAGONA_PHOTO: Record<Lang, CityServiceCopy> = {
       {
         q: '¿Se pueden hacer fotos dentro del Anfiteatro o las murallas?',
         a: 'Los monumentos romanos con entrada los gestiona el MHT y una sesión profesional necesita autorización previa. La tramitamos con tiempo si lo queréis; si no, hacemos retratos espectaculares desde el Passeig Arqueològic y desde fuera, donde la piedra ya hace de fondo.',
+      },
+      {
+        q: '¿Cubrís también Reus, Cambrils y la Costa Daurada?',
+        a: 'Sí. Tarragona es nuestra zona de siempre, pero cubrimos todo el Camp de Tarragona sin recargo: Reus, Cambrils, Salou, la Costa Daurada y las masías del Baix Camp. Tenemos páginas específicas de Reus y de Cambrils con los mejores rincones de cada sitio.',
       },
     ],
     finalCta: {
