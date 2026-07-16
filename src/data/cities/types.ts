@@ -44,6 +44,16 @@ export interface CityServiceCopy {
   style: { title: string; paras: string[] };
   /** How we shoot photo / film video here (bullets). */
   approach: { title: string; bullets: string[] };
+  /** Optional: nearby venues / restaurants we work at, with internal links to
+   *  our own fiches or other landings (preferred) or an external site
+   *  (rendered nofollow). Used to broaden a city page across its whole area. */
+  areaVenues?: {
+    title: string;
+    intro: string;
+    items: Array<{ name: string; body: string; href?: string; externalUrl?: string }>;
+  };
+  /** Optional mid-funnel CTA band. */
+  midCta?: { title: string; body: string; label: string };
   gallery: { title: string; intro: string };
   faqTitle: string;
   faqs: CityFaq[];
