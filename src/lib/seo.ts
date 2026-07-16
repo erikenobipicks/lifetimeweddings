@@ -422,6 +422,8 @@ export function cityServiceJsonLd(args: {
   areaName: string;
   areaServed: string[];
   canonicalUrl: string;
+  /** Optional real client reviews to attach to this Service node. */
+  reviews?: Array<{ author: string; body: string }>;
 }) {
   return {
     '@context': 'https://schema.org',
@@ -433,6 +435,17 @@ export function cityServiceJsonLd(args: {
     audience: { '@type': 'Audience', audienceType: 'Engaged couples' },
     url: args.canonicalUrl,
     image: abs('/og-default.jpg'),
+    ...(args.reviews && args.reviews.length
+      ? {
+          review: args.reviews.map((r) => ({
+            '@type': 'Review',
+            author: { '@type': 'Person', name: r.author },
+            reviewRating: { '@type': 'Rating', ratingValue: 5, bestRating: 5, worstRating: 1 },
+            reviewBody: r.body,
+            itemReviewed: { '@id': ID.business },
+          })),
+        }
+      : {}),
   };
 }
 

@@ -243,6 +243,7 @@ export const TARRAGONA_PHOTO: Record<Lang, CityServiceCopy> = {
       body: 'Cada temporada reservamos un número limitado de bodas para poder cuidarlas de verdad. Si ya tenéis fecha, es mejor mirarlo pronto.',
       label: 'Consultad vuestra fecha',
     },
+    reviewsTitle: 'Lo que dicen las parejas que se han casado con nosotros',
     gallery: {
       title: 'Fotografías de boda en el Camp de Tarragona',
       intro:
