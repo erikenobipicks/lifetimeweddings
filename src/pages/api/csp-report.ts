@@ -36,6 +36,10 @@ function extractViolation(parsed: any): Record<string, any> | null {
  *   - Browser extensions injecting CSS/JS (chrome/moz/safari-extension://)
  *   - Chrome's built-in "Translate this page" pulling styles/scripts from
  *     gstatic.com/_/translate_http and translate.google(apis).com
+ *   - AI browsers injecting their own UI assets (e.g. Perplexity's Comet
+ *     pulling fonts from frontend-cdn.perplexity.ai/_agi_assets). We never
+ *     load anything from perplexity.ai, so any such report is the visitor's
+ *     browser, not us.
  *  Still logged (so they're visible in the logs); just no Telegram ping. */
 function isNonActionable(blocked: string): boolean {
   // Chrome includes an explicit :port in blocked-uri for the translate
@@ -47,6 +51,7 @@ function isNonActionable(blocked: string): boolean {
   if (b.includes('gstatic.com/_/translate')) return true;
   if (b.includes('translate.googleapis.com')) return true;
   if (b.includes('translate.google.com')) return true;
+  if (b.includes('perplexity.ai')) return true;
   return false;
 }
 
