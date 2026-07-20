@@ -331,11 +331,21 @@ export interface SendDueOptions {
   limit?: number;
 }
 
+/** Per-email outcome, surfaced so the cron can push a Telegram summary
+ *  (who got what, and what failed) instead of the send being invisible. */
+export interface SentEmailDetail {
+  couple: string;
+  subject: string;
+  ok: boolean;
+  error?: string;
+}
+
 export interface SendDueResult {
   due: number;
   sent: number;
   failed: number;
   skipped: number;
+  details: SentEmailDetail[];
 }
 
 /** Substitute the {variables} a sequence may reference. Kept tiny — every
@@ -381,13 +391,18 @@ export async function sendDueEmails(opts: SendDueOptions = {}): Promise<SendDueR
     args: [today, limit],
   });
   let sent = 0, failed = 0, skipped = 0;
+  const details: SentEmailDetail[] = [];
   for (const row of res.rows) {
     const sch = mapSchedule(row as unknown as Record<string, unknown>);
+    // Hoisted so the catch block can still label the failure with who/what.
+    let couple = sch.bookingId;
+    let subjectLabel = '';
     try {
       const seq = await getSequenceById(sch.sequenceId);
       if (!seq || !seq.enabled) { skipped++; continue; }
       const booking = await getBookingById(sch.bookingId);
       if (!booking) { skipped++; continue; }
+      couple = `${booking.coupleName1} & ${booking.coupleName2}`;
       const fr = await getFormResponseForBooking(booking.id);
 
       const lang = booking.preferredLanguage;
@@ -395,6 +410,7 @@ export async function sendDueEmails(opts: SendDueOptions = {}): Promise<SendDueR
       // Run the subject through the same substitution as the body so {variables}
       // resolve there too (e.g. {coupleName1}); plain subjects pass untouched.
       const subject = substituteVariables(seq.subject[lang] || seq.subject.ca, { booking, fr, formUrl });
+      subjectLabel = subject;
       const html = substituteVariables(seq.bodyHtml[lang] || seq.bodyHtml.ca, { booking, fr, formUrl });
 
       // Recipients: primary + c1Email + c2Email (deduped).
@@ -408,6 +424,7 @@ export async function sendDueEmails(opts: SendDueOptions = {}): Promise<SendDueR
           args: ['no_recipients', sch.id],
         });
         failed++;
+        details.push({ couple, subject: subjectLabel, ok: false, error: 'no_recipients' });
         continue;
       }
 
@@ -423,6 +440,7 @@ export async function sendDueEmails(opts: SendDueOptions = {}): Promise<SendDueR
         args: [toIso(new Date()), sch.id],
       });
       sent++;
+      details.push({ couple, subject: subjectLabel, ok: true });
     } catch (err) {
       failed++;
       const msg = String((err as Error)?.message ?? 'unknown error').slice(0, 500);
@@ -430,11 +448,12 @@ export async function sendDueEmails(opts: SendDueOptions = {}): Promise<SendDueR
         sql: `UPDATE email_schedules SET last_error = ? WHERE id = ?`,
         args: [msg, sch.id],
       });
+      details.push({ couple, subject: subjectLabel, ok: false, error: msg });
       // eslint-disable-next-line no-console
       console.error('[email-sequences] send failed', { scheduleId: sch.id, err });
     }
   }
-  return { due: res.rows.length, sent, failed, skipped };
+  return { due: res.rows.length, sent, failed, skipped, details };
 }
 
 // ─── Admin helpers ───────────────────────────────────────────────────────
