@@ -764,3 +764,17 @@ export async function setServiceInterest(
     args: [value, quoteId],
   });
 }
+
+/** Change the language the couple sees the /p/<token> quote page in. Set at
+ *  creation (from the lead or the new-quote form) but editable afterwards for
+ *  manual / personalised quotes. */
+export async function setPreferredLanguage(
+  quoteId: number,
+  value: Lang,
+): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: 'UPDATE quotes SET preferred_language = ? WHERE id = ?',
+    args: [value, quoteId],
+  });
+}
