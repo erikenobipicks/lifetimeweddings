@@ -1,0 +1,83 @@
+---
+// Admin: fill in / edit the "Info de la boda" questionnaire on the couple's
+// behalf. Rendered from the same field catalogue (weddingDetailsAdminGroups)
+// as the couple's public form, pre-filled with the latest saved answers.
+// Saving writes a form_submissions row; the public /formulari/<token> then
+// pre-fills from it so the couple can validate/modify.
+import AdminLayout from '~/layouts/AdminLayout.astro';
+import { getBookingById } from '~/lib/bookings/repository';
+import {
+  weddingDetailsAdminGroups,
+  getLatestWeddingDetailsSubmission,
+  WD_OPTION_LABELS,
+} from '~/lib/bookings/weddingDetailsForm';
+
+const id = Astro.params.id!;
+const booking = await getBookingById(id);
+if (!booking) return Astro.redirect('/admin/bookings');
+
+const error = Astro.url.searchParams.get('error');
+const groups = weddingDetailsAdminGroups(booking.coupleName1, booking.coupleName2);
+const existing = await getLatestWeddingDetailsSubmission(id);
+const data = existing?.data ?? {};
+function val(key: string): string {
+  return data[key] ?? '';
+}
+---
+
+<AdminLayout title="Info de la boda">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
+    <h1 class="font-display text-2xl sm:text-3xl font-bold">Info de la boda</h1>
+    <a href={`/admin/bookings/${id}`} class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold whitespace-nowrap">← Tornar a la reserva</a>
+  </div>
+  <p class="text-sm text-ink/70 mb-6 max-w-3xl">
+    {booking.coupleName1} i {booking.coupleName2}. El que omplis aquí la parella ho veurà
+    <strong>precarregat</strong> al seu formulari per validar-ho o modificar-ho. El que deixis en blanc,
+    els sortirà en blanc perquè ho omplin ells.
+  </p>
+
+  {error && (
+    <div class="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-800 text-sm">
+      <strong class="font-bold">Error:</strong> {error === 'too_large' ? 'El text és massa llarg.' : error}
+    </div>
+  )}
+
+  <form method="POST" action={`/api/admin/bookings/${id}/wedding-details`} class="space-y-8 bg-white border border-line p-6 md:p-8">
+    {groups.map((g) => (
+      <fieldset class="space-y-4">
+        <legend class="font-display text-xl font-bold mb-1">{g.title}</legend>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {g.fields.map((f) => (
+            <label class:list={['block', f.kind === 'textarea' && 'md:col-span-2']}>
+              <span class="text-xs font-bold tracking-widest uppercase text-ink/70">{f.label}</span>
+              {f.kind === 'select' && f.optionSet ? (
+                <select name={f.key} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
+                  <option value="">—</option>
+                  {Object.entries(WD_OPTION_LABELS[f.optionSet]).map(([code, label]) => (
+                    <option value={code} selected={val(f.key) === code}>{label}</option>
+                  ))}
+                </select>
+              ) : f.kind === 'textarea' ? (
+                <textarea name={f.key} rows="3" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">{val(f.key)}</textarea>
+              ) : (
+                <input
+                  name={f.key}
+                  type={f.kind === 'url' ? 'url' : 'text'}
+                  value={val(f.key)}
+                  class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none"
+                />
+              )}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+    ))}
+
+    <div class="flex items-center gap-4 pt-4 border-t border-line">
+      <button type="submit" class="bg-ink text-white px-6 py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">
+        Desar
+      </button>
+      <a href={`/admin/bookings/${id}`} class="text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold">Cancel·lar</a>
+    </div>
+  </form>
+</AdminLayout>
