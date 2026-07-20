@@ -68,13 +68,17 @@ export const POST: APIRoute = async ({ request }) => {
   const sequenceSlug = seqRes.rows[0]?.slug ? String(seqRes.rows[0].slug) : `#${schedule.sequenceId}`;
   if (!formKind) return json({ error: 'no_form' }, 409);
 
-  // One submission per schedule. If we ever want to allow edits, expose
-  // an update endpoint instead; this keeps the audit trail clean.
+  // wedding_details is editable: the couple (or Eric) can revise it as the
+  // wedding approaches, so we append a new submission and always read the
+  // latest (getLatestFormSubmission). Every other form stays one-shot to keep
+  // its audit trail clean.
   const prev = await db.execute({
     sql: 'SELECT id FROM form_submissions WHERE schedule_id = ? LIMIT 1',
     args: [schedule.id],
   });
-  if (prev.rows.length > 0) return json({ error: 'already_submitted' }, 409);
+  if (formKind !== 'wedding_details' && prev.rows.length > 0) {
+    return json({ error: 'already_submitted' }, 409);
+  }
 
   const ip = clientIp(request.headers);
   await db.execute({

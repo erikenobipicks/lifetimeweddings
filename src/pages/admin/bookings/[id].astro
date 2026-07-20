@@ -169,7 +169,7 @@ const navItems = [
   { href: '#seguiment', label: '✅ Seguiment', show: booking.status === 'form_submitted' },
   { href: '#dades-parella', label: '📋 Dades parella', show: !!formResponse },
   { href: '#editar', label: '✏️ Editar', show: true },
-  { href: '#info-boda', label: '💒 Info boda', show: !!weddingDetails },
+  { href: '#info-boda', label: '💒 Info boda', show: true },
   { href: '#inspiracio', label: '🎵 Inspiració', show: !!inspiration },
   { href: '#basic-info-form', label: '📝 Form bàsic', show: booking.kind !== 'own' },
   { href: '#comunicacions', label: '📧 Emails', show: true },
@@ -274,6 +274,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
       {ok === 'payment:added' && 'Pagament registrat.'}
       {ok === 'reminder:sent' && 'Recordatori de pagament enviat a la parella.'}
       {ok === 'timeline:saved' && 'Horaris del dia desats.'}
+      {ok === 'wd-saved' && 'Info de la boda desada. La parella la veurà precarregada al seu formulari per validar-la o modificar-la.'}
       {ok === 'team:saved' && 'Equip assignat (fotògraf / videògraf).'}
       {ok === 'payment:dumped' && 'Trams afegits al llibre de pagaments.'}
       {ok === 'payment:deleted' && 'Pagament eliminat.'}
@@ -1416,23 +1417,33 @@ const ibanPlaceholder = transfer.isPlaceholder;
     </div>
   </form>
 
-  <!-- ── Respostes del formulari pre-boda ───────────────────────────── -->
-  {weddingDetails && (
-    <section id="info-boda" class="mt-10 bg-white border border-line p-5 md:p-8 scroll-mt-32">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-        <div>
-          <h2 class="font-display text-xl md:text-2xl font-bold">Informació de la boda</h2>
-          <p class="text-sm text-ink/65 mt-1">Respostes del formulari pre-boda · enviat {fmtDateTime(weddingDetails.submittedAt)}</p>
-        </div>
+  <!-- ── Info de la boda (editable per Eric; la parella valida/modifica) ─ -->
+  <section id="info-boda" class="mt-10 bg-white border border-line p-5 md:p-8 scroll-mt-32">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+      <div>
+        <h2 class="font-display text-xl md:text-2xl font-bold">Informació de la boda</h2>
+        <p class="text-sm text-ink/65 mt-1">
+          {weddingDetails
+            ? `Última actualització · ${fmtDateTime(weddingDetails.submittedAt)}`
+            : 'Encara no hi ha dades. Pots omplir-les tu i la parella només ho validarà (o deixa-ho buit perquè ho omplin ells).'}
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2 self-start">
         {wdInstaProviders && (
           <button
             type="button"
             data-copy={wdInstaProviders}
-            class="bg-gold text-ink text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-ink hover:text-white transition-colors whitespace-nowrap self-start"
+            class="bg-gold text-ink text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-ink hover:text-white transition-colors whitespace-nowrap"
           >Copiar Instagrams proveïdors</button>
         )}
+        <a
+          href={`/admin/bookings/${booking.id}/wedding-details`}
+          class="bg-ink text-white text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-gold hover:text-ink transition-colors whitespace-nowrap"
+        >✏️ Editar / omplir</a>
       </div>
+    </div>
 
+    {weddingDetails ? (
       <div class="space-y-6">
         {wdGroups.map((g) => (
           <div>
@@ -1450,8 +1461,10 @@ const ibanPlaceholder = transfer.isPlaceholder;
           </div>
         ))}
       </div>
-    </section>
-  )}
+    ) : (
+      <p class="text-sm text-ink/60">Prem «Editar / omplir» per introduir la informació de la boda.</p>
+    )}
+  </section>
 
   <!-- ── Respostes del formulari d'inspiració ───────────────────────── -->
   {inspiration && (

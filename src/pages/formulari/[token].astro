@@ -11,6 +11,7 @@ export const prerender = false;
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { getScheduleByToken } from '~/lib/bookings/sequences';
 import { getBookingById } from '~/lib/bookings/repository';
+import { getLatestWeddingDetailsSubmission } from '~/lib/bookings/weddingDetailsForm';
 import { db, initSchema } from '~/lib/db';
 
 const token = Astro.params.token!;
@@ -59,6 +60,19 @@ const isBasicInfo = formKind === 'basic_info';
 const name1 = booking?.coupleName1 ?? '';
 const name2 = booking?.coupleName2 ?? '';
 const venueName = booking?.venueName ?? '';
+
+// Pre-fill for the wedding_details form: whatever's already saved — entered by
+// the couple earlier, or by Eric in the admin — so they validate/modify instead
+// of starting from scratch. Empty (the common case) → blank form, as before.
+// The keys match each field's `name`, so a tiny script fills them by name.
+const wdExisting = isWeddingDetails && booking ? await getLatestWeddingDetailsSubmission(booking.id) : null;
+const wdPrefill: Record<string, string> = wdExisting?.data ?? {};
+const hasWdPrefill = Object.keys(wdPrefill).length > 0;
+const wdReviewNote: Record<L, string> = {
+  ca: 'Ja tenim algunes d’aquestes dades — revisa-les, modifica el que calgui i confirma-les.',
+  es: 'Ya tenemos algunos de estos datos — revísalos, modifica lo que haga falta y confírmalos.',
+  en: 'We already have some of these details — review them, change what you need and confirm.',
+};
 
 // Basic-info form copy (collab / external bookings). Kept inline like the
 // other forms; three langs.
@@ -402,15 +416,23 @@ const TX = {
           <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">No trobat</h1>
           <p class="text-ink/75 leading-relaxed">Aquest enllaç ja no és vàlid. Si creus que és un error, escriu-nos.</p>
         </>
-      ) : alreadySubmitted ? (
+      ) : (alreadySubmitted && !isWeddingDetails) ? (
         <>
-          <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">{isWeddingDetails ? TX.thanksH : isInspiration ? TI.thanksH : isBasicInfo ? TB.thanksH : 'Gràcies!'}</h1>
-          <p class="text-ink/75 leading-relaxed">{isWeddingDetails ? TX.thanksP : isInspiration ? TI.thanksP : isBasicInfo ? TB.thanksP : 'Ja hem rebut les vostres respostes. Si voleu modificar alguna cosa, escriviu-nos.'}</p>
+          <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">{isInspiration ? TI.thanksH : isBasicInfo ? TB.thanksH : 'Gràcies!'}</h1>
+          <p class="text-ink/75 leading-relaxed">{isInspiration ? TI.thanksP : isBasicInfo ? TB.thanksP : 'Ja hem rebut les vostres respostes. Si voleu modificar alguna cosa, escriviu-nos.'}</p>
         </>
       ) : isWeddingDetails ? (
         <>
           <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">{title}</h1>
-          <p class="text-ink/75 leading-relaxed mb-10">{TX.intro}</p>
+          <p class:list={['text-ink/75 leading-relaxed', hasWdPrefill ? 'mb-4' : 'mb-10']}>{TX.intro}</p>
+          {hasWdPrefill && (
+            <p class="text-sm text-ink/80 bg-cream border border-gold/40 px-4 py-3 mb-10">{wdReviewNote[lang]}</p>
+          )}
+          <script is:inline define:vars={{ wdPrefill }}>
+            // Expose the saved answers so the form script can pre-fill fields by
+            // name before wiring the conditional reveals (see the module script).
+            window.__wdPrefill = wdPrefill;
+          </script>
 
           {hasTimeline && tl && (
             <div class="mb-10 border border-gold/40 bg-white p-5 md:p-6">
@@ -868,6 +890,17 @@ const TX = {
       sel.addEventListener('change', sync);
       sync();
     }
+    // Pre-fill from previously-saved answers (exposed as window.__wdPrefill),
+    // so the couple validates/modifies instead of starting blank. Runs BEFORE
+    // the reveals are wired so a pre-filled driver select opens its block.
+    const prefill = (window as unknown as { __wdPrefill?: Record<string, string> }).__wdPrefill;
+    if (prefill) {
+      for (const key of Object.keys(prefill)) {
+        const el = form.elements.namedItem(key) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
+        if (el && 'value' in el) el.value = prefill[key];
+      }
+    }
+
     bindReveal('live_music', 'lm-details-wrap', ['si']);
     bindReveal('insta_consent', 'insta-fields-wrap', ['si']);
 
