@@ -12,12 +12,14 @@ import {
   closeQuote,
   reopenQuote,
   setServiceInterest,
+  setPreferredLanguage,
   skipQuoteFollowUp,
   restoreQuoteFollowUp,
   markQuoteRejected,
   unmarkQuoteRejected,
   type ServiceInterest,
 } from '~/lib/quotes';
+import type { Lang } from '~/i18n/ui';
 import { PACKS, EXTRAS } from '~/data/packs';
 import { calculateSelectionTotals, formatEuros } from '~/lib/pricing';
 
@@ -78,6 +80,12 @@ if (Astro.request.method === 'POST') {
   if (action === 'unreject-quote') {
     await unmarkQuoteRejected(id);
     return Astro.redirect(`/admin/${id}?ok=unrejected`);
+  }
+  if (action === 'set-language') {
+    const lRaw = String(form.get('preferred_language') ?? '');
+    const l: Lang = lRaw === 'es' || lRaw === 'en' ? lRaw : 'ca';
+    await setPreferredLanguage(id, l);
+    return Astro.redirect(`/admin/${id}?ok=language-updated`);
   }
   if (action === 'set-service-interest') {
     const siRaw = String(form.get('service_interest') ?? '');
@@ -159,7 +167,7 @@ function humanSecs(n: number): string {
   )}
   {okMsg && (
     <div class="mb-6 px-4 py-3 bg-green-50 border border-green-200 text-green-900 text-sm">
-      <strong class="font-bold">✓</strong> {okMsg === 'discount' ? 'Descompte aplicat.' : okMsg === 'discount-cleared' ? 'Descompte eliminat.' : okMsg === 'closed' ? 'Pressupost tancat.' : okMsg === 'reopened' ? 'Pressupost reobert.' : okMsg === 'service-updated' ? 'Servei actualitzat. La parella veurà el configurador filtrat segons aquesta elecció.' : okMsg === 'followup-skipped' ? 'Recordatori desactivat — el cron ja no l\'enviarà a aquesta parella.' : okMsg === 'followup-restored' ? 'Recordatori restaurat — el cron tornarà a considerar-lo.' : okMsg === 'rejected' ? 'Pressupost marcat com a rebutjat.' : okMsg === 'unrejected' ? 'Rebuig desfet.' : 'Fet.'}
+      <strong class="font-bold">✓</strong> {okMsg === 'discount' ? 'Descompte aplicat.' : okMsg === 'discount-cleared' ? 'Descompte eliminat.' : okMsg === 'closed' ? 'Pressupost tancat.' : okMsg === 'reopened' ? 'Pressupost reobert.' : okMsg === 'service-updated' ? 'Servei actualitzat. La parella veurà el configurador filtrat segons aquesta elecció.' : okMsg === 'language-updated' ? 'Idioma actualitzat. La parella veurà la pàgina del pressupost en aquest idioma.' : okMsg === 'followup-skipped' ? 'Recordatori desactivat — el cron ja no l\'enviarà a aquesta parella.' : okMsg === 'followup-restored' ? 'Recordatori restaurat — el cron tornarà a considerar-lo.' : okMsg === 'rejected' ? 'Pressupost marcat com a rebutjat.' : okMsg === 'unrejected' ? 'Rebuig desfet.' : 'Fet.'}
     </div>
   )}
   <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6 sm:mb-8">
@@ -402,6 +410,36 @@ function humanSecs(n: number): string {
             name="service_interest"
             value={opt.v}
             checked={quote.serviceInterest === opt.v}
+            onchange="this.form.requestSubmit()"
+            class="sr-only peer"
+          />
+          <span class="block text-xs font-bold tracking-widest uppercase text-center px-3 py-2 border border-line cursor-pointer hover:border-gold peer-checked:bg-ink peer-checked:text-white peer-checked:border-ink transition-colors">
+            {opt.label}
+          </span>
+        </label>
+      ))}
+    </form>
+  </div>
+
+  {/* Language the couple sees the /p/<token> quote page in. Set at creation
+      (from the lead or the new-quote form); editable here for manual /
+      personalised quotes where Eric wants to pick it after the fact. */}
+  <div class="bg-white border border-line p-5 mb-8">
+    <p class="text-xs font-bold tracking-widest uppercase mb-1">Idioma</p>
+    <p class="text-[0.7rem] text-ink/70 mb-3">L'idioma en què la parella veurà la pàgina del pressupost.</p>
+    <form method="POST" class="grid grid-cols-3 gap-2">
+      <input type="hidden" name="action" value="set-language" />
+      {[
+        { v: 'ca', label: 'Català' },
+        { v: 'es', label: 'Castellano' },
+        { v: 'en', label: 'English' },
+      ].map((opt) => (
+        <label class="block">
+          <input
+            type="radio"
+            name="preferred_language"
+            value={opt.v}
+            checked={quote.preferredLanguage === opt.v}
             onchange="this.form.requestSubmit()"
             class="sr-only peer"
           />
