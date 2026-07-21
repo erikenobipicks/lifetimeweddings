@@ -128,8 +128,8 @@ const description = booking
     </a>
   </header>
 
+  {/* 404 / archived view. Friendly, on-brand. */}
   {isMissingOrArchived ? (
-    <!-- 404 / archived view. Friendly, on-brand. -->
     <section class="px-6 md:px-12 py-32 md:py-40 bg-cream text-ink text-center">
       <div class="max-w-xl mx-auto">
         <h1 class="font-display text-3xl md:text-4xl font-bold mb-6">
@@ -147,8 +147,8 @@ const description = booking
       </div>
     </section>
   ) : isExpired ? (
-    <!-- Expired view. Replaces the full proposal with a single message. -->
     <section class="px-6 md:px-12 py-32 md:py-40 bg-cream text-ink text-center">
+      {/* Expired view. Replaces the full proposal with a single message. */}
       <div class="max-w-xl mx-auto">
         <h1 class="font-display text-3xl md:text-4xl font-bold mb-6 leading-tight">
           {tpl(t('reserva.expired.title'), { date: expiresShort ?? '' })}
