@@ -34,8 +34,9 @@ jobs:
           cache: "npm"
       - run: npm ci
       # Fail the build on HIGH/CRITICAL advisories, EXCEPT the framework-level
-      # ones allowlisted in audit-ci.jsonc (Astro 6 / sharp — only fixable by
-      # the breaking Astro 7 upgrade, tracked separately; verified
-      # non-exploitable here). `npm audit` has no per-advisory allowlist, so we
-      # use audit-ci. Remove the allowlist after the Astro 7 upgrade.
-      - run: npx --yes audit-ci@^7 --config ./audit-ci.jsonc
+      # ones allowlisted in scripts/audit-check.mjs (Astro 6 / sharp — only
+      # fixable by the breaking Astro 7 upgrade, tracked separately; verified
+      # non-exploitable here). Self-contained node script over `npm audit
+      # --json` (no per-run download, unlike audit-ci which broke). Remove the
+      # allowlisted ids after the Astro 7 upgrade.
+      - run: node scripts/audit-check.mjs
