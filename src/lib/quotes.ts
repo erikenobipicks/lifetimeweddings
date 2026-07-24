@@ -10,6 +10,14 @@ function langOrDefault(v: unknown): Lang {
   return v === 'es' || v === 'en' || v === 'ca' ? v : 'ca';
 }
 
+/** Escape values interpolated into the notification email / Telegram bodies.
+ *  Couple names and User-Agent are user-controlled: a bare `&` makes Telegram
+ *  (parse_mode HTML) reject the whole message — so open alerts silently never
+ *  arrive — and an unescaped `<…>` would inject HTML into the admin email. */
+function escHtml(s: string): string {
+  return s.replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c] as string));
+}
+
 export type ServiceInterest = 'photo' | 'video' | 'both' | 'undecided';
 
 /** Coerce an unknown db value into a known ServiceInterest, falling back
@@ -344,17 +352,17 @@ export async function recordView(
     await sendNotification({
       subject: `${label} · ${quote.coupleName}`,
       html: `
-        <p>${label} del pressupost per a <strong>${quote.coupleName}</strong>.</p>
+        <p>${label} del pressupost per a <strong>${escHtml(quote.coupleName)}</strong>.</p>
         <ul>
           <li><strong>Enllaç:</strong> <a href="${url}">${url}</a></li>
-          <li><strong>User-Agent:</strong> ${info.userAgent ?? '(desconegut)'}</li>
+          <li><strong>User-Agent:</strong> ${info.userAgent ? escHtml(info.userAgent) : '(desconegut)'}</li>
           <li><strong>Hora:</strong> ${hora}</li>
         </ul>
         <p>Mira el detall al panel d'administració.</p>
       `,
     });
     await sendTelegramNotification(
-      `${label}\n<b>${quote.coupleName}</b> han obert el pressupost\n🕐 ${hora}`,
+      `${label}\n<b>${escHtml(quote.coupleName)}</b> han obert el pressupost\n🕐 ${hora}`,
     );
   }
   return { eventId, quoteId: quote.id };

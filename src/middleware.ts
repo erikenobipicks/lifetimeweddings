@@ -122,7 +122,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // breaks form submissions. APIs should work on whatever host they land on.
   if (!isApi) {
     const incomingHost = context.url.host;
-    const pathAndQuery = context.url.pathname + context.url.search;
+    // Collapse leading slashes so a protocol-relative path like `//evil.com`
+    // can't resolve to an external host when re-based (open-redirect guard).
+    const pathAndQuery = context.url.pathname.replace(/^\/+/, '/') + context.url.search;
     if (CANONICAL_HOST) {
       // Explicit override: force every host onto CANONICAL_HOST.
       if (incomingHost && incomingHost !== CANONICAL_HOST) {
