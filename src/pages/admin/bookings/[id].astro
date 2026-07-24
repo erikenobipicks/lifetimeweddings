@@ -144,7 +144,11 @@ const wdGroups = weddingDetails
         .map((f) => ({
           key: f.key,
           label: f.label,
-          asLink: f.asLink === true,
+          // Only render as a clickable link when it's a real http(s) URL — the
+          // couple submits these freely, so a `javascript:`/`data:` value would
+          // otherwise become a dangerous href in the admin (same guard the
+          // inspiration rows use below).
+          asLink: f.asLink === true && /^https?:\/\//i.test(weddingDetails.data[f.key]),
           value: f.optionSet
             ? wdOptionLabel(f.optionSet, weddingDetails.data[f.key])
             : weddingDetails.data[f.key],

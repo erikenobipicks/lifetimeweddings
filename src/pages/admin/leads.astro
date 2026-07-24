@@ -267,7 +267,7 @@ const labels: Record<string, string> = {
             <form
               method="POST"
               class="border-l border-line"
-              onsubmit={`return confirm('⚠ Eliminar el lead de ${l.coupleName.replace(/'/g, "\\'")}?\\n\\nNo es podrà recuperar.')`}
+              onsubmit={`return confirm(${JSON.stringify('⚠ Eliminar el lead de ' + l.coupleName + '?\n\nNo es podrà recuperar.')})`}
             >
               <input type="hidden" name="action" value="delete" />
               <input type="hidden" name="id" value={l.id} />
@@ -341,7 +341,7 @@ const labels: Record<string, string> = {
                 <form
                   method="POST"
                   class="inline"
-                  onsubmit={`return confirm('⚠ Eliminar el lead de ${l.coupleName.replace(/'/g, "\\'")}?\\n\\nNo es podrà recuperar.')`}
+                  onsubmit={`return confirm(${JSON.stringify('⚠ Eliminar el lead de ' + l.coupleName + '?\n\nNo es podrà recuperar.')})`}
                 >
                   <input type="hidden" name="action" value="delete" />
                   <input type="hidden" name="id" value={l.id} />

@@ -20,9 +20,9 @@ const updateSchema = z.object({
   venueName: z.string().max(120).optional(),
   preferredLanguage: z.enum(['ca', 'es', 'en']).optional(),
   youtubeVideoId: z.string().max(300).optional(),
-  swisstransferUrl: z.string().url().max(500).optional().or(z.literal('')),
+  swisstransferUrl: z.string().url().max(500).refine((v) => /^https?:\/\//i.test(v), 'Ha de ser un enllaç http(s)://').optional().or(z.literal('')),
   swisstransferExpiresAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal('')),
-  galleryUrl: z.string().url().max(500).optional().or(z.literal('')),
+  galleryUrl: z.string().url().max(500).refine((v) => /^https?:\/\//i.test(v), 'Ha de ser un enllaç http(s)://').optional().or(z.literal('')),
 });
 
 export const POST: APIRoute = async ({ request, params, cookies, redirect }) => {
