@@ -117,7 +117,13 @@ export function parseDmy(raw: string): Date | null {
   const day = Number(dd);
   if (month < 1 || month > 12 || day < 1 || day > 31) return null;
   // Build at UTC noon to avoid timezone date-shift when later sliced to YYYY-MM-DD.
-  return new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+  const d = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+  // Reject impossible days that Date silently rolls into the next month
+  // (e.g. 31/02/2026 → 03/03/2026) — a wedding imported on the wrong date.
+  if (d.getUTCFullYear() !== year || d.getUTCMonth() !== month - 1 || d.getUTCDate() !== day) {
+    return null;
+  }
+  return d;
 }
 
 /** Parse a leading integer out of free-text guest counts ("~120", "120 aprox"). */
@@ -224,7 +230,10 @@ export function mapRow(row: string[]): MappedWedding | null {
     pubConsent: cell(row, COL.pubConsent),
     dataProtection: cell(row, COL.dataProtection),
     timestampRaw: cell(row, COL.timestamp),
-    dedupKey: `${email.toLowerCase()}|${iso}`,
+    // Include the couple names so two different couples marrying on the same
+    // date WITHOUT an email don't collapse to the same key (`|YYYY-MM-DD`) and
+    // silently drop the second one as a duplicate.
+    dedupKey: `${email.toLowerCase()}|${cell(row, COL.p1Name).toLowerCase()}|${cell(row, COL.p2Name).toLowerCase()}|${iso}`,
     weddingDateIso: iso,
     importantNotes: notesLines.join('\n'),
   };
