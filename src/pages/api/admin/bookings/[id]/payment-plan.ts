@@ -44,12 +44,13 @@ export const POST: APIRoute = async ({ request, params, cookies }) => {
   const paidOnRaw = typeof body.paidOn === 'string' ? body.paidOn.trim() : '';
   const paidOn = /^\d{4}-\d{2}-\d{2}$/.test(paidOnRaw) ? paidOnRaw : null;
 
-  // Read the four tranches as euros; round to whole-euro cents. Only rows
-  // with a positive amount become ledger entries.
+  // Read the four tranches as euros → exact cents (don't truncate the
+  // sub-euro part, or a ledger with cents never reconciles to the total).
+  // Only rows with a positive amount become ledger entries.
   const amountFor = (key: string): number => {
     const v = Number(body[key]);
     if (!Number.isFinite(v) || v <= 0) return 0;
-    return Math.round(v) * 100;
+    return Math.round(v * 100);
   };
 
   let created = 0;
