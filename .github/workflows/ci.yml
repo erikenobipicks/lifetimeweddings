@@ -33,8 +33,9 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "npm"
       - run: npm ci
-      # Fail the build only on HIGH/CRITICAL advisories. The remaining
-      # moderate/low ones (Astro 5 → 6 major) are tracked separately and
-      # shouldn't block unrelated PRs; revisit the threshold after that
-      # migration lands.
-      - run: npm audit --audit-level=high
+      # Fail the build on HIGH/CRITICAL advisories, EXCEPT the framework-level
+      # ones allowlisted in audit-ci.jsonc (Astro 6 / sharp — only fixable by
+      # the breaking Astro 7 upgrade, tracked separately; verified
+      # non-exploitable here). `npm audit` has no per-advisory allowlist, so we
+      # use audit-ci. Remove the allowlist after the Astro 7 upgrade.
+      - run: npx --yes audit-ci@^7 --config ./audit-ci.jsonc

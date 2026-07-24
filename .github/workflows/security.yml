@@ -36,8 +36,11 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "npm"
       - run: npm ci
-      # HIGH/CRITICAL fail the job; moderate/low are reported but don't block.
-      - run: npm audit --audit-level=high
+      # HIGH/CRITICAL fail the job (moderate/low are reported but don't block),
+      # except the framework-level advisories allowlisted in audit-ci.jsonc
+      # (Astro 6 / sharp — only fixable by the breaking Astro 7 upgrade,
+      # tracked separately). Remove the allowlist after that upgrade.
+      - run: npx --yes audit-ci@^7 --config ./audit-ci.jsonc
 
   secrets:
     name: gitleaks (secret scan)
