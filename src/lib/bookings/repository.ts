@@ -701,14 +701,18 @@ export async function setFotostudioProjectId(
  *  void or credit-note it manually if needed. */
 export async function unmarkDepositPaid(bookingId: string): Promise<void> {
   await initSchema();
+  // Deliberately DON'T clear facturadirecta_invoice_id / _number: the deposit
+  // invoice is a real numbered fiscal document that isn't auto-voided, and the
+  // issue guard keys off that id. Clearing it here meant a re-mark of the
+  // deposit emitted a SECOND numbered anticipo for the same booking. Keeping it
+  // preserves the "one fiscal invoice per booking" idempotency; a genuine
+  // re-issue (after a manual void) stays an explicit, separate action.
   await db.execute({
     sql: `UPDATE bookings
           SET deposit_paid_at = NULL,
               contract_ready_at = NULL,
               contract_accepted_at = NULL,
-              contract_accepted_ip = NULL,
-              facturadirecta_invoice_id = NULL,
-              facturadirecta_invoice_number = NULL
+              contract_accepted_ip = NULL
           WHERE id = ?`,
     args: [bookingId],
   });

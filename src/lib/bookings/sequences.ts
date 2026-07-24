@@ -291,20 +291,24 @@ export async function materialiseSchedulesForBooking(bookingId: string): Promise
     const scheduledFor = date < today ? today : date;
     const token = seq.formKind ? randomUUID() : null;
     try {
+      // Upsert: insert when new, and when a row already exists REACTIVATE it
+      // if it was cancelled and not yet sent. This is what makes an
+      // unmark-deposit → re-mark-deposit cycle restore the follow-up emails
+      // (deposit_unpaid cancels them via cancelPendingSchedules); an active or
+      // already-sent row is left untouched, and scheduled_for isn't disturbed.
       await db.execute({
         sql: `INSERT INTO email_schedules (
           booking_id, sequence_id, scheduled_for, form_token, created_at
-        ) VALUES (?, ?, ?, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(booking_id, sequence_id) DO UPDATE SET cancelled_at = NULL
+        WHERE email_schedules.cancelled_at IS NOT NULL
+          AND email_schedules.sent_at IS NULL`,
         args: [bookingId, seq.id, scheduledFor, token, now],
       });
       created++;
     } catch (err) {
-      // UNIQUE (booking_id, sequence_id) — already materialised, skip.
-      const msg = String((err as Error)?.message ?? '');
-      if (!/UNIQUE/i.test(msg)) {
-        // eslint-disable-next-line no-console
-        console.error('[email-sequences] materialise insert failed', { bookingId, seqId: seq.id, err });
-      }
+      // eslint-disable-next-line no-console
+      console.error('[email-sequences] materialise upsert failed', { bookingId, seqId: seq.id, err });
     }
   }
   return { created };
