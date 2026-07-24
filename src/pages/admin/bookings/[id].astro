@@ -480,6 +480,15 @@ const ibanPlaceholder = transfer.isPlaceholder;
           </button>
         </form>
       )}
+      {booking.status === 'archived' && (
+        <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline">
+          <input type="hidden" name="_action" value="status" />
+          <input type="hidden" name="status" value={booking.formSubmittedAt ? 'form_submitted' : 'sent'} />
+          <button type="submit" class="border border-emerald-300 text-emerald-700 text-xs font-bold tracking-widest uppercase px-4 py-2 hover:bg-emerald-50 transition-colors whitespace-nowrap">
+            ↩︎ Desarxivar
+          </button>
+        </form>
+      )}
       <a
         href={gcalUrl}
         target="_blank"
