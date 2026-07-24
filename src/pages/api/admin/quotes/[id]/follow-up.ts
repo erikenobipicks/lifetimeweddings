@@ -31,17 +31,23 @@ export const POST: APIRoute = async ({ params, cookies }) => {
   const quote = await getQuoteById(id);
   if (!quote) return json({ error: 'not_found' }, 404);
   if (!quote.coupleEmail) return json({ error: 'no_recipient' }, 400);
+  // Don't nudge a couple who already said no, and don't fire twice.
+  if (quote.rejectedAt) return json({ error: 'rejected' }, 409);
+  if (quote.followUpSentAt) return json({ error: 'already_sent' }, 409);
 
-  const result = await sendQuoteFollowUp(quote);
-  if (!result.ok) {
-    return json({ error: 'send_failed', detail: result.detail ?? result.reason }, 502);
-  }
-
+  // Stamp before sending (same order as the cron) so a double-click — or a
+  // later cron tick — can't email the couple a second follow-up.
   try {
     await markQuoteFollowUpSent(quote.id);
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.error('[admin.quote-followup] mark failed (non-fatal)', err);
+    console.error('[admin.quote-followup] mark failed (not sent)', err);
+    return json({ error: 'mark_failed' }, 500);
+  }
+
+  const result = await sendQuoteFollowUp(quote);
+  if (!result.ok) {
+    return json({ error: 'send_failed', detail: result.detail ?? result.reason }, 502);
   }
 
   return json({ ok: true, sentTo: quote.coupleEmail }, 200);

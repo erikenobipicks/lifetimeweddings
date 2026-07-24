@@ -91,25 +91,30 @@ async function tickQuoteFollowUps(): Promise<QuoteFollowUpResult> {
       skipped += 1;
       continue;
     }
+    // Stamp BEFORE sending (same order as the prewedding digest below). If we
+    // sent first and the stamp write then failed, the next tick would re-select
+    // this quote and email the couple a SECOND time. Better a rare missed nudge
+    // (logged, and re-sendable from the quote page) than a duplicate.
+    try {
+      await markQuoteFollowUpSent(quote.id);
+    } catch (err) {
+      failed += 1;
+      // eslint-disable-next-line no-console
+      console.error('[cron.email-queue] mark follow-up failed (not sent)', { quoteId: quote.id, err });
+      continue;
+    }
     const result = await sendQuoteFollowUp(quote);
     if (!result.ok) {
       failed += 1;
       // eslint-disable-next-line no-console
-      console.error('[cron.email-queue] follow-up failed', {
+      console.error('[cron.email-queue] follow-up send failed (stamped; will not retry)', {
         quoteId: quote.id,
         reason: result.reason,
         detail: result.detail,
       });
       continue;
     }
-    try {
-      await markQuoteFollowUpSent(quote.id);
-      sent += 1;
-    } catch (err) {
-      failed += 1;
-      // eslint-disable-next-line no-console
-      console.error('[cron.email-queue] mark follow-up failed', { quoteId: quote.id, err });
-    }
+    sent += 1;
   }
   return { due: due.length, sent, failed, skipped };
 }
