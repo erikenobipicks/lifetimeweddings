@@ -58,13 +58,19 @@ function buildPayload(
   // Round to 2 decimals to avoid spurious 1234.5678999 trailing junk.
   const r2 = (n: number) => Math.round(n * 100) / 100;
 
+  // Neutralise spreadsheet formula injection: a couple/venue value starting
+  // with = + - @ would be evaluated as a live formula in the master sheet
+  // (e.g. =HYPERLINK(...)). Prefix it with an apostrophe so it stays text.
+  const sanitize = (v: string | null): string | null =>
+    v && /^[=+\-@]/.test(v) ? `'${v}` : v;
+
   return {
     token,
     weddingDate: booking.weddingDate.toISOString().slice(0, 10),
-    pareja,
-    hora,
-    lugarBoda: booking.venueName,
-    contractacio: booking.packName,
+    pareja: sanitize(pareja) ?? pareja,
+    hora: sanitize(hora),
+    lugarBoda: sanitize(booking.venueName) ?? booking.venueName,
+    contractacio: sanitize(booking.packName) ?? booking.packName,
     noIva: r2(total / IVA_DIVISOR),
     pago1: r2(deposit),
     pago2: r2(pago2),

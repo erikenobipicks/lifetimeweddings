@@ -244,6 +244,11 @@ export async function deleteQuote(id: number): Promise<void> {
     [
       { sql: 'UPDATE leads SET quote_id = NULL WHERE quote_id = ?', args: [id] },
       { sql: 'DELETE FROM events WHERE quote_id = ?', args: [id] },
+      // Belt-and-braces like `events`: quote_responses is ON DELETE CASCADE,
+      // but FK enforcement is per-connection and can silently no-op on a
+      // pooled libsql connection where PRAGMA foreign_keys wasn't applied,
+      // leaving orphaned response rows. Delete it explicitly.
+      { sql: 'DELETE FROM quote_responses WHERE quote_id = ?', args: [id] },
       { sql: 'DELETE FROM quotes WHERE id = ?', args: [id] },
     ],
     'write',
