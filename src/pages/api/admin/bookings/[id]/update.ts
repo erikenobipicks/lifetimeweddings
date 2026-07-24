@@ -133,9 +133,11 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
 
     // Light transition guard: admins shouldn't accidentally clobber a real
     // 'form_submitted' or 'viewed' back to 'draft'. Allow any → archived
-    // explicitly; otherwise only forward transitions.
+    // explicitly, and any archived → * (un-archive), which archiving otherwise
+    // presents as recoverable but the rank guard would block; otherwise only
+    // forward transitions.
     const target = next.data.status;
-    if (target !== 'archived' && rank(target) < rank(booking.status)) {
+    if (target !== 'archived' && booking.status !== 'archived' && rank(target) < rank(booking.status)) {
       return back('?error=Transició+no+permesa');
     }
     await setBookingStatus(id, target);
