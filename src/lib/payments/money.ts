@@ -137,7 +137,9 @@ export function computeDiscountCents(type: string, value: string, packCents: num
   const v = parseFloat(value.trim().replace(',', '.'));
   if (!Number.isFinite(v) || v <= 0) return 0;
   if (type === 'percent') return Math.round((packCents * Math.min(v, 100)) / 100);
-  if (type === 'amount') return Math.round(v * 100);
+  // Cap an absolute discount at the pack price so the net total can never go
+  // negative (mirrors computeDiscountEuros, which the client preview uses).
+  if (type === 'amount') return Math.min(packCents, Math.round(v * 100));
   return 0;
 }
 

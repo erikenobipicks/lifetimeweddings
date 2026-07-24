@@ -37,7 +37,9 @@ const latestBasicInfo = basicInfoSubmissions[0] ?? null;
 // Payments ledger + pending balance. Total to settle = effective price
 // (pack − discount). Pending can go negative if overpaid.
 const payments = await listPayments(booking.id);
-const totalCents = booking.packPriceCents - booking.discountCents;
+// Clamp at 0: a legacy booking whose stored discount exceeds the price would
+// otherwise render a negative total (new discounts are capped at write time).
+const totalCents = Math.max(0, booking.packPriceCents - booking.discountCents);
 const paidCents = payments.reduce((acc, p) => acc + p.amountCents, 0);
 const pendingCents = totalCents - paidCents;
 const changes = await listBookingChanges(booking.id);
@@ -201,7 +203,11 @@ const STATUS_BADGE: Record<BookingStatus, string> = {
   archived: 'bg-gray-200 text-gray-500',
 };
 
-const eurosFromCents = (c: number): string => (c / 100).toFixed(0);
+// Lossless euros for editable money fields: plain integer when round, else
+// 2-decimal comma (Spanish), so the value round-trips through
+// eurosStringToCents on save instead of being silently rounded to whole euros.
+const eurosFromCents = (c: number): string =>
+  c % 100 === 0 ? String(Math.trunc(c / 100)) : (c / 100).toFixed(2).replace('.', ',');
 const yyyymmdd = (d: Date | null): string => (d ? d.toISOString().slice(0, 10) : '');
 const fmtDateTime = (d: Date | null): string => {
   if (!d) return '—';
