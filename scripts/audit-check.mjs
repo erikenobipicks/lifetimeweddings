@@ -3,19 +3,15 @@
 // failing with an internal error) with a self-contained check: no network
 // download, deterministic, and we own the logic.
 //
-// Fails the build on any HIGH/CRITICAL npm-audit advisory EXCEPT the
-// framework-level ones allowlisted below, which are only fixable by the
-// breaking Astro 6 → 7 upgrade (see docs/astro-7-upgrade.md) and are verified
-// non-exploitable here (no View Transitions / client:* islands / transition:*
-// directives; sharp only optimises our own build-time images).
-// REMOVE the allowlisted ids after the Astro 7 upgrade.
+// Fails the build on any HIGH/CRITICAL npm-audit advisory except the ones
+// allowlisted below. The Astro-6 / sharp framework advisories that used to be
+// here were resolved by the Astro 7 upgrade, so the allowlist is now empty —
+// the gate is fully strict again. If a future advisory has no non-breaking fix,
+// add its GHSA id here with a justification (and a plan to remove it).
 import { execSync } from 'node:child_process';
 
 const ALLOW = new Set([
-  'GHSA-4g3v-8h47-v7g6', // Astro — View Transitions XSS
-  'GHSA-f48w-9m4c-m7f5', // Astro — spread attribute-name XSS
-  'GHSA-7pw4-f3q4-r2p2', // Astro — transition:* directive XSS
-  'GHSA-f88m-g3jw-g9cj', // sharp — inherited libvips CVEs
+  // (empty — no advisories currently allowlisted)
 ]);
 
 let raw = '';
