@@ -11,7 +11,11 @@ import {
   setDeliveryArchived,
   deleteDelivery,
   extractYoutubeId,
+  setDeliveryBalancePaid,
+  clearDeliveryBalancePaid,
 } from '~/lib/deliveries';
+import { eurosStringToCents } from '~/lib/payments/money';
+import { issueBalanceInvoiceForDelivery } from '~/lib/deliveryInvoicing';
 
 const updateSchema = z.object({
   coupleName1: z.string().min(1).max(60).optional(),
@@ -24,6 +28,7 @@ const updateSchema = z.object({
   swisstransferUrl: z.string().url().max(500).refine((v) => /^https?:\/\//i.test(v), 'Ha de ser un enllaç http(s)://').optional().or(z.literal('')),
   swisstransferExpiresAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal('')),
   galleryUrl: z.string().url().max(500).refine((v) => /^https?:\/\//i.test(v), 'Ha de ser un enllaç http(s)://').optional().or(z.literal('')),
+  balanceDueEuros: z.string().max(20).optional().or(z.literal('')),
 });
 
 export const POST: APIRoute = async ({ request, params, cookies, redirect }) => {
@@ -51,6 +56,26 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
     return redirect('/admin/deliveries?ok=deleted', 303);
   }
 
+  // Pending-balance: mark/unmark the payment manually (e.g. a bank transfer
+  // that never hits the Stripe webhook).
+  if (action === 'mark-balance-paid') {
+    await setDeliveryBalancePaid(id);
+    return back('?ok=balance_paid');
+  }
+  if (action === 'unmark-balance-paid') {
+    await clearDeliveryBalancePaid(id);
+    return back('?ok=balance_unpaid');
+  }
+
+  // Pending-balance: issue the FacturaDirecta invoice on demand.
+  if (action === 'issue-balance-invoice') {
+    const res = await issueBalanceInvoiceForDelivery(id);
+    if (res.ok) {
+      return back(`?ok=invoice_issued${res.number ? `&num=${encodeURIComponent(res.number)}` : ''}`);
+    }
+    return back(`?error=${encodeURIComponent(`No s'ha pogut crear la factura (${res.reason}).`)}`);
+  }
+
   // Default: field update.
   const raw: Record<string, string> = {};
   for (const [k, v] of form.entries()) {
@@ -74,6 +99,21 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
     return back('?error=' + encodeURIComponent('ID o URL de YouTube no reconegut.'));
   }
 
+  // Pending balance: undefined field → leave as-is; empty → clear (null);
+  // non-empty → parse (reject unparseable), 0 collapses to null.
+  let balanceDueCents: number | null | undefined;
+  if (d.balanceDueEuros !== undefined) {
+    if (d.balanceDueEuros.trim() === '') {
+      balanceDueCents = null;
+    } else {
+      const cents = eurosStringToCents(d.balanceDueEuros);
+      if (!Number.isFinite(cents)) {
+        return back('?error=' + encodeURIComponent('Import pendent no vàlid (ex: 1500 o 1.500,00).'));
+      }
+      balanceDueCents = cents > 0 ? cents : null;
+    }
+  }
+
   await updateDelivery(id, {
     coupleName1: d.coupleName1?.trim(),
     coupleName2: d.coupleName2?.trim(),
@@ -88,6 +128,7 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
         ? (d.swisstransferExpiresAt ? new Date(`${d.swisstransferExpiresAt}T23:59:59Z`) : null)
         : undefined,
     galleryUrl: d.galleryUrl !== undefined ? d.galleryUrl || null : undefined,
+    balanceDueCents,
   });
 
   return back('?ok=updated');

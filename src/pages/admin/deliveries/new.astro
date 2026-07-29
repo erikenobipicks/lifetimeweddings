@@ -5,13 +5,26 @@
 //   - blank form — just the basics (couple name, date); everything else
 //     (video/download/gallery links) can be added later from the edit page.
 import AdminLayout from '~/layouts/AdminLayout.astro';
-import { getBookingById } from '~/lib/bookings/repository';
+import { getBookingById, listPayments } from '~/lib/bookings/repository';
 
 const params = Astro.url.searchParams;
 const error = params.get('error');
 
 const bookingId = params.get('booking') ?? '';
 const sourceBooking = bookingId ? await getBookingById(bookingId) : null;
+
+// When linked to a booking, compute its pending balance so we can pre-fill
+// the "import pendent" field (same formula as the booking detail page:
+// effective price − payments recorded). Editable afterwards.
+let bookingPendingCents = 0;
+if (sourceBooking) {
+  const payments = await listPayments(sourceBooking.id);
+  const totalCents = Math.max(0, sourceBooking.packPriceCents - sourceBooking.discountCents);
+  const paidCents = payments.reduce((acc, p) => acc + p.amountCents, 0);
+  bookingPendingCents = Math.max(0, totalCents - paidCents);
+}
+const pendingEuros =
+  bookingPendingCents > 0 ? (bookingPendingCents / 100).toFixed(2).replace('.', ',') : '';
 
 // Preserved values from a failed submit take priority; otherwise fall back
 // to the booking pre-fill; otherwise blank.
@@ -22,6 +35,7 @@ if (sourceBooking) {
   prefill.weddingDate = sourceBooking.weddingDate.toISOString().slice(0, 10);
   prefill.venueName = sourceBooking.venueName;
   prefill.preferredLanguage = sourceBooking.preferredLanguage;
+  if (pendingEuros) prefill.balanceDueEuros = pendingEuros;
 }
 function v(name: string): string {
   return params.get(`v_${name}`) ?? prefill[name] ?? '';
@@ -127,6 +141,20 @@ const suggestedExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOStr
         <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Enllaç de la galeria</span>
         <input name="galleryUrl" value={v('galleryUrl')} placeholder="https://gallery.fotostudio.io/…" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
       </label>
+    </fieldset>
+
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-1">Cobrament pendent</legend>
+      <p class="text-[11px] text-ink/70 -mt-2 mb-2">opcional · si hi poses un import, la pàgina d'entrega mostrarà un apartat perquè la parella pagui el pendent (targeta o transferència). Deixa-ho buit per no mostrar-lo.</p>
+      <label class="block max-w-xs">
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Import pendent (€)</span>
+        <input name="balanceDueEuros" inputmode="decimal" value={v('balanceDueEuros')} placeholder="Ex: 1500 o 1.500,00" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+      </label>
+      {sourceBooking && bookingPendingCents > 0 && (
+        <p class="text-[11px] text-ink/70">
+          Pendent de la reserva vinculada: <strong>{(bookingPendingCents / 100).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</strong> — precarregat a dalt.
+        </p>
+      )}
     </fieldset>
 
     <div class="flex items-center gap-4 pt-4 border-t border-line">

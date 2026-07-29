@@ -422,6 +422,14 @@ export async function initSchema() {
   // Optional trailer for a delivery page — an unlisted YouTube id shown
   // BEFORE the main film on /entrega. Nullable; null = no trailer.
   await ensureColumn('deliveries', 'trailer_youtube_id', 'TEXT');
+  // Optional "pay the pending balance" section on a delivery. balance_due_cents
+  // is the amount to charge (null/0 = no section). balance_paid_at stamps the
+  // online-card payment (Stripe webhook). balance_invoice_* record an optional
+  // FacturaDirecta invoice Eric issues by hand from the delivery detail.
+  await ensureColumn('deliveries', 'balance_due_cents', 'INTEGER');
+  await ensureColumn('deliveries', 'balance_paid_at', 'TEXT');
+  await ensureColumn('deliveries', 'balance_invoice_id', 'TEXT');
+  await ensureColumn('deliveries', 'balance_invoice_number', 'TEXT');
   // When set, the couple can still view the quote but cannot submit
   // further configurations. Eric closes the quote once they've agreed.
   await ensureColumn('quotes', 'quote_closed_at', 'TEXT');

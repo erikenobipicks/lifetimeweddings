@@ -21,10 +21,17 @@ import { getDeliveryBySlug } from '~/lib/deliveries';
 import { formatWeddingDateLong, formatExpiresShort } from '~/lib/bookings/format';
 import VideoEmbed from '~/components/reserva/VideoEmbed.astro';
 import ExternalGalleryEmbed from '~/components/quote/ExternalGalleryEmbed.astro';
+import BalancePayment from '~/components/entrega/BalancePayment.astro';
 
 const slug = Astro.params.slug!;
 const delivery = await getDeliveryBySlug(slug);
 const available = delivery && !delivery.archived;
+
+// Stripe Checkout return state (?paid=success|cancel) — only meaningful when
+// there's a balance section to show.
+const paidParam = Astro.url.searchParams.get('paid');
+const payState = paidParam === 'success' ? 'success' : paidParam === 'cancel' ? 'cancel' : null;
+const hasBalance = !!delivery && !!delivery.balanceDueCents && delivery.balanceDueCents > 0;
 
 if (!available) {
   Astro.response.status = 404;
@@ -217,6 +224,18 @@ const title = delivery ? `${TX.heading(delivery.coupleName1, delivery.coupleName
           eyebrow={TX.galleryEyebrow}
           description={TX.galleryDescription}
           newTabLabel={TX.galleryNewTab}
+        />
+      )}
+
+      {hasBalance && (
+        <BalancePayment
+          lang={lang}
+          slug={slug}
+          coupleName1={delivery!.coupleName1}
+          coupleName2={delivery!.coupleName2}
+          amountCents={delivery!.balanceDueCents!}
+          paid={!!delivery!.balancePaidAt}
+          payState={payState}
         />
       )}
 

@@ -29,6 +29,13 @@ export interface Delivery {
   swisstransferUrl: string | null;
   swisstransferExpiresAt: Date | null;
   galleryUrl: string | null;
+  /** Optional pending-balance section. balanceDueCents = amount to charge
+   *  (null/0 → no section). balancePaidAt stamps the online-card payment.
+   *  balanceInvoice* record an optional FacturaDirecta invoice. */
+  balanceDueCents: number | null;
+  balancePaidAt: Date | null;
+  balanceInvoiceId: string | null;
+  balanceInvoiceNumber: string | null;
   archived: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -46,6 +53,7 @@ export interface DeliveryCreateInput {
   swisstransferUrl?: string | null;
   swisstransferExpiresAt?: Date | null;
   galleryUrl?: string | null;
+  balanceDueCents?: number | null;
 }
 
 export type DeliveryUpdateInput = Partial<Omit<DeliveryCreateInput, 'bookingId'>>;
@@ -142,6 +150,10 @@ function rowToDelivery(r: Record<string, unknown>): Delivery {
     swisstransferUrl: r.swisstransfer_url ? String(r.swisstransfer_url) : null,
     swisstransferExpiresAt: fromIso(r.swisstransfer_expires_at),
     galleryUrl: r.gallery_url ? String(r.gallery_url) : null,
+    balanceDueCents: r.balance_due_cents != null ? Number(r.balance_due_cents) : null,
+    balancePaidAt: fromIso(r.balance_paid_at),
+    balanceInvoiceId: r.balance_invoice_id ? String(r.balance_invoice_id) : null,
+    balanceInvoiceNumber: r.balance_invoice_number ? String(r.balance_invoice_number) : null,
     archived: Number(r.archived) === 1,
     createdAt: fromIso(r.created_at) ?? new Date(),
     updatedAt: fromIso(r.updated_at) ?? new Date(),
@@ -162,8 +174,9 @@ export async function createDelivery(input: DeliveryCreateInput): Promise<Delive
       id, slug, booking_id,
       couple_name_1, couple_name_2, wedding_date, venue_name, preferred_language,
       trailer_youtube_id, youtube_video_id, swisstransfer_url, swisstransfer_expires_at, gallery_url,
+      balance_due_cents,
       archived, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)`,
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)`,
     args: [
       id,
       slug,
@@ -178,6 +191,7 @@ export async function createDelivery(input: DeliveryCreateInput): Promise<Delive
       input.swisstransferUrl ?? null,
       input.swisstransferExpiresAt ? input.swisstransferExpiresAt.toISOString().slice(0, 10) : null,
       input.galleryUrl ?? null,
+      input.balanceDueCents ?? null,
       now,
       now,
     ],
@@ -227,6 +241,7 @@ export async function updateDelivery(id: string, patch: DeliveryUpdateInput): Pr
     col('swisstransfer_expires_at', patch.swisstransferExpiresAt ? patch.swisstransferExpiresAt.toISOString().slice(0, 10) : null);
   }
   if (patch.galleryUrl !== undefined) col('gallery_url', patch.galleryUrl);
+  if (patch.balanceDueCents !== undefined) col('balance_due_cents', patch.balanceDueCents);
   if (sets.length === 0) return;
   col('updated_at', nowIso());
   args.push(id);
@@ -238,6 +253,37 @@ export async function setDeliveryArchived(id: string, archived: boolean): Promis
   await db.execute({
     sql: 'UPDATE deliveries SET archived = ?, updated_at = ? WHERE id = ?',
     args: [archived ? 1 : 0, nowIso(), id],
+  });
+}
+
+/** Stamp the online-card payment of the pending balance (idempotent —
+ *  callers should check balancePaidAt first, but re-stamping is harmless). */
+export async function setDeliveryBalancePaid(id: string, at: Date = new Date()): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: 'UPDATE deliveries SET balance_paid_at = ?, updated_at = ? WHERE id = ?',
+    args: [at.toISOString(), nowIso(), id],
+  });
+}
+
+/** Clear the pending-balance payment stamp (admin correction of a mistaken
+ *  "mark paid"). Leaves any issued invoice reference untouched. */
+export async function clearDeliveryBalancePaid(id: string): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: 'UPDATE deliveries SET balance_paid_at = NULL, updated_at = ? WHERE id = ?',
+    args: [nowIso(), id],
+  });
+}
+
+/** Record the FacturaDirecta invoice issued for the pending balance. Stored
+ *  on the delivery (not the linked booking) so it never clobbers a booking's
+ *  own deposit-invoice reference. */
+export async function setDeliveryBalanceInvoice(id: string, invoiceId: string, invoiceNumber: string): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: 'UPDATE deliveries SET balance_invoice_id = ?, balance_invoice_number = ?, updated_at = ? WHERE id = ?',
+    args: [invoiceId, invoiceNumber, nowIso(), id],
   });
 }
 

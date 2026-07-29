@@ -7,6 +7,7 @@ import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { getUser } from '~/lib/auth';
 import { createDelivery, extractYoutubeId } from '~/lib/deliveries';
+import { eurosStringToCents } from '~/lib/payments/money';
 
 const formSchema = z.object({
   bookingId: z.string().max(60).optional(),
@@ -24,6 +25,7 @@ const formSchema = z.object({
     .optional()
     .or(z.literal('')),
   galleryUrl: z.string().url().max(500).refine((v) => /^https?:\/\//i.test(v), 'Ha de ser un enllaç http(s)://').optional().or(z.literal('')),
+  balanceDueEuros: z.string().max(20).optional().or(z.literal('')),
 });
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
@@ -53,6 +55,19 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     return redirect(`/admin/deliveries/new?${params}`, 303);
   }
 
+  // Pending balance (optional). Empty → no section. A non-empty but
+  // unparseable amount is a validation error.
+  let balanceDueCents: number | null = null;
+  if (d.balanceDueEuros && d.balanceDueEuros.trim()) {
+    const cents = eurosStringToCents(d.balanceDueEuros);
+    if (!Number.isFinite(cents)) {
+      const params = new URLSearchParams({ error: 'Import pendent no vàlid (ex: 1500 o 1.500,00).' });
+      for (const [k, v] of Object.entries(raw)) params.set(`v_${k}`, v);
+      return redirect(`/admin/deliveries/new?${params}`, 303);
+    }
+    balanceDueCents = cents > 0 ? cents : null;
+  }
+
   const delivery = await createDelivery({
     bookingId: d.bookingId || null,
     coupleName1: d.coupleName1.trim(),
@@ -65,6 +80,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     swisstransferUrl: d.swisstransferUrl || null,
     swisstransferExpiresAt: d.swisstransferExpiresAt ? new Date(`${d.swisstransferExpiresAt}T23:59:59Z`) : null,
     galleryUrl: d.galleryUrl || null,
+    balanceDueCents,
   });
 
   return redirect(`/admin/deliveries/${delivery.id}?ok=created`, 303);
