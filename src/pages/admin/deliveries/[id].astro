@@ -89,7 +89,7 @@ const stripeOn = isStripeEnabled();
     )}
   </div>
 
-  <form method="POST" action={`/api/admin/deliveries/${delivery.id}/update`} class="space-y-8 bg-white border border-line p-6 md:p-8">
+  <form method="POST" action={`/api/admin/deliveries/${delivery.id}/update`} enctype="multipart/form-data" class="space-y-8 bg-white border border-line p-6 md:p-8">
     <input type="hidden" name="_action" value="update" />
 
     <fieldset class="space-y-4">
@@ -158,6 +158,30 @@ const stripeOn = isStripeEnabled();
         <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Enllaç de la galeria</span>
         <input name="galleryUrl" value={delivery.galleryUrl ?? ''} placeholder="https://gallery.fotostudio.io/…" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
       </label>
+
+      <div class="pt-2">
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Foto de portada de la galeria</span>
+        <p class="text-[11px] text-ink/70 mb-2">opcional · una foto de la parella per il·lustrar l'apartat "La vostra galeria". Es redimensiona automàticament. Si no en poses cap, es mostra la icona per defecte.</p>
+        <div class="flex flex-wrap items-start gap-4">
+          {delivery.hasGalleryCover && (
+            <img
+              src={`/api/entrega/cover/${delivery.slug}?v=${delivery.updatedAt.getTime()}`}
+              alt="Foto de portada actual"
+              class="w-40 h-28 object-cover border border-line"
+            />
+          )}
+          <div class="flex-1 min-w-[220px]">
+            <input type="file" name="galleryCoverFile" accept="image/jpeg,image/png,image/webp" class="block w-full text-sm text-ink/80 file:mr-3 file:py-2 file:px-4 file:border file:border-line file:bg-cream file:text-xs file:font-bold file:uppercase file:tracking-widest file:text-ink/70 hover:file:border-gold hover:file:text-gold" />
+            <p class="text-[11px] text-ink/60 mt-1">JPG, PNG o WEBP · màxim 20 MB.</p>
+            {delivery.hasGalleryCover && (
+              <label class="flex items-center gap-2 mt-2 text-[11px] text-ink/70">
+                <input type="checkbox" name="galleryCoverRemove" class="accent-gold" />
+                Treure la foto de portada actual
+              </label>
+            )}
+          </div>
+        </div>
+      </div>
     </fieldset>
 
     <fieldset class="space-y-4">
