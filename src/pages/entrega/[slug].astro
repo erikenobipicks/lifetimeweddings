@@ -57,6 +57,10 @@ const TX = {
     galleryEyebrow: 'Fotografies',
     galleryDescription: 'Totes les vostres fotografies, en alta resolució',
     galleryNewTab: 'Obrir la galeria',
+    reviewEyebrow: 'Un petit favor',
+    reviewHeading: 'Ens deixeu una ressenya a Google?',
+    reviewBody: 'Som un equip petit i familiar. Si us ha agradat la nostra feina, una ressenya vostra a Google ens ajuda moltíssim a arribar a altres parelles. Amb les vostres paraules, en dos minuts.',
+    reviewCta: 'Deixar una ressenya a Google',
     help: 'Si teniu qualsevol dubte o problema amb els enllaços, escriviu-nos.',
     naTitle: 'Enllaç no disponible',
     naBody: 'Aquest enllaç d\'entrega no existeix o ja no està actiu. Si creieu que és un error, escriviu-nos.',
@@ -78,6 +82,10 @@ const TX = {
     galleryEyebrow: 'Fotografías',
     galleryDescription: 'Todas vuestras fotografías, en alta resolución',
     galleryNewTab: 'Abrir la galería',
+    reviewEyebrow: 'Un pequeño favor',
+    reviewHeading: '¿Nos dejáis una reseña en Google?',
+    reviewBody: 'Somos un equipo pequeño y familiar. Si os ha gustado nuestro trabajo, una reseña vuestra en Google nos ayuda muchísimo a llegar a otras parejas. Con vuestras palabras, en dos minutos.',
+    reviewCta: 'Dejar una reseña en Google',
     help: 'Si tenéis cualquier duda o problema con los enlaces, escribidnos.',
     naTitle: 'Enlace no disponible',
     naBody: 'Este enlace de entrega no existe o ya no está activo. Si creéis que es un error, escribidnos.',
@@ -99,6 +107,10 @@ const TX = {
     galleryEyebrow: 'Photography',
     galleryDescription: 'All your photographs, in high resolution',
     galleryNewTab: 'Open the gallery',
+    reviewEyebrow: 'A small favour',
+    reviewHeading: 'Would you leave us a Google review?',
+    reviewBody: 'We\'re a small, family team. If you enjoyed our work, a review on Google helps us reach other couples more than you\'d think. In your own words, in two minutes.',
+    reviewCta: 'Leave a Google review',
     help: 'If you have any questions or issues with the links, message us.',
     naTitle: 'Link not available',
     naBody: "This delivery link doesn't exist or is no longer active. If you think this is a mistake, message us.",
@@ -238,6 +250,32 @@ const title = delivery ? `${TX.heading(delivery.coupleName1, delivery.coupleName
           payState={payState}
         />
       )}
+
+      {/* Google review CTA — always shown (every couple who reaches this
+          page has received their material, so it's the natural moment to
+          ask). Warm, no-pressure tone; reuses the site's review link. */}
+      <section class="px-6 md:px-12 py-16 md:py-20 bg-cream text-ink text-center">
+        <div class="max-w-2xl mx-auto">
+          <div class="flex justify-center gap-1 text-gold-deep text-xl mb-4" aria-hidden="true">★★★★★</div>
+          <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{TX.reviewEyebrow}</p>
+          <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">{TX.reviewHeading}</h2>
+          <p class="text-ink/75 leading-relaxed mb-8">{TX.reviewBody}</p>
+          <a
+            href={SITE.googleReviewsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-3 bg-white border border-ink/15 px-7 py-4 font-bold hover:border-gold hover:shadow-sm transition-all"
+          >
+            <svg viewBox="0 0 24 24" class="w-5 h-5" aria-hidden="true">
+              <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47a5.4 5.4 0 0 1-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/>
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09A12 12 0 0 0 12 24z"/>
+              <path fill="#FBBC05" d="M5.27 14.29a7.2 7.2 0 0 1 0-4.58V6.62H1.29a12 12 0 0 0 0 10.76l3.98-3.09z"/>
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42A12 12 0 0 0 12 0 12 12 0 0 0 1.29 6.62l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75z"/>
+            </svg>
+            {TX.reviewCta}
+          </a>
+        </div>
+      </section>
 
       <section class="px-6 md:px-12 py-10 bg-white text-center">
         <p class="text-sm text-ink/70">
