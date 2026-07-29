@@ -90,7 +90,12 @@ function ymd(d: Date | null): string {
 
     <fieldset class="space-y-4">
       <legend class="font-display text-xl font-bold mb-1">Vídeo</legend>
-      <p class="text-[11px] text-ink/70 -mt-2 mb-2">opcional · vídeo de YouTube ocult. Pots enganxar l'ID o l'URL sencera.</p>
+      <p class="text-[11px] text-ink/70 -mt-2 mb-2">opcional · vídeos de YouTube ocults. Pots enganxar l'ID o l'URL sencera.</p>
+      <label class="block max-w-lg">
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Tràiler (ID o URL)</span>
+        <span class="block text-[11px] text-ink/70 mb-1">opcional · si n'hi ha, es mostra ABANS del vídeo. Buit = no apareix.</span>
+        <input name="trailerVideoId" value={delivery.trailerYoutubeId ?? ''} placeholder="https://youtu.be/xxxxxxxxxxx" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+      </label>
       <label class="block max-w-lg">
         <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Vídeo de YouTube (ID o URL)</span>
         <input name="youtubeVideoId" value={delivery.youtubeVideoId ?? ''} placeholder="https://youtu.be/xxxxxxxxxxx" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />

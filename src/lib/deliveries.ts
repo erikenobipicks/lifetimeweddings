@@ -22,6 +22,9 @@ export interface Delivery {
   weddingDate: Date;
   venueName: string | null;
   preferredLanguage: Lang;
+  /** Optional trailer (unlisted YouTube). When set, shown BEFORE the main
+   *  video on /entrega; absent → nothing rendered. */
+  trailerYoutubeId: string | null;
   youtubeVideoId: string | null;
   swisstransferUrl: string | null;
   swisstransferExpiresAt: Date | null;
@@ -38,6 +41,7 @@ export interface DeliveryCreateInput {
   weddingDate: Date;
   venueName?: string | null;
   preferredLanguage?: Lang;
+  trailerYoutubeId?: string | null;
   youtubeVideoId?: string | null;
   swisstransferUrl?: string | null;
   swisstransferExpiresAt?: Date | null;
@@ -133,6 +137,7 @@ function rowToDelivery(r: Record<string, unknown>): Delivery {
     weddingDate: fromIso(r.wedding_date) ?? new Date(`${r.wedding_date}T00:00:00Z`),
     venueName: r.venue_name ? String(r.venue_name) : null,
     preferredLanguage: langOrDefault(r.preferred_language),
+    trailerYoutubeId: r.trailer_youtube_id ? String(r.trailer_youtube_id) : null,
     youtubeVideoId: r.youtube_video_id ? String(r.youtube_video_id) : null,
     swisstransferUrl: r.swisstransfer_url ? String(r.swisstransfer_url) : null,
     swisstransferExpiresAt: fromIso(r.swisstransfer_expires_at),
@@ -156,9 +161,9 @@ export async function createDelivery(input: DeliveryCreateInput): Promise<Delive
     sql: `INSERT INTO deliveries (
       id, slug, booking_id,
       couple_name_1, couple_name_2, wedding_date, venue_name, preferred_language,
-      youtube_video_id, swisstransfer_url, swisstransfer_expires_at, gallery_url,
+      trailer_youtube_id, youtube_video_id, swisstransfer_url, swisstransfer_expires_at, gallery_url,
       archived, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)`,
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)`,
     args: [
       id,
       slug,
@@ -168,6 +173,7 @@ export async function createDelivery(input: DeliveryCreateInput): Promise<Delive
       weddingDateIso,
       input.venueName ?? null,
       input.preferredLanguage ?? 'ca',
+      input.trailerYoutubeId ?? null,
       input.youtubeVideoId ?? null,
       input.swisstransferUrl ?? null,
       input.swisstransferExpiresAt ? input.swisstransferExpiresAt.toISOString().slice(0, 10) : null,
@@ -214,6 +220,7 @@ export async function updateDelivery(id: string, patch: DeliveryUpdateInput): Pr
   if (patch.weddingDate !== undefined) col('wedding_date', patch.weddingDate.toISOString().slice(0, 10));
   if (patch.venueName !== undefined) col('venue_name', patch.venueName);
   if (patch.preferredLanguage !== undefined) col('preferred_language', patch.preferredLanguage);
+  if (patch.trailerYoutubeId !== undefined) col('trailer_youtube_id', patch.trailerYoutubeId);
   if (patch.youtubeVideoId !== undefined) col('youtube_video_id', patch.youtubeVideoId);
   if (patch.swisstransferUrl !== undefined) col('swisstransfer_url', patch.swisstransferUrl);
   if (patch.swisstransferExpiresAt !== undefined) {

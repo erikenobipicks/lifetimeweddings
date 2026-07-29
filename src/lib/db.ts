@@ -419,6 +419,9 @@ export async function initSchema() {
   // human-readable reason. Both nullable so existing quotes don't change.
   await ensureColumn('quotes', 'admin_discount_cents', 'INTEGER');
   await ensureColumn('quotes', 'admin_discount_reason', 'TEXT');
+  // Optional trailer for a delivery page — an unlisted YouTube id shown
+  // BEFORE the main film on /entrega. Nullable; null = no trailer.
+  await ensureColumn('deliveries', 'trailer_youtube_id', 'TEXT');
   // When set, the couple can still view the quote but cannot submit
   // further configurations. Eric closes the quote once they've agreed.
   await ensureColumn('quotes', 'quote_closed_at', 'TEXT');
