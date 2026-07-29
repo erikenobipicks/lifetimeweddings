@@ -26,6 +26,9 @@ import {
 import { issueDepositInvoiceForBooking } from '~/lib/bookings/invoicing';
 import { sendContratoInvite } from '~/lib/bookings/emails';
 import { materialiseSchedulesForBooking } from '~/lib/bookings/sequences';
+import { getDeliveryById, setDeliveryBalancePaid } from '~/lib/deliveries';
+import { sendTelegramNotification } from '~/lib/email';
+import { formatEuros } from '~/lib/payments/money';
 
 export const POST: APIRoute = async ({ request }) => {
   const webhookSecret = getWebhookSecret();
@@ -54,12 +57,38 @@ export const POST: APIRoute = async ({ request }) => {
     const session = event.data.object as {
       payment_status?: string;
       client_reference_id?: string | null;
-      metadata?: { bookingId?: string; slug?: string; kind?: string } | null;
+      metadata?: { bookingId?: string; deliveryId?: string; slug?: string; kind?: string } | null;
     };
+
+    const paid = session.payment_status === 'paid' || session.payment_status === undefined;
+
+    // Delivery pending-balance sessions: just record the payment + ping
+    // Telegram. No auto-invoice — Eric issues the FacturaDirecta invoice
+    // manually from the admin when he wants one.
+    if (session.metadata?.kind === 'delivery_balance' && paid) {
+      const deliveryId = session.metadata?.deliveryId || session.client_reference_id || '';
+      const delivery = deliveryId ? await getDeliveryById(deliveryId) : null;
+      if (delivery && !delivery.balancePaidAt) {
+        await setDeliveryBalancePaid(delivery.id);
+        const amount = delivery.balanceDueCents ? formatEuros(delivery.balanceDueCents) : '';
+        const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        try {
+          await sendTelegramNotification(
+            `💶 <b>Pagament pendent rebut</b>\n` +
+              `${esc(delivery.coupleName1)} & ${esc(delivery.coupleName2)}` +
+              (amount ? ` — <b>${esc(amount)}</b>` : '') +
+              `\nEntrega: /admin/deliveries/${delivery.id}`,
+          );
+        } catch (err) {
+          console.error('[stripe-webhook] delivery-balance telegram failed (non-fatal)', err);
+        }
+        // eslint-disable-next-line no-console
+        console.log('[stripe-webhook] delivery balance marked paid', delivery.id);
+      }
+    }
 
     // Only act on our reserva-deposit sessions that actually completed.
     const isDeposit = session.metadata?.kind === 'reserva_deposit';
-    const paid = session.payment_status === 'paid' || session.payment_status === undefined;
     if (isDeposit && paid) {
       const bookingId = session.metadata?.bookingId || session.client_reference_id || '';
       const slug = session.metadata?.slug || '';

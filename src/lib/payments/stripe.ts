@@ -11,6 +11,7 @@
 
 import Stripe from 'stripe';
 import type { Booking } from '~/lib/bookings/types';
+import type { Delivery } from '~/lib/deliveries';
 
 const secretKey = (process.env.STRIPE_SECRET_KEY ?? '').trim();
 
@@ -73,6 +74,60 @@ export async function createDepositCheckout({ booking, origin, lang }: CheckoutI
     ],
     success_url: `${origin}/reserva/${booking.slug}?paid=success`,
     cancel_url: `${origin}/reserva/${booking.slug}?paid=cancel`,
+  });
+
+  if (!session.url) throw new Error('Stripe session created without a URL');
+  return session.url;
+}
+
+// ─── Delivery pending-balance checkout ──────────────────────────────────────
+// Same plumbing as the reserva deposit, but charges the *remaining balance*
+// on a material delivery (/entrega/<slug>). The amount is passed in by the
+// caller (manual figure, optionally imported from a linked booking) rather
+// than read off a fixed field, so it can be whatever's still owed.
+
+interface BalanceCheckoutInput {
+  delivery: Delivery;
+  origin: string;
+  lang: 'ca' | 'es' | 'en';
+  /** Amount to charge in cents (the pending balance). */
+  amountCents: number;
+}
+
+const BALANCE_PRODUCT_NAME: Record<'ca' | 'es' | 'en', (n: string) => string> = {
+  ca: (n) => `Pagament pendent · ${n}`,
+  es: (n) => `Pago pendiente · ${n}`,
+  en: (n) => `Outstanding balance · ${n}`,
+};
+
+/**
+ * Create a Stripe Checkout Session for a delivery's pending balance. Returns
+ * the hosted-checkout URL. Throws if Stripe isn't configured (callers must
+ * check isStripeEnabled() first). The webhook is what actually marks the
+ * balance paid — a session existing is not proof of payment.
+ */
+export async function createBalanceCheckout({ delivery, origin, lang, amountCents }: BalanceCheckoutInput): Promise<string> {
+  if (!stripe) throw new Error('Stripe not configured');
+
+  const session = await stripe.checkout.sessions.create({
+    mode: 'payment',
+    locale: STRIPE_LOCALE[lang],
+    client_reference_id: delivery.id,
+    metadata: { deliveryId: delivery.id, slug: delivery.slug, kind: 'delivery_balance' },
+    line_items: [
+      {
+        quantity: 1,
+        price_data: {
+          currency: 'eur',
+          unit_amount: amountCents,
+          product_data: {
+            name: BALANCE_PRODUCT_NAME[lang](`${delivery.coupleName1} & ${delivery.coupleName2}`),
+          },
+        },
+      },
+    ],
+    success_url: `${origin}/entrega/${delivery.slug}?paid=success`,
+    cancel_url: `${origin}/entrega/${delivery.slug}?paid=cancel`,
   });
 
   if (!session.url) throw new Error('Stripe session created without a URL');

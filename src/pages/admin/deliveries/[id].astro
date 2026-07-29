@@ -2,6 +2,8 @@
 // Admin: view/edit a single material-delivery landing page.
 import AdminLayout from '~/layouts/AdminLayout.astro';
 import { getDeliveryById } from '~/lib/deliveries';
+import { getBookingById, listPayments } from '~/lib/bookings/repository';
+import { isStripeEnabled } from '~/lib/payments/config';
 
 const id = Astro.params.id!;
 const delivery = await getDeliveryById(id);
@@ -12,12 +14,35 @@ if (!delivery) {
 
 const okFlag = Astro.url.searchParams.get('ok');
 const errorMsg = Astro.url.searchParams.get('error');
+const invoiceNum = Astro.url.searchParams.get('num');
 const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? Astro.url.origin;
 const publicUrl = `${siteUrl}/entrega/${delivery.slug}`;
 
 function ymd(d: Date | null): string {
   return d ? d.toISOString().slice(0, 10) : '';
 }
+function eurosField(cents: number | null): string {
+  return cents != null ? (cents / 100).toFixed(2).replace('.', ',') : '';
+}
+function eurStr(cents: number): string {
+  return `${(cents / 100).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+}
+
+// Linked-booking pending balance (for the "import" button). Same formula as
+// the booking detail page: effective price − payments recorded.
+let bookingPendingCents = 0;
+const linkedBooking = delivery.bookingId ? await getBookingById(delivery.bookingId) : null;
+if (linkedBooking) {
+  const payments = await listPayments(linkedBooking.id);
+  const totalCents = Math.max(0, linkedBooking.packPriceCents - linkedBooking.discountCents);
+  const paidCents = payments.reduce((acc, p) => acc + p.amountCents, 0);
+  bookingPendingCents = Math.max(0, totalCents - paidCents);
+}
+
+const balancePaidStr = delivery.balancePaidAt
+  ? delivery.balancePaidAt.toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' })
+  : null;
+const stripeOn = isStripeEnabled();
 ---
 
 <AdminLayout title={`${delivery.coupleName1} i ${delivery.coupleName2} · Entrega`}>
@@ -37,6 +62,15 @@ function ymd(d: Date | null): string {
   )}
   {okFlag === 'reactivated' && (
     <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">✓ Entrega reactivada.</div>
+  )}
+  {okFlag === 'balance_paid' && (
+    <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">✓ Import pendent marcat com a pagat.</div>
+  )}
+  {okFlag === 'balance_unpaid' && (
+    <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">✓ Pagament del pendent desmarcat.</div>
+  )}
+  {okFlag === 'invoice_issued' && (
+    <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">✓ Factura creada a FacturaDirecta{invoiceNum ? ` (núm. ${invoiceNum})` : ''}.</div>
   )}
   {errorMsg && (
     <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-900 text-sm"><strong>Error:</strong> {errorMsg}</div>
@@ -126,12 +160,103 @@ function ymd(d: Date | null): string {
       </label>
     </fieldset>
 
+    <fieldset class="space-y-4">
+      <legend class="font-display text-xl font-bold mb-1">Cobrament pendent</legend>
+      <p class="text-[11px] text-ink/70 -mt-2 mb-2">opcional · si hi poses un import, la pàgina d'entrega mostra un apartat perquè la parella pagui (targeta o transferència). Buit = no apareix.</p>
+      <div class="flex flex-wrap items-end gap-3">
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Import pendent (€)</span>
+          <input id="balance-due-field" name="balanceDueEuros" inputmode="decimal" value={eurosField(delivery.balanceDueCents)} placeholder="Ex: 1500 o 1.500,00" class="mt-1 w-48 px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        {linkedBooking && bookingPendingCents > 0 && (
+          <button
+            type="button"
+            id="import-pending-btn"
+            data-pending={(bookingPendingCents / 100).toFixed(2).replace('.', ',')}
+            class="mb-0.5 border border-line px-3 py-2 text-xs font-bold tracking-widest uppercase text-ink/70 hover:border-gold hover:text-gold transition-colors whitespace-nowrap"
+            title={`Importar el pendent de la reserva vinculada (${eurStr(bookingPendingCents)})`}
+          >
+            ↧ Importar pendent ({eurStr(bookingPendingCents)})
+          </button>
+        )}
+      </div>
+      {linkedBooking && bookingPendingCents === 0 && (
+        <p class="text-[11px] text-ink/60">La reserva vinculada no té pendent (tot cobrat).</p>
+      )}
+      {!delivery.bookingId && (
+        <p class="text-[11px] text-ink/60">Aquesta entrega no està vinculada a cap reserva — l'import s'introdueix a mà i no es podrà emetre factura automàticament.</p>
+      )}
+    </fieldset>
+
     <div class="pt-4 border-t border-line">
       <button type="submit" class="bg-ink text-white px-6 py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">
         Desar canvis
       </button>
     </div>
   </form>
+
+  {delivery.balanceDueCents && delivery.balanceDueCents > 0 && (
+    <div class="mt-6 bg-white border border-line p-5 md:p-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div>
+          <p class="text-xs font-bold tracking-widest uppercase text-ink/70 mb-1">Cobrament pendent</p>
+          <p class="font-display text-2xl font-bold text-gold-deep">{eurStr(delivery.balanceDueCents)}</p>
+        </div>
+        {delivery.balancePaidAt ? (
+          <span class="inline-block bg-emerald-100 text-emerald-800 px-3 py-1 text-xs font-bold uppercase tracking-widest">✓ Pagat {balancePaidStr}</span>
+        ) : (
+          <span class="inline-block bg-amber-100 text-amber-800 px-3 py-1 text-xs font-bold uppercase tracking-widest">Pendent de cobrament</span>
+        )}
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        {delivery.balancePaidAt ? (
+          <form
+            method="POST"
+            action={`/api/admin/deliveries/${delivery.id}/update`}
+            onsubmit={`return confirm(${JSON.stringify('Desmarcar el pagament del pendent? Tornarà a mostrar-se l\'apartat de pagament a la pàgina d\'entrega.')})`}
+          >
+            <input type="hidden" name="_action" value="unmark-balance-paid" />
+            <button type="submit" class="border border-line px-4 py-2 text-xs font-bold tracking-widest uppercase text-ink/70 hover:border-amber-500 hover:text-amber-700 transition-colors">
+              Desmarcar pagament
+            </button>
+          </form>
+        ) : (
+          <form method="POST" action={`/api/admin/deliveries/${delivery.id}/update`}>
+            <input type="hidden" name="_action" value="mark-balance-paid" />
+            <button type="submit" class="bg-emerald-600 text-white px-4 py-2 text-xs font-bold tracking-widest uppercase hover:bg-emerald-700 transition-colors">
+              Marcar com a pagat (manual)
+            </button>
+          </form>
+        )}
+
+        {delivery.balanceInvoiceId ? (
+          <span class="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-ink/70">
+            🧾 Factura {delivery.balanceInvoiceNumber || delivery.balanceInvoiceId}
+          </span>
+        ) : delivery.bookingId ? (
+          <form
+            method="POST"
+            action={`/api/admin/deliveries/${delivery.id}/update`}
+            onsubmit={`return confirm(${JSON.stringify('Crear la factura del pendent a FacturaDirecta amb les dades fiscals de la reserva vinculada?')})`}
+          >
+            <input type="hidden" name="_action" value="issue-balance-invoice" />
+            <button type="submit" class="border border-line px-4 py-2 text-xs font-bold tracking-widest uppercase text-ink/70 hover:border-gold hover:text-gold transition-colors">
+              🧾 Crear factura FacturaDirecta
+            </button>
+          </form>
+        ) : (
+          <span class="text-[11px] text-ink/60">Vincula una reserva per poder emetre la factura.</span>
+        )}
+      </div>
+
+      <p class="text-[11px] text-ink/60 mt-4 leading-relaxed">
+        {stripeOn
+          ? 'Quan la parella pagui amb targeta, es marca sol i rebràs un avís per Telegram. La factura no es crea automàticament — fes-la aquí amb el botó quan vulguis.'
+          : 'Stripe no està configurat: la parella només veurà les dades de transferència. Marca el pagament a mà quan el rebis.'}
+      </p>
+    </div>
+  )}
 
   <div class="mt-6 bg-white border border-line p-5 md:p-6 flex flex-wrap items-center gap-3">
     {delivery.archived ? (
@@ -173,6 +298,17 @@ function ymd(d: Date | null): string {
       setTimeout(() => (btn.textContent = old), 1500);
     } catch {
       prompt('Copia aquest enllaç:', text);
+    }
+  });
+
+  // "Importar pendent" — fill the balance field with the linked booking's
+  // pending balance so it can be reviewed before saving.
+  document.getElementById('import-pending-btn')?.addEventListener('click', (e) => {
+    const btn = e.currentTarget as HTMLButtonElement;
+    const field = document.getElementById('balance-due-field') as HTMLInputElement | null;
+    if (field && btn.dataset.pending) {
+      field.value = btn.dataset.pending;
+      field.focus();
     }
   });
 </script>

@@ -1,0 +1,202 @@
+---
+// Pending-balance payment block, shown on /entrega/[slug] when the delivery
+// carries an outstanding balance (balanceDueCents > 0). Two channels: card
+// via Stripe (when configured) and bank transfer (always). When the balance
+// IS paid — balancePaidAt set, or we just came back from a successful Stripe
+// Checkout — it flips to a "payment received" thank-you state.
+//
+// Self-contained trilingual copy (matching the /entrega page style) rather
+// than the i18n keys used elsewhere — this block only lives here.
+
+import { type Lang } from '~/i18n/ui';
+import { formatPrice } from '~/lib/bookings/format';
+import { getBankTransferDetails, isStripeEnabled } from '~/lib/payments/config';
+
+interface Props {
+  lang: Lang;
+  slug: string;
+  coupleName1: string;
+  coupleName2: string;
+  amountCents: number;
+  /** True once the balance has been recorded (admin or Stripe webhook). */
+  paid: boolean;
+  /** ?paid=success|cancel — surfaced as a banner. */
+  payState: 'success' | 'cancel' | null;
+}
+
+const { lang, slug, coupleName1, coupleName2, amountCents, paid, payState } = Astro.props;
+
+const stripeOn = isStripeEnabled();
+const transfer = getBankTransferDetails();
+const amountStr = formatPrice(amountCents, lang);
+
+const clean = (s: string) => s.replace(/[^\p{L}\p{N} ]/gu, '').trim();
+const reference = `Pagament ${clean(coupleName1)} & ${clean(coupleName2)}`.slice(0, 60);
+
+const T = {
+  ca: {
+    eyebrow: 'Pagament',
+    heading: 'Import pendent',
+    intro: 'Aquí podeu liquidar l\'import pendent del vostre reportatge de manera segura.',
+    amountLabel: 'A pagar',
+    cardHeading: 'Pagar amb targeta',
+    cardNote: 'Pagament segur amb targeta a través de Stripe. Se us redirigeix a una pàgina de pagament protegida.',
+    cardButton: 'Pagar amb targeta',
+    cardError: 'No s\'ha pogut iniciar el pagament. Torneu-ho a provar o escriviu-nos.',
+    transferHeading: 'Transferència bancària',
+    transferBeneficiary: 'Beneficiari',
+    transferIban: 'IBAN',
+    transferAmount: 'Import',
+    transferReference: 'Concepte',
+    transferNote: 'Feu la transferència amb aquest concepte i aviseu-nos quan l\'hàgiu feta.',
+    cancel: 'El pagament s\'ha cancel·lat. Podeu tornar-ho a provar quan vulgueu.',
+    paidHeading: 'Pagament rebut',
+    paidBody: 'Hem rebut el vostre pagament. Moltes gràcies!',
+  },
+  es: {
+    eyebrow: 'Pago',
+    heading: 'Importe pendiente',
+    intro: 'Aquí podéis liquidar el importe pendiente de vuestro reportaje de forma segura.',
+    amountLabel: 'A pagar',
+    cardHeading: 'Pagar con tarjeta',
+    cardNote: 'Pago seguro con tarjeta a través de Stripe. Se os redirige a una página de pago protegida.',
+    cardButton: 'Pagar con tarjeta',
+    cardError: 'No se ha podido iniciar el pago. Volved a intentarlo o escribidnos.',
+    transferHeading: 'Transferencia bancaria',
+    transferBeneficiary: 'Beneficiario',
+    transferIban: 'IBAN',
+    transferAmount: 'Importe',
+    transferReference: 'Concepto',
+    transferNote: 'Haced la transferencia con este concepto y avisadnos cuando la hayáis hecho.',
+    cancel: 'El pago se ha cancelado. Podéis volver a intentarlo cuando queráis.',
+    paidHeading: 'Pago recibido',
+    paidBody: 'Hemos recibido vuestro pago. ¡Muchas gracias!',
+  },
+  en: {
+    eyebrow: 'Payment',
+    heading: 'Outstanding balance',
+    intro: 'You can settle the outstanding balance for your reportage securely here.',
+    amountLabel: 'To pay',
+    cardHeading: 'Pay by card',
+    cardNote: 'Secure card payment via Stripe. You\'ll be redirected to a protected payment page.',
+    cardButton: 'Pay by card',
+    cardError: 'We couldn\'t start the payment. Please try again or message us.',
+    transferHeading: 'Bank transfer',
+    transferBeneficiary: 'Beneficiary',
+    transferIban: 'IBAN',
+    transferAmount: 'Amount',
+    transferReference: 'Reference',
+    transferNote: 'Make the transfer with this reference and let us know once it\'s done.',
+    cancel: 'The payment was cancelled. You can try again whenever you like.',
+    paidHeading: 'Payment received',
+    paidBody: 'We\'ve received your payment. Thank you so much!',
+  },
+}[lang];
+
+// "Paid" view trumps everything. Stripe success redirect lands here too (the
+// webhook records the payment a beat later; we optimistically show paid).
+const showPaid = paid || payState === 'success';
+---
+
+<section id="pagament" class="px-6 md:px-12 py-16 md:py-20 bg-white text-ink border-t border-ink/10">
+  <div class="max-w-3xl mx-auto">
+    {showPaid ? (
+      <div class="bg-emerald-50 border border-emerald-200 p-6 md:p-10 text-center">
+        <p class="text-xs font-bold tracking-[0.22em] uppercase text-emerald-700 mb-3">{T.eyebrow}</p>
+        <h2 class="font-display text-2xl md:text-3xl font-bold mb-3 text-emerald-900">{T.paidHeading}</h2>
+        <p class="text-ink/75 leading-relaxed">{T.paidBody}</p>
+      </div>
+    ) : (
+      <>
+        <div class="text-center mb-8">
+          <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{T.eyebrow}</p>
+          <h2 class="font-display text-2xl md:text-3xl font-bold mb-3">{T.heading}</h2>
+          <p class="text-ink/75 leading-relaxed max-w-2xl mx-auto">{T.intro}</p>
+          <p class="mt-5 font-display text-3xl md:text-4xl font-bold text-gold-deep">
+            <span class="text-xs font-bold tracking-widest uppercase text-ink/50 block mb-1">{T.amountLabel}</span>
+            {amountStr}
+          </p>
+        </div>
+
+        {payState === 'cancel' && (
+          <div class="mb-6 p-4 border border-amber-300 bg-amber-50 text-amber-900 text-sm text-center">
+            {T.cancel}
+          </div>
+        )}
+
+        <div class="grid gap-6 md:grid-cols-2">
+          {stripeOn && (
+            <div class="border border-ink/10 p-5 md:p-6 flex flex-col">
+              <h3 class="font-display text-lg font-bold mb-3">{T.cardHeading}</h3>
+              <p class="text-sm text-ink/70 leading-relaxed mb-5">{T.cardNote}</p>
+              <div id="pay-balance-error" class="hidden mb-4 p-3 border border-red-300 bg-red-50 text-red-900 text-sm" role="alert"></div>
+              <button
+                type="button"
+                id="pay-balance-btn"
+                data-slug={slug}
+                class="mt-auto inline-flex items-center justify-center bg-ink text-white font-bold px-6 py-4 hover:bg-gold hover:text-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {T.cardButton} · {amountStr}
+              </button>
+            </div>
+          )}
+
+          <div class="border border-ink/10 p-5 md:p-6">
+            <h3 class="font-display text-lg font-bold mb-3">{T.transferHeading}</h3>
+            <dl class="space-y-2 text-sm">
+              <div>
+                <dt class="text-ink/70 text-xs uppercase tracking-wide">{T.transferBeneficiary}</dt>
+                <dd class="font-semibold">{transfer.beneficiary}</dd>
+              </div>
+              <div>
+                <dt class="text-ink/70 text-xs uppercase tracking-wide">{T.transferIban}</dt>
+                <dd class="font-mono font-semibold">{transfer.iban}</dd>
+              </div>
+              <div>
+                <dt class="text-ink/70 text-xs uppercase tracking-wide">{T.transferAmount}</dt>
+                <dd class="font-semibold">{amountStr}</dd>
+              </div>
+              <div>
+                <dt class="text-ink/70 text-xs uppercase tracking-wide">{T.transferReference}</dt>
+                <dd class="font-semibold">{reference}</dd>
+              </div>
+            </dl>
+            <p class="text-xs text-ink/70 mt-4 leading-relaxed">{T.transferNote}</p>
+          </div>
+        </div>
+      </>
+    )}
+  </div>
+</section>
+
+{!showPaid && stripeOn && (
+  <script is:inline define:vars={{ cardError: T.cardError }}>
+    (() => {
+      const btn = document.getElementById('pay-balance-btn');
+      const errBox = document.getElementById('pay-balance-error');
+      if (!btn) return;
+      btn.addEventListener('click', async () => {
+        errBox && errBox.classList.add('hidden');
+        btn.disabled = true;
+        const old = btn.textContent;
+        try {
+          const res = await fetch('/api/entrega/pay', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slug: btn.dataset.slug }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (res.status === 200 && data.url) {
+            window.location.href = data.url;
+            return;
+          }
+          throw new Error(data.error || 'failed');
+        } catch (e) {
+          if (errBox) { errBox.textContent = cardError; errBox.classList.remove('hidden'); }
+          btn.disabled = false;
+          btn.textContent = old;
+        }
+      });
+    })();
+  </script>
+)}
