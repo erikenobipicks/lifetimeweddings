@@ -55,7 +55,7 @@ const TX = {
     downloadExpired: 'Aquest enllaç de descàrrega ja ha caducat. Escriviu-nos i us en passem un de nou.',
     galleryHeading: 'La vostra galeria',
     galleryEyebrow: 'Fotografies',
-    galleryDescription: 'Totes les vostres fotografies, en alta resolució',
+    galleryDescription: 'Totes les vostres fotografies',
     galleryNewTab: 'Obrir la galeria',
     reviewEyebrow: 'Un petit favor',
     reviewHeading: 'Ens deixeu una ressenya a Google?',
@@ -80,7 +80,7 @@ const TX = {
     downloadExpired: 'Este enlace de descarga ya ha caducado. Escribidnos y os pasamos uno nuevo.',
     galleryHeading: 'Vuestra galería',
     galleryEyebrow: 'Fotografías',
-    galleryDescription: 'Todas vuestras fotografías, en alta resolución',
+    galleryDescription: 'Todas vuestras fotografías',
     galleryNewTab: 'Abrir la galería',
     reviewEyebrow: 'Un pequeño favor',
     reviewHeading: '¿Nos dejáis una reseña en Google?',
@@ -105,7 +105,7 @@ const TX = {
     downloadExpired: 'This download link has expired. Message us and we\'ll send you a new one.',
     galleryHeading: 'Your gallery',
     galleryEyebrow: 'Photography',
-    galleryDescription: 'All your photographs, in high resolution',
+    galleryDescription: 'All your photographs',
     galleryNewTab: 'Open the gallery',
     reviewEyebrow: 'A small favour',
     reviewHeading: 'Would you leave us a Google review?',
@@ -236,6 +236,9 @@ const title = delivery ? `${TX.heading(delivery.coupleName1, delivery.coupleName
           eyebrow={TX.galleryEyebrow}
           description={TX.galleryDescription}
           newTabLabel={TX.galleryNewTab}
+          coverImageSrc={delivery!.hasGalleryCover
+            ? `/api/entrega/cover/${slug}?v=${delivery!.updatedAt.getTime()}`
+            : undefined}
         />
       )}
 

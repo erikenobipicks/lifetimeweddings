@@ -36,6 +36,10 @@ export interface Delivery {
   balancePaidAt: Date | null;
   balanceInvoiceId: string | null;
   balanceInvoiceNumber: string | null;
+  /** True when a gallery cover photo has been uploaded (stored in the
+   *  delivery_covers table, served from /api/entrega/cover/<slug>). The blob
+   *  itself is never loaded here — only its existence. */
+  hasGalleryCover: boolean;
   archived: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -154,6 +158,7 @@ function rowToDelivery(r: Record<string, unknown>): Delivery {
     balancePaidAt: fromIso(r.balance_paid_at),
     balanceInvoiceId: r.balance_invoice_id ? String(r.balance_invoice_id) : null,
     balanceInvoiceNumber: r.balance_invoice_number ? String(r.balance_invoice_number) : null,
+    hasGalleryCover: r.has_gallery_cover != null,
     archived: Number(r.archived) === 1,
     createdAt: fromIso(r.created_at) ?? new Date(),
     updatedAt: fromIso(r.updated_at) ?? new Date(),
@@ -200,25 +205,73 @@ export async function createDelivery(input: DeliveryCreateInput): Promise<Delive
   return rowToDelivery(res.rows[0] as unknown as Record<string, unknown>);
 }
 
+// The `has_gallery_cover` flag is a cheap existence subquery so the cover
+// blob (in delivery_covers) never rides along with these reads.
+const COVER_FLAG = '(SELECT 1 FROM delivery_covers c WHERE c.delivery_id = deliveries.id) AS has_gallery_cover';
+
 export async function getDeliveryBySlug(slug: string): Promise<Delivery | null> {
   await initSchema();
-  const res = await db.execute({ sql: 'SELECT * FROM deliveries WHERE slug = ?', args: [slug] });
+  const res = await db.execute({ sql: `SELECT *, ${COVER_FLAG} FROM deliveries WHERE slug = ?`, args: [slug] });
   return res.rows[0] ? rowToDelivery(res.rows[0] as unknown as Record<string, unknown>) : null;
 }
 
 export async function getDeliveryById(id: string): Promise<Delivery | null> {
   await initSchema();
-  const res = await db.execute({ sql: 'SELECT * FROM deliveries WHERE id = ?', args: [id] });
+  const res = await db.execute({ sql: `SELECT *, ${COVER_FLAG} FROM deliveries WHERE id = ?`, args: [id] });
   return res.rows[0] ? rowToDelivery(res.rows[0] as unknown as Record<string, unknown>) : null;
 }
 
 export async function listDeliveries(opts: { includeArchived?: boolean } = {}): Promise<Delivery[]> {
   await initSchema();
   const sql = opts.includeArchived
-    ? 'SELECT * FROM deliveries ORDER BY wedding_date DESC'
-    : 'SELECT * FROM deliveries WHERE archived = 0 ORDER BY wedding_date DESC';
+    ? `SELECT *, ${COVER_FLAG} FROM deliveries ORDER BY wedding_date DESC`
+    : `SELECT *, ${COVER_FLAG} FROM deliveries WHERE archived = 0 ORDER BY wedding_date DESC`;
   const res = await db.execute(sql);
   return res.rows.map((r) => rowToDelivery(r as unknown as Record<string, unknown>));
+}
+
+// ─── Gallery cover photo (blob in delivery_covers) ──────────────────────────
+
+export interface DeliveryCover {
+  image: Uint8Array;
+  mime: string;
+}
+
+/** Fetch the gallery cover blob for a (non-archived) delivery by slug, or
+ *  null if none. Only used by the image-serving endpoint. */
+export async function getDeliveryCover(slug: string): Promise<DeliveryCover | null> {
+  await initSchema();
+  const res = await db.execute({
+    sql: `SELECT c.image AS image, c.mime AS mime
+          FROM delivery_covers c JOIN deliveries d ON d.id = c.delivery_id
+          WHERE d.slug = ? AND d.archived = 0`,
+    args: [slug],
+  });
+  const row = res.rows[0] as unknown as { image?: unknown; mime?: unknown } | undefined;
+  if (!row || row.image == null) return null;
+  const image = row.image instanceof Uint8Array ? row.image : new Uint8Array(row.image as ArrayBuffer);
+  return { image, mime: String(row.mime ?? 'image/jpeg') };
+}
+
+/** Upsert the gallery cover blob and bump the delivery's updated_at (so the
+ *  public <img> cache-buster changes). */
+export async function setDeliveryGalleryCover(id: string, image: Uint8Array, mime: string): Promise<void> {
+  await initSchema();
+  const now = nowIso();
+  await db.execute({
+    sql: `INSERT INTO delivery_covers (delivery_id, image, mime, updated_at)
+          VALUES (?, ?, ?, ?)
+          ON CONFLICT(delivery_id) DO UPDATE SET image = excluded.image, mime = excluded.mime, updated_at = excluded.updated_at`,
+    args: [id, image, mime, now],
+  });
+  await db.execute({ sql: 'UPDATE deliveries SET updated_at = ? WHERE id = ?', args: [now, id] });
+}
+
+/** Remove the gallery cover blob (admin "treure la foto"). */
+export async function clearDeliveryGalleryCover(id: string): Promise<void> {
+  await initSchema();
+  await db.execute({ sql: 'DELETE FROM delivery_covers WHERE delivery_id = ?', args: [id] });
+  await db.execute({ sql: 'UPDATE deliveries SET updated_at = ? WHERE id = ?', args: [nowIso(), id] });
 }
 
 export async function updateDelivery(id: string, patch: DeliveryUpdateInput): Promise<void> {
