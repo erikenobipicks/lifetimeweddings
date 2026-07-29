@@ -39,6 +39,8 @@ const TX = {
     heading: (n1: string, n2: string) => `${n1} i ${n2}`,
     videoEyebrow: 'El vostre vídeo',
     videoHeading: 'Reviviu el dia',
+    trailerEyebrow: 'El tràiler',
+    trailerHeading: 'Un tastet del vostre dia',
     downloadHeading: 'Descàrrega en alta qualitat',
     downloadBody: 'Aquí teniu el vídeo complet, llest per descarregar i guardar.',
     downloadCta: 'Descarregar el vídeo',
@@ -58,6 +60,8 @@ const TX = {
     heading: (n1: string, n2: string) => `${n1} y ${n2}`,
     videoEyebrow: 'Vuestro vídeo',
     videoHeading: 'Revivid el día',
+    trailerEyebrow: 'El tráiler',
+    trailerHeading: 'Un adelanto de vuestro día',
     downloadHeading: 'Descarga en alta calidad',
     downloadBody: 'Aquí tenéis el vídeo completo, listo para descargar y guardar.',
     downloadCta: 'Descargar el vídeo',
@@ -77,6 +81,8 @@ const TX = {
     heading: (n1: string, n2: string) => `${n1} & ${n2}`,
     videoEyebrow: 'Your film',
     videoHeading: 'Relive the day',
+    trailerEyebrow: 'The trailer',
+    trailerHeading: 'A taste of your day',
     downloadHeading: 'Download in high quality',
     downloadBody: 'Here is the full film, ready to download and keep.',
     downloadCta: 'Download the film',
@@ -152,6 +158,17 @@ const title = delivery ? `${TX.heading(delivery.coupleName1, delivery.coupleName
           {delivery!.venueName && <> · {delivery!.venueName}</>}
         </p>
       </section>
+
+      {delivery!.trailerYoutubeId && (
+        <VideoEmbed
+          lang={lang}
+          youtubeId={delivery!.trailerYoutubeId}
+          coupleName={TX.heading(delivery!.coupleName1, delivery!.coupleName2)}
+          venue={delivery!.venueName ?? ''}
+          eyebrow={TX.trailerEyebrow}
+          heading={TX.trailerHeading}
+        />
+      )}
 
       {delivery!.youtubeVideoId && (
         <VideoEmbed

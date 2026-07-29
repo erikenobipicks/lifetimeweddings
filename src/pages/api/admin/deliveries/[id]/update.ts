@@ -19,6 +19,7 @@ const updateSchema = z.object({
   weddingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   venueName: z.string().max(120).optional(),
   preferredLanguage: z.enum(['ca', 'es', 'en']).optional(),
+  trailerVideoId: z.string().max(300).optional(),
   youtubeVideoId: z.string().max(300).optional(),
   swisstransferUrl: z.string().url().max(500).refine((v) => /^https?:\/\//i.test(v), 'Ha de ser un enllaç http(s)://').optional().or(z.literal('')),
   swisstransferExpiresAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal('')),
@@ -62,15 +63,15 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
   }
   const d = parsed.data;
 
-  let youtubeVideoId: string | null | undefined;
-  if (d.youtubeVideoId !== undefined) {
-    if (d.youtubeVideoId.trim() === '') {
-      youtubeVideoId = null;
-    } else {
-      const parsedId = extractYoutubeId(d.youtubeVideoId);
-      if (!parsedId) return back('?error=' + encodeURIComponent("ID o URL de YouTube no reconegut."));
-      youtubeVideoId = parsedId;
-    }
+  const resolveVideo = (input: string | undefined): string | null | undefined => {
+    if (input === undefined) return undefined;
+    if (input.trim() === '') return null;
+    return extractYoutubeId(input) ?? '__invalid__';
+  };
+  const youtubeVideoId = resolveVideo(d.youtubeVideoId);
+  const trailerYoutubeId = resolveVideo(d.trailerVideoId);
+  if (youtubeVideoId === '__invalid__' || trailerYoutubeId === '__invalid__') {
+    return back('?error=' + encodeURIComponent('ID o URL de YouTube no reconegut.'));
   }
 
   await updateDelivery(id, {
@@ -79,6 +80,7 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
     weddingDate: d.weddingDate ? new Date(`${d.weddingDate}T00:00:00Z`) : undefined,
     venueName: d.venueName !== undefined ? d.venueName.trim() || null : undefined,
     preferredLanguage: d.preferredLanguage,
+    trailerYoutubeId,
     youtubeVideoId,
     swisstransferUrl: d.swisstransferUrl !== undefined ? d.swisstransferUrl || null : undefined,
     swisstransferExpiresAt:

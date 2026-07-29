@@ -15,6 +15,7 @@ const formSchema = z.object({
   weddingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Format: YYYY-MM-DD'),
   venueName: z.string().max(120).optional(),
   preferredLanguage: z.enum(['ca', 'es', 'en']).default('ca'),
+  trailerVideoId: z.string().max(300).optional(),
   youtubeVideoId: z.string().max(300).optional(),
   swisstransferUrl: z.string().url().max(500).refine((v) => /^https?:\/\//i.test(v), 'Ha de ser un enllaç http(s)://').optional().or(z.literal('')),
   swisstransferExpiresAt: z
@@ -45,7 +46,8 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 
   const d = parsed.data;
   const youtubeVideoId = d.youtubeVideoId ? extractYoutubeId(d.youtubeVideoId) : null;
-  if (d.youtubeVideoId && !youtubeVideoId) {
+  const trailerYoutubeId = d.trailerVideoId ? extractYoutubeId(d.trailerVideoId) : null;
+  if ((d.youtubeVideoId && !youtubeVideoId) || (d.trailerVideoId && !trailerYoutubeId)) {
     const params = new URLSearchParams({ error: 'ID o URL de YouTube no reconegut.' });
     for (const [k, v] of Object.entries(raw)) params.set(`v_${k}`, v);
     return redirect(`/admin/deliveries/new?${params}`, 303);
@@ -58,6 +60,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     weddingDate: new Date(`${d.weddingDate}T00:00:00Z`),
     venueName: d.venueName?.trim() || null,
     preferredLanguage: d.preferredLanguage,
+    trailerYoutubeId,
     youtubeVideoId,
     swisstransferUrl: d.swisstransferUrl || null,
     swisstransferExpiresAt: d.swisstransferExpiresAt ? new Date(`${d.swisstransferExpiresAt}T23:59:59Z`) : null,
