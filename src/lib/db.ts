@@ -368,6 +368,18 @@ export async function initSchema() {
       `CREATE INDEX IF NOT EXISTS idx_deliveries_slug ON deliveries(slug)`,
       `CREATE INDEX IF NOT EXISTS idx_deliveries_booking ON deliveries(booking_id)`,
 
+      // Optional cover photo for a delivery's gallery section — a sharp-resized
+      // JPEG of the couple, uploaded from the admin. Kept in its own table so
+      // the (potentially ~300 KB) blob never rides along with the normal
+      // delivery reads (list/detail); those only check for its existence via a
+      // cheap subquery. CASCADE so it's cleaned up with the delivery.
+      `CREATE TABLE IF NOT EXISTS delivery_covers (
+        delivery_id TEXT PRIMARY KEY REFERENCES deliveries(id) ON DELETE CASCADE,
+        image BLOB NOT NULL,
+        mime TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )`,
+
       // Video-only collaboration landings ("/videograf/<slug>"). Each row is a
       // private link Eric sends to a photographer who offers him as their
       // videographer: language, whether to show the video packs + quote, which

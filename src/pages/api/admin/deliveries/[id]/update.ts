@@ -13,9 +13,14 @@ import {
   extractYoutubeId,
   setDeliveryBalancePaid,
   clearDeliveryBalancePaid,
+  setDeliveryGalleryCover,
+  clearDeliveryGalleryCover,
 } from '~/lib/deliveries';
 import { eurosStringToCents } from '~/lib/payments/money';
 import { issueBalanceInvoiceForDelivery } from '~/lib/deliveryInvoicing';
+import { resizeCoverImage } from '~/lib/deliveryCover';
+
+const MAX_UPLOAD_BYTES = 20 * 1024 * 1024; // 20 MB raw upload ceiling
 
 const updateSchema = z.object({
   coupleName1: z.string().min(1).max(60).optional(),
@@ -130,6 +135,27 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
     galleryUrl: d.galleryUrl !== undefined ? d.galleryUrl || null : undefined,
     balanceDueCents,
   });
+
+  // Gallery cover photo. "Remove" wins over a new upload. A file input that
+  // was left empty submits a zero-byte File, which we ignore.
+  if (form.get('galleryCoverRemove') === 'on') {
+    await clearDeliveryGalleryCover(id);
+  } else {
+    const file = form.get('galleryCoverFile');
+    if (file && typeof file !== 'string' && file.size > 0) {
+      if (file.size > MAX_UPLOAD_BYTES) {
+        return back('?error=' + encodeURIComponent('La imatge és massa gran (màxim 20 MB).'));
+      }
+      try {
+        const buf = new Uint8Array(await file.arrayBuffer());
+        const resized = await resizeCoverImage(buf);
+        await setDeliveryGalleryCover(id, resized.image, resized.mime);
+      } catch (err) {
+        console.error('[deliveries.update] cover resize failed', err);
+        return back('?error=' + encodeURIComponent('No s\'ha pogut processar la imatge. Prova amb un JPG o PNG.'));
+      }
+    }
+  }
 
   return back('?ok=updated');
 };
