@@ -59,6 +59,16 @@ function normalizeSlug(s: string): string {
   return s.normalize('NFD').replace(DIACRITIC, '').toLowerCase();
 }
 
+/** Retired posts: their content was merged into a canonical post, so their old
+ *  Wix legacy slug no longer belongs to any live entry. Map each retired legacy
+ *  slug to the surviving post's slug so `/post/<retired>` keeps 301-ing to real
+ *  content instead of falling back to the blog index. */
+const RETIRED_LEGACY_SLUGS: Record<string, string> = {
+  // Old Wix version of the Dani & Marta wedding at Masia Can Martí — merged
+  // into `boda-masia-can-marti-dani-marta`.
+  'boda_en_masía_can_martí': 'boda-masia-can-marti-dani-marta',
+};
+
 /** Map from (legacy slug or its normalized form) → current blog post slug.
  *  Built once per process on first request that actually hits `/post/*`. */
 let legacySlugMap: Map<string, string> | null = null;
@@ -95,6 +105,15 @@ async function getLegacySlugMap(): Promise<Map<string, string>> {
     map.set(legacy, slug);
     map.set(normalizeSlug(legacy), slug);
   }
+
+  // Retired posts (removed from the collection) — alias their old Wix slug to
+  // the surviving canonical post. Set last so it never clobbers a live post.
+  for (const [legacy, target] of Object.entries(RETIRED_LEGACY_SLUGS)) {
+    if (!map.has(legacy)) map.set(legacy, target);
+    const norm = normalizeSlug(legacy);
+    if (!map.has(norm)) map.set(norm, target);
+  }
+
   legacySlugMap = map;
   return map;
 }

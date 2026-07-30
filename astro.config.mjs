@@ -18,6 +18,13 @@ export default defineConfig({
     '/zones/reus': '/fotograf-boda-reus',
     '/zones/lleida': '/fotograf-boda-lleida',
     '/zones/costa-daurada': '/fotograf-boda-tarragona-lleida',
+    // Retired duplicate blog post (was the old Wix version of the Dani & Marta
+    // wedding at Masia Can Martí). 301 its three-language URLs to the surviving
+    // canonical post so its SEO equity flows there and nothing 404s. The legacy
+    // Wix /post/<slug> alias is handled in middleware.ts (RETIRED_LEGACY_SLUGS).
+    '/blog/boda-masia-can-marti-lifetime': '/blog/boda-masia-can-marti-dani-marta',
+    '/es/blog/boda-masia-can-marti-lifetime': '/es/blog/boda-masia-can-marti-dani-marta',
+    '/en/blog/boda-masia-can-marti-lifetime': '/en/blog/boda-masia-can-marti-dani-marta',
   },
   adapter: node({ mode: 'standalone' }),
   // Disable Astro's built-in CSRF origin check. It defaults to `true` and

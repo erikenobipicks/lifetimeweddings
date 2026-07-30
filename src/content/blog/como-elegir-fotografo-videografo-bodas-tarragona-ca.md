@@ -4,8 +4,6 @@ description: "Guia pràctica per triar l'equip de fotografia i vídeo de boda a 
 legacySlug: "cómo-elegir-el-mejor-fotógrafo-y-videógrafo-de-bodas-en-tarragona"
 ---
 
-## 📸 Com triar el millor fotògraf i videògraf de bodes a Tarragona
-
 Si esteu organitzant la vostra boda a Tarragona, segur que una de les vostres preocupacions més grans és **trobar el fotògraf i videògraf perfectes** per capturar cada moment.
 
 Però, com saber qui és el millor? Com evitar penedir-se després del gran dia?

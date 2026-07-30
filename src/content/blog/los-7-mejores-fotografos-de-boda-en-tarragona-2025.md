@@ -4,8 +4,6 @@ description: "Los 7 mejores fotógrafos de boda en Tarragona (actualizado 2025)A
 legacySlug: "los-7-mejores-fotógrafos-de-boda-en-tarragona-actualizado-2025"
 ---
 
-## Los 7 mejores fotógrafos de boda en Tarragona (actualizado 2025)
-
 Antes de empezar, te contamos algo: sabemos que hacer una lista con solo 7 mejores fotógrafos de boda en Tarragona es casi imposible. En Tarragona y en Cataluña hay muchísimo talento, algunos con reputación mundial o nacional, y otros más locales pero igual de auténticos. Esta selección está hecha desde nuestra experiencia personal y profesional, y sí, nos dejamos a muchos fuera. Prometemos hacer pronto otro ranking con fotógrafos internacionales que nos inspiran (¡algunos incluso son amigos!).
 
 Si te casas en Tarragona o alrededores y estás buscando fotógrafos de boda en Tarragona para el gran día, ¡estás en el sitio adecuado! Hemos preparado este ranking actualizado con algunos de los fotógrafos de boda más recomendados de la zona, con estilos muy variados para que encuentres el que más se adapta a vuestra historia. No es la típica lista de bodas.net donde los primeros nombres son quienes pagan más por aparecer. Esta es una selección real y honesta, hecha desde nuestra experiencia como profesionales del sector tras muchos años de recorrer bodas por toda Cataluña.
