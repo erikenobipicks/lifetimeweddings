@@ -20,6 +20,11 @@ export interface BlogPost {
   readingTime?: number; // minutes
   category: BlogCategory;
   cover?: string; // absolute path under /public, e.g. /blog/<slug>/cover.webp
+  /** Optional FAQ block. When present, the post page emits a FAQPage JSON-LD
+   *  (via `faqPageJsonLd`) in addition to the auto-generated BlogPosting.
+   *  Questions/answers must mirror the ones rendered in the Markdown body
+   *  word-for-word so the rich result matches the visible content. */
+  faq?: Array<{ question: string; answer: string }>;
 }
 
 export const BLOG_CATEGORIES: Record<BlogCategory, { es: string; ca: string; en: string; slug: string }> = {
@@ -28,6 +33,49 @@ export const BLOG_CATEGORIES: Record<BlogCategory, { es: string; ca: string; en:
 };
 
 export const BLOG_POSTS: BlogPost[] = [
+  {
+    slug: 'fotografo-videografo-boda-juntos-o-separado',
+    legacySlug: 'fotografo-videografo-boda-juntos-o-separado',
+    title: 'Fotógrafo y videógrafo de boda: ¿mejor juntos o por separado?',
+    author: 'ferran',
+    publishedAt: '2026-07-21',
+    updatedAt: '2026-07-21',
+    readingTime: 8,
+    category: 'bodas',
+    cover: '/blog/fotografo-videografo-boda-juntos-o-separado/cover.webp',
+    faq: [
+      {
+        question: '¿Es mejor contratar el fotógrafo y el videógrafo juntos o por separado?',
+        answer:
+          'Lo que más influye no es de qué empresa viene cada uno, sino que se coordinen y no se estorben. Un mismo equipo garantiza esa coordinación de serie; por separado también puede funcionar si los dos profesionales se comunican y se presentan antes del día de la boda.',
+      },
+      {
+        question: '¿Grabáis siempre el mismo equipo o cambia según la fecha?',
+        answer:
+          'Siempre somos los mismos, Ferran y Eric, y llevamos muchas bodas trabajando juntos. No rotamos operadores según la agenda: quien capte vuestro reportaje de foto y de vídeo somos nosotros, no alguien que conoceréis el mismo día de la boda.',
+      },
+      {
+        question: '¿Merece la pena el vídeo de boda?',
+        answer:
+          'Sí, si queréis revivir el día y no solo verlo. El vídeo guarda la voz, el sonido y el movimiento que una foto no puede capturar, y suele ser la parte que más se agradece con los años.',
+      },
+      {
+        question: '¿Puedo sacar fotos del vídeo y ahorrarme el reportaje fotográfico?',
+        answer:
+          'No como sustituto. Un fotograma de vídeo suele salir movido en los momentos de acción y tiene mucha menos resolución que una fotografía pensada para imprimir. Sirve para el móvil, no para el álbum.',
+      },
+      {
+        question: '¿Contratar foto y vídeo juntos sale más barato?',
+        answer:
+          'Normalmente sí, porque se comparte desplazamiento y coordinación. Aun así, comprobad siempre qué incluye el pack: horas de cobertura, número de operadores y tipo de entrega de vídeo.',
+      },
+      {
+        question: '¿Hacéis foto y vídeo en toda la provincia de Tarragona?',
+        answer:
+          'Sí. Trabajamos en Reus, Tarragona y toda la Costa Daurada, y nos desplazamos según la boda.',
+      },
+    ],
+  },
   {
     slug: 'sesion-de-fotos-de-pareja',
     legacySlug: 'sesion-de-fotos-de-pareja',
