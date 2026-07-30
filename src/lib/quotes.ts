@@ -435,7 +435,10 @@ export interface Lead {
 export interface CreateLeadInput {
   quoteId?: number;
   coupleName: string;
-  email: string;
+  /** Optional: manually-entered leads (a phone / WhatsApp enquiry) may have no
+   *  email. Quiz / contact / booking forms always provide one. Stored as an
+   *  empty string when absent (the column is NOT NULL). */
+  email?: string;
   phone?: string;
   weddingDate?: string;
   location?: string;
@@ -481,16 +484,23 @@ const LEAD_DEDUP_WINDOW_MS = 24 * 60 * 60 * 1000;
 export async function createLead(input: CreateLeadInput): Promise<CreateLeadResult> {
   await initSchema();
 
+  // Email is optional (manual leads may have none). Normalise to a trimmed
+  // string; stored as '' when absent so the NOT NULL column is satisfied.
+  const email = (input.email ?? '').trim();
+
   // Dedup window: any lead with the same email submitted in the last 24h
   // collapses into the existing row. Case-insensitive match — addresses
-  // are stored as typed but uniqueness is a lower-case property.
-  const since = new Date(Date.now() - LEAD_DEDUP_WINDOW_MS).toISOString();
-  const existing = await db.execute({
-    sql: `SELECT * FROM leads WHERE LOWER(email) = LOWER(?) AND created_at > ? ORDER BY created_at DESC LIMIT 1`,
-    args: [input.email, since],
-  });
-  if (existing.rows[0]) {
-    return { lead: rowToLead(existing.rows[0]), deduplicated: true };
+  // are stored as typed but uniqueness is a lower-case property. Skipped when
+  // there's no email: with nothing to match on, each such lead is its own row.
+  if (email) {
+    const since = new Date(Date.now() - LEAD_DEDUP_WINDOW_MS).toISOString();
+    const existing = await db.execute({
+      sql: `SELECT * FROM leads WHERE LOWER(email) = LOWER(?) AND created_at > ? ORDER BY created_at DESC LIMIT 1`,
+      args: [email, since],
+    });
+    if (existing.rows[0]) {
+      return { lead: rowToLead(existing.rows[0]), deduplicated: true };
+    }
   }
 
   const now = new Date().toISOString();
@@ -500,7 +510,7 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
     args: [
       input.quoteId ?? null,
       input.coupleName,
-      input.email,
+      email,
       input.phone ?? null,
       input.weddingDate ?? null,
       input.location ?? null,
