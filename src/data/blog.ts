@@ -209,16 +209,6 @@ export const BLOG_POSTS: BlogPost[] = [
     cover: '/blog/boda-dosterras-wine-garden-idoya-pau/cover.webp',
   },
   {
-    slug: 'boda-masia-can-marti-lifetime',
-    legacySlug: 'boda_en_masía_can_martí',
-    title: 'Boda en Masía Can Martí: experiencia única y mágica en Tarragona',
-    author: null,
-    publishedAt: null,
-    updatedAt: '2025-03-20',
-    category: 'bodas',
-    cover: '/blog/boda-masia-can-marti-lifetime/cover.webp',
-  },
-  {
     slug: 'review-sony-sel50f18f',
     legacySlug: '50-mm-de-sony-una-ganga-de-objetivo-que-hay-que-tener-en-tu-equipo-review-sony-sel50f18f-syx',
     title: 'Review Sony SEL50F18F: 50 mm, una ganga que debes tener',
