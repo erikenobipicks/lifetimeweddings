@@ -4,8 +4,6 @@ description: "📸 Cómo Elegir el Mejor Fotógrafo y Videógrafo de Bodas en Ta
 legacySlug: "cómo-elegir-el-mejor-fotógrafo-y-videógrafo-de-bodas-en-tarragona"
 ---
 
-## 📸 Cómo Elegir el Mejor Fotógrafo y Videógrafo de Bodas en Tarragona
-
 Si estás organizando tu boda en Tarragona, seguro que una de tus mayores preocupaciones es **encontrar el fotógrafo y videógrafo perfectos** para capturar cada momento.
 
 Pero, ¿cómo saber quién es el mejor? ¿Cómo evitar arrepentirte después del gran día?

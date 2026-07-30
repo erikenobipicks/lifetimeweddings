@@ -4,8 +4,6 @@ description: "An honest ranking of the 7 best wedding photographers in Tarragona
 legacySlug: "los-7-mejores-fotógrafos-de-boda-en-tarragona-actualizado-2025"
 ---
 
-## The 7 best wedding photographers in Tarragona (updated 2025)
-
 Before we start, something honest: we know that making a list with only 7 best wedding photographers in Tarragona is almost impossible. Tarragona and Catalonia are packed with talent — some with worldwide or national reputation, others more local but just as authentic. This selection comes from our personal and professional experience, and yes, we leave plenty of people out. We promise another ranking soon with international photographers who inspire us (some of them are even friends!).
 
 If you're getting married in Tarragona or nearby and looking for wedding photographers in Tarragona for the big day, you're in the right place. We've put together this updated ranking with some of the most recommended wedding photographers in the area, across a wide range of styles so you can find the one that best fits your story. This isn't the usual bodas.net list where the top names are whoever paid most for the spot. This is a real, honest selection, made from our experience as professionals in the sector after years of shooting weddings across Catalonia.

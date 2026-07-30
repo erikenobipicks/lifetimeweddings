@@ -4,8 +4,6 @@ description: "Practical guide to choosing the right wedding photo and video team
 legacySlug: "cómo-elegir-el-mejor-fotógrafo-y-videógrafo-de-bodas-en-tarragona"
 ---
 
-## 📸 How to choose the best wedding photographer and videographer in Tarragona
-
 If you're planning your wedding in Tarragona, one of your biggest worries is probably **finding the perfect photographer and videographer** to capture every moment.
 
 But how do you know who's the best? How do you avoid regretting your choice after the big day?

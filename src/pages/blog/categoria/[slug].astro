@@ -21,7 +21,12 @@ const meta = BLOG_CATEGORIES[category];
 
 const posts = BLOG_POSTS
   .filter((p) => p.category === category)
-  .sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+  // Newest-first by publication date; fall back to updatedAt when absent.
+  .sort((a, b) => {
+    const da = a.publishedAt ?? a.updatedAt;
+    const db = b.publishedAt ?? b.updatedAt;
+    return da < db ? 1 : da > db ? -1 : 0;
+  });
 
 const fmtDate = (iso: string | null): string =>
   iso ? new Date(iso).toLocaleDateString('ca-ES', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
@@ -81,8 +86,12 @@ const jsonLd = [
                   width="1200"
                   height="900"
                 />
-              ) : (
+              ) : !p.publishedAt ? (
                 <div class="w-full aspect-[4/3] bg-cream flex items-center justify-center text-ink/30 text-sm">Pròximament</div>
+              ) : (
+                <div class="w-full aspect-[4/3] bg-cream flex items-center justify-center">
+                  <img src="/logos/logo-circle-color.png" alt="" aria-hidden="true" class="w-14 h-14 opacity-25" />
+                </div>
               )}
               <div class="p-6">
                 <p class="text-[0.7rem] font-bold tracking-[0.18em] uppercase text-gold-deep mb-2">
