@@ -1,0 +1,20 @@
+---
+/**
+ * Small editorial ornament — a hairline rule with a hollow diamond at its
+ * centre. Used on the delivery page (/entrega) to give the stacked sections
+ * a considered, wedding-stationery feel instead of bare centred text.
+ *
+ * `class` passes through so callers can set the colour (defaults to gold) and
+ * spacing per placement.
+ */
+interface Props {
+  class?: string;
+}
+const { class: extra = '' } = Astro.props;
+---
+
+<span class:list={['inline-flex items-center gap-3 text-gold', extra]} aria-hidden="true">
+  <span class="h-px w-8 md:w-10 bg-current opacity-50"></span>
+  <span class="inline-block w-1.5 h-1.5 rotate-45 border border-current"></span>
+  <span class="h-px w-8 md:w-10 bg-current opacity-50"></span>
+</span>
