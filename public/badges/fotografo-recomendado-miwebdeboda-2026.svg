@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 162" role="img" aria-label="Fotógrafo recomendado en miwebdeboda.com — 2026">
+  <defs>
+    <!-- Five-point star -->
+    <symbol id="mwb-star" viewBox="0 0 24 24">
+      <path d="M12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26Z"/>
+    </symbol>
+    <!-- Laurel sprig: thin stem + 4 leaves, opening to the right -->
+    <g id="mwb-sprig" fill="#c9ab82">
+      <path d="M0 0 C7 -1 14 -1 21 1" stroke="#c9ab82" stroke-width="1" fill="none" stroke-linecap="round"/>
+      <ellipse cx="5"  cy="-2.5" rx="3.4" ry="1.5" transform="rotate(-28 5 -2.5)"/>
+      <ellipse cx="11" cy="-3"   rx="3.8" ry="1.6" transform="rotate(-24 11 -3)"/>
+      <ellipse cx="17" cy="-2.4" rx="3.4" ry="1.5" transform="rotate(-20 17 -2.4)"/>
+      <ellipse cx="8"  cy="2.6"  rx="3.4" ry="1.5" transform="rotate(26 8 2.6)"/>
+      <ellipse cx="14" cy="2.9"  rx="3.6" ry="1.5" transform="rotate(22 14 2.9)"/>
+    </g>
+  </defs>
+
+  <!-- Frame -->
+  <rect x="2" y="2" width="296" height="158" rx="16" fill="#f7f2ea" stroke="#cbb48d" stroke-width="1.5"/>
+  <rect x="8" y="8" width="284" height="146" rx="11" fill="none" stroke="#cbb48d" stroke-width="0.75"/>
+
+  <!-- Stars -->
+  <g fill="#c2954e">
+    <use href="#mwb-star" x="110" y="24" width="14" height="14"/>
+    <use href="#mwb-star" x="127" y="24" width="14" height="14"/>
+    <use href="#mwb-star" x="144" y="24" width="14" height="14"/>
+    <use href="#mwb-star" x="161" y="24" width="14" height="14"/>
+    <use href="#mwb-star" x="178" y="24" width="14" height="14"/>
+  </g>
+
+  <!-- Headline -->
+  <text x="150" y="74" text-anchor="middle"
+        font-family="'Cormorant Garamond', Georgia, serif" font-size="27" font-weight="500" fill="#3f382f">Fotógrafo recomendado</text>
+
+  <!-- URL -->
+  <text x="150" y="99" text-anchor="middle"
+        font-family="'Cormorant Garamond', Georgia, serif" font-size="20" font-weight="600">
+    <tspan fill="#3a332c">mi</tspan><tspan fill="#b23b2e">web</tspan><tspan fill="#3a332c">deboda</tspan><tspan fill="#9a9088">.com</tspan>
+  </text>
+
+  <!-- Year with laurels -->
+  <use href="#mwb-sprig" transform="translate(101 130) scale(-1 1)"/>
+  <use href="#mwb-sprig" transform="translate(199 130)"/>
+  <text x="150" y="138" text-anchor="middle"
+        font-family="'Cormorant Garamond', Georgia, serif" font-size="24" font-weight="500" fill="#3f382f" letter-spacing="1">2026</text>
+</svg>
