@@ -77,6 +77,26 @@ const zonesLabel =
     </nav>
 
     <p class="opacity-90 text-xs mt-2">© {SITE.copyrightSince}–{year} Lifetime Weddings. {t('footer.rights')}</p>
+
+    {/* "Recommended photographer" badge from the miwebdeboda directory. Kept
+        small and low-key at the very bottom so it doesn't compete with the
+        brand/contact info. Links out to our listing there. */}
+    <a
+      href="https://miwebdeboda.com/profesionales/fotografos/lifetime-weddings"
+      target="_blank"
+      rel="noopener"
+      class="mt-3 inline-block opacity-70 hover:opacity-100 transition-opacity"
+      aria-label="Fotógrafo recomendado en miwebdeboda.com"
+    >
+      <img
+        src="/badges/fotografo-recomendado-miwebdeboda-2026.svg"
+        alt="Fotógrafo recomendado en miwebdeboda.com"
+        width="120"
+        height="65"
+        loading="lazy"
+        class="mx-auto"
+      />
+    </a>
   </div>
 </footer>
 
