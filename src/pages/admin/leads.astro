@@ -40,13 +40,13 @@ if (Astro.request.method === 'POST') {
       preferredLanguage: get('preferredLanguage') || 'ca',
       notes: get('notes'),
     };
-    if (!formValues.coupleName || !formValues.email) {
-      createError = 'Cal el nom de la parella i un email de contacte.';
+    if (!formValues.coupleName) {
+      createError = 'Cal, com a mínim, el nom de la parella.';
     } else {
       try {
         const { lead, deduplicated } = await createLead({
           coupleName: formValues.coupleName,
-          email: formValues.email,
+          email: formValues.email || undefined,
           phone: formValues.phone || undefined,
           weddingDate: formValues.weddingDate || undefined,
           venueName: formValues.venueName || undefined,
@@ -138,7 +138,7 @@ const labels: Record<string, string> = {
   <div id="new-lead-form" class:list={['bg-white border border-line p-5 md:p-6 mb-6', !createError && 'hidden']}>
     <h2 class="font-display text-lg font-bold mb-1">Nou lead manual</h2>
     <p class="text-sm text-ink/70 mb-4">
-      Per a consultes rebudes per email, WhatsApp o telèfon (no venen del quiz). Només el nom i l'email són obligatoris.
+      Per a consultes rebudes per email, WhatsApp o telèfon (no venen del quiz). Només el nom de la parella és obligatori.
     </p>
     {createError && (
       <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-900 text-sm">{createError}</div>
@@ -151,8 +151,8 @@ const labels: Record<string, string> = {
           <input name="coupleName" required value={formValues.coupleName ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
-          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Email *</span>
-          <input name="email" type="email" required value={formValues.email ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Email</span>
+          <input name="email" type="email" value={formValues.email ?? ''} class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
         </label>
         <label class="block">
           <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Telèfon</span>
@@ -237,7 +237,7 @@ const labels: Record<string, string> = {
         <li id={`lead-${l.id}`} class="bg-white border border-line scroll-mt-24">
           <div class="p-4">
             <p class="font-bold leading-tight">{l.coupleName}</p>
-            <p class="text-[0.7rem] text-ink/70 truncate">{l.email}</p>
+            <p class="text-[0.7rem] text-ink/70 truncate">{l.email || '—'}</p>
             {l.phone && <p class="text-[0.7rem] text-ink/70">{l.phone}</p>}
             <div class="grid grid-cols-2 gap-x-3 gap-y-2 text-[0.7rem] mt-3">
               {l.serviceInterest && <div><span class="text-ink/70">Servei:</span><br/><strong>{labels[l.serviceInterest] ?? l.serviceInterest}</strong></div>}
@@ -303,7 +303,7 @@ const labels: Record<string, string> = {
             <tr id={`lead-${l.id}`} class="border-t border-line hover:bg-cream/50 scroll-mt-24">
               <td class="px-4 py-3">
                 <span class="font-bold">{l.coupleName}</span>
-                <div class="text-xs text-ink/70">{l.email}</div>
+                <div class="text-xs text-ink/70">{l.email || '—'}</div>
                 {l.phone && <div class="text-xs text-ink/70">{l.phone}</div>}
                 {l.notes && (
                   <details class="mt-1">
