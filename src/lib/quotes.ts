@@ -65,6 +65,14 @@ export interface Quote {
   /** Free-text reason for the discount, shown in the admin panel only.
    *  Optional even when a discount is set. */
   adminDiscountReason: string | null;
+  /** Operator-set limited-time offer, shown as a highlighted banner on
+   *  /p/<token>. `offerTitle` is the headline (e.g. "Sessió de prenoces de
+   *  regal"); `offerBody` the detail; `offerDeadline` an optional YYYY-MM-DD
+   *  that drives a live countdown and hides the banner once past. Empty title
+   *  → no banner. All null on quotes without an offer. */
+  offerTitle: string | null;
+  offerBody: string | null;
+  offerDeadline: string | null;
   /** ISO timestamp when Eric closes the quote — the couple can still see
    *  their last submitted configuration but cannot send a new one. Null
    *  while the quote is still open to changes. */
@@ -120,6 +128,11 @@ export interface CreateQuoteInput {
   preferredLanguage?: Lang;
   /** Defaults to 'both' when omitted. */
   serviceInterest?: ServiceInterest;
+  /** Optional limited-time offer shown on /p/<token>. */
+  offerTitle?: string;
+  offerBody?: string;
+  /** YYYY-MM-DD; optional deadline for the countdown. */
+  offerDeadline?: string;
 }
 
 const IP_SALT = process.env.IP_HASH_SALT ?? 'lifetime-dev-salt';
@@ -145,6 +158,9 @@ function rowToQuote(r: any): Quote {
     preferredLanguage: langOrDefault(r.preferred_language),
     adminDiscountCents: r.admin_discount_cents != null ? Number(r.admin_discount_cents) : 0,
     adminDiscountReason: r.admin_discount_reason ?? null,
+    offerTitle: r.offer_title ?? null,
+    offerBody: r.offer_body ?? null,
+    offerDeadline: r.offer_deadline ?? null,
     closedAt: r.quote_closed_at ?? null,
     sentAt: r.sent_at ?? null,
     followUpSentAt: r.follow_up_sent_at ?? null,
@@ -160,8 +176,8 @@ export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
   const now = new Date().toISOString();
   const passwordHash = input.password ? await bcrypt.hash(input.password, 10) : null;
   await db.execute({
-    sql: `INSERT INTO quotes (token, couple_name, couple_email, packs_json, notes, password_hash, expires_at, created_at, created_by, flagship_video_id, flagship_showcase_slug, flagship_wedding_slug, flagship_external_gallery_url, preferred_language, service_interest)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    sql: `INSERT INTO quotes (token, couple_name, couple_email, packs_json, notes, password_hash, expires_at, created_at, created_by, flagship_video_id, flagship_showcase_slug, flagship_wedding_slug, flagship_external_gallery_url, preferred_language, service_interest, offer_title, offer_body, offer_deadline)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       token,
       input.coupleName,
@@ -178,6 +194,9 @@ export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
       input.flagshipExternalGalleryUrl ?? null,
       input.preferredLanguage ?? 'ca',
       input.serviceInterest ?? 'both',
+      input.offerTitle?.trim() || null,
+      input.offerBody?.trim() || null,
+      input.offerDeadline?.trim() || null,
     ],
   });
   const res = await db.execute({ sql: 'SELECT * FROM quotes WHERE token = ?', args: [token] });
@@ -754,6 +773,24 @@ export async function setAdminDiscount(
   await db.execute({
     sql: 'UPDATE quotes SET admin_discount_cents = ?, admin_discount_reason = ? WHERE id = ?',
     args: [safeCents, safeCents > 0 ? (reason ?? null) : null, quoteId],
+  });
+}
+
+/** Set or clear the limited-time offer on a quote. Values are trimmed;
+ *  empty title clears the whole offer (body + deadline too), so the banner
+ *  never renders on /p/<token>. Deadline is expected as YYYY-MM-DD or ''. */
+export async function setQuoteOffer(
+  quoteId: number,
+  offer: { title: string; body: string; deadline: string },
+): Promise<void> {
+  await initSchema();
+  const title = offer.title.trim();
+  // No title → clear the offer entirely.
+  const body = title ? offer.body.trim() : '';
+  const deadline = title ? offer.deadline.trim() : '';
+  await db.execute({
+    sql: 'UPDATE quotes SET offer_title = ?, offer_body = ?, offer_deadline = ? WHERE id = ?',
+    args: [title || null, body || null, deadline || null, quoteId],
   });
 }
 
