@@ -728,6 +728,26 @@ export interface BookingPayment {
   method: string | null;
   note: string | null;
   createdAt: Date;
+  /** FacturaDirecta invoice issued for THIS payment (one-click). Null until
+   *  the operator issues it; presence blocks re-issuing (idempotent). */
+  invoiceId: string | null;
+  invoiceNumber: string | null;
+  invoicedAt: string | null;
+}
+
+function rowToPayment(row: Record<string, unknown>): BookingPayment {
+  return {
+    id: String(row.id),
+    bookingId: String(row.booking_id),
+    amountCents: Number(row.amount_cents),
+    paidOn: row.paid_on ? String(row.paid_on) : null,
+    method: row.method ? String(row.method) : null,
+    note: row.note ? String(row.note) : null,
+    createdAt: fromIso(row.created_at as string) ?? new Date(),
+    invoiceId: row.invoice_id ? String(row.invoice_id) : null,
+    invoiceNumber: row.invoice_number ? String(row.invoice_number) : null,
+    invoicedAt: row.invoiced_at ? String(row.invoiced_at) : null,
+  };
 }
 
 export interface PaymentCreateInput {
@@ -745,15 +765,37 @@ export async function listPayments(bookingId: string): Promise<BookingPayment[]>
           ORDER BY COALESCE(paid_on, created_at) ASC, created_at ASC`,
     args: [bookingId],
   });
-  return res.rows.map((row) => ({
-    id: String(row.id),
-    bookingId: String(row.booking_id),
-    amountCents: Number(row.amount_cents),
-    paidOn: row.paid_on ? String(row.paid_on) : null,
-    method: row.method ? String(row.method) : null,
-    note: row.note ? String(row.note) : null,
-    createdAt: fromIso(row.created_at) ?? new Date(),
-  }));
+  return res.rows.map(rowToPayment);
+}
+
+/** Load a single payment, scoped by booking so a stray id can't read another
+ *  booking's row. Returns null when not found. */
+export async function getPaymentById(
+  paymentId: string,
+  bookingId: string,
+): Promise<BookingPayment | null> {
+  await initSchema();
+  const res = await db.execute({
+    sql: `SELECT * FROM booking_payments WHERE id = ? AND booking_id = ?`,
+    args: [paymentId, bookingId],
+  });
+  return res.rows[0] ? rowToPayment(res.rows[0]) : null;
+}
+
+/** Record the FacturaDirecta invoice issued for a payment. Scoped by booking. */
+export async function setPaymentInvoice(
+  paymentId: string,
+  bookingId: string,
+  invoiceId: string,
+  invoiceNumber: string | null,
+  invoicedAt: string,
+): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: `UPDATE booking_payments SET invoice_id = ?, invoice_number = ?, invoiced_at = ?
+          WHERE id = ? AND booking_id = ?`,
+    args: [invoiceId, invoiceNumber, invoicedAt, paymentId, bookingId],
+  });
 }
 
 /** Persist the operator-authored wedding-day timeline. Pass null to clear.

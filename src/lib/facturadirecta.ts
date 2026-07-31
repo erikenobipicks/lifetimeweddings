@@ -50,6 +50,13 @@ function enabled(): boolean {
   return API_KEY.length > 0 && COMPANY_ID.length > 0;
 }
 
+/** Public: whether FacturaDirecta credentials are configured. Interactive
+ *  callers (the one-click "Fer factura" button) use this to tell the operator
+ *  "not configured" apart from "the API call failed". */
+export function isFacturadirectaConfigured(): boolean {
+  return enabled();
+}
+
 function baseUrl(): string {
   return `${API_BASE}/${COMPANY_ID}`;
 }
