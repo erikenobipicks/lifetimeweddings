@@ -437,6 +437,11 @@ export async function initSchema() {
   await ensureColumn('quotes', 'offer_title', 'TEXT');
   await ensureColumn('quotes', 'offer_body', 'TEXT');
   await ensureColumn('quotes', 'offer_deadline', 'TEXT');
+  // Per-payment FacturaDirecta invoice link — one invoice can be issued per row
+  // of the payments ledger with a single click. Nullable; set once issued.
+  await ensureColumn('booking_payments', 'invoice_id', 'TEXT');
+  await ensureColumn('booking_payments', 'invoice_number', 'TEXT');
+  await ensureColumn('booking_payments', 'invoiced_at', 'TEXT');
   // Optional trailer for a delivery page — an unlisted YouTube id shown
   // BEFORE the main film on /entrega. Nullable; null = no trailer.
   await ensureColumn('deliveries', 'trailer_youtube_id', 'TEXT');

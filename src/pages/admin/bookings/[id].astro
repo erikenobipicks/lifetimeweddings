@@ -288,6 +288,8 @@ const ibanPlaceholder = transfer.isPlaceholder;
       {ok === 'team:saved' && 'Equip assignat (fotògraf / videògraf).'}
       {ok === 'payment:dumped' && 'Trams afegits al llibre de pagaments.'}
       {ok === 'payment:deleted' && 'Pagament eliminat.'}
+      {ok === 'payment:invoiced' && 'Factura creada a FacturaDirecta per aquest pagament.'}
+      {ok === 'payment:invoiced-already' && 'Aquest pagament ja tenia factura — no se n\'ha creat cap de nova.'}
       {ok === 'change:saved' && 'Canvi desat. Pots descarregar l\'addendum a baix.'}
       {ok === 'cancelled' && 'Boda cancel·lada. Envia l\'enllaç de firma a la parella.'}
       {ok === 'uncancelled' && 'Cancel·lació desfeta.'}
@@ -738,6 +740,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
               <th class="text-left px-3 py-2">Mètode</th>
               <th class="text-left px-3 py-2">Nota</th>
               <th class="text-right px-3 py-2">Import</th>
+              <th class="text-center px-3 py-2">Factura</th>
               <th class="px-3 py-2"></th>
             </tr>
           </thead>
@@ -748,6 +751,19 @@ const ibanPlaceholder = transfer.isPlaceholder;
                 <td class="px-3 py-2">{p.method ?? '—'}</td>
                 <td class="px-3 py-2 text-ink/70">{p.note ?? ''}</td>
                 <td class="px-3 py-2 text-right font-semibold whitespace-nowrap">{fmtEur(p.amountCents)}</td>
+                <td class="px-3 py-2 text-center whitespace-nowrap">
+                  {p.invoiceId ? (
+                    <span class="inline-flex items-center gap-1 text-[0.7rem] font-bold text-green-700" title={p.invoicedAt ? `Facturat el ${p.invoicedAt.slice(0, 10)}` : 'Facturat'}>
+                      🧾 {p.invoiceNumber ?? 'Feta'}
+                    </span>
+                  ) : (
+                    <form method="POST" action={`/api/admin/bookings/${booking.id}/update`}>
+                      <input type="hidden" name="_action" value="invoice_payment" />
+                      <input type="hidden" name="paymentId" value={p.id} />
+                      <button type="submit" class="text-[0.7rem] font-bold tracking-wide uppercase text-gold-deep border border-gold/50 px-2 py-1 hover:bg-gold hover:text-ink transition-colors whitespace-nowrap" title="Crear la factura d'aquest pagament a FacturaDirecta">🧾 Fer factura</button>
+                    </form>
+                  )}
+                </td>
                 <td class="px-3 py-2 text-right">
                   <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} onsubmit="return confirm('Eliminar aquest pagament?')">
                     <input type="hidden" name="_action" value="payment_delete" />

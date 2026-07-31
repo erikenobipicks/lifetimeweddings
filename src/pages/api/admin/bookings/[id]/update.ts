@@ -31,7 +31,7 @@ import {
   type BookingUpdate,
 } from '~/lib/bookings/repository';
 import type { DayTimeline } from '~/lib/bookings/types';
-import { issueDepositInvoiceForBooking } from '~/lib/bookings/invoicing';
+import { issueDepositInvoiceForBooking, issueInvoiceForPayment } from '~/lib/bookings/invoicing';
 import { sendContratoInvite, sendReservaInvite } from '~/lib/bookings/emails';
 import { cancelPendingSchedules, materialiseSchedulesForBooking, listSequences, manualSendSequence, sendDueEmails } from '~/lib/bookings/sequences';
 import { SECOND_PAYMENT_REMINDER } from '~/lib/bookings/defaultSequences';
@@ -294,6 +294,25 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
     const paymentId = String(form.get('paymentId') ?? '').trim();
     if (paymentId) await deletePayment(paymentId, id);
     return back('?ok=payment:deleted#pagaments');
+  }
+  // One-click "Fer factura": issue a FacturaDirecta invoice for a single
+  // payment (IVA-inclòs, create-only). Idempotent + typed result → a precise
+  // message when it can't (unconfigured / missing fiscal data / API error).
+  if (action === 'invoice_payment') {
+    const paymentId = String(form.get('paymentId') ?? '').trim();
+    if (!paymentId) return back('?error=Pagament+no+indicat#pagaments');
+    const result = await issueInvoiceForPayment(id, paymentId);
+    if (result.ok) {
+      return back(`?ok=${result.alreadyIssued ? 'payment:invoiced-already' : 'payment:invoiced'}#pagaments`);
+    }
+    const msg: Record<typeof result.reason, string> = {
+      booking: 'Reserva no trobada.',
+      payment: 'Pagament no trobat.',
+      unconfigured: 'FacturaDirecta no està configurat (falten les credencials a l\'entorn).',
+      nofiscal: 'Falten les dades fiscals de la parella (nom + DNI). Cal que hagin omplert el formulari de /reserva.',
+      apierror: 'FacturaDirecta ha rebutjat la factura o no respon. Revisa els logs.',
+    };
+    return back(`?error=${encodeURIComponent(msg[result.reason])}#pagaments`);
   }
 
   // ── Date / price change → addendum ───────────────────────────────────────
