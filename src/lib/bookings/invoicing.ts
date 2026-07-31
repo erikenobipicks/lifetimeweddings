@@ -15,7 +15,7 @@ import {
   setFacturadirectaInvoice,
   setPaymentInvoice,
 } from './repository';
-import type { BookingFormResponse } from './types';
+import type { Booking, BookingFormResponse } from './types';
 import { issueDepositInvoice, isFacturadirectaConfigured } from '~/lib/facturadirecta';
 
 /** Fiscal identity (name / NIF / address / contact) for the invoice, derived
@@ -35,6 +35,27 @@ function fiscalFromForm(form: BookingFormResponse) {
   };
 }
 
+/** Resolve the invoice's fiscal identity: prefer the /reserva form response;
+ *  fall back to the booking's manually-entered billing identity (for bookings
+ *  registered by hand with no form). Returns null when neither yields a usable
+ *  name + tax code. */
+function resolveFiscal(booking: Booking, form: BookingFormResponse | null) {
+  if (form) {
+    const f = fiscalFromForm(form);
+    if (f.clientName && f.clientTaxCode) return f;
+  }
+  if (booking.manualBillingName && booking.manualBillingNif) {
+    return {
+      clientName: booking.manualBillingName,
+      clientTaxCode: booking.manualBillingNif,
+      clientAddress: booking.manualBillingAddress,
+      clientEmail: booking.coupleEmailPrimary || null,
+      clientPhone: booking.couplePhonePrimary || null,
+    };
+  }
+  return null;
+}
+
 /** Issue the deposit invoice for a booking, once. No-op when FacturaDirecta
  *  is unconfigured, when the booking was already invoiced, when there is no
  *  deposit to charge, or when the fiscal data isn't there yet. */
@@ -52,14 +73,12 @@ export async function issueDepositInvoiceForBooking(bookingId: string): Promise<
     if (!booking.depositPaidAt) return;
     if (!booking.depositCents || booking.depositCents <= 0) return;
 
-    // Fiscal data lives on the form response (DNI, address, optional billing
-    // override). Both admin paths create it before marking the deposit, so a
-    // missing row means "too early" — skip silently.
+    // Fiscal identity: the /reserva form response, or the booking's manual
+    // billing fields for hand-entered bookings. Neither present → skip silently.
     const form = await getFormResponseForBooking(bookingId);
-    if (!form) return;
-
-    const { clientName, clientTaxCode, clientAddress, clientEmail, clientPhone } =
-      fiscalFromForm(form);
+    const fiscal = resolveFiscal(booking, form);
+    if (!fiscal) return;
+    const { clientName, clientTaxCode, clientAddress, clientEmail, clientPhone } = fiscal;
 
     const weddingDate = booking.weddingDate.toISOString().slice(0, 10);
     const description =
@@ -114,12 +133,11 @@ export async function issueInvoiceForPayment(
     // Distinguish "not configured" from "API failed" for a clear message.
     if (!isFacturadirectaConfigured()) return { ok: false, reason: 'unconfigured' };
 
-    // Fiscal identity comes from the /reserva form response (DNI, name…). No
-    // form or no tax code → we cannot legally invoice yet.
+    // Fiscal identity: /reserva form response, or the booking's manual billing
+    // fields (for hand-entered bookings). Neither → can't legally invoice.
     const form = await getFormResponseForBooking(bookingId);
-    if (!form) return { ok: false, reason: 'nofiscal' };
-    const fiscal = fiscalFromForm(form);
-    if (!fiscal.clientName || !fiscal.clientTaxCode) return { ok: false, reason: 'nofiscal' };
+    const fiscal = resolveFiscal(booking, form);
+    if (!fiscal) return { ok: false, reason: 'nofiscal' };
 
     const dateStr = payment.paidOn ?? new Date().toISOString().slice(0, 10);
     const description =

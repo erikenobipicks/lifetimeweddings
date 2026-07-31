@@ -442,6 +442,11 @@ export async function initSchema() {
   await ensureColumn('booking_payments', 'invoice_id', 'TEXT');
   await ensureColumn('booking_payments', 'invoice_number', 'TEXT');
   await ensureColumn('booking_payments', 'invoiced_at', 'TEXT');
+  // Manual fiscal/billing identity for bookings entered by hand (no /reserva
+  // form response). Lets the operator invoice a payment on a manual booking.
+  await ensureColumn('bookings', 'manual_billing_name', 'TEXT');
+  await ensureColumn('bookings', 'manual_billing_nif', 'TEXT');
+  await ensureColumn('bookings', 'manual_billing_address', 'TEXT');
   // Optional trailer for a delivery page — an unlisted YouTube id shown
   // BEFORE the main film on /entrega. Nullable; null = no trailer.
   await ensureColumn('deliveries', 'trailer_youtube_id', 'TEXT');

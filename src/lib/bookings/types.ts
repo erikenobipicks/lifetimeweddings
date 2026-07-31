@@ -123,6 +123,13 @@ export interface Booking {
   /** Human-readable invoice number returned by FacturaDirecta (display only). */
   facturadirectaInvoiceNumber: string | null;
 
+  /** Manual fiscal/billing identity, for bookings entered by hand that have no
+   *  /reserva form response. Used as the invoice's client (name + NIF +
+   *  address) when the form-response fiscal data isn't available. */
+  manualBillingName: string | null;
+  manualBillingNif: string | null;
+  manualBillingAddress: string | null;
+
   /** FotoStudio project id (numeric). Set when /reserva pushes the booking
    *  into the CRM; used by /contrato submit to update that project's
    *  description with the publication-consent text so the contract body

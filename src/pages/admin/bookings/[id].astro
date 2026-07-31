@@ -290,6 +290,7 @@ const ibanPlaceholder = transfer.isPlaceholder;
       {ok === 'payment:deleted' && 'Pagament eliminat.'}
       {ok === 'payment:invoiced' && 'Factura creada a FacturaDirecta per aquest pagament.'}
       {ok === 'payment:invoiced-already' && 'Aquest pagament ja tenia factura — no se n\'ha creat cap de nova.'}
+      {ok === 'billing:saved' && 'Dades de facturació desades.'}
       {ok === 'change:saved' && 'Canvi desat. Pots descarregar l\'addendum a baix.'}
       {ok === 'cancelled' && 'Boda cancel·lada. Envia l\'enllaç de firma a la parella.'}
       {ok === 'uncancelled' && 'Cancel·lació desfeta.'}
@@ -777,6 +778,36 @@ const ibanPlaceholder = transfer.isPlaceholder;
         </table>
       </div>
     )}
+
+    {/* Manual fiscal identity — needed to invoice a payment on a booking that
+        didn't come from /reserva (no form response with DNI). Prefilled when
+        already set; the invoice uses these when no form response exists. */}
+    <details class="border border-line bg-cream/40 mb-4" open={!!err && err.includes('dades fiscals')}>
+      <summary class="cursor-pointer px-3 py-2 text-[0.7rem] font-bold tracking-widest uppercase text-ink/70 hover:text-gold select-none">
+        🧾 Dades de facturació {(booking.manualBillingName && booking.manualBillingNif) ? '✓' : '(per a factures manuals)'}
+      </summary>
+      <div class="px-3 pb-3 pt-1">
+        <p class="text-[0.7rem] text-ink/60 mb-2">Només cal si aquesta reserva NO ve del formulari de /reserva. S'usen com a client de la factura a FacturaDirecta.</p>
+        <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="grid sm:grid-cols-3 gap-2 items-end">
+          <input type="hidden" name="_action" value="save_billing" />
+          <label class="block">
+            <span class="text-[0.6rem] font-bold uppercase tracking-widest text-ink/60">Nom fiscal</span>
+            <input name="manualBillingName" value={booking.manualBillingName ?? ''} placeholder="Nom i cognoms / empresa" class="mt-1 w-full px-2 py-1.5 border border-line bg-white text-sm focus:border-gold focus:outline-none" />
+          </label>
+          <label class="block">
+            <span class="text-[0.6rem] font-bold uppercase tracking-widest text-ink/60">DNI / NIF</span>
+            <input name="manualBillingNif" value={booking.manualBillingNif ?? ''} placeholder="12345678A" class="mt-1 w-full px-2 py-1.5 border border-line bg-white text-sm focus:border-gold focus:outline-none" />
+          </label>
+          <label class="block">
+            <span class="text-[0.6rem] font-bold uppercase tracking-widest text-ink/60">Adreça (opcional)</span>
+            <input name="manualBillingAddress" value={booking.manualBillingAddress ?? ''} placeholder="Carrer, població…" class="mt-1 w-full px-2 py-1.5 border border-line bg-white text-sm focus:border-gold focus:outline-none" />
+          </label>
+          <div class="sm:col-span-3">
+            <button type="submit" class="bg-ink text-white px-3 py-1.5 text-[0.7rem] font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">Desar dades fiscals</button>
+          </div>
+        </form>
+      </div>
+    </details>
 
     <p class="text-xs font-bold tracking-widest uppercase text-ink/70 mb-2">💰 Registrar un pagament rebut</p>
     <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="flex flex-wrap items-end gap-3">
