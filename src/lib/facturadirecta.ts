@@ -78,7 +78,10 @@ async function request<T>({ method, path, body }: FdRequestInit): Promise<T> {
       'Accept': 'application/json',
       ...(body ? { 'Content-Type': 'application/json' } : {}),
     },
-    body: body ? JSON.stringify(body) : undefined,
+    // FacturaDirecta v3 requires every write body wrapped in a `content`
+    // envelope: { "content": { …fields } }. Without it the API returns 400
+    // "/body/content: must have required property 'content'".
+    body: body ? JSON.stringify({ content: body }) : undefined,
   });
   const text = await res.text().catch(() => '');
   if (!res.ok) {
@@ -97,20 +100,16 @@ interface ContactInput {
   phone?: string;
 }
 
-interface ContactRef {
-  id?: string;
-}
-interface ContactSearchResponse {
-  // FacturaDirecta list endpoints typically wrap rows under a data/items key;
-  // we read defensively from a few shapes.
-  contacts?: ContactRef[];
-  items?: ContactRef[];
-  data?: ContactRef[];
-}
+// Responses may or may not come back wrapped in a `content` envelope and the
+// list shape isn't documented for our reach, so every reader below is
+// defensive: it unwraps `content` and tries a few common list keys.
 
-function firstContactId(res: ContactSearchResponse): string | null {
-  const row = res.contacts?.[0] ?? res.items?.[0] ?? res.data?.[0];
-  return row?.id ?? null;
+/** The id of the first contact in a (possibly wrapped) search response. */
+function firstContactId(res: any): string | null {
+  const c = res?.content ?? res;
+  const arr = Array.isArray(c) ? c : c?.contacts ?? c?.items ?? c?.rows ?? c?.data ?? [];
+  const row = Array.isArray(arr) ? arr[0] : undefined;
+  return row?.id ?? row?.content?.id ?? null;
 }
 
 /** Find an existing fiscal contact by NIF, else create one. Returns the
@@ -119,7 +118,7 @@ function firstContactId(res: ContactSearchResponse): string | null {
 async function upsertContact(input: ContactInput): Promise<string> {
   if (input.nif) {
     try {
-      const found = await request<ContactSearchResponse>({
+      const found = await request<any>({
         method: 'GET',
         path: `/contacts?nif=${encodeURIComponent(input.nif)}`,
       });
@@ -130,7 +129,7 @@ async function upsertContact(input: ContactInput): Promise<string> {
     }
   }
 
-  const created = await request<ContactRef>({
+  const created = await request<any>({
     method: 'POST',
     path: '/contacts',
     body: {
@@ -143,8 +142,9 @@ async function upsertContact(input: ContactInput): Promise<string> {
       ...(input.phone ? { phone: input.phone } : {}),
     },
   });
-  if (!created.id) throw new Error('facturadirecta: created contact returned no id');
-  return created.id;
+  const contactId = created?.id ?? created?.content?.id ?? created?.data?.id;
+  if (!contactId) throw new Error('facturadirecta: created contact returned no id');
+  return contactId;
 }
 
 // ─── Public helper (fail-soft) ───────────────────────────────────────────────
@@ -172,12 +172,6 @@ export interface IssuedInvoice {
   number: string | null;
 }
 
-interface InvoiceResponse {
-  id?: string;
-  number?: string;
-  invoiceNumber?: string;
-}
-
 /** Create the deposit invoice. Returns the new invoice id/number, or null
  *  when the module is disabled or the call failed (both non-fatal — the
  *  caller treats null as "nothing persisted, can retry later"). */
@@ -202,7 +196,7 @@ export async function issueDepositInvoice(
 
     const date = (input.invoiceDate ?? new Date()).toISOString().slice(0, 10);
 
-    const res = await request<InvoiceResponse>({
+    const res = await request<any>({
       method: 'POST',
       path: '/invoices',
       body: {
@@ -220,8 +214,10 @@ export async function issueDepositInvoice(
       },
     });
 
-    if (!res.id) throw new Error('facturadirecta: created invoice returned no id');
-    return { id: res.id, number: res.number ?? res.invoiceNumber ?? null };
+    const inv = res?.content ?? res;
+    const invId = inv?.id ?? inv?.data?.id;
+    if (!invId) throw new Error('facturadirecta: created invoice returned no id');
+    return { id: invId, number: inv?.number ?? inv?.invoiceNumber ?? inv?.code ?? null };
   } catch (err) {
     console.error('[facturadirecta] issueDepositInvoice failed (non-fatal)', err);
     return null;
