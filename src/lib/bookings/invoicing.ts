@@ -102,32 +102,25 @@ export async function issueDepositInvoiceForBooking(bookingId: string): Promise<
   }
 }
 
-/** Result of a one-click "Fer factura" on a single payment. `ok` with a
- *  number → invoice created (or already existed). Otherwise `reason` tells the
- *  operator WHY, so the admin can show a precise message rather than a silent
- *  no-op. */
+/** Result of a one-click "Fer albarà" on a single payment. `ok` with a number
+ *  → document created (or already existed). Otherwise `reason` tells the
+ *  operator WHY, so the admin can show a precise message. */
 export type IssuePaymentInvoiceResult =
-  | { ok: true; number: string | null; alreadyIssued?: boolean; simplified?: boolean; overLimit?: boolean }
-  | { ok: false; reason: 'booking' | 'payment' | 'unconfigured' | 'nofiscal' | 'apierror' };
+  | { ok: true; number: string | null; alreadyIssued?: boolean }
+  | { ok: false; reason: 'booking' | 'payment' | 'unconfigured' | 'apierror' };
 
-/** Gross amount above which a factura simplificada is no longer legal in Spain
- *  (400 €). Above this the operator is warned but not blocked. */
-const SIMPLIFIED_LIMIT_CENTS = 40000;
-
-/** Issue a FacturaDirecta invoice for ONE payment of the ledger, on demand.
- *  IVA-inclòs (the payment amount is gross; the line stores base + 21% like the
- *  deposit invoice). Idempotent: a payment that already carries an invoice is
- *  returned untouched. Never throws — returns a typed result for the UI.
+/** Create a FacturaDirecta albarà (delivery note) for ONE payment of the
+ *  ledger, on demand. IVA-inclòs (the amount is gross; the line stores the net
+ *  base and the 21% tax code re-applies VAT). Idempotent: a payment that
+ *  already carries a document is returned untouched. Never throws.
  *
- *  `opts.simplified` issues a *factura simplificada*: no NIF required, the
- *  client name falls back to the couple's names. Legally capped at 400 € — the
- *  caller warns (via `overLimit`) but we don't block. */
+ *  The client's NIF is optional for an albarà: we use the fiscal data when we
+ *  have it (form response / manual billing fields), otherwise just the couple's
+ *  names — so a hand-entered booking without a DNI still works. */
 export async function issueInvoiceForPayment(
   bookingId: string,
   paymentId: string,
-  opts?: { simplified?: boolean },
 ): Promise<IssuePaymentInvoiceResult> {
-  const simplified = opts?.simplified === true;
   try {
     const booking = await getBookingById(bookingId);
     if (!booking) return { ok: false, reason: 'booking' };
@@ -135,7 +128,7 @@ export async function issueInvoiceForPayment(
     const payment = await getPaymentById(paymentId, bookingId);
     if (!payment) return { ok: false, reason: 'payment' };
 
-    // Idempotency: never emit a second numbered invoice for the same payment.
+    // Idempotency: never emit a second document for the same payment.
     if (payment.invoiceId) {
       return { ok: true, number: payment.invoiceNumber, alreadyIssued: true };
     }
@@ -143,47 +136,22 @@ export async function issueInvoiceForPayment(
     // Distinguish "not configured" from "API failed" for a clear message.
     if (!isFacturadirectaConfigured()) return { ok: false, reason: 'unconfigured' };
 
-    // Fiscal identity: /reserva form response, or the booking's manual billing
-    // fields (for hand-entered bookings).
+    // Client identity: full fiscal data (form / manual billing) when present,
+    // otherwise the manually-entered name, otherwise the couple's names. NIF is
+    // optional for an albarà.
     const form = await getFormResponseForBooking(bookingId);
     const fiscal = resolveFiscal(booking, form);
-
-    let client: {
-      clientName: string;
-      clientTaxCode: string;
-      clientAddress: string | null;
-      clientEmail: string | null;
-      clientPhone: string | null;
-    };
-    if (simplified) {
-      // Factura simplificada: name only (no NIF). Prefer any fiscal name,
-      // otherwise the couple's names.
-      const name =
-        (fiscal?.clientName?.trim() || '') ||
-        `${booking.coupleName1} & ${booking.coupleName2}`.trim();
-      client = {
-        clientName: name,
-        clientTaxCode: '',
-        clientAddress: fiscal?.clientAddress ?? null,
-        clientEmail: fiscal?.clientEmail ?? booking.coupleEmailPrimary ?? null,
-        clientPhone: fiscal?.clientPhone ?? booking.couplePhonePrimary ?? null,
-      };
-    } else {
-      // Ordinary invoice: name + NIF are legally required.
-      if (!fiscal) return { ok: false, reason: 'nofiscal' };
-      client = fiscal;
-    }
+    const coupleName = `${booking.coupleName1} & ${booking.coupleName2}`.trim();
+    const clientName = fiscal?.clientName?.trim() || booking.manualBillingName?.trim() || coupleName;
+    const clientTaxCode = (fiscal?.clientTaxCode || booking.manualBillingNif || '').trim();
 
     const dateStr = payment.paidOn ?? new Date().toISOString().slice(0, 10);
-    const description =
-      `Pagament boda ${booking.coupleName1} & ${booking.coupleName2} — ${dateStr}`;
+    const description = `Pagament boda ${coupleName} — ${dateStr}`;
 
     const issued = await issueDepositInvoice({
-      clientName: client.clientName,
-      clientTaxCode: client.clientTaxCode,
-      clientAddress: client.clientAddress,
-      clientEmail: client.clientEmail,
-      clientPhone: client.clientPhone,
+      clientName,
+      clientTaxCode,
+      clientPhone: fiscal?.clientPhone ?? booking.couplePhonePrimary ?? null,
       depositCents: payment.amountCents, // gross; VAT recovered inside
       description,
       invoiceDate: payment.paidOn ? new Date(`${payment.paidOn}T12:00:00Z`) : undefined,
@@ -193,12 +161,7 @@ export async function issueInvoiceForPayment(
     if (!issued?.id) return { ok: false, reason: 'apierror' };
 
     await setPaymentInvoice(paymentId, bookingId, issued.id, issued.number, new Date().toISOString());
-    return {
-      ok: true,
-      number: issued.number,
-      simplified,
-      overLimit: simplified && payment.amountCents > SIMPLIFIED_LIMIT_CENTS,
-    };
+    return { ok: true, number: issued.number };
   } catch (err) {
     console.error('[invoicing] issueInvoiceForPayment failed (non-fatal)', err);
     return { ok: false, reason: 'apierror' };
