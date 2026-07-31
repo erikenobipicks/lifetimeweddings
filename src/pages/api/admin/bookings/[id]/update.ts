@@ -295,31 +295,21 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
     if (paymentId) await deletePayment(paymentId, id);
     return back('?ok=payment:deleted#pagaments');
   }
-  // One-click "Fer factura": issue a FacturaDirecta invoice for a single
-  // payment (IVA-inclòs, create-only). `invoice_payment` = ordinary invoice
-  // (name + NIF); `invoice_payment_simplified` = factura simplificada (name
-  // only, no NIF). Idempotent + typed result → a precise message on failure.
-  if (action === 'invoice_payment' || action === 'invoice_payment_simplified') {
+  // One-click "Fer albarà": create a FacturaDirecta delivery note for a single
+  // payment (IVA-inclòs). Idempotent + typed result → a precise message on
+  // failure. NIF is optional (uses fiscal data when present, else the names).
+  if (action === 'invoice_payment') {
     const paymentId = String(form.get('paymentId') ?? '').trim();
     if (!paymentId) return back('?error=Pagament+no+indicat#pagaments');
-    const simplified = action === 'invoice_payment_simplified';
-    const result = await issueInvoiceForPayment(id, paymentId, { simplified });
+    const result = await issueInvoiceForPayment(id, paymentId);
     if (result.ok) {
-      const okFlag = result.alreadyIssued
-        ? 'payment:invoiced-already'
-        : result.overLimit
-          ? 'payment:invoiced-simplified-warn'
-          : result.simplified
-            ? 'payment:invoiced-simplified'
-            : 'payment:invoiced';
-      return back(`?ok=${okFlag}#pagaments`);
+      return back(`?ok=${result.alreadyIssued ? 'payment:invoiced-already' : 'payment:invoiced'}#pagaments`);
     }
     const msg: Record<typeof result.reason, string> = {
       booking: 'Reserva no trobada.',
       payment: 'Pagament no trobat.',
       unconfigured: 'FacturaDirecta no està configurat (falten les credencials a l\'entorn).',
-      nofiscal: 'Falten les dades fiscals (nom + DNI). Si és una reserva manual, omple-les a «Dades de facturació» aquí sota, o emet una factura simplificada (sense NIF); si no, cal que la parella empleni /reserva.',
-      apierror: 'FacturaDirecta ha rebutjat la factura o no respon. Revisa els logs.',
+      apierror: 'FacturaDirecta ha rebutjat l\'albarà o no respon. Revisa els logs.',
     };
     return back(`?error=${encodeURIComponent(msg[result.reason])}#pagaments`);
   }
