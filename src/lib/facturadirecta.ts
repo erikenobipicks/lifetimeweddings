@@ -109,7 +109,7 @@ function firstContactId(res: any): string | null {
   const c = res?.content ?? res;
   const arr = Array.isArray(c) ? c : c?.contacts ?? c?.items ?? c?.rows ?? c?.data ?? [];
   const row = Array.isArray(arr) ? arr[0] : undefined;
-  return row?.id ?? row?.content?.id ?? null;
+  return row?.id ?? row?.main?.id ?? row?.content?.id ?? row?.content?.main?.id ?? null;
 }
 
 /** Find an existing fiscal contact by NIF, else create one. Returns the
@@ -132,17 +132,26 @@ async function upsertContact(input: ContactInput): Promise<string> {
   const created = await request<any>({
     method: 'POST',
     path: '/contacts',
+    // The API nests a resource's primary fields under `content.main`.
+    // request() adds the outer `content`, so we pass `{ main: {…} }` here.
     body: {
-      name: input.name,
-      // Omit the NIF entirely when there isn't one — a simplified invoice
-      // ("factura simplificada") is issued to a client without a tax code.
-      ...(input.nif ? { nif: input.nif } : {}),
-      ...(input.address ? { address: input.address } : {}),
-      ...(input.email ? { email: input.email } : {}),
-      ...(input.phone ? { phone: input.phone } : {}),
+      main: {
+        name: input.name,
+        // Omit the NIF entirely when there isn't one — a simplified invoice
+        // ("factura simplificada") is issued to a client without a tax code.
+        ...(input.nif ? { nif: input.nif } : {}),
+        ...(input.address ? { address: input.address } : {}),
+        ...(input.email ? { email: input.email } : {}),
+        ...(input.phone ? { phone: input.phone } : {}),
+      },
     },
   });
-  const contactId = created?.id ?? created?.content?.id ?? created?.data?.id;
+  const contactId =
+    created?.id ??
+    created?.content?.id ??
+    created?.content?.main?.id ??
+    created?.main?.id ??
+    created?.data?.id;
   if (!contactId) throw new Error('facturadirecta: created contact returned no id');
   return contactId;
 }
@@ -199,10 +208,14 @@ export async function issueDepositInvoice(
     const res = await request<any>({
       method: 'POST',
       path: '/invoices',
+      // Same envelope as contacts: header fields under `content.main`, with the
+      // line items alongside as `lines`. request() adds the outer `content`.
       body: {
-        contactId,
-        date,
-        ...(INVOICE_SERIES ? { series: INVOICE_SERIES } : {}),
+        main: {
+          contactId,
+          date,
+          ...(INVOICE_SERIES ? { series: INVOICE_SERIES } : {}),
+        },
         lines: [
           {
             description: input.description,
@@ -215,9 +228,13 @@ export async function issueDepositInvoice(
     });
 
     const inv = res?.content ?? res;
-    const invId = inv?.id ?? inv?.data?.id;
+    const invMain = inv?.main ?? inv;
+    const invId = invMain?.id ?? inv?.id ?? inv?.data?.id;
     if (!invId) throw new Error('facturadirecta: created invoice returned no id');
-    return { id: invId, number: inv?.number ?? inv?.invoiceNumber ?? inv?.code ?? null };
+    return {
+      id: invId,
+      number: invMain?.number ?? invMain?.code ?? inv?.number ?? inv?.invoiceNumber ?? null,
+    };
   } catch (err) {
     console.error('[facturadirecta] issueDepositInvoice failed (non-fatal)', err);
     return null;
