@@ -676,6 +676,11 @@ export const ui = {
     'quote.faq.q7.a': 'El día de vuestra boda lo reservamos solo para vosotros. Normalmente estamos entre 10 y 13 horas — desde los preparativos hasta 45 min – 1 h después del baile nupcial. Y nunca delegamos en terceros: vamos nosotros.',
     // Quote validity (shown discreetly near the total) — {date} interpolated.
     'quote.validity': 'Este presupuesto es válido hasta el {date}.',
+    'quote.offer.eyebrow': 'Oferta especial',
+    'quote.offer.deadline': 'Válida hasta el {date}',
+    'quote.offer.countdown': 'Quedan {n} días',
+    'quote.offer.countdown.one': 'Queda 1 día',
+    'quote.offer.lastDay': '¡Último día!',
     // Honest scarcity line under the final CTA. "withDate" personalises with
     // the couple's wedding date; "noDate" is the fallback when we don't have it.
     'quote.scarcity.withDate': 'Como solo hacemos una boda al día, las fechas son limitadas. Consultad si la vuestra ({date}) aún está libre.',
@@ -1318,6 +1323,11 @@ export const ui = {
     'quote.faq.q7.a': 'El dia del vostre casament el reservem exclusivament per a vosaltres. Normalment estem entre 10 i 13 hores — des dels preparatius fins a 45 min – 1 h després del ball nupcial. I no deleguem mai a tercers: anem nosaltres.',
     // Quote validity (shown discreetly near the total) — {date} interpolated.
     'quote.validity': 'Aquest pressupost és vàlid fins al {date}.',
+    'quote.offer.eyebrow': 'Oferta especial',
+    'quote.offer.deadline': 'Vàlida fins al {date}',
+    'quote.offer.countdown': 'Queden {n} dies',
+    'quote.offer.countdown.one': 'Queda 1 dia',
+    'quote.offer.lastDay': 'Últim dia!',
     // Honest scarcity line under the final CTA. "withDate" personalises with
     // the couple's wedding date; "noDate" is the fallback when we don't have it.
     'quote.scarcity.withDate': 'Com només fem una boda al dia, les dates són limitades. Consulteu si la vostra ({date}) encara és lliure.',
@@ -1960,6 +1970,11 @@ export const ui = {
     'quote.faq.q7.a': "Your wedding day is reserved exclusively for you. We typically stay 10–13 hours — from prep through to 45 min – 1 h after the first dance. And we never delegate to third parties: it's always us.",
     // Quote validity (shown discreetly near the total) — {date} interpolated.
     'quote.validity': 'This quote is valid until {date}.',
+    'quote.offer.eyebrow': 'Special offer',
+    'quote.offer.deadline': 'Valid until {date}',
+    'quote.offer.countdown': '{n} days left',
+    'quote.offer.countdown.one': '1 day left',
+    'quote.offer.lastDay': 'Last day!',
     // Honest scarcity line under the final CTA. "withDate" personalises with
     // the couple's wedding date; "noDate" is the fallback when we don't have it.
     'quote.scarcity.withDate': 'As we only photograph one wedding a day, dates are limited. Check whether yours ({date}) is still free.',

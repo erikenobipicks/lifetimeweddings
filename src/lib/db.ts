@@ -431,6 +431,12 @@ export async function initSchema() {
   // human-readable reason. Both nullable so existing quotes don't change.
   await ensureColumn('quotes', 'admin_discount_cents', 'INTEGER');
   await ensureColumn('quotes', 'admin_discount_reason', 'TEXT');
+  // Operator-set limited-time offer shown on /p/<token>: a short title + body
+  // and an optional deadline that drives a live countdown. All nullable; an
+  // empty title means no offer banner is rendered.
+  await ensureColumn('quotes', 'offer_title', 'TEXT');
+  await ensureColumn('quotes', 'offer_body', 'TEXT');
+  await ensureColumn('quotes', 'offer_deadline', 'TEXT');
   // Optional trailer for a delivery page — an unlisted YouTube id shown
   // BEFORE the main film on /entrega. Nullable; null = no trailer.
   await ensureColumn('deliveries', 'trailer_youtube_id', 'TEXT');

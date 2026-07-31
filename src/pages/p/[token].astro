@@ -196,6 +196,25 @@ const scarcityNote: string = (() => {
   }
   return t('quote.scarcity.noDate');
 })();
+
+// Operator-set limited-time offer banner. Shown when a title is set and — if a
+// deadline is present — it hasn't passed (end of that day, Madrid time). The
+// live "days left" countdown is computed client-side from the raw date.
+const offerDeadlineText: string | null = (() => {
+  if (!quote?.offerDeadline) return null;
+  const d = new Date(`${quote.offerDeadline}T12:00:00Z`);
+  if (isNaN(d.getTime())) return null;
+  const locale = lang === 'es' ? 'es-ES' : lang === 'en' ? 'en-GB' : 'ca-ES';
+  return d.toLocaleDateString(locale, {
+    day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Madrid',
+  });
+})();
+const offerActive: boolean = (() => {
+  if (!quote?.offerTitle) return false;
+  if (!quote.offerDeadline) return true; // evergreen offer, no countdown
+  const end = new Date(`${quote.offerDeadline}T23:59:59`);
+  return !isNaN(end.getTime()) && end.getTime() >= Date.now();
+})();
 ---
 
 <!doctype html>
@@ -291,6 +310,68 @@ const scarcityNote: string = (() => {
             </p>
           </div>
         </Section>
+
+        {/* Limited-time offer — set per quote by the operator. Highlighted
+            gold banner with an optional live "days left" countdown to create
+            honest urgency. Hidden entirely once the deadline passes. */}
+        {offerActive && (
+          <Section>
+            <div class="max-w-2xl mx-auto">
+              <div class="border-2 border-gold bg-gold/10 p-6 md:p-8 text-center">
+                <p class="text-[0.7rem] font-bold tracking-[0.22em] uppercase text-gold-deep mb-2">
+                  {t('quote.offer.eyebrow')}
+                </p>
+                <h2 class="font-display text-2xl md:text-3xl font-bold text-ink mb-3">{quote.offerTitle}</h2>
+                {quote.offerBody && (
+                  <p class="text-ink/80 leading-relaxed max-w-xl mx-auto whitespace-pre-wrap">{quote.offerBody}</p>
+                )}
+                {quote.offerDeadline && (
+                  <div
+                    class="mt-6 flex flex-col items-center gap-2"
+                    data-offer-countdown
+                    data-deadline={quote.offerDeadline}
+                    data-tpl-days={t('quote.offer.countdown')}
+                    data-tpl-one={t('quote.offer.countdown.one')}
+                    data-tpl-last={t('quote.offer.lastDay')}
+                  >
+                    <span
+                      data-countdown-text
+                      class="inline-block bg-ink text-white text-sm font-bold tracking-[0.08em] uppercase px-5 py-2.5"
+                    >
+                      {offerDeadlineText}
+                    </span>
+                    {offerDeadlineText && (
+                      <span class="text-xs text-ink/60">
+                        {t('quote.offer.deadline').replace('{date}', offerDeadlineText)}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </Section>
+          <script is:inline>
+            (function () {
+              var el = document.querySelector('[data-offer-countdown]');
+              if (!el) return;
+              var out = el.querySelector('[data-countdown-text]');
+              var raw = el.getAttribute('data-deadline') || '';
+              var p = raw.split('-');
+              if (p.length !== 3) return;
+              var dl = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2])); // local midnight
+              if (isNaN(dl.getTime())) return;
+              var today = new Date();
+              today.setHours(0, 0, 0, 0);
+              var days = Math.round((dl.getTime() - today.getTime()) / 86400000);
+              if (days < 0) { el.style.display = 'none'; return; } // safety: past
+              var tpl =
+                days === 0 ? el.getAttribute('data-tpl-last')
+                : days === 1 ? el.getAttribute('data-tpl-one')
+                : el.getAttribute('data-tpl-days');
+              if (out && tpl) out.textContent = tpl.replace('{n}', String(days));
+            })();
+          </script>
+        )}
 
         <!-- Flagship trailer first — let the couple feel the work in
              motion before they see a number. Tagged data-service="video"

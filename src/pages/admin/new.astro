@@ -27,6 +27,9 @@ if (Astro.request.method === 'POST') {
   const notes = String(form.get('notes') ?? '').trim();
   const password = String(form.get('password') ?? '').trim();
   const expiresAt = String(form.get('expires_at') ?? '').trim();
+  const offerTitle = String(form.get('offer_title') ?? '').trim();
+  const offerBody = String(form.get('offer_body') ?? '').trim();
+  const offerDeadline = String(form.get('offer_deadline') ?? '').trim();
   const flagshipVideoId = String(form.get('flagship_video_id') ?? '').trim();
   const flagshipShowcaseSlug = String(form.get('flagship_showcase_slug') ?? '').trim();
   const flagshipWeddingSlug = String(form.get('flagship_wedding_slug') ?? '').trim();
@@ -59,6 +62,9 @@ if (Astro.request.method === 'POST') {
       flagshipExternalGalleryUrl: flagshipExternalGalleryUrl || undefined,
       preferredLanguage,
       serviceInterest,
+      offerTitle: offerTitle || undefined,
+      offerBody: offerBody || undefined,
+      offerDeadline: offerDeadline || undefined,
     });
     if (postedLeadId) {
       try { await linkLeadToQuote(postedLeadId, q.id); } catch { /* non-fatal */ }
@@ -294,6 +300,31 @@ const LABELS: Record<string, string> = {
                 class="w-full px-3 py-2 border border-line focus:border-gold focus:outline-none resize-y"
                 placeholder="Missatge personalitzat que veurà la parella a la pàgina…"></textarea>
     </div>
+
+    <fieldset class="border border-gold/50 bg-gold/5 p-4">
+      <legend class="px-2 text-xs font-bold tracking-widest uppercase text-gold-deep">🎁 Oferta amb data límit (opcional)</legend>
+      <p class="text-[0.7rem] text-ink/70 mb-3">Surt com un bloc destacat amb compte enrere a la pàgina de la parella. Deixa el títol en blanc si no vols oferir res.</p>
+      <div class="space-y-3">
+        <div>
+          <label for="offer_title" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Títol de l'oferta</label>
+          <input id="offer_title" name="offer_title"
+                 class="w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none"
+                 placeholder="Ex: Sessió de prenoces de regal" />
+        </div>
+        <div>
+          <label for="offer_body" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Descripció</label>
+          <textarea id="offer_body" name="offer_body" rows="2"
+                    class="w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none resize-y"
+                    placeholder="Ex: Contractant abans de la data límit, la sessió de prenoces (entre setmana) va de regal."></textarea>
+        </div>
+        <div class="max-w-xs">
+          <label for="offer_deadline" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Data límit</label>
+          <input id="offer_deadline" name="offer_deadline" type="date"
+                 class="w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+          <p class="text-[0.7rem] text-ink/70 mt-1">Opcional. Amb data, surt el compte enrere ("Queden X dies") i s'amaga sola quan passa.</p>
+        </div>
+      </div>
+    </fieldset>
 
     <details class="border border-line bg-cream/40">
       <summary class="cursor-pointer px-4 py-3 text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold select-none">
