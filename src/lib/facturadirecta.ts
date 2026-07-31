@@ -135,7 +135,9 @@ async function upsertContact(input: ContactInput): Promise<string> {
     path: '/contacts',
     body: {
       name: input.name,
-      nif: input.nif,
+      // Omit the NIF entirely when there isn't one — a simplified invoice
+      // ("factura simplificada") is issued to a client without a tax code.
+      ...(input.nif ? { nif: input.nif } : {}),
       ...(input.address ? { address: input.address } : {}),
       ...(input.email ? { email: input.email } : {}),
       ...(input.phone ? { phone: input.phone } : {}),

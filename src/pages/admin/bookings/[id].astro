@@ -290,6 +290,8 @@ const ibanPlaceholder = transfer.isPlaceholder;
       {ok === 'payment:deleted' && 'Pagament eliminat.'}
       {ok === 'payment:invoiced' && 'Factura creada a FacturaDirecta per aquest pagament.'}
       {ok === 'payment:invoiced-already' && 'Aquest pagament ja tenia factura — no se n\'ha creat cap de nova.'}
+      {ok === 'payment:invoiced-simplified' && 'Factura simplificada (sense NIF) creada a FacturaDirecta.'}
+      {ok === 'payment:invoiced-simplified-warn' && '⚠️ Factura simplificada creada, però l\'import supera els 400 € — una factura simplificada només és vàlida fins a 400 €. Valora emetre-la ordinària (amb NIF).'}
       {ok === 'billing:saved' && 'Dades de facturació desades.'}
       {ok === 'change:saved' && 'Canvi desat. Pots descarregar l\'addendum a baix.'}
       {ok === 'cancelled' && 'Boda cancel·lada. Envia l\'enllaç de firma a la parella.'}
@@ -758,11 +760,18 @@ const ibanPlaceholder = transfer.isPlaceholder;
                       🧾 {p.invoiceNumber ?? 'Feta'}
                     </span>
                   ) : (
-                    <form method="POST" action={`/api/admin/bookings/${booking.id}/update`}>
-                      <input type="hidden" name="_action" value="invoice_payment" />
-                      <input type="hidden" name="paymentId" value={p.id} />
-                      <button type="submit" class="text-[0.7rem] font-bold tracking-wide uppercase text-gold-deep border border-gold/50 px-2 py-1 hover:bg-gold hover:text-ink transition-colors whitespace-nowrap" title="Crear la factura d'aquest pagament a FacturaDirecta">🧾 Fer factura</button>
-                    </form>
+                    <div class="inline-flex flex-col items-center gap-1">
+                      <form method="POST" action={`/api/admin/bookings/${booking.id}/update`}>
+                        <input type="hidden" name="_action" value="invoice_payment" />
+                        <input type="hidden" name="paymentId" value={p.id} />
+                        <button type="submit" class="text-[0.7rem] font-bold tracking-wide uppercase text-gold-deep border border-gold/50 px-2 py-1 hover:bg-gold hover:text-ink transition-colors whitespace-nowrap" title="Factura ordinària (nom + NIF) a FacturaDirecta">🧾 Fer factura</button>
+                      </form>
+                      <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} onsubmit="return confirm('Emetre una factura SIMPLIFICADA (sense NIF)?\n\nVàlida només per imports fins a 400 €.')">
+                        <input type="hidden" name="_action" value="invoice_payment_simplified" />
+                        <input type="hidden" name="paymentId" value={p.id} />
+                        <button type="submit" class="text-[0.6rem] text-ink/50 hover:text-gold-deep underline whitespace-nowrap" title="Factura simplificada: amb el nom, sense NIF (fins a 400 €)">simplificada</button>
+                      </form>
+                    </div>
                   )}
                 </td>
                 <td class="px-3 py-2 text-right">

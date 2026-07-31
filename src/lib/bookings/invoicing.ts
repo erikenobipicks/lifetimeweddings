@@ -107,17 +107,27 @@ export async function issueDepositInvoiceForBooking(bookingId: string): Promise<
  *  operator WHY, so the admin can show a precise message rather than a silent
  *  no-op. */
 export type IssuePaymentInvoiceResult =
-  | { ok: true; number: string | null; alreadyIssued?: boolean }
+  | { ok: true; number: string | null; alreadyIssued?: boolean; simplified?: boolean; overLimit?: boolean }
   | { ok: false; reason: 'booking' | 'payment' | 'unconfigured' | 'nofiscal' | 'apierror' };
+
+/** Gross amount above which a factura simplificada is no longer legal in Spain
+ *  (400 €). Above this the operator is warned but not blocked. */
+const SIMPLIFIED_LIMIT_CENTS = 40000;
 
 /** Issue a FacturaDirecta invoice for ONE payment of the ledger, on demand.
  *  IVA-inclòs (the payment amount is gross; the line stores base + 21% like the
  *  deposit invoice). Idempotent: a payment that already carries an invoice is
- *  returned untouched. Never throws — returns a typed result for the UI. */
+ *  returned untouched. Never throws — returns a typed result for the UI.
+ *
+ *  `opts.simplified` issues a *factura simplificada*: no NIF required, the
+ *  client name falls back to the couple's names. Legally capped at 400 € — the
+ *  caller warns (via `overLimit`) but we don't block. */
 export async function issueInvoiceForPayment(
   bookingId: string,
   paymentId: string,
+  opts?: { simplified?: boolean },
 ): Promise<IssuePaymentInvoiceResult> {
+  const simplified = opts?.simplified === true;
   try {
     const booking = await getBookingById(bookingId);
     if (!booking) return { ok: false, reason: 'booking' };
@@ -134,21 +144,46 @@ export async function issueInvoiceForPayment(
     if (!isFacturadirectaConfigured()) return { ok: false, reason: 'unconfigured' };
 
     // Fiscal identity: /reserva form response, or the booking's manual billing
-    // fields (for hand-entered bookings). Neither → can't legally invoice.
+    // fields (for hand-entered bookings).
     const form = await getFormResponseForBooking(bookingId);
     const fiscal = resolveFiscal(booking, form);
-    if (!fiscal) return { ok: false, reason: 'nofiscal' };
+
+    let client: {
+      clientName: string;
+      clientTaxCode: string;
+      clientAddress: string | null;
+      clientEmail: string | null;
+      clientPhone: string | null;
+    };
+    if (simplified) {
+      // Factura simplificada: name only (no NIF). Prefer any fiscal name,
+      // otherwise the couple's names.
+      const name =
+        (fiscal?.clientName?.trim() || '') ||
+        `${booking.coupleName1} & ${booking.coupleName2}`.trim();
+      client = {
+        clientName: name,
+        clientTaxCode: '',
+        clientAddress: fiscal?.clientAddress ?? null,
+        clientEmail: fiscal?.clientEmail ?? booking.coupleEmailPrimary ?? null,
+        clientPhone: fiscal?.clientPhone ?? booking.couplePhonePrimary ?? null,
+      };
+    } else {
+      // Ordinary invoice: name + NIF are legally required.
+      if (!fiscal) return { ok: false, reason: 'nofiscal' };
+      client = fiscal;
+    }
 
     const dateStr = payment.paidOn ?? new Date().toISOString().slice(0, 10);
     const description =
       `Pagament boda ${booking.coupleName1} & ${booking.coupleName2} — ${dateStr}`;
 
     const issued = await issueDepositInvoice({
-      clientName: fiscal.clientName,
-      clientTaxCode: fiscal.clientTaxCode,
-      clientAddress: fiscal.clientAddress,
-      clientEmail: fiscal.clientEmail,
-      clientPhone: fiscal.clientPhone,
+      clientName: client.clientName,
+      clientTaxCode: client.clientTaxCode,
+      clientAddress: client.clientAddress,
+      clientEmail: client.clientEmail,
+      clientPhone: client.clientPhone,
       depositCents: payment.amountCents, // gross; VAT recovered inside
       description,
       invoiceDate: payment.paidOn ? new Date(`${payment.paidOn}T12:00:00Z`) : undefined,
@@ -158,7 +193,12 @@ export async function issueInvoiceForPayment(
     if (!issued?.id) return { ok: false, reason: 'apierror' };
 
     await setPaymentInvoice(paymentId, bookingId, issued.id, issued.number, new Date().toISOString());
-    return { ok: true, number: issued.number };
+    return {
+      ok: true,
+      number: issued.number,
+      simplified,
+      overLimit: simplified && payment.amountCents > SIMPLIFIED_LIMIT_CENTS,
+    };
   } catch (err) {
     console.error('[invoicing] issueInvoiceForPayment failed (non-fatal)', err);
     return { ok: false, reason: 'apierror' };
