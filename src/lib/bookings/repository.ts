@@ -129,6 +129,9 @@ function rowToBooking(row: Record<string, unknown>): Booking {
     facturadirectaInvoiceNumber: row.facturadirecta_invoice_number
       ? String(row.facturadirecta_invoice_number)
       : null,
+    manualBillingName: row.manual_billing_name ? String(row.manual_billing_name) : null,
+    manualBillingNif: row.manual_billing_nif ? String(row.manual_billing_nif) : null,
+    manualBillingAddress: row.manual_billing_address ? String(row.manual_billing_address) : null,
     fotostudioProjectId:
       row.fotostudio_project_id == null
         ? null
@@ -389,6 +392,9 @@ export type BookingUpdate = Partial<{
   incentiveOriginalPriceCents: number | null;
   incentiveDeadline: Date | null;
   expiresAt: Date | null;
+  manualBillingName: string | null;
+  manualBillingNif: string | null;
+  manualBillingAddress: string | null;
 }>;
 
 const COLUMN_FOR: Record<keyof BookingUpdate, string> = {
@@ -422,6 +428,9 @@ const COLUMN_FOR: Record<keyof BookingUpdate, string> = {
   incentiveOriginalPriceCents: 'incentive_original_price_cents',
   incentiveDeadline: 'incentive_deadline',
   expiresAt: 'expires_at',
+  manualBillingName: 'manual_billing_name',
+  manualBillingNif: 'manual_billing_nif',
+  manualBillingAddress: 'manual_billing_address',
 };
 
 const JSON_FIELDS: Set<keyof BookingUpdate> = new Set([

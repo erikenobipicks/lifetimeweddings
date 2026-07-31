@@ -309,10 +309,20 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
       booking: 'Reserva no trobada.',
       payment: 'Pagament no trobat.',
       unconfigured: 'FacturaDirecta no està configurat (falten les credencials a l\'entorn).',
-      nofiscal: 'Falten les dades fiscals de la parella (nom + DNI). Cal que hagin omplert el formulari de /reserva.',
+      nofiscal: 'Falten les dades fiscals (nom + DNI). Si és una reserva manual, omple-les a «Dades de facturació» aquí sota; si no, cal que la parella empleni /reserva.',
       apierror: 'FacturaDirecta ha rebutjat la factura o no respon. Revisa els logs.',
     };
     return back(`?error=${encodeURIComponent(msg[result.reason])}#pagaments`);
+  }
+  // Manual fiscal/billing identity for bookings entered by hand (no /reserva
+  // form). Used as the invoice client when there's no form response.
+  if (action === 'save_billing') {
+    await updateBooking(id, {
+      manualBillingName: String(form.get('manualBillingName') ?? '').trim() || null,
+      manualBillingNif: String(form.get('manualBillingNif') ?? '').trim() || null,
+      manualBillingAddress: String(form.get('manualBillingAddress') ?? '').trim() || null,
+    });
+    return back('?ok=billing:saved#pagaments');
   }
 
   // ── Date / price change → addendum ───────────────────────────────────────
