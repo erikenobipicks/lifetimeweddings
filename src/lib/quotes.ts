@@ -37,6 +37,16 @@ export interface CustomLine {
   isGift?: boolean;
 }
 
+/** One named option within a multi-option fixed proposal (Opció A/B/C). Each
+ *  option is a self-contained composition — packs + extras + custom lines —
+ *  shown as its own card on the single /p link; the couple picks one. */
+export interface QuoteOption {
+  label: string;
+  packIds: string[];
+  extraIds: string[];
+  customLines: CustomLine[];
+}
+
 export interface Quote {
   id: number;
   token: string;
@@ -95,6 +105,11 @@ export interface Quote {
    *  lines + total) that the couple can't reconfigure. False → the interactive
    *  configurator. */
   isFixed: boolean;
+  /** The proposal's options. Always ≥1 entry: a single-option quote yields one
+   *  (synthesised from the base packs/extras/lines when the `options` column is
+   *  empty). Length ≥2 means a multi-option proposal shown as several cards on
+   *  the one link. options[0] mirrors the base composition. */
+  options: QuoteOption[];
   /** ISO timestamp when Eric closes the quote — the couple can still see
    *  their last submitted configuration but cannot send a new one. Null
    *  while the quote is still open to changes. */
@@ -157,6 +172,9 @@ export interface CreateQuoteInput {
   offerDeadline?: string;
   /** Operator-authored free-text quote lines (IVA-included cents). */
   customLines?: CustomLine[];
+  /** Optional label for option 1 of a fixed proposal (e.g. "Foto essencial").
+   *  Only used when isFixed; defaults to "Opció 1". */
+  optionLabel?: string;
   /** Lead this quote is a proposal for (one lead → many proposals). */
   leadId?: number;
   /** Extras Eric pre-selected for a composed quote. */
@@ -168,44 +186,101 @@ export interface CreateQuoteInput {
 const IP_SALT = process.env.IP_HASH_SALT ?? 'lifetime-dev-salt';
 const SITE_URL = process.env.PUBLIC_SITE_URL ?? 'http://localhost:4321';
 
+/** Normalise an already-parsed array into clean CustomLines. Drops malformed
+ *  rows. Shared by the custom_lines blob and per-option line arrays. */
+function normalizeCustomLines(parsed: unknown): CustomLine[] {
+  if (!Array.isArray(parsed)) return [];
+  return parsed
+    .map((row) => ({
+      description: String(row?.t ?? row?.description ?? '').trim(),
+      cents: Math.round(Number(row?.c ?? row?.cents ?? 0)),
+      isGift: !!(row?.g ?? row?.isGift),
+    }))
+    .filter((l) => l.description && Number.isFinite(l.cents));
+}
+
+/** Compact `{t,c,g}` rows for storage (`g` only for gifts). */
+function customLinesToCompact(lines: CustomLine[]): Array<Record<string, unknown>> {
+  return lines
+    .filter((l) => l.description.trim() && Number.isFinite(l.cents))
+    .map((l) => (l.isGift
+      ? { t: l.description.trim(), c: Math.round(l.cents), g: 1 }
+      : { t: l.description.trim(), c: Math.round(l.cents) }));
+}
+
 /** Parse the `custom_lines` JSON blob defensively into a clean array. Drops
  *  malformed rows; a bad/empty blob → []. */
 function parseCustomLines(raw: unknown): CustomLine[] {
   if (typeof raw !== 'string' || !raw) return [];
   try {
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed
-      .map((row) => ({
-        description: String(row?.t ?? row?.description ?? '').trim(),
-        cents: Math.round(Number(row?.c ?? row?.cents ?? 0)),
-        isGift: !!(row?.g ?? row?.isGift),
-      }))
-      .filter((l) => l.description && Number.isFinite(l.cents));
+    return normalizeCustomLines(JSON.parse(raw));
   } catch {
     return [];
   }
 }
 
-/** Serialise custom lines back to the compact `{t,c,g}` JSON stored on the row
- *  (`g` only when the line is a gift). */
+/** Serialise custom lines back to the compact `{t,c,g}` JSON stored on the row. */
 function serialiseCustomLines(lines: CustomLine[]): string {
+  return JSON.stringify(customLinesToCompact(lines));
+}
+
+/** Parse the `options` JSON blob into QuoteOptions. Compact shape:
+ *  `{n: label, p: packIds[], x: extraIds[], l: customLines[]}`. */
+function parseOptions(raw: unknown): QuoteOption[] {
+  if (typeof raw !== 'string' || !raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((o, i) => ({
+      label: (String(o?.n ?? o?.label ?? '').trim()) || `Opció ${i + 1}`,
+      packIds: Array.isArray(o?.p) ? o.p.map(String) : [],
+      extraIds: Array.isArray(o?.x) ? o.x.map(String) : [],
+      customLines: normalizeCustomLines(o?.l),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+/** Serialise QuoteOptions to the compact `{n,p,x,l}` JSON stored on the row. */
+function serialiseOptions(options: QuoteOption[]): string {
   return JSON.stringify(
-    lines
-      .filter((l) => l.description.trim() && Number.isFinite(l.cents))
-      .map((l) => (l.isGift
-        ? { t: l.description.trim(), c: Math.round(l.cents), g: 1 }
-        : { t: l.description.trim(), c: Math.round(l.cents) })),
+    options.map((o, i) => ({
+      n: o.label.trim() || `Opció ${i + 1}`,
+      p: o.packIds,
+      x: o.extraIds,
+      l: customLinesToCompact(o.customLines),
+    })),
   );
 }
 
 function rowToQuote(r: any): Quote {
+  const packIds: string[] = (() => {
+    try {
+      const v = JSON.parse(r.packs_json ?? '[]');
+      return Array.isArray(v) ? v.map(String) : [];
+    } catch { return []; }
+  })();
+  const extraIds: string[] = (() => {
+    try {
+      const v = JSON.parse((r.extra_ids as string) ?? '[]');
+      return Array.isArray(v) ? v.map(String) : [];
+    } catch { return []; }
+  })();
+  const customLines = parseCustomLines(r.custom_lines);
+  // Options are the source of truth for multi-option proposals. When the column
+  // is empty (single-option / legacy), synthesise one option from the base
+  // composition so every consumer can treat quote.options uniformly (≥1 entry).
+  const parsedOptions = parseOptions(r.options);
+  const options: QuoteOption[] = parsedOptions.length
+    ? parsedOptions
+    : [{ label: 'Opció 1', packIds, extraIds, customLines }];
   return {
     id: Number(r.id),
     token: r.token,
     coupleName: r.couple_name,
     coupleEmail: r.couple_email ?? null,
-    packIds: JSON.parse(r.packs_json ?? '[]'),
+    packIds,
     notes: r.notes ?? null,
     hasPassword: !!r.password_hash,
     expiresAt: r.expires_at ?? null,
@@ -222,14 +297,10 @@ function rowToQuote(r: any): Quote {
     offerTitle: r.offer_title ?? null,
     offerBody: r.offer_body ?? null,
     offerDeadline: r.offer_deadline ?? null,
-    customLines: parseCustomLines(r.custom_lines),
-    extraIds: (() => {
-      try {
-        const v = JSON.parse((r.extra_ids as string) ?? '[]');
-        return Array.isArray(v) ? v.map(String) : [];
-      } catch { return []; }
-    })(),
+    customLines,
+    extraIds,
     isFixed: !!r.is_fixed,
+    options,
     closedAt: r.quote_closed_at ?? null,
     sentAt: r.sent_at ?? null,
     followUpSentAt: r.follow_up_sent_at ?? null,
@@ -244,9 +315,20 @@ export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
   const token = generateToken(10);
   const now = new Date().toISOString();
   const passwordHash = input.password ? await bcrypt.hash(input.password, 10) : null;
+  // For a fixed proposal, store the composition as option 1 so it carries a
+  // label and multi-option additions have a base to build on. Non-fixed quotes
+  // leave `options` null (the interactive configurator has no options).
+  const initialOptions: string | null = input.isFixed
+    ? serialiseOptions([{
+        label: input.optionLabel?.trim() || 'Opció 1',
+        packIds: input.packIds,
+        extraIds: input.extraIds ?? [],
+        customLines: input.customLines ?? [],
+      }])
+    : null;
   await db.execute({
-    sql: `INSERT INTO quotes (token, couple_name, couple_email, packs_json, notes, password_hash, expires_at, created_at, created_by, flagship_video_id, flagship_showcase_slug, flagship_wedding_slug, flagship_external_gallery_url, preferred_language, service_interest, offer_title, offer_body, offer_deadline, custom_lines, lead_id, extra_ids, is_fixed)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    sql: `INSERT INTO quotes (token, couple_name, couple_email, packs_json, notes, password_hash, expires_at, created_at, created_by, flagship_video_id, flagship_showcase_slug, flagship_wedding_slug, flagship_external_gallery_url, preferred_language, service_interest, offer_title, offer_body, offer_deadline, custom_lines, lead_id, extra_ids, is_fixed, options)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       token,
       input.coupleName,
@@ -270,6 +352,7 @@ export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
       input.leadId ?? null,
       input.extraIds?.length ? JSON.stringify(input.extraIds) : null,
       input.isFixed ? 1 : 0,
+      initialOptions,
     ],
   });
   const res = await db.execute({ sql: 'SELECT * FROM quotes WHERE token = ?', args: [token] });
@@ -940,10 +1023,65 @@ export async function setQuoteCustomLines(
 ): Promise<void> {
   await initSchema();
   const clean = lines.filter((l) => l.description.trim() && Number.isFinite(l.cents));
+  // Keep option 1 in sync when the quote carries an options blob (base columns
+  // mirror options[0]). COALESCE leaves options untouched for single/legacy
+  // quotes that have no stored blob.
+  const existing = await db.execute({ sql: 'SELECT options FROM quotes WHERE id = ?', args: [quoteId] });
+  const opts = parseOptions(existing.rows[0]?.options);
+  let optionsArg: string | null = null;
+  if (opts.length) {
+    opts[0] = { ...opts[0], customLines: clean };
+    optionsArg = serialiseOptions(opts);
+  }
   await db.execute({
-    sql: 'UPDATE quotes SET custom_lines = ? WHERE id = ?',
-    args: [clean.length ? serialiseCustomLines(clean) : null, quoteId],
+    sql: 'UPDATE quotes SET custom_lines = ?, options = COALESCE(?, options) WHERE id = ?',
+    args: [clean.length ? serialiseCustomLines(clean) : null, optionsArg, quoteId],
   });
+}
+
+/** Replace all options on a fixed proposal. options[0] is mirrored into the
+ *  base packs/extras/custom-lines columns so every legacy reader stays correct.
+ *  Always stores at least one option. */
+export async function setQuoteOptions(quoteId: number, options: QuoteOption[]): Promise<void> {
+  await initSchema();
+  const clean = options
+    .map((o, i) => ({
+      label: (o.label ?? '').trim() || `Opció ${i + 1}`,
+      packIds: Array.isArray(o.packIds) ? o.packIds.map(String) : [],
+      extraIds: Array.isArray(o.extraIds) ? o.extraIds.map(String) : [],
+      customLines: (o.customLines ?? []).filter((l) => l.description.trim() && Number.isFinite(l.cents)),
+    }))
+    .filter((o) => o.packIds.length || o.extraIds.length || o.customLines.length);
+  const first: QuoteOption = clean[0] ?? { label: 'Opció 1', packIds: [], extraIds: [], customLines: [] };
+  await db.execute({
+    sql: `UPDATE quotes SET options = ?, packs_json = ?, extra_ids = ?, custom_lines = ? WHERE id = ?`,
+    args: [
+      clean.length ? serialiseOptions(clean) : null,
+      JSON.stringify(first.packIds),
+      first.extraIds.length ? JSON.stringify(first.extraIds) : null,
+      first.customLines.length ? serialiseCustomLines(first.customLines) : null,
+      quoteId,
+    ],
+  });
+}
+
+/** Append one option to a proposal (turning a single proposal into a multi-
+ *  option one). Seeds from the quote's current option(s) first. */
+export async function addQuoteOption(quoteId: number, option: QuoteOption): Promise<void> {
+  const quote = await getQuoteById(quoteId);
+  if (!quote) return;
+  await setQuoteOptions(quoteId, [...quote.options, option]);
+}
+
+/** Remove one option by index. Never removes the last remaining option — a
+ *  proposal always keeps at least one. */
+export async function removeQuoteOption(quoteId: number, index: number): Promise<void> {
+  const quote = await getQuoteById(quoteId);
+  if (!quote) return;
+  if (quote.options.length <= 1) return;
+  const next = quote.options.filter((_, i) => i !== index);
+  if (!next.length) return;
+  await setQuoteOptions(quoteId, next);
 }
 
 /** Close a quote — the couple can still view it but no more responses. */

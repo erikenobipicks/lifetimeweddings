@@ -1,6 +1,6 @@
 ---
 import AdminLayout from '~/layouts/AdminLayout.astro';
-import { createQuote, getLeadById, linkLeadToQuote } from '~/lib/quotes';
+import { createQuote, getLeadById, linkLeadToQuote, addQuoteOption, getQuoteById } from '~/lib/quotes';
 import { PACKS, OWN_EXTRAS, EXTERNAL_EXTRAS, getComposedSubpacks } from '~/data/packs';
 import { eurosStringToCents } from '~/lib/payments/money';
 import { recommendPacks } from '~/lib/matcher';
@@ -13,6 +13,11 @@ import { externalGalleries } from '~/data/external-galleries';
 // pre-filled with the lead's name/email and the recommended packs ticked.
 const leadId = Number(Astro.url.searchParams.get('lead'));
 const lead = Number.isFinite(leadId) && leadId > 0 ? await getLeadById(leadId) : null;
+
+// Support ?addOption=<quoteId>: reuse this same composer to append an option to
+// an existing proposal (Opció B/C…) instead of creating a whole new quote.
+const addOptionId = Number(Astro.url.searchParams.get('addOption'));
+const addOptionQuote = Number.isFinite(addOptionId) && addOptionId > 0 ? await getQuoteById(addOptionId) : null;
 
 let error: string | null = null;
 let createdToken: string | null = null;
@@ -41,6 +46,25 @@ if (Astro.request.method === 'POST') {
       return { description: d.trim(), cents: Number.isFinite(c) && c > 0 ? c : 0, isGift: giftIdx.has(i) };
     })
     .filter((l) => l.description && (l.isGift || l.cents > 0));
+  const optionLabel = String(form.get('option_label') ?? '').trim();
+  const postedAddOption = Number(form.get('add_option_to') ?? '');
+  const isAddOption = Number.isFinite(postedAddOption) && postedAddOption > 0;
+
+  // Adding an option to an existing proposal — append and bounce back to it.
+  if (isAddOption) {
+    if (packIds.length === 0) {
+      error = 'Selecciona almenys un pack per a l\'opció.';
+    } else {
+      await addQuoteOption(postedAddOption, {
+        label: optionLabel || 'Opció',
+        packIds,
+        extraIds,
+        customLines,
+      });
+      return Astro.redirect(`/admin/${postedAddOption}?ok=option-added#opcions`);
+    }
+  }
+
   const notes = String(form.get('notes') ?? '').trim();
   const password = String(form.get('password') ?? '').trim();
   const expiresAt = String(form.get('expires_at') ?? '').trim();
@@ -60,7 +84,9 @@ if (Astro.request.method === 'POST') {
   const linkLeadId = Number(form.get('lead_id') ?? '');
   postedLeadId = Number.isFinite(linkLeadId) && linkLeadId > 0 ? linkLeadId : null;
 
-  if (!coupleName) {
+  if (isAddOption) {
+    // handled above (redirect on success, or `error` set) — skip create
+  } else if (!coupleName) {
     error = 'Cal el nom de la parella.';
   } else if (packIds.length === 0) {
     error = 'Selecciona almenys un pack.';
@@ -86,6 +112,7 @@ if (Astro.request.method === 'POST') {
       extraIds: extraIds.length ? extraIds : undefined,
       isFixed,
       customLines: customLines.length ? customLines : undefined,
+      optionLabel: optionLabel || undefined,
     });
     if (postedLeadId) {
       // Also keep the legacy one-to-one link pointing at (the latest) proposal.
@@ -131,9 +158,22 @@ const LABELS: Record<string, string> = {
 ---
 
 <AdminLayout title="Nou pressupost">
-  <h1 class="font-display text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Nou pressupost</h1>
+  <h1 class="font-display text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">
+    {addOptionQuote ? 'Afegir una opció' : 'Nou pressupost'}
+  </h1>
 
-  {lead && !createdToken && (
+  {addOptionQuote && (
+    <div class="mb-8 bg-gold/5 border-2 border-gold/50 p-5">
+      <p class="text-xs font-bold tracking-widest uppercase text-gold-deep mb-2">➕ Nova opció per a: {addOptionQuote.coupleName}</p>
+      <p class="text-sm text-ink/75">
+        Compon aquesta opció (nom + packs + extres + línies). S'afegirà a la mateixa proposta i sortirà com una opció més al mateix enllaç.
+        Els camps de la parella i de la pàgina ja estan definits a la proposta; aquí només tries què inclou aquesta opció.
+      </p>
+      <a href={`/admin/${addOptionQuote.id}`} class="inline-block mt-3 text-xs font-bold tracking-widest uppercase text-gold-deep hover:underline">← Tornar a la proposta</a>
+    </div>
+  )}
+
+  {lead && !createdToken && !addOptionQuote && (
     <div class="mb-8 bg-cream border border-gold/40 p-5">
       <p class="text-xs font-bold tracking-widest uppercase text-gold mb-3">Respostes del quiz · lead #{lead.id}</p>
       <dl class="grid sm:grid-cols-2 gap-2 text-sm mb-3">
@@ -199,10 +239,23 @@ const LABELS: Record<string, string> = {
 
   <form method="POST" class="max-w-2xl space-y-6 bg-white p-6 border border-line">
     {lead && <input type="hidden" name="lead_id" value={lead.id} />}
+    {addOptionQuote && <input type="hidden" name="add_option_to" value={addOptionQuote.id} />}
 
     <div>
+      <label for="option_label" class="block text-xs font-bold tracking-widest uppercase mb-1.5">
+        Nom de l'opció {addOptionQuote ? '*' : '(opcional)'}
+      </label>
+      <input id="option_label" name="option_label" maxlength="60" required={!!addOptionQuote}
+             class="w-full px-3 py-2 border border-line focus:border-gold focus:outline-none"
+             placeholder="Ex: Foto essencial" />
+      <p class="text-[0.7rem] text-ink/70 mt-1">Nom curt de l'opció. Si la proposta té diverses opcions, la parella el veurà com a títol de cada targeta (ex: "Foto essencial", "Foto + vídeo").</p>
+    </div>
+
+    {!addOptionQuote && (
+    <>
+    <div>
       <label for="couple_name" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Nom de la parella *</label>
-      <input id="couple_name" name="couple_name" required value={initialName}
+      <input id="couple_name" name="couple_name" required={!addOptionQuote} value={initialName}
              class="w-full px-3 py-2 border border-line focus:border-gold focus:outline-none"
              placeholder="Luis & Craig" />
     </div>
@@ -238,6 +291,8 @@ const LABELS: Record<string, string> = {
         ))}
       </div>
     </div>
+    </>
+    )}
 
     <div>
       <p class="text-xs font-bold tracking-widest uppercase mb-3">Packs a mostrar *</p>
@@ -365,6 +420,8 @@ const LABELS: Record<string, string> = {
       </div>
     </div>
 
+    {!addOptionQuote && (
+    <>
     <label class="flex items-start gap-3 border border-gold/50 bg-gold/5 p-3">
       <input type="checkbox" name="is_fixed" checked class="mt-0.5 accent-gold" />
       <span class="text-sm">
@@ -503,10 +560,12 @@ const LABELS: Record<string, string> = {
         </div>
       </div>
     </details>
+    </>
+    )}
 
     <button type="submit"
             class="bg-ink text-white px-8 py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">
-      Crear i generar enllaç
+      {addOptionQuote ? 'Afegir opció a la proposta' : 'Crear i generar enllaç'}
     </button>
   </form>
 </AdminLayout>
