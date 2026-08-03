@@ -16,7 +16,7 @@
 //
 // All copy goes through useTranslations() so the panel is fully i18n.
 
-import { PACKS, EXTRAS } from '~/data/packs';
+import { PACKS, OWN_EXTRAS, EXTERNAL_EXTRAS } from '~/data/packs';
 import { useTranslations, type Lang } from '~/i18n/ui';
 import { formatEuros, parsePriceCents } from '~/lib/pricing';
 import type { QuoteResponse, ServiceInterest } from '~/lib/quotes';
@@ -82,7 +82,10 @@ const isClosed = !!closedAt;
 // Pre-compute prices in cents so the JS doesn't have to re-parse on
 // every change. Shipped to the client via data-cents attributes.
 const packsWithCents = PACKS.map((p) => ({ ...p, cents: parsePriceCents(p.price) }));
-const extrasWithCents = EXTRAS.map((e) => ({ ...e, cents: parsePriceCents(e.price) }));
+// Split add-ons: our own photo/video services get top billing; resold
+// external services (fotomatón, 360º…) are grouped below.
+const ownExtrasWithCents = OWN_EXTRAS.map((e) => ({ ...e, cents: parsePriceCents(e.price) }));
+const externalExtrasWithCents = EXTERNAL_EXTRAS.map((e) => ({ ...e, cents: parsePriceCents(e.price) }));
 
 const basePacks = packsWithCents.filter((p) => p.type !== 'combo');
 const comboPacks = packsWithCents.filter((p) => p.type === 'combo');
@@ -92,6 +95,8 @@ const intro = t('quote.configurator.intro');
 const basePacksLabel = t('quote.configurator.basePacks');
 const combosLabel = t('quote.configurator.combos');
 const extrasLabel = t('quote.configurator.extras');
+const extrasOwnLabel = t('quote.configurator.extrasOwn');
+const extrasExternalLabel = t('quote.configurator.extrasExternal');
 const totalLabel = t('quote.configurator.total');
 const discountLabel = t('quote.configurator.discount');
 const messageLabel = t('quote.configurator.messageLabel');
@@ -210,11 +215,42 @@ const noSelection = t('quote.configurator.empty');
         )}
       </div>
 
-      {/* Extras */}
+      {/* Extras — our own photo/video add-ons up front (prominent), resold
+          external services grouped below. */}
       <div>
         <p class="text-xs font-bold tracking-[0.18em] uppercase text-ink/70 mb-3">{extrasLabel}</p>
+
+        {/* Own foto/vídeo services — top billing */}
+        <p class="flex items-center gap-2 text-sm font-bold text-gold-deep mb-2">
+          <span aria-hidden="true">📸</span>{extrasOwnLabel}
+        </p>
+        <ul class="divide-y divide-line border-2 border-gold/40 bg-gold/[0.03] mb-6">
+          {ownExtrasWithCents.map((x) => (
+            <li class="qc-row" data-service={EXTRA_SERVICE[x.id] ?? 'both'}>
+              <label class={`flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-cream/50 has-[:checked]:bg-gold/10 ${isClosed ? 'pointer-events-none opacity-60' : ''}`}>
+                <input
+                  type="checkbox"
+                  name="extra"
+                  value={x.id}
+                  data-cents={x.cents}
+                  checked={checkedExtraIds.includes(x.id)}
+                  disabled={isClosed}
+                  class="mt-1 accent-gold qc-input qc-extra"
+                />
+                <div class="flex-1">
+                  <p class="text-ink font-medium">{x.name[lang]}</p>
+                  {x.note && <p class="text-xs text-ink/70 mt-0.5">{x.note[lang]}</p>}
+                </div>
+                <p class="font-bold text-gold-deep whitespace-nowrap">{x.price}</p>
+              </label>
+            </li>
+          ))}
+        </ul>
+
+        {/* Resold external services — secondary */}
+        <p class="text-xs font-bold tracking-[0.14em] uppercase text-ink/55 mb-2">{extrasExternalLabel}</p>
         <ul class="divide-y divide-line border border-line bg-white">
-          {extrasWithCents.map((x) => (
+          {externalExtrasWithCents.map((x) => (
             <li class="qc-row" data-service={EXTRA_SERVICE[x.id] ?? 'both'}>
               <label class={`flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-cream/50 has-[:checked]:bg-gold/5 ${isClosed ? 'pointer-events-none opacity-60' : ''}`}>
                 <input
