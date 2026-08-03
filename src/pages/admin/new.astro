@@ -1,7 +1,7 @@
 ---
 import AdminLayout from '~/layouts/AdminLayout.astro';
 import { createQuote, getLeadById, linkLeadToQuote } from '~/lib/quotes';
-import { PACKS, EXTRAS, getComposedSubpacks } from '~/data/packs';
+import { PACKS, OWN_EXTRAS, EXTERNAL_EXTRAS, getComposedSubpacks } from '~/data/packs';
 import { eurosStringToCents } from '~/lib/payments/money';
 import { recommendPacks } from '~/lib/matcher';
 import { publicVideos, fullVideos } from '~/data/videos';
@@ -291,10 +291,38 @@ const LABELS: Record<string, string> = {
     <div>
       <p class="text-xs font-bold tracking-widest uppercase mb-2">Extres a incloure</p>
       <p class="text-[0.7rem] text-ink/70 mb-3 -mt-1">Marca els extres que formen part d'aquesta proposta (preus amb IVA inclòs).</p>
-      <details class="border border-line bg-white">
-        <summary class="cursor-pointer px-4 py-3 text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold select-none">＋ Tria extres</summary>
+
+      {/* Our own photo/video add-ons — shown open and up front so they're the
+          first thing on hand when composing a proposal. */}
+      <div class="border border-gold/40 bg-gold/5">
+        <p class="px-4 py-3 text-xs font-bold tracking-widest uppercase text-gold-deep border-b border-gold/30">
+          📸 Foto i vídeo <span class="text-ink/50 font-normal normal-case tracking-normal">· els nostres serveis</span>
+        </p>
         <ul class="divide-y divide-line px-4 pb-3">
-          {EXTRAS.map((x) => (
+          {OWN_EXTRAS.map((x) => (
+            <li class="py-2">
+              <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" name="extras" value={x.id} class="mt-1 accent-gold" />
+                <span class="flex-1 flex items-start justify-between gap-3">
+                  <span>
+                    <span class="text-ink font-medium">{x.name.ca}</span>
+                    {x.note && <span class="block text-[0.7rem] text-ink/70 mt-0.5">{x.note.ca}</span>}
+                  </span>
+                  <span class="font-bold text-gold whitespace-nowrap">{x.price}</span>
+                </span>
+              </label>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Resold third-party services — collapsed by default (secondary). */}
+      <details class="border border-line bg-white mt-3">
+        <summary class="cursor-pointer px-4 py-3 text-xs font-bold tracking-widest uppercase text-ink/70 hover:text-gold select-none">
+          ＋ Serveis externs <span class="text-ink/50 font-normal normal-case tracking-normal">· fotomatón, 360º, etc.</span>
+        </summary>
+        <ul class="divide-y divide-line px-4 pb-3">
+          {EXTERNAL_EXTRAS.map((x) => (
             <li class="py-2">
               <label class="flex items-start gap-3 cursor-pointer">
                 <input type="checkbox" name="extras" value={x.id} class="mt-1 accent-gold" />

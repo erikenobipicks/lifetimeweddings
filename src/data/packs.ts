@@ -47,6 +47,13 @@ export interface PackExtra {
   /** Short clarification — drone weather caveat, preboda travel area,
    *  etc. Optional. */
   note?: Record<Lang, string>;
+  /** Which family the add-on belongs to:
+   *   - 'own'      → our own photo/video services (preboda, second shooter,
+   *                  albums, drone…). These get top billing.
+   *   - 'external' → third-party services we resell (Tomafoton photo booth,
+   *                  360º video, etc.). Grouped apart, secondary.
+   *  Defaults to 'own' when omitted. */
+  category?: 'own' | 'external';
 }
 
 export const PACKS: Pack[] = [
@@ -431,11 +438,11 @@ export function getComposedSubpacks(pack: Pack): Pack[] {
     .filter((p): p is Pack => p !== undefined);
 }
 
-/** Optional add-ons quoted on top of any base pack. Order matches the
- *  Canva "Extra" page (DAHBl3CKN-U) — first the staffing add-ons, then
+/** Our own photo/video add-ons quoted on top of any base pack. Order matches
+ *  the Canva "Extra" page (DAHBl3CKN-U) — first the staffing add-ons, then
  *  preboda/postboda services, then physical print products, then the
- *  weather-dependent drone op. */
-export const EXTRAS: PackExtra[] = [
+ *  weather-dependent drone op. These take top billing over resold services. */
+const OWN_EXTRAS_RAW: PackExtra[] = [
   {
     id: 'extra-videographer',
     name: {
@@ -537,7 +544,11 @@ export const EXTRAS: PackExtra[] = [
       en: 'Subject to venue location, weather conditions and AESA regulations',
     },
   },
+];
 
+/** Third-party services we resell as event add-ons (Tomafoton photo booth,
+ *  360º video booth, etc.). Grouped apart from our own photo/video work. */
+const EXTERNAL_EXTRAS_RAW: PackExtra[] = [
   // ─── Fotomatón i complements (Tomafoton by Fotomarbis) ────────────────────
   // Photo-booth / 360-video / etc. add-ons resold as event extras. Catalogue
   // prices are quoted WITHOUT VAT (sin IVA); the amounts below already include
@@ -767,3 +778,11 @@ export const EXTRAS: PackExtra[] = [
     price: '48,40 €',
   },
 ];
+
+/** Our own foto/vídeo add-ons, tagged `category: 'own'`. Given top billing. */
+export const OWN_EXTRAS: PackExtra[] = OWN_EXTRAS_RAW.map((e) => ({ ...e, category: 'own' as const }));
+/** Resold external services (fotomatón, 360º…), tagged `category: 'external'`. */
+export const EXTERNAL_EXTRAS: PackExtra[] = EXTERNAL_EXTRAS_RAW.map((e) => ({ ...e, category: 'external' as const }));
+/** All add-ons, own first then external. Preserves the previous ordering so
+ *  every existing consumer (pricing, respond API, booking form) is unaffected. */
+export const EXTRAS: PackExtra[] = [...OWN_EXTRAS, ...EXTERNAL_EXTRAS];
