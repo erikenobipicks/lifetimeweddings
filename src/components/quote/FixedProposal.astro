@@ -5,7 +5,7 @@
 // "accept" records a response (so Eric gets pinged), same endpoint as the
 // interactive configurator.
 import { PACKS, EXTRAS } from '~/data/packs';
-import { formatEuros, calculateSelectionTotals } from '~/lib/pricing';
+import { formatEuros, calculateSelectionTotals, sumCustomLines } from '~/lib/pricing';
 import { type Lang } from '~/i18n/ui';
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
   token: string;
   packIds: string[];
   extraIds: string[];
-  customLines: { description: string; cents: number }[];
+  customLines: { description: string; cents: number; isGift?: boolean }[];
   adminDiscountCents: number;
   validUntilText?: string | null;
   /** True once the couple has already accepted — render the read-only thanks. */
@@ -28,7 +28,7 @@ const {
 
 const packs = PACKS.filter((p) => packIds.includes(p.id));
 const extras = EXTRAS.filter((x) => extraIds.includes(x.id));
-const customCents = customLines.reduce((a, l) => a + l.cents, 0);
+const customCents = sumCustomLines(customLines);
 const totals = calculateSelectionTotals(packIds, extraIds, adminDiscountCents, customCents);
 
 const TX = {
@@ -64,8 +64,15 @@ const TX = {
         ))}
         {customLines.map((l) => (
           <li class="flex items-baseline justify-between gap-4 px-5 py-3">
-            <span class="text-ink/85">{l.description}</span>
-            <span class="font-semibold whitespace-nowrap">{formatEuros(l.cents)}</span>
+            <span class="text-ink/85">
+              {l.description}
+              {l.isGift && <span class="ml-2 text-[0.6rem] font-bold tracking-[0.14em] uppercase px-1.5 py-0.5 rounded-sm bg-gold/20 text-gold-deep align-middle">Regal</span>}
+            </span>
+            {l.isGift ? (
+              <span class="whitespace-nowrap">{l.cents > 0 && <span class="line-through text-ink/40">{formatEuros(l.cents)} </span>}<span class="font-bold text-gold-deep">0 €</span></span>
+            ) : (
+              <span class="font-semibold whitespace-nowrap">{formatEuros(l.cents)}</span>
+            )}
           </li>
         ))}
         {adminDiscountCents > 0 && (

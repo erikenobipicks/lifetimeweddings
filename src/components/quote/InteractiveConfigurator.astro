@@ -18,7 +18,7 @@
 
 import { PACKS, OWN_EXTRAS, EXTERNAL_EXTRAS } from '~/data/packs';
 import { useTranslations, type Lang } from '~/i18n/ui';
-import { formatEuros, parsePriceCents } from '~/lib/pricing';
+import { formatEuros, parsePriceCents, sumCustomLines } from '~/lib/pricing';
 import type { QuoteResponse, ServiceInterest } from '~/lib/quotes';
 
 interface Props {
@@ -42,10 +42,10 @@ interface Props {
    *  when the quote has no expiry. */
   validUntilText?: string | null;
   /** Operator-authored always-included line items (description + IVA-incl cents). */
-  customLines?: { description: string; cents: number }[];
+  customLines?: { description: string; cents: number; isGift?: boolean }[];
 }
 const { lang, token, initialPackIds, lastResponse, adminDiscountCents, closedAt, serviceInterest, validUntilText = null, customLines = [] } = Astro.props;
-const customLinesCents = customLines.reduce((acc, l) => acc + l.cents, 0);
+const customLinesCents = sumCustomLines(customLines);
 const customLinesLabel = lang === 'es' ? 'Conceptos personalizados' : lang === 'en' ? 'Custom items' : 'Conceptes personalitzats';
 const t = useTranslations(lang);
 
@@ -280,8 +280,15 @@ const noSelection = t('quote.configurator.empty');
           <ul class="space-y-2">
             {customLines.map((l) => (
               <li class="flex justify-between items-baseline gap-3 text-sm border-b border-line/60 pb-2">
-                <span class="text-ink/85">{l.description}</span>
-                <span class="font-bold whitespace-nowrap">{formatEuros(l.cents)}</span>
+                <span class="text-ink/85">
+                  {l.description}
+                  {l.isGift && <span class="ml-2 text-[0.6rem] font-bold tracking-[0.14em] uppercase px-1.5 py-0.5 rounded-sm bg-gold/20 text-gold-deep align-middle">Regal</span>}
+                </span>
+                {l.isGift ? (
+                  <span class="whitespace-nowrap">{l.cents > 0 && <span class="line-through text-ink/40">{formatEuros(l.cents)} </span>}<span class="font-bold text-gold-deep">0 €</span></span>
+                ) : (
+                  <span class="font-bold whitespace-nowrap">{formatEuros(l.cents)}</span>
+                )}
               </li>
             ))}
           </ul>
