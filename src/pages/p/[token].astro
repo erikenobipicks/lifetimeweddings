@@ -13,7 +13,7 @@ import { WEDDINGS } from '~/data/weddings';
 import { recommendShowcase } from '~/lib/matcher';
 import ExternalGalleryEmbed from '~/components/quote/ExternalGalleryEmbed.astro';
 import InteractiveConfigurator from '~/components/quote/InteractiveConfigurator.astro';
-import FixedProposal from '~/components/quote/FixedProposal.astro';
+import ProposalOptions from '~/components/quote/ProposalOptions.astro';
 import AtmosphericPhoto from '~/components/quote/AtmosphericPhoto.astro';
 import { SITE, waLink } from '~/data/site';
 import Icon from '~/components/Icon.astro';
@@ -312,6 +312,22 @@ const offerActive: boolean = (() => {
           </div>
         </Section>
 
+        {/* Fixed proposal FIRST — the couple has already seen our work before
+            getting here, so the proposal (and its options) leads. The portfolio,
+            testimonials and FAQ below back it up. Interactive quotes keep the
+            configurator further down (after the packs catalogue). */}
+        {quote.isFixed && (
+          <ProposalOptions
+            lang={lang}
+            token={quote.token}
+            options={quote.options}
+            adminDiscountCents={quote.adminDiscountCents}
+            validUntilText={validUntilText}
+            alreadyResponded={!!latestResponse}
+            whatsappUrl={waForVideocall()}
+          />
+        )}
+
         {/* Limited-time offer — set per quote by the operator. Highlighted
             gold banner with an optional live "days left" countdown to create
             honest urgency. Hidden entirely once the deadline passes. */}
@@ -476,7 +492,7 @@ const offerActive: boolean = (() => {
 
         <!-- Packs (price visible). Now placed AFTER the visual examples
              so the couple has seen the quality before the number.
-             Hidden for fixed proposals — the FixedProposal component below
+             Hidden for fixed proposals — the proposal at the top of the page
              already itemises exactly what Eric selected, so the full catalog
              would just be noise. -->
         {!quote.isFixed && (
@@ -582,25 +598,10 @@ const offerActive: boolean = (() => {
           </Section>
         )}
 
-        <!-- Proposal block. Two modes:
-             • Fixed proposal (quote.isFixed) — Eric composed the packs,
-               extras and custom lines himself; the couple just sees the
-               itemised proposal and accepts it (non-editable).
-             • Interactive configurator — the couple ticks what they want,
-               sees the total update live, and sends it back to us. -->
-        {quote.isFixed ? (
-          <FixedProposal
-            lang={lang}
-            token={quote.token}
-            packIds={quote.packIds}
-            extraIds={quote.extraIds}
-            customLines={quote.customLines}
-            adminDiscountCents={quote.adminDiscountCents}
-            validUntilText={validUntilText}
-            alreadyResponded={!!latestResponse}
-            whatsappUrl={waForVideocall()}
-          />
-        ) : (
+        <!-- Interactive configurator — only for non-fixed quotes; the couple
+             ticks what they want, sees the total update live, and sends it back
+             to us. Fixed proposals render at the TOP of the page instead. -->
+        {!quote.isFixed && (
           <InteractiveConfigurator
             lang={lang}
             token={quote.token}

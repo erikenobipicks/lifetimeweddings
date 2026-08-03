@@ -449,6 +449,10 @@ export async function initSchema() {
   // the total, no interactive configurator). Nullable/0 → legacy interactive.
   await ensureColumn('quotes', 'extra_ids', 'TEXT');
   await ensureColumn('quotes', 'is_fixed', 'INTEGER');
+  // Multi-option proposals: a fixed quote can carry several named options
+  // (Opció A/B/C), each with its own packs + extras + custom lines, shown on
+  // one link. JSON array; null/empty → single proposal from the base columns.
+  await ensureColumn('quotes', 'options', 'TEXT');
   await db.execute(
     `UPDATE quotes SET lead_id = (SELECT l.id FROM leads l WHERE l.quote_id = quotes.id)
      WHERE lead_id IS NULL AND EXISTS (SELECT 1 FROM leads l WHERE l.quote_id = quotes.id)`,

@@ -33,6 +33,10 @@ const schema = z.object({
   // We cap at 1 server-side too so a hand-rolled payload can't bypass it.
   packIds: z.array(z.string().min(1).max(60)).max(1).default([]),
   extraIds: z.array(z.string().min(1).max(60)).max(20).default([]),
+  // Multi-option proposals: the couple accepts a whole option by index. When
+  // present, the server resolves the packs/extras/lines from that option so the
+  // total can't be poisoned by a hand-rolled payload.
+  optionIndex: z.number().int().min(0).max(50).optional(),
   message: z
     .string()
     .max(2000)
@@ -77,9 +81,9 @@ export const POST: APIRoute = async ({ request, params }) => {
 
   const parsed = schema.safeParse(body);
   if (!parsed.success) return json({ error: 'validation' }, 400);
-  const { packIds, extraIds, message } = parsed.data;
+  const { packIds, extraIds, optionIndex, message } = parsed.data;
 
-  if (packIds.length === 0 && extraIds.length === 0) {
+  if (optionIndex == null && packIds.length === 0 && extraIds.length === 0) {
     return json({ error: 'empty_selection' }, 400);
   }
 
@@ -87,14 +91,24 @@ export const POST: APIRoute = async ({ request, params }) => {
   if (!quote || quote.archived) return json({ error: 'not_found' }, 404);
   if (quote.closedAt) return json({ error: 'closed' }, 409);
 
+  // Multi-option accept: resolve the whole option server-side from its index so
+  // packs/extras/lines (and thus the total) come from our data, not the client.
+  const chosenOption = optionIndex != null ? quote.options[optionIndex] ?? null : null;
+  const srcPackIds = chosenOption ? chosenOption.packIds : packIds;
+  const srcExtraIds = chosenOption ? chosenOption.extraIds : extraIds;
+
   // Sanity-filter the ids against the catalog so a malicious payload can't
   // poison our totals or DB. Unknown ids are silently dropped.
-  const validPackIds = packIds.filter((id) => PACKS.some((p) => p.id === id));
-  const validExtraIds = extraIds.filter((id) => EXTRAS.some((e) => e.id === id));
+  const validPackIds = srcPackIds.filter((id) => PACKS.some((p) => p.id === id));
+  const validExtraIds = srcExtraIds.filter((id) => EXTRAS.some((e) => e.id === id));
 
-  // Operator-authored custom lines are always included, on top of the couple's
-  // pack/extra selection.
-  const customLinesCents = sumCustomLines(quote.customLines);
+  if (validPackIds.length === 0 && validExtraIds.length === 0) {
+    return json({ error: 'empty_selection' }, 400);
+  }
+
+  // Custom lines are always included on top of the selection. For a multi-option
+  // accept they come from the chosen option; otherwise the quote's base lines.
+  const customLinesCents = sumCustomLines(chosenOption ? chosenOption.customLines : quote.customLines);
   const totals = calculateSelectionTotals(
     validPackIds,
     validExtraIds,
@@ -102,11 +116,16 @@ export const POST: APIRoute = async ({ request, params }) => {
     customLinesCents,
   );
 
+  // Record which option the couple picked so it shows in the admin response.
+  const storedMessage = chosenOption
+    ? [`Opció triada: ${chosenOption.label}`, message].filter(Boolean).join(' · ')
+    : message;
+
   const response = await createQuoteResponse({
     quoteId: quote.id,
     packIds: validPackIds,
     extraIds: validExtraIds,
-    message,
+    message: storedMessage,
     totalCents: totals.totalCents,
     ipAddress: clientIp(request.headers),
     userAgent: request.headers.get('user-agent') ?? undefined,
