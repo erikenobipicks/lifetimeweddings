@@ -139,6 +139,8 @@ export interface CreateQuoteInput {
   offerDeadline?: string;
   /** Operator-authored free-text quote lines (IVA-included cents). */
   customLines?: { description: string; cents: number }[];
+  /** Lead this quote is a proposal for (one lead → many proposals). */
+  leadId?: number;
 }
 
 const IP_SALT = process.env.IP_HASH_SALT ?? 'lifetime-dev-salt';
@@ -210,8 +212,8 @@ export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
   const now = new Date().toISOString();
   const passwordHash = input.password ? await bcrypt.hash(input.password, 10) : null;
   await db.execute({
-    sql: `INSERT INTO quotes (token, couple_name, couple_email, packs_json, notes, password_hash, expires_at, created_at, created_by, flagship_video_id, flagship_showcase_slug, flagship_wedding_slug, flagship_external_gallery_url, preferred_language, service_interest, offer_title, offer_body, offer_deadline, custom_lines)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    sql: `INSERT INTO quotes (token, couple_name, couple_email, packs_json, notes, password_hash, expires_at, created_at, created_by, flagship_video_id, flagship_showcase_slug, flagship_wedding_slug, flagship_external_gallery_url, preferred_language, service_interest, offer_title, offer_body, offer_deadline, custom_lines, lead_id)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       token,
       input.coupleName,
@@ -232,6 +234,7 @@ export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
       input.offerBody?.trim() || null,
       input.offerDeadline?.trim() || null,
       input.customLines?.length ? serialiseCustomLines(input.customLines) : null,
+      input.leadId ?? null,
     ],
   });
   const res = await db.execute({ sql: 'SELECT * FROM quotes WHERE token = ?', args: [token] });
@@ -273,8 +276,9 @@ export async function archiveQuote(id: number): Promise<void> {
 export async function listWeddingDatesByQuote(): Promise<Map<number, string>> {
   await initSchema();
   const res = await db.execute({
-    sql: `SELECT quote_id, wedding_date FROM leads
-          WHERE quote_id IS NOT NULL AND wedding_date IS NOT NULL AND wedding_date != ''`,
+    sql: `SELECT q.id AS quote_id, l.wedding_date
+          FROM quotes q JOIN leads l ON l.id = q.lead_id
+          WHERE l.wedding_date IS NOT NULL AND l.wedding_date != ''`,
     args: [],
   });
   const map = new Map<number, string>();
@@ -592,11 +596,35 @@ export async function listLeads(limit = 100): Promise<Lead[]> {
 
 export async function getLeadByQuoteId(quoteId: number): Promise<Lead | null> {
   await initSchema();
+  // Preferred: the quote's own lead_id (works for every proposal of a lead).
   const res = await db.execute({
+    sql: 'SELECT l.* FROM leads l JOIN quotes q ON q.lead_id = l.id WHERE q.id = ? LIMIT 1',
+    args: [quoteId],
+  });
+  if (res.rows[0]) return rowToLead(res.rows[0]);
+  // Legacy fallback: the old one-to-one leads.quote_id link.
+  const legacy = await db.execute({
     sql: 'SELECT * FROM leads WHERE quote_id = ? LIMIT 1',
     args: [quoteId],
   });
-  return res.rows[0] ? rowToLead(res.rows[0]) : null;
+  return legacy.rows[0] ? rowToLead(legacy.rows[0]) : null;
+}
+
+/** All non-archived quotes that belong to a lead, grouped by lead id. Used by
+ *  the leads admin to list every proposal made for each couple. */
+export async function listQuotesByLead(): Promise<Map<number, Quote[]>> {
+  await initSchema();
+  const res = await db.execute({
+    sql: `SELECT * FROM quotes WHERE lead_id IS NOT NULL AND archived = 0 ORDER BY created_at ASC`,
+    args: [],
+  });
+  const map = new Map<number, Quote[]>();
+  for (const row of res.rows) {
+    const leadId = Number(row.lead_id);
+    if (!map.has(leadId)) map.set(leadId, []);
+    map.get(leadId)!.push(rowToQuote(row));
+  }
+  return map;
 }
 
 export async function getLeadById(id: number): Promise<Lead | null> {

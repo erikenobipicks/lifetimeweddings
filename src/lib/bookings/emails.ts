@@ -287,10 +287,11 @@ export async function sendCoupleConfirmation(
   // Compose the recipient list: primary email always, plus c1/c2 emails
   // if they differ. Dedupe (case-insensitive) so we don't double-send.
   const recipients = new Set<string>();
-  recipients.add(booking.coupleEmailPrimary.toLowerCase());
-  recipients.add(formResponse.c1Email.toLowerCase());
-  recipients.add(formResponse.c2Email.toLowerCase());
+  if (booking.coupleEmailPrimary) recipients.add(booking.coupleEmailPrimary.toLowerCase());
+  if (formResponse.c1Email) recipients.add(formResponse.c1Email.toLowerCase());
+  if (formResponse.c2Email) recipients.add(formResponse.c2Email.toLowerCase());
   const to = Array.from(recipients);
+  if (to.length === 0) return; // no email on file → nothing to send
 
   const { subject, html, text } = renderCoupleEmail(booking);
 
@@ -536,6 +537,7 @@ function contratoCoupleCopy(booking: Booking): ContratoCoupleCopy {
 }
 
 export async function sendContratoCoupleConfirmation(booking: Booking): Promise<void> {
+  if (!booking.coupleEmailPrimary) return; // no email on file → nothing to send
   const c = contratoCoupleCopy(booking);
   const wa = WHATSAPP_BASE;
   const html = `
@@ -721,6 +723,7 @@ function contratoInviteCopy(booking: Booking): ContratoInviteCopy {
 }
 
 export async function sendContratoInvite(booking: Booking): Promise<void> {
+  if (!booking.coupleEmailPrimary) return; // no email on file → nothing to send
   const c = contratoInviteCopy(booking);
   const langPrefix = booking.preferredLanguage === 'ca' ? '' : `/${booking.preferredLanguage}`;
   const url = `${SITE.url}${langPrefix}/contrato/${booking.slug}`;
@@ -949,6 +952,7 @@ function reservaInviteCopy(booking: Booking): ReservaInviteCopy {
 }
 
 export async function sendReservaInvite(booking: Booking): Promise<void> {
+  if (!booking.coupleEmailPrimary) return; // no email on file → nothing to send
   const c = reservaInviteCopy(booking);
   const langPrefix = booking.preferredLanguage === 'ca' ? '' : `/${booking.preferredLanguage}`;
   const url = `${SITE.url}${langPrefix}/reserva/${booking.slug}`;

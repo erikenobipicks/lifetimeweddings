@@ -65,8 +65,10 @@ if (Astro.request.method === 'POST') {
       offerTitle: offerTitle || undefined,
       offerBody: offerBody || undefined,
       offerDeadline: offerDeadline || undefined,
+      leadId: postedLeadId ?? undefined,
     });
     if (postedLeadId) {
+      // Also keep the legacy one-to-one link pointing at (the latest) proposal.
       try { await linkLeadToQuote(postedLeadId, q.id); } catch { /* non-fatal */ }
     }
     createdToken = q.token;
