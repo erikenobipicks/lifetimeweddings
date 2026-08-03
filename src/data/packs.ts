@@ -537,4 +537,200 @@ export const EXTRAS: PackExtra[] = [
       en: 'Subject to venue location, weather conditions and AESA regulations',
     },
   },
+
+  // ─── Fotomatón i complements (Tomafoton by Fotomarbis) ────────────────────
+  // Photo-booth / 360-video / etc. add-ons resold as event extras. Catalogue
+  // prices are quoted WITHOUT VAT (sin IVA); the amounts below already include
+  // 21% VAT. Per-service durations, hour extras, packs, tiers and discounts
+  // live in the notes since a PackExtra is a single price + note.
+  {
+    id: 'tomafoton-fotomaton',
+    name: {
+      ca: 'Fotomatón (fotos i impressions il·limitades)',
+      es: 'Fotomatón (fotos e impresiones ilimitadas)',
+      en: 'Photo booth (unlimited photos & prints)',
+    },
+    price: '423,50 €',
+    note: {
+      ca: '2 h. Hora extra 96,80 €. 3 h: 520,30 €. Llibre de signatures i galeria online inclosos.',
+      es: '2 h. Hora extra 96,80 €. 3 h: 520,30 €. Libro de firmas y galería online incluidos.',
+      en: '2 h. Extra hour €96.80. 3 h: €520.30. Guest book and online gallery included.',
+    },
+  },
+  {
+    id: 'tomafoton-360',
+    name: {
+      ca: 'Videomatón 360º',
+      es: 'Videomatón 360º',
+      en: '360º video booth',
+    },
+    price: '580,80 €',
+    note: {
+      ca: '2 h. Hora extra 96,80 €. Pack Fotomatón + 360º: 955,90 €.',
+      es: '2 h. Hora extra 96,80 €. Pack Fotomatón + 360º: 955,90 €.',
+      en: '2 h. Extra hour €96.80. Photo booth + 360º bundle: €955.90.',
+    },
+  },
+  {
+    id: 'tomafoton-360-aeri',
+    name: {
+      ca: 'Videomatón 360º aeri (fins a 15 persones)',
+      es: 'Videomatón 360º aéreo (hasta 15 personas)',
+      en: 'Aerial 360º video booth (up to 15 people)',
+    },
+    price: '701,80 €',
+    note: {
+      ca: '2 h, sense plataforma. Hora extra 96,80 €. Pack Fotomatón + 360º aeri: 1.076,90 €.',
+      es: '2 h, sin plataforma. Hora extra 96,80 €. Pack Fotomatón + 360º aéreo: 1.076,90 €.',
+      en: '2 h, no platform. Extra hour €96.80. Photo booth + aerial 360º bundle: €1,076.90.',
+    },
+  },
+  {
+    id: 'tomafoton-slowmotion',
+    name: {
+      ca: 'Vídeo slow motion',
+      es: 'Vídeo slow motion',
+      en: 'Slow-motion video',
+    },
+    price: '423,50 €',
+    note: {
+      ca: '2 h. Hora extra 96,80 €. Combinable en pack amb un altre servei.',
+      es: '2 h. Hora extra 96,80 €. Combinable en pack con otro servicio.',
+      en: '2 h. Extra hour €96.80. Can be bundled with another service.',
+    },
+  },
+  {
+    id: 'tomafoton-confe',
+    name: {
+      ca: 'El Confe — confessionari de videomissatges',
+      es: 'El Confe — confesionario de videomensajes',
+      en: 'The Confessional — video-message booth',
+    },
+    price: '423,50 €',
+    note: {
+      ca: '2 h. Hora extra 96,80 €. Micròfons sense fils. Combinable en pack.',
+      es: '2 h. Hora extra 96,80 €. Micrófonos inalámbricos. Combinable en pack.',
+      en: '2 h. Extra hour €96.80. Wireless mics. Can be bundled.',
+    },
+  },
+  {
+    id: 'tomafoton-caricatures',
+    name: {
+      ca: 'Caricatures robotitzades (2 robots)',
+      es: 'Caricaturas robotizadas (2 robots)',
+      en: 'Robot caricatures (2 robots)',
+    },
+    price: '726 €',
+    note: {
+      ca: '2 h. Hora extra 121 €. Opció de còpia en paper de totes les caricatures.',
+      es: '2 h. Hora extra 121 €. Opción de copia en papel de todas las caricaturas.',
+      en: '2 h. Extra hour €121. Optional paper copies of every caricature.',
+    },
+  },
+  {
+    id: 'tomafoton-espejo',
+    name: {
+      ca: 'Mirall Tomaselfie',
+      es: 'Espejo Tomaselfie',
+      en: 'Selfie mirror',
+    },
+    price: '363 €',
+    note: {
+      ca: '2 h. Sense impressió 363 €, amb impressió 423,50 €. Hora extra 96,80 €. Descompte de 50 € si es contracta algun altre Tomafoton.',
+      es: '2 h. Sin impresión 363 €, con impresión 423,50 €. Hora extra 96,80 €. Descuento de 50 € al contratar algún otro Tomafoton.',
+      en: '2 h. Without prints €363, with prints €423.50. Extra hour €96.80. €50 off when booking another Tomafoton.',
+    },
+  },
+  {
+    id: 'tomafoton-clauers',
+    name: {
+      ca: 'Quiosc de clauers amb les fotos',
+      es: 'Kiosco de llaveros con las fotos',
+      en: 'Keychain kiosk with the photos',
+    },
+    price: '242 €',
+    note: {
+      ca: '50 clauers 242 €, 100 clauers 338,80 €. Com a detall per als convidats: 50 clauers 302,50 €, clauer extra 4,24 €.',
+      es: '50 llaveros 242 €, 100 llaveros 338,80 €. Como detalle para los invitados: 50 llaveros 302,50 €, llavero extra 4,24 €.',
+      en: '50 keychains €242, 100 keychains €338.80. As a guest favour: 50 keychains €302.50, extra keychain €4.24.',
+    },
+  },
+  {
+    id: 'tomafoton-caravana',
+    name: {
+      ca: 'Caravana vintage «Day Sí Van»',
+      es: 'Caravana vintage «Day Sí Van»',
+      en: 'Vintage caravan “Day Sí Van”',
+    },
+    price: '713,90 €',
+    note: {
+      ca: 'Decoració durant l\'esdeveniment + 3 h de servei. Hora extra 96,80 €. Inclou fotomatón amb impressions i confessionari.',
+      es: 'Decoración durante el evento + 3 h de servicio. Hora extra 96,80 €. Incluye fotomatón con impresiones y confesionario.',
+      en: 'Decoration during the event + 3 h of service. Extra hour €96.80. Includes photo booth with prints and confessional.',
+    },
+  },
+  {
+    id: 'tomafoton-telefon-vintage',
+    name: {
+      ca: 'Telèfon vintage gravador d\'àudios',
+      es: 'Teléfono vintage grabador de audios',
+      en: 'Vintage audio-recording phone',
+    },
+    price: '181,50 €',
+    note: {
+      ca: 'Durada de l\'aperitiu o 2 h al ball. Descompte de 30 € amb un altre Tomafoton. Enviament segons distància.',
+      es: 'Duración del aperitivo o 2 h en el baile. Descuento de 30 € con otro Tomafoton. Envío según distancia.',
+      en: 'Duration of the aperitif or 2 h during the party. €30 off with another Tomafoton. Shipping by distance.',
+    },
+  },
+  {
+    id: 'tomafoton-neon',
+    name: {
+      ca: 'Cartells de neó (Toma Neón)',
+      es: 'Carteles de neón (Toma Neón)',
+      en: 'Neon signs (Toma Neón)',
+    },
+    price: '181,50 €',
+    note: {
+      ca: 'Per dia, lloguer durant tot el dia. Descompte de 30 € amb un altre Tomafoton. Enviament segons distància.',
+      es: 'Por día, alquiler durante todo el día. Descuento de 30 € con otro Tomafoton. Envío según distancia.',
+      en: 'Per day, all-day rental. €30 off with another Tomafoton. Shipping by distance.',
+    },
+  },
+  {
+    id: 'tomafoton-imants',
+    name: {
+      ca: 'Pack de 80 imants per al fotomatón',
+      es: 'Pack de 80 imanes para el fotomatón',
+      en: 'Pack of 80 magnets for the photo booth',
+    },
+    price: '36,30 €',
+  },
+  {
+    id: 'tomafoton-tires-10x15',
+    name: {
+      ca: 'Tires de fotos en mida 10×15 cm',
+      es: 'Tiras de fotos en tamaño 10×15 cm',
+      en: 'Photo strips in 10×15 cm size',
+    },
+    price: '36,30 €',
+  },
+  {
+    id: 'tomafoton-360-xl',
+    name: {
+      ca: 'Plataforma del videomatón 360º mida XL',
+      es: 'Plataforma del videomatón 360º tamaño XL',
+      en: 'XL-size 360º video-booth platform',
+    },
+    price: '48,40 €',
+  },
+  {
+    id: 'tomafoton-desplacament',
+    name: {
+      ca: 'Desplaçament a més de 50 km d\'El Morell',
+      es: 'Desplazamiento a más de 50 km de El Morell',
+      en: 'Travel beyond 50 km from El Morell',
+    },
+    price: '48,40 €',
+  },
 ];
