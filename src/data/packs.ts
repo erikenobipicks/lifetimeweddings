@@ -586,6 +586,39 @@ export const EXTRAS: PackExtra[] = [
     },
   },
   {
+    // Offer bundle from the PDF ("¿QUIERES EL PACK FOTOMATÓN + VIDEOMATÓN
+    // 360?"): 790 € sin IVA → 955,90 € IVA incl. Cheaper than booking the
+    // photo booth (423,50 €) and the 360 booth (580,80 €) separately.
+    id: 'tomafoton-pack-foto-360',
+    name: {
+      ca: 'OFERTA · Pack Fotomatón + Videomatón 360º',
+      es: 'OFERTA · Pack Fotomatón + Videomatón 360º',
+      en: 'OFFER · Photo booth + 360º video booth bundle',
+    },
+    price: '955,90 €',
+    note: {
+      ca: '2 h de cada servei. Preu d\'oferta (per separat serien 1.004,30 €). Hora extra 96,80 €.',
+      es: '2 h de cada servicio. Precio de oferta (por separado serían 1.004,30 €). Hora extra 96,80 €.',
+      en: '2 h of each service. Bundle price (separately €1,004.30). Extra hour €96.80.',
+    },
+  },
+  {
+    // Offer bundle from the PDF ("¿QUIERES EL PACK FOTOMATÓN + VIDEOMATÓN
+    // 360 AÉREO?"): 890 € sin IVA → 1.076,90 € IVA incl.
+    id: 'tomafoton-pack-foto-360-aeri',
+    name: {
+      ca: 'OFERTA · Pack Fotomatón + Videomatón 360º aeri',
+      es: 'OFERTA · Pack Fotomatón + Videomatón 360º aéreo',
+      en: 'OFFER · Photo booth + aerial 360º video booth bundle',
+    },
+    price: '1.076,90 €',
+    note: {
+      ca: '2 h de cada servei. Preu d\'oferta (per separat serien 1.125,30 €). Hora extra 96,80 €.',
+      es: '2 h de cada servicio. Precio de oferta (por separado serían 1.125,30 €). Hora extra 96,80 €.',
+      en: '2 h of each service. Bundle price (separately €1,125.30). Extra hour €96.80.',
+    },
+  },
+  {
     id: 'tomafoton-slowmotion',
     name: {
       ca: 'Vídeo slow motion',
