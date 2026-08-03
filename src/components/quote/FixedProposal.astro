@@ -1,0 +1,151 @@
+---
+// Fixed, non-editable quote proposal shown on /p/<token> when Eric composed
+// the quote himself (quote.isFixed). Itemises the selected packs, extras and
+// custom lines with the total — the couple can't reconfigure it. A single
+// "accept" records a response (so Eric gets pinged), same endpoint as the
+// interactive configurator.
+import { PACKS, EXTRAS } from '~/data/packs';
+import { formatEuros, calculateSelectionTotals } from '~/lib/pricing';
+import { type Lang } from '~/i18n/ui';
+
+interface Props {
+  lang: Lang;
+  token: string;
+  packIds: string[];
+  extraIds: string[];
+  customLines: { description: string; cents: number }[];
+  adminDiscountCents: number;
+  validUntilText?: string | null;
+  /** True once the couple has already accepted — render the read-only thanks. */
+  alreadyResponded: boolean;
+  /** WhatsApp link for questions. */
+  whatsappUrl: string;
+}
+const {
+  lang, token, packIds, extraIds, customLines,
+  adminDiscountCents, validUntilText = null, alreadyResponded, whatsappUrl,
+} = Astro.props;
+
+const packs = PACKS.filter((p) => packIds.includes(p.id));
+const extras = EXTRAS.filter((x) => extraIds.includes(x.id));
+const customCents = customLines.reduce((a, l) => a + l.cents, 0);
+const totals = calculateSelectionTotals(packIds, extraIds, adminDiscountCents, customCents);
+
+const TX = {
+  ca: { heading: 'La vostra proposta', sub: 'Aquesta és la proposta que hem preparat per a vosaltres.', total: 'Total', discount: 'Descompte', accept: 'Acceptar la proposta', accepting: 'Enviant…', accepted: 'Proposta acceptada ✓', thanksTitle: 'Rebut!', thanksBody: 'Gràcies. Ens hi posem i us escrivim de seguida.', wa: 'Tens dubtes? Escriu-nos per WhatsApp', payNote: 'Preus amb IVA inclòs. El pagament es formalitza amb la reserva.' },
+  es: { heading: 'Vuestra propuesta', sub: 'Esta es la propuesta que hemos preparado para vosotros.', total: 'Total', discount: 'Descuento', accept: 'Aceptar la propuesta', accepting: 'Enviando…', accepted: 'Propuesta aceptada ✓', thanksTitle: '¡Recibido!', thanksBody: 'Gracias. Nos ponemos en marcha y os escribimos enseguida.', wa: '¿Dudas? Escríbenos por WhatsApp', payNote: 'Precios con IVA incluido. El pago se formaliza con la reserva.' },
+  en: { heading: 'Your proposal', sub: 'This is the proposal we have prepared for you.', total: 'Total', discount: 'Discount', accept: 'Accept the proposal', accepting: 'Sending…', accepted: 'Proposal accepted ✓', thanksTitle: 'Got it!', thanksBody: 'Thank you. We are on it and will write to you shortly.', wa: 'Questions? Message us on WhatsApp', payNote: 'Prices include VAT. Payment is settled with the booking.' },
+}[lang];
+---
+
+<section class="px-6 md:px-12 py-14 md:py-20 bg-cream text-ink" id="proposta">
+  <div class="max-w-2xl mx-auto">
+    <div class="text-center mb-8">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-2">{TX.heading}</h2>
+      <p class="text-ink/70">{TX.sub}</p>
+    </div>
+
+    <div class="bg-white border border-line">
+      <ul class="divide-y divide-line">
+        {packs.map((p) => (
+          <li class="flex items-baseline justify-between gap-4 px-5 py-4">
+            <span>
+              <span class="font-display text-lg font-bold">{p.name[lang]}</span>
+              {p.subtitle && <span class="block text-xs text-ink/60">{p.subtitle[lang]}</span>}
+            </span>
+            <span class="font-bold whitespace-nowrap">{p.price}</span>
+          </li>
+        ))}
+        {extras.map((x) => (
+          <li class="flex items-baseline justify-between gap-4 px-5 py-3">
+            <span class="text-ink/85">{x.name[lang]}</span>
+            <span class="font-semibold whitespace-nowrap">{x.price}</span>
+          </li>
+        ))}
+        {customLines.map((l) => (
+          <li class="flex items-baseline justify-between gap-4 px-5 py-3">
+            <span class="text-ink/85">{l.description}</span>
+            <span class="font-semibold whitespace-nowrap">{formatEuros(l.cents)}</span>
+          </li>
+        ))}
+        {adminDiscountCents > 0 && (
+          <li class="flex items-baseline justify-between gap-4 px-5 py-3 text-gold-deep">
+            <span>{TX.discount}</span>
+            <span class="font-semibold whitespace-nowrap">−{formatEuros(adminDiscountCents)}</span>
+          </li>
+        )}
+      </ul>
+      <div class="flex items-baseline justify-between gap-4 px-5 py-4 border-t-2 border-ink bg-cream/40">
+        <span class="font-display text-xl font-bold">{TX.total}</span>
+        <span class="font-display text-3xl font-bold text-gold-deep whitespace-nowrap">{formatEuros(totals.totalCents)}</span>
+      </div>
+    </div>
+
+    <p class="text-xs text-ink/60 mt-3">{TX.payNote}</p>
+    {validUntilText && <p class="text-xs text-ink/60 italic mt-1">{validUntilText}</p>}
+
+    <div id="fp-feedback" hidden class="mt-6 p-4 border-l-4 border-gold bg-white"></div>
+
+    {alreadyResponded ? (
+      <div class="mt-6 p-4 border-l-4 border-gold bg-white">
+        <p class="font-bold mb-1">{TX.thanksTitle}</p>
+        <p class="text-sm text-ink/80">{TX.thanksBody}</p>
+      </div>
+    ) : (
+      <button
+        type="button"
+        id="fp-accept"
+        data-token={token}
+        class="mt-6 w-full bg-ink text-white py-4 text-xs font-bold tracking-[0.18em] uppercase hover:bg-gold hover:text-ink transition-colors disabled:opacity-50"
+      >
+        {TX.accept}
+      </button>
+    )}
+
+    <div class="text-center mt-4">
+      <a href={whatsappUrl} target="_blank" rel="noopener" class="text-xs font-bold tracking-[0.14em] uppercase text-gold-deep hover:underline">
+        {TX.wa}
+      </a>
+    </div>
+  </div>
+</section>
+
+<script
+  is:inline
+  define:vars={{
+    packIds,
+    extraIds,
+    acceptingLabel: TX.accepting,
+    acceptedLabel: TX.accepted,
+    thanksTitle: TX.thanksTitle,
+    thanksBody: TX.thanksBody,
+  }}
+>
+  (() => {
+    const btn = document.getElementById('fp-accept');
+    if (!btn) return;
+    const feedback = document.getElementById('fp-feedback');
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      const original = btn.textContent;
+      btn.textContent = acceptingLabel;
+      try {
+        const res = await fetch('/api/quotes/' + btn.dataset.token + '/respond', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ packIds, extraIds }),
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        btn.textContent = acceptedLabel;
+        if (feedback) {
+          feedback.hidden = false;
+          feedback.innerHTML = '<p class="font-bold mb-1">' + thanksTitle + '</p><p class="text-sm">' + thanksBody + '</p>';
+        }
+      } catch (err) {
+        console.error('[fixed-proposal] accept failed', err);
+        btn.disabled = false;
+        btn.textContent = original;
+      }
+    });
+  })();
+</script>

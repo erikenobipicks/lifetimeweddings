@@ -444,6 +444,11 @@ export async function initSchema() {
   // one-to-one leads.quote_id as the source of truth; backfilled from it below
   // so existing links keep working. leads.quote_id stays for legacy reads.
   await ensureColumn('quotes', 'lead_id', 'INTEGER');
+  // Operator-composed quotes: the extras Eric pre-selects (JSON array of ids)
+  // and whether the quote is a FIXED proposal (couple sees it read-only with
+  // the total, no interactive configurator). Nullable/0 → legacy interactive.
+  await ensureColumn('quotes', 'extra_ids', 'TEXT');
+  await ensureColumn('quotes', 'is_fixed', 'INTEGER');
   await db.execute(
     `UPDATE quotes SET lead_id = (SELECT l.id FROM leads l WHERE l.quote_id = quotes.id)
      WHERE lead_id IS NULL AND EXISTS (SELECT 1 FROM leads l WHERE l.quote_id = quotes.id)`,
