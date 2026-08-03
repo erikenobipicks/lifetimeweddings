@@ -56,29 +56,35 @@ export interface SelectionTotals {
   packsCents: number;
   /** Sum of all selected extras. */
   extrasCents: number;
+  /** Sum of operator-authored custom lines (always included). */
+  customLinesCents: number;
   /** Optional admin-applied discount (negative when applied). 0 = none. */
   discountCents: number;
-  /** Final amount the couple would pay (packs + extras − discount). */
+  /** Final amount the couple would pay (packs + extras + custom − discount). */
   totalCents: number;
 }
 
 /** Compute totals for a selection. `discountCents` is the absolute value
  *  of the discount (we subtract it). The caller passes 0 when no discount
  *  applies (e.g. on the public page before Eric grants one).
+ *  `customLinesCents` are operator-authored lines that are always included.
  *
  *  Pack IDs that aren't in PACKS are ignored. Same for extras. */
 export function calculateSelectionTotals(
   packIds: string[],
   extraIds: string[],
   discountCents = 0,
+  customLinesCents = 0,
 ): SelectionTotals {
   const packsCents = packIds.reduce((acc, id) => acc + priceForPack(id), 0);
   const extrasCents = extraIds.reduce((acc, id) => acc + priceForExtra(id), 0);
-  const safeDiscount = Math.max(0, Math.min(discountCents, packsCents + extrasCents));
+  const base = packsCents + extrasCents + customLinesCents;
+  const safeDiscount = Math.max(0, Math.min(discountCents, base));
   return {
     packsCents,
     extrasCents,
+    customLinesCents,
     discountCents: safeDiscount,
-    totalCents: packsCents + extrasCents - safeDiscount,
+    totalCents: base - safeDiscount,
   };
 }

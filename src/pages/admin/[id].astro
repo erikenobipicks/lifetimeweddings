@@ -10,6 +10,7 @@ import {
   listQuoteResponses,
   setAdminDiscount,
   setQuoteOffer,
+  setQuoteCustomLines,
   closeQuote,
   reopenQuote,
   setServiceInterest,
@@ -81,6 +82,27 @@ if (Astro.request.method === 'POST') {
   if (action === 'clear-offer') {
     await setQuoteOffer(id, { title: '', body: '', deadline: '' });
     return Astro.redirect(`/admin/${id}?ok=offer-cleared`);
+  }
+  // Operator-authored custom quote lines (personalised quotes).
+  if (action === 'add-custom-line') {
+    const desc = String(form.get('lineDescription') ?? '').trim().slice(0, 200);
+    const raw = String(form.get('linePrice') ?? '').trim();
+    const cents = raw ? eurosStringToCents(raw) : NaN;
+    if (!desc || !Number.isFinite(cents) || cents <= 0) {
+      return Astro.redirect(`/admin/${id}?error=${encodeURIComponent('Cal un concepte i un preu vàlid.')}#custom-lines`);
+    }
+    const q = await getQuoteById(id);
+    const lines = [...(q?.customLines ?? []), { description: desc, cents }];
+    await setQuoteCustomLines(id, lines);
+    return Astro.redirect(`/admin/${id}?ok=custom-line-added#custom-lines`);
+  }
+  if (action === 'remove-custom-line') {
+    const idx = Number(form.get('index') ?? -1);
+    const q = await getQuoteById(id);
+    if (q && Number.isInteger(idx) && idx >= 0 && idx < q.customLines.length) {
+      await setQuoteCustomLines(id, q.customLines.filter((_, i) => i !== idx));
+    }
+    return Astro.redirect(`/admin/${id}?ok=custom-line-removed#custom-lines`);
   }
   if (action === 'close-quote') {
     await closeQuote(id);
@@ -155,8 +177,9 @@ const daysSinceSent = quote.sentAt
 
 // Pre-compute the latest response's totals so the operator sees the
 // breakdown without re-doing the math (matches what the couple saw).
+const customLinesCents = quote.customLines.reduce((acc, l) => acc + l.cents, 0);
 const latestTotals = latestResponse
-  ? calculateSelectionTotals(latestResponse.packIds, latestResponse.extraIds, quote.adminDiscountCents)
+  ? calculateSelectionTotals(latestResponse.packIds, latestResponse.extraIds, quote.adminDiscountCents, customLinesCents)
   : null;
 function labelForPack(pid: string): string {
   return PACKS.find((p) => p.id === pid)?.name.ca ?? pid;
@@ -192,7 +215,7 @@ function humanSecs(n: number): string {
   )}
   {okMsg && (
     <div class="mb-6 px-4 py-3 bg-green-50 border border-green-200 text-green-900 text-sm">
-      <strong class="font-bold">✓</strong> {okMsg === 'discount' ? 'Descompte aplicat.' : okMsg === 'discount-cleared' ? 'Descompte eliminat.' : okMsg === 'offer' ? 'Oferta desada.' : okMsg === 'offer-cleared' ? 'Oferta treta.' : okMsg === 'closed' ? 'Pressupost tancat.' : okMsg === 'reopened' ? 'Pressupost reobert.' : okMsg === 'service-updated' ? 'Servei actualitzat. La parella veurà el configurador filtrat segons aquesta elecció.' : okMsg === 'language-updated' ? 'Idioma actualitzat. La parella veurà la pàgina del pressupost en aquest idioma.' : okMsg === 'followup-skipped' ? 'Recordatori desactivat — el cron ja no l\'enviarà a aquesta parella.' : okMsg === 'followup-restored' ? 'Recordatori restaurat — el cron tornarà a considerar-lo.' : okMsg === 'rejected' ? 'Pressupost marcat com a rebutjat.' : okMsg === 'unrejected' ? 'Rebuig desfet.' : 'Fet.'}
+      <strong class="font-bold">✓</strong> {okMsg === 'discount' ? 'Descompte aplicat.' : okMsg === 'discount-cleared' ? 'Descompte eliminat.' : okMsg === 'offer' ? 'Oferta desada.' : okMsg === 'offer-cleared' ? 'Oferta treta.' : okMsg === 'custom-line-added' ? 'Línia afegida al pressupost.' : okMsg === 'custom-line-removed' ? 'Línia eliminada.' : okMsg === 'closed' ? 'Pressupost tancat.' : okMsg === 'reopened' ? 'Pressupost reobert.' : okMsg === 'service-updated' ? 'Servei actualitzat. La parella veurà el configurador filtrat segons aquesta elecció.' : okMsg === 'language-updated' ? 'Idioma actualitzat. La parella veurà la pàgina del pressupost en aquest idioma.' : okMsg === 'followup-skipped' ? 'Recordatori desactivat — el cron ja no l\'enviarà a aquesta parella.' : okMsg === 'followup-restored' ? 'Recordatori restaurat — el cron tornarà a considerar-lo.' : okMsg === 'rejected' ? 'Pressupost marcat com a rebutjat.' : okMsg === 'unrejected' ? 'Rebuig desfet.' : 'Fet.'}
     </div>
   )}
   <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6 sm:mb-8">
@@ -392,6 +415,9 @@ function humanSecs(n: number): string {
       <div class="text-xs text-ink/70 space-y-0.5 mb-1">
         <p><span class="text-ink/70">Subtotal (packs):</span> <strong>{formatEuros(latestTotals.packsCents)}</strong></p>
         <p><span class="text-ink/70">Subtotal (extres):</span> <strong>{formatEuros(latestTotals.extrasCents)}</strong></p>
+        {latestTotals.customLinesCents > 0 && (
+          <p><span class="text-ink/70">Línies personalitzades:</span> <strong>{formatEuros(latestTotals.customLinesCents)}</strong></p>
+        )}
         {quote.adminDiscountCents > 0 && (
           <p><span class="text-ink/70">Descompte aplicat:</span> <strong class="text-gold">−{formatEuros(quote.adminDiscountCents)}</strong></p>
         )}
@@ -478,6 +504,43 @@ function humanSecs(n: number): string {
 
   {/* Discount + close controls. Visible regardless of whether a response
       came in — Eric may want to apply a referral discount up front. */}
+  {/* Custom quote lines — free-text line items for personalised quotes.
+      Always shown on /p and added to the total. */}
+  <div id="custom-lines" class="bg-white border border-line p-5 mb-8">
+    <p class="text-xs font-bold tracking-widest uppercase mb-3">✍️ Línies de pressupost personalitzades</p>
+    {quote.customLines.length > 0 ? (
+      <ul class="mb-4 border border-line divide-y divide-line">
+        {quote.customLines.map((l, i) => (
+          <li class="flex items-center justify-between gap-3 px-3 py-2">
+            <span class="text-sm text-ink/85">{l.description}</span>
+            <span class="flex items-center gap-3 whitespace-nowrap">
+              <strong class="text-sm">{formatEuros(l.cents)}</strong>
+              <form method="POST">
+                <input type="hidden" name="action" value="remove-custom-line" />
+                <input type="hidden" name="index" value={i} />
+                <button type="submit" class="text-red-600 text-xs font-bold hover:underline" title="Eliminar">✕</button>
+              </form>
+            </span>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="text-sm text-ink/65 mb-3">Cap línia personalitzada. Afegeix conceptes lliures (amb IVA inclòs) que sortiran al pressupost de la parella i se sumaran al total.</p>
+    )}
+    <form method="POST" class="grid sm:grid-cols-[1fr_150px_auto] gap-3 items-end">
+      <input type="hidden" name="action" value="add-custom-line" />
+      <div>
+        <label for="lineDescription" class="block text-[0.7rem] font-bold uppercase tracking-widest text-ink/70 mb-1">Concepte</label>
+        <input id="lineDescription" name="lineDescription" type="text" required maxlength="200" placeholder="Ex: Àlbum extra per als avis" class="w-full px-3 py-2 border border-line focus:border-gold focus:outline-none" />
+      </div>
+      <div>
+        <label for="linePrice" class="block text-[0.7rem] font-bold uppercase tracking-widest text-ink/70 mb-1">Preu (€, IVA incl.)</label>
+        <input id="linePrice" name="linePrice" type="text" inputmode="decimal" required placeholder="150" class="w-full px-3 py-2 border border-line focus:border-gold focus:outline-none" />
+      </div>
+      <button type="submit" class="bg-gold text-ink px-4 py-2 text-xs font-bold tracking-widest uppercase hover:brightness-110 whitespace-nowrap">Afegir línia</button>
+    </form>
+  </div>
+
   {/* Limited-time offer shown on /p/<token> — headline + body + optional
       deadline countdown. Submit an empty title (or "Treure oferta") to clear. */}
   <div class="bg-white border border-line p-5 mb-8">
