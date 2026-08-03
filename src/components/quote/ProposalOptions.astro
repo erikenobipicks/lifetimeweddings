@@ -5,9 +5,14 @@
 // single "accept" per option records a response via the same endpoint as the
 // interactive configurator, sending only the option index so the server
 // resolves the packs/extras/lines and the total can't be tampered with.
-import { PACKS, EXTRAS } from '~/data/packs';
+import { PACKS, EXTRAS, getComposedSubpacks } from '~/data/packs';
 import { formatEuros, calculateSelectionTotals, sumCustomLines } from '~/lib/pricing';
-import { type Lang } from '~/i18n/ui';
+import { useTranslations, type Lang } from '~/i18n/ui';
+import Icon from '~/components/Icon.astro';
+
+function iconForType(t: 'photo' | 'video' | 'combo') {
+  return t === 'photo' ? 'camera' : t === 'video' ? 'video' : 'diamond';
+}
 
 interface OptionInput {
   label: string;
@@ -31,6 +36,7 @@ const {
   validUntilText = null, alreadyResponded, whatsappUrl,
 } = Astro.props;
 
+const t = useTranslations(lang);
 const multi = options.length > 1;
 const views = options.map((o) => {
   const packs = PACKS.filter((p) => o.packIds.includes(p.id));
@@ -71,42 +77,89 @@ const TX = {
               <p class="font-display text-xl font-bold">{v.label}</p>
             </div>
           )}
-          <ul class="divide-y divide-line">
-            {v.packs.map((p) => (
-              <li class="flex items-baseline justify-between gap-4 px-5 py-4">
-                <span>
-                  <span class="font-display text-lg font-bold">{p.name[lang]}</span>
-                  {p.subtitle && <span class="block text-xs text-ink/60">{p.subtitle[lang]}</span>}
-                </span>
-                <span class="font-bold whitespace-nowrap">{p.price}</span>
-              </li>
-            ))}
-            {v.extras.map((x) => (
-              <li class="flex items-baseline justify-between gap-4 px-5 py-3">
-                <span class="text-ink/85">{x.name[lang]}</span>
-                <span class="font-semibold whitespace-nowrap">{x.price}</span>
-              </li>
-            ))}
-            {v.customLines.map((l) => (
-              <li class="flex items-baseline justify-between gap-4 px-5 py-3">
-                <span class="text-ink/85">
-                  {l.description}
-                  {l.isGift && <span class="ml-2 text-[0.6rem] font-bold tracking-[0.14em] uppercase px-1.5 py-0.5 rounded-sm bg-gold/20 text-gold-deep align-middle">Regal</span>}
-                </span>
-                {l.isGift ? (
-                  <span class="whitespace-nowrap">{l.cents > 0 && <span class="line-through text-ink/40">{formatEuros(l.cents)} </span>}<span class="font-bold text-gold-deep">0 €</span></span>
-                ) : (
-                  <span class="font-semibold whitespace-nowrap">{formatEuros(l.cents)}</span>
-                )}
-              </li>
-            ))}
-            {adminDiscountCents > 0 && (
-              <li class="flex items-baseline justify-between gap-4 px-5 py-3 text-gold-deep">
-                <span>{TX.discount}</span>
-                <span class="font-semibold whitespace-nowrap">−{formatEuros(adminDiscountCents)}</span>
-              </li>
-            )}
-          </ul>
+          {/* Packs — each as its own block, showing what it includes so the
+              couple sees the value, not just the pack name. */}
+          <div>
+            {v.packs.map((p) => {
+              const subpacks = getComposedSubpacks(p);
+              return (
+                <div class="px-5 py-5 border-b border-line">
+                  <div class="flex items-baseline justify-between gap-4 mb-3">
+                    <span>
+                      <span class="font-display text-lg font-bold">{p.name[lang]}</span>
+                      {p.subtitle && <span class="block text-xs text-ink/60">{p.subtitle[lang]}</span>}
+                    </span>
+                    <span class="font-bold whitespace-nowrap">{p.price}</span>
+                  </div>
+                  <p class="text-[0.68rem] font-bold tracking-[0.12em] uppercase text-ink/55 mb-2">{t('quote.packs.includes')}</p>
+                  {subpacks.length > 0 ? (
+                    <>
+                      {subpacks.map((sp) => (
+                        <div class="mb-3 last:mb-0">
+                          <p class="text-[0.72rem] font-bold tracking-wide text-ink mb-1.5 flex items-center gap-2">
+                            <Icon name={iconForType(sp.type) as any} size={13} />
+                            <span>{sp.name[lang]}</span>
+                          </p>
+                          <ul class="space-y-1 text-sm text-ink/75 pl-1">
+                            {sp.includes[lang].map((it) => (
+                              <li class="flex gap-2"><span class="text-gold-deep shrink-0">✓</span><span>{it}</span></li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                      {p.includes[lang].length > 0 && (
+                        <div class="mt-3 pt-3 border-t border-line/60">
+                          <p class="text-[0.72rem] font-bold tracking-wide text-gold-deep mb-1.5">{t('quote.combo.extras.heading')}</p>
+                          <ul class="space-y-1 text-sm text-ink/75 pl-1">
+                            {p.includes[lang].map((it) => (
+                              <li class="flex gap-2"><span class="text-gold-deep shrink-0">✓</span><span>{it}</span></li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <ul class="space-y-1 text-sm text-ink/75 pl-1">
+                      {p.includes[lang].map((it) => (
+                        <li class="flex gap-2"><span class="text-gold-deep shrink-0">✓</span><span>{it}</span></li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Extras, custom lines and any discount — plain line items. */}
+          {(v.extras.length > 0 || v.customLines.length > 0 || adminDiscountCents > 0) && (
+            <ul class="divide-y divide-line border-b border-line">
+              {v.extras.map((x) => (
+                <li class="flex items-baseline justify-between gap-4 px-5 py-3">
+                  <span class="text-ink/85">{x.name[lang]}</span>
+                  <span class="font-semibold whitespace-nowrap">{x.price}</span>
+                </li>
+              ))}
+              {v.customLines.map((l) => (
+                <li class="flex items-baseline justify-between gap-4 px-5 py-3">
+                  <span class="text-ink/85">
+                    {l.description}
+                    {l.isGift && <span class="ml-2 text-[0.6rem] font-bold tracking-[0.14em] uppercase px-1.5 py-0.5 rounded-sm bg-gold/20 text-gold-deep align-middle">Regal</span>}
+                  </span>
+                  {l.isGift ? (
+                    <span class="whitespace-nowrap">{l.cents > 0 && <span class="line-through text-ink/40">{formatEuros(l.cents)} </span>}<span class="font-bold text-gold-deep">0 €</span></span>
+                  ) : (
+                    <span class="font-semibold whitespace-nowrap">{formatEuros(l.cents)}</span>
+                  )}
+                </li>
+              ))}
+              {adminDiscountCents > 0 && (
+                <li class="flex items-baseline justify-between gap-4 px-5 py-3 text-gold-deep">
+                  <span>{TX.discount}</span>
+                  <span class="font-semibold whitespace-nowrap">−{formatEuros(adminDiscountCents)}</span>
+                </li>
+              )}
+            </ul>
+          )}
           <div class="flex items-baseline justify-between gap-4 px-5 py-4 border-t-2 border-ink bg-cream/40">
             <span class="font-display text-xl font-bold">{TX.total}</span>
             <span class="font-display text-3xl font-bold text-gold-deep whitespace-nowrap">{formatEuros(v.totals.totalCents)}</span>
