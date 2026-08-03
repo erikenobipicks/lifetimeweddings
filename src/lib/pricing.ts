@@ -26,6 +26,12 @@ export function priceForExtra(id: string): number {
   return x ? parsePriceCents(x.price) : 0;
 }
 
+/** Sum operator custom lines toward the total. Gift lines (`isGift`) show
+ *  their value struck-through but contribute 0, so they're excluded here. */
+export function sumCustomLines(lines: { cents: number; isGift?: boolean }[]): number {
+  return lines.reduce((acc, l) => acc + (l.isGift ? 0 : l.cents), 0);
+}
+
 /** A "combo bonus" detection: if the couple ticked two base packs that
  *  match a combo's composedOf list, surface the combo + savings so they
  *  can swap. Returns null when no combo applies. */

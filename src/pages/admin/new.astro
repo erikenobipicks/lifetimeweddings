@@ -27,12 +27,20 @@ if (Astro.request.method === 'POST') {
   const packIds = form.getAll('packs').map(String);
   const extraIds = form.getAll('extras').map(String);
   const isFixed = form.get('is_fixed') === 'on' || form.get('is_fixed') === '1';
-  // Custom lines: parallel arrays of description + euros price → {description, cents}.
+  // Custom lines: parallel arrays of description + euros price → {description,
+  // cents, isGift}. Gift checkboxes carry the row index as their value (unchecked
+  // boxes don't submit, so a Set of the submitted indices is how we know which
+  // rows are gifts). Gift lines are kept even without a price (they show "Regal"
+  // / a struck value and add 0 to the total); normal lines still need a price.
   const clDescs = form.getAll('custom_line_desc').map(String);
   const clPrices = form.getAll('custom_line_price').map(String);
+  const giftIdx = new Set(form.getAll('custom_line_gift').map((v) => Number(v)));
   const customLines = clDescs
-    .map((d, i) => ({ description: d.trim(), cents: eurosStringToCents(clPrices[i] ?? '') }))
-    .filter((l) => l.description && Number.isFinite(l.cents) && l.cents > 0);
+    .map((d, i) => {
+      const c = eurosStringToCents(clPrices[i] ?? '');
+      return { description: d.trim(), cents: Number.isFinite(c) && c > 0 ? c : 0, isGift: giftIdx.has(i) };
+    })
+    .filter((l) => l.description && (l.isGift || l.cents > 0));
   const notes = String(form.get('notes') ?? '').trim();
   const password = String(form.get('password') ?? '').trim();
   const expiresAt = String(form.get('expires_at') ?? '').trim();
@@ -342,12 +350,16 @@ const LABELS: Record<string, string> = {
 
     <div>
       <p class="text-xs font-bold tracking-widest uppercase mb-2">Línies personalitzades (opcional)</p>
-      <p class="text-[0.7rem] text-ink/70 mb-3 -mt-1">Conceptes lliures amb el preu (IVA inclòs). En pots afegir més després, des de la fitxa del pressupost.</p>
+      <p class="text-[0.7rem] text-ink/70 mb-3 -mt-1">Conceptes lliures amb el preu (IVA inclòs). Marca "Regal" perquè surti amb el valor tatxat i sumi 0 €. En pots afegir més després, des de la fitxa del pressupost.</p>
       <div class="space-y-2">
-        {[0, 1, 2].map(() => (
-          <div class="grid grid-cols-[1fr_130px] gap-2">
+        {[0, 1, 2].map((i) => (
+          <div class="grid grid-cols-[1fr_130px] gap-x-2 gap-y-1 items-center">
             <input name="custom_line_desc" type="text" maxlength="200" placeholder="Concepte (ex: Àlbum per als avis)" class="px-3 py-2 border border-line focus:border-gold focus:outline-none" />
             <input name="custom_line_price" type="text" inputmode="decimal" placeholder="€ (IVA inc.)" class="px-3 py-2 border border-line focus:border-gold focus:outline-none" />
+            <label class="col-span-2 flex items-center gap-2 text-[0.7rem] text-ink/70 cursor-pointer pl-1">
+              <input type="checkbox" name="custom_line_gift" value={i} class="accent-gold" />
+              🎁 Regal (valor tatxat, suma 0 €)
+            </label>
           </div>
         ))}
       </div>

@@ -23,7 +23,7 @@ import {
 } from '~/lib/quotes';
 import type { Lang } from '~/i18n/ui';
 import { PACKS, EXTRAS } from '~/data/packs';
-import { calculateSelectionTotals, formatEuros } from '~/lib/pricing';
+import { calculateSelectionTotals, formatEuros, sumCustomLines } from '~/lib/pricing';
 import { eurosStringToCents } from '~/lib/payments/money';
 
 /** Format a cent amount for the euros <input> so it round-trips losslessly
@@ -87,12 +87,16 @@ if (Astro.request.method === 'POST') {
   if (action === 'add-custom-line') {
     const desc = String(form.get('lineDescription') ?? '').trim().slice(0, 200);
     const raw = String(form.get('linePrice') ?? '').trim();
-    const cents = raw ? eurosStringToCents(raw) : NaN;
-    if (!desc || !Number.isFinite(cents) || cents <= 0) {
-      return Astro.redirect(`/admin/${id}?error=${encodeURIComponent('Cal un concepte i un preu vàlid.')}#custom-lines`);
+    const isGift = form.get('lineGift') === 'on' || form.get('lineGift') === '1';
+    const parsed = raw ? eurosStringToCents(raw) : 0;
+    const cents = Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+    // Gift lines may have a 0 value (just "Regal", or a struck-through value);
+    // normal lines still need a real price.
+    if (!desc || (!isGift && cents <= 0)) {
+      return Astro.redirect(`/admin/${id}?error=${encodeURIComponent('Cal un concepte i un preu vàlid (o marcar-la com a regal).')}#custom-lines`);
     }
     const q = await getQuoteById(id);
-    const lines = [...(q?.customLines ?? []), { description: desc, cents }];
+    const lines = [...(q?.customLines ?? []), { description: desc, cents, isGift }];
     await setQuoteCustomLines(id, lines);
     return Astro.redirect(`/admin/${id}?ok=custom-line-added#custom-lines`);
   }
@@ -177,10 +181,21 @@ const daysSinceSent = quote.sentAt
 
 // Pre-compute the latest response's totals so the operator sees the
 // breakdown without re-doing the math (matches what the couple saw).
-const customLinesCents = quote.customLines.reduce((acc, l) => acc + l.cents, 0);
+const customLinesCents = sumCustomLines(quote.customLines);
 const latestTotals = latestResponse
   ? calculateSelectionTotals(latestResponse.packIds, latestResponse.extraIds, quote.adminDiscountCents, customLinesCents)
   : null;
+// Total of what Eric actually composed (packs + composed extras + custom lines
+// − discount). This is the "squared" figure for the proposal itself, shown so
+// the operator can confirm the numbers regardless of whether the couple has
+// responded yet. Gift lines contribute 0 (handled by sumCustomLines).
+const composedTotals = calculateSelectionTotals(
+  quote.packIds,
+  quote.extraIds,
+  quote.adminDiscountCents,
+  customLinesCents,
+);
+const composedExtras = EXTRAS.filter((e) => quote.extraIds.includes(e.id));
 function labelForPack(pid: string): string {
   return PACKS.find((p) => p.id === pid)?.name.ca ?? pid;
 }
@@ -344,19 +359,60 @@ function humanSecs(n: number): string {
     </div>
   </div>
 
-  <div class="grid md:grid-cols-2 gap-6 mb-8">
-    <div class="bg-white border border-line p-5">
-      <p class="text-xs font-bold tracking-widest uppercase mb-3">Packs inclosos</p>
-      <ul class="space-y-2 text-sm">
-        {packs.map((p) => (
-          <li><strong>{p.name.ca}</strong> — <span class="text-gold">{p.price}</span></li>
-        ))}
-      </ul>
+  {/* Composed proposal summary — exactly what Eric put together (packs +
+      extras + custom lines − discount), with the squared total. Shows the
+      operator that everything he marked is saved, and lets him confirm the
+      numbers before the couple even responds. */}
+  <div class="bg-white border-2 border-ink/15 p-5 mb-6">
+    <div class="flex items-center justify-between gap-3 mb-4">
+      <p class="text-xs font-bold tracking-widest uppercase">🧾 Proposta composta</p>
+      <span class="text-[0.65rem] font-bold tracking-widest uppercase px-2 py-1 rounded-sm bg-cream text-ink/70">
+        {quote.isFixed ? 'Proposta fixa' : 'Configurador'}
+      </span>
     </div>
-    <div class="bg-white border border-line p-5">
-      <p class="text-xs font-bold tracking-widest uppercase mb-3">Notes personals</p>
-      <p class="text-sm text-ink/80 whitespace-pre-wrap">{quote.notes || '—'}</p>
+    <ul class="divide-y divide-line border border-line">
+      {packs.map((p) => (
+        <li class="flex items-baseline justify-between gap-3 px-3 py-2 text-sm">
+          <span><strong>{p.name.ca}</strong></span>
+          <span class="text-gold whitespace-nowrap">{p.price}</span>
+        </li>
+      ))}
+      {composedExtras.map((x) => (
+        <li class="flex items-baseline justify-between gap-3 px-3 py-2 text-sm">
+          <span class="text-ink/85">{x.name.ca}</span>
+          <span class="text-gold whitespace-nowrap">{x.price}</span>
+        </li>
+      ))}
+      {quote.customLines.map((l) => (
+        <li class="flex items-baseline justify-between gap-3 px-3 py-2 text-sm">
+          <span class="text-ink/85">
+            {l.description}
+            {l.isGift && <span class="ml-2 text-[0.6rem] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-sm bg-gold/20 text-gold-deep align-middle">Regal</span>}
+          </span>
+          {l.isGift ? (
+            <span class="whitespace-nowrap">{l.cents > 0 && <span class="line-through text-ink/40">{formatEuros(l.cents)} </span>}<span class="text-gold-deep font-semibold">0 €</span></span>
+          ) : (
+            <span class="text-gold whitespace-nowrap">{formatEuros(l.cents)}</span>
+          )}
+        </li>
+      ))}
+      {quote.adminDiscountCents > 0 && (
+        <li class="flex items-baseline justify-between gap-3 px-3 py-2 text-sm text-gold-deep">
+          <span>Descompte</span>
+          <span class="font-semibold whitespace-nowrap">−{formatEuros(quote.adminDiscountCents)}</span>
+        </li>
+      )}
+    </ul>
+    <div class="flex items-baseline justify-between gap-3 mt-3 pt-3 border-t-2 border-ink">
+      <span class="text-xs font-bold tracking-widest uppercase">Total proposta</span>
+      <span class="font-display text-2xl font-bold text-gold-deep whitespace-nowrap">{formatEuros(composedTotals.totalCents)}</span>
     </div>
+    <p class="text-[0.7rem] text-ink/55 mt-2">Preus amb IVA inclòs. {quote.isFixed ? 'La parella veu exactament aquesta proposta.' : 'La parella pot reconfigurar-la des del configurador; aquest és el punt de partida.'}</p>
+  </div>
+
+  <div class="bg-white border border-line p-5 mb-8">
+    <p class="text-xs font-bold tracking-widest uppercase mb-3">Notes personals</p>
+    <p class="text-sm text-ink/80 whitespace-pre-wrap">{quote.notes || '—'}</p>
   </div>
 
   {latestResponse && latestTotals && (
@@ -512,9 +568,16 @@ function humanSecs(n: number): string {
       <ul class="mb-4 border border-line divide-y divide-line">
         {quote.customLines.map((l, i) => (
           <li class="flex items-center justify-between gap-3 px-3 py-2">
-            <span class="text-sm text-ink/85">{l.description}</span>
+            <span class="text-sm text-ink/85">
+              {l.description}
+              {l.isGift && <span class="ml-2 text-[0.6rem] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-sm bg-gold/20 text-gold-deep align-middle">Regal</span>}
+            </span>
             <span class="flex items-center gap-3 whitespace-nowrap">
-              <strong class="text-sm">{formatEuros(l.cents)}</strong>
+              {l.isGift ? (
+                <strong class="text-sm">{l.cents > 0 && <span class="line-through text-ink/40 font-normal">{formatEuros(l.cents)} </span>}<span class="text-gold-deep">0 €</span></strong>
+              ) : (
+                <strong class="text-sm">{formatEuros(l.cents)}</strong>
+              )}
               <form method="POST">
                 <input type="hidden" name="action" value="remove-custom-line" />
                 <input type="hidden" name="index" value={i} />
@@ -527,17 +590,23 @@ function humanSecs(n: number): string {
     ) : (
       <p class="text-sm text-ink/65 mb-3">Cap línia personalitzada. Afegeix conceptes lliures (amb IVA inclòs) que sortiran al pressupost de la parella i se sumaran al total.</p>
     )}
-    <form method="POST" class="grid sm:grid-cols-[1fr_150px_auto] gap-3 items-end">
+    <form method="POST">
       <input type="hidden" name="action" value="add-custom-line" />
-      <div>
-        <label for="lineDescription" class="block text-[0.7rem] font-bold uppercase tracking-widest text-ink/70 mb-1">Concepte</label>
-        <input id="lineDescription" name="lineDescription" type="text" required maxlength="200" placeholder="Ex: Àlbum extra per als avis" class="w-full px-3 py-2 border border-line focus:border-gold focus:outline-none" />
+      <div class="grid sm:grid-cols-[1fr_150px_auto] gap-3 items-end">
+        <div>
+          <label for="lineDescription" class="block text-[0.7rem] font-bold uppercase tracking-widest text-ink/70 mb-1">Concepte</label>
+          <input id="lineDescription" name="lineDescription" type="text" required maxlength="200" placeholder="Ex: Àlbum extra per als avis" class="w-full px-3 py-2 border border-line focus:border-gold focus:outline-none" />
+        </div>
+        <div>
+          <label for="linePrice" class="block text-[0.7rem] font-bold uppercase tracking-widest text-ink/70 mb-1">Preu / valor (€)</label>
+          <input id="linePrice" name="linePrice" type="text" inputmode="decimal" placeholder="150" class="w-full px-3 py-2 border border-line focus:border-gold focus:outline-none" />
+        </div>
+        <button type="submit" class="bg-gold text-ink px-4 py-2 text-xs font-bold tracking-widest uppercase hover:brightness-110 whitespace-nowrap">Afegir línia</button>
       </div>
-      <div>
-        <label for="linePrice" class="block text-[0.7rem] font-bold uppercase tracking-widest text-ink/70 mb-1">Preu (€, IVA incl.)</label>
-        <input id="linePrice" name="linePrice" type="text" inputmode="decimal" required placeholder="150" class="w-full px-3 py-2 border border-line focus:border-gold focus:outline-none" />
-      </div>
-      <button type="submit" class="bg-gold text-ink px-4 py-2 text-xs font-bold tracking-widest uppercase hover:brightness-110 whitespace-nowrap">Afegir línia</button>
+      <label class="flex items-center gap-2 mt-3 text-xs text-ink/75 cursor-pointer">
+        <input type="checkbox" name="lineGift" value="1" class="accent-gold" />
+        🎁 És un regal — mostra el valor tatxat i suma <strong>0 €</strong> al total (el preu de dalt és el valor que veurà tatxat)
+      </label>
     </form>
   </div>
 

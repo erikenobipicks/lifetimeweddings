@@ -26,6 +26,17 @@ function serviceInterestOrDefault(v: unknown): ServiceInterest {
   return v === 'photo' || v === 'video' || v === 'both' || v === 'undecided' ? v : 'both';
 }
 
+/** An operator-authored quote line: a free-text concept + a price in cents
+ *  (IVA included, like the catalogue). When `isGift` is set the line is a
+ *  gift — the `cents` value is shown struck-through with a "Regal" badge and
+ *  contributes 0 to the total, so the couple sees the value they're getting
+ *  for free. */
+export interface CustomLine {
+  description: string;
+  cents: number;
+  isGift?: boolean;
+}
+
 export interface Quote {
   id: number;
   token: string;
@@ -76,7 +87,7 @@ export interface Quote {
   /** Operator-authored free-text quote lines for personalised quotes. Each is
    *  a description + a price in cents (IVA included, like the catalogue). Shown
    *  on /p/<token> as always-included line items and added to the total. */
-  customLines: { description: string; cents: number }[];
+  customLines: CustomLine[];
   /** Extras Eric pre-selected when composing this quote. Empty on legacy
    *  quotes where the couple picks extras themselves. */
   extraIds: string[];
@@ -145,7 +156,7 @@ export interface CreateQuoteInput {
   /** YYYY-MM-DD; optional deadline for the countdown. */
   offerDeadline?: string;
   /** Operator-authored free-text quote lines (IVA-included cents). */
-  customLines?: { description: string; cents: number }[];
+  customLines?: CustomLine[];
   /** Lead this quote is a proposal for (one lead → many proposals). */
   leadId?: number;
   /** Extras Eric pre-selected for a composed quote. */
@@ -159,7 +170,7 @@ const SITE_URL = process.env.PUBLIC_SITE_URL ?? 'http://localhost:4321';
 
 /** Parse the `custom_lines` JSON blob defensively into a clean array. Drops
  *  malformed rows; a bad/empty blob → []. */
-function parseCustomLines(raw: unknown): { description: string; cents: number }[] {
+function parseCustomLines(raw: unknown): CustomLine[] {
   if (typeof raw !== 'string' || !raw) return [];
   try {
     const parsed = JSON.parse(raw);
@@ -168,6 +179,7 @@ function parseCustomLines(raw: unknown): { description: string; cents: number }[
       .map((row) => ({
         description: String(row?.t ?? row?.description ?? '').trim(),
         cents: Math.round(Number(row?.c ?? row?.cents ?? 0)),
+        isGift: !!(row?.g ?? row?.isGift),
       }))
       .filter((l) => l.description && Number.isFinite(l.cents));
   } catch {
@@ -175,12 +187,15 @@ function parseCustomLines(raw: unknown): { description: string; cents: number }[
   }
 }
 
-/** Serialise custom lines back to the compact `{t,c}` JSON stored on the row. */
-function serialiseCustomLines(lines: { description: string; cents: number }[]): string {
+/** Serialise custom lines back to the compact `{t,c,g}` JSON stored on the row
+ *  (`g` only when the line is a gift). */
+function serialiseCustomLines(lines: CustomLine[]): string {
   return JSON.stringify(
     lines
       .filter((l) => l.description.trim() && Number.isFinite(l.cents))
-      .map((l) => ({ t: l.description.trim(), c: Math.round(l.cents) })),
+      .map((l) => (l.isGift
+        ? { t: l.description.trim(), c: Math.round(l.cents), g: 1 }
+        : { t: l.description.trim(), c: Math.round(l.cents) })),
   );
 }
 
@@ -921,7 +936,7 @@ export async function setQuoteOffer(
 /** Replace the operator-authored custom lines on a quote. Pass [] to clear. */
 export async function setQuoteCustomLines(
   quoteId: number,
-  lines: { description: string; cents: number }[],
+  lines: CustomLine[],
 ): Promise<void> {
   await initSchema();
   const clean = lines.filter((l) => l.description.trim() && Number.isFinite(l.cents));

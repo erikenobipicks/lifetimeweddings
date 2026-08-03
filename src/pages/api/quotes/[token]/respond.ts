@@ -19,7 +19,7 @@ import {
   createQuoteResponse,
 } from '~/lib/quotes';
 import { PACKS, EXTRAS } from '~/data/packs';
-import { calculateSelectionTotals, formatEuros } from '~/lib/pricing';
+import { calculateSelectionTotals, formatEuros, sumCustomLines } from '~/lib/pricing';
 import { sendNotification, sendTelegramNotification } from '~/lib/email';
 import { createRateLimiter, clientIpFrom } from '~/lib/rate-limit';
 
@@ -94,7 +94,7 @@ export const POST: APIRoute = async ({ request, params }) => {
 
   // Operator-authored custom lines are always included, on top of the couple's
   // pack/extra selection.
-  const customLinesCents = quote.customLines.reduce((acc, l) => acc + l.cents, 0);
+  const customLinesCents = sumCustomLines(quote.customLines);
   const totals = calculateSelectionTotals(
     validPackIds,
     validExtraIds,

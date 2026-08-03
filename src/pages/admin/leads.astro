@@ -1,7 +1,7 @@
 ---
 import AdminLayout from '~/layouts/AdminLayout.astro';
 import { listLeads, deleteLead, createLead, updateLead, listQuotesByLead } from '~/lib/quotes';
-import { formatEuros, calculateSelectionTotals } from '~/lib/pricing';
+import { formatEuros, calculateSelectionTotals, sumCustomLines } from '~/lib/pricing';
 import type { Lang } from '~/i18n/ui';
 
 // Hard-delete / manual-create via form POST to this same URL. Same pattern
@@ -103,11 +103,11 @@ if (Astro.request.method === 'POST') {
 const leads = await listLeads();
 // Every quote proposal made for each lead (one lead → many proposals).
 const quotesByLead = await listQuotesByLead();
-/** Total (IVA incl.) of a proposal from its base packs (before the couple
- *  tweaks it) + custom lines — a quick figure to tell proposals apart. */
-function proposalTotal(q: { packIds: string[]; customLines: { cents: number }[]; adminDiscountCents: number }): string {
-  const custom = q.customLines.reduce((a, l) => a + l.cents, 0);
-  return formatEuros(calculateSelectionTotals(q.packIds, [], q.adminDiscountCents, custom).totalCents);
+/** Total (IVA incl.) of a proposal from its packs + composed extras + custom
+ *  lines (gifts excluded) − discount — a quick figure to tell proposals apart. */
+function proposalTotal(q: { packIds: string[]; extraIds: string[]; customLines: { cents: number; isGift?: boolean }[]; adminDiscountCents: number }): string {
+  const custom = sumCustomLines(q.customLines);
+  return formatEuros(calculateSelectionTotals(q.packIds, q.extraIds, q.adminDiscountCents, custom).totalCents);
 }
 const okFlag = Astro.url.searchParams.get('ok');
 const errorMsg = Astro.url.searchParams.get('error');
