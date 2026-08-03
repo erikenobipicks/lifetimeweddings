@@ -1084,6 +1084,18 @@ export async function removeQuoteOption(quoteId: number, index: number): Promise
   await setQuoteOptions(quoteId, next);
 }
 
+/** Reorder: move one option up or down by swapping with its neighbour. No-op
+ *  at the ends. setQuoteOptions re-syncs the base columns to the new first. */
+export async function moveQuoteOption(quoteId: number, index: number, direction: 'up' | 'down'): Promise<void> {
+  const quote = await getQuoteById(quoteId);
+  if (!quote) return;
+  const opts = [...quote.options];
+  const target = direction === 'up' ? index - 1 : index + 1;
+  if (index < 0 || index >= opts.length || target < 0 || target >= opts.length) return;
+  [opts[index], opts[target]] = [opts[target], opts[index]];
+  await setQuoteOptions(quoteId, opts);
+}
+
 /** Close a quote — the couple can still view it but no more responses. */
 export async function closeQuote(quoteId: number): Promise<void> {
   await initSchema();
