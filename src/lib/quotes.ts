@@ -73,6 +73,10 @@ export interface Quote {
   offerTitle: string | null;
   offerBody: string | null;
   offerDeadline: string | null;
+  /** Operator-authored free-text quote lines for personalised quotes. Each is
+   *  a description + a price in cents (IVA included, like the catalogue). Shown
+   *  on /p/<token> as always-included line items and added to the total. */
+  customLines: { description: string; cents: number }[];
   /** ISO timestamp when Eric closes the quote — the couple can still see
    *  their last submitted configuration but cannot send a new one. Null
    *  while the quote is still open to changes. */
@@ -133,10 +137,39 @@ export interface CreateQuoteInput {
   offerBody?: string;
   /** YYYY-MM-DD; optional deadline for the countdown. */
   offerDeadline?: string;
+  /** Operator-authored free-text quote lines (IVA-included cents). */
+  customLines?: { description: string; cents: number }[];
 }
 
 const IP_SALT = process.env.IP_HASH_SALT ?? 'lifetime-dev-salt';
 const SITE_URL = process.env.PUBLIC_SITE_URL ?? 'http://localhost:4321';
+
+/** Parse the `custom_lines` JSON blob defensively into a clean array. Drops
+ *  malformed rows; a bad/empty blob → []. */
+function parseCustomLines(raw: unknown): { description: string; cents: number }[] {
+  if (typeof raw !== 'string' || !raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .map((row) => ({
+        description: String(row?.t ?? row?.description ?? '').trim(),
+        cents: Math.round(Number(row?.c ?? row?.cents ?? 0)),
+      }))
+      .filter((l) => l.description && Number.isFinite(l.cents));
+  } catch {
+    return [];
+  }
+}
+
+/** Serialise custom lines back to the compact `{t,c}` JSON stored on the row. */
+function serialiseCustomLines(lines: { description: string; cents: number }[]): string {
+  return JSON.stringify(
+    lines
+      .filter((l) => l.description.trim() && Number.isFinite(l.cents))
+      .map((l) => ({ t: l.description.trim(), c: Math.round(l.cents) })),
+  );
+}
 
 function rowToQuote(r: any): Quote {
   return {
@@ -161,6 +194,7 @@ function rowToQuote(r: any): Quote {
     offerTitle: r.offer_title ?? null,
     offerBody: r.offer_body ?? null,
     offerDeadline: r.offer_deadline ?? null,
+    customLines: parseCustomLines(r.custom_lines),
     closedAt: r.quote_closed_at ?? null,
     sentAt: r.sent_at ?? null,
     followUpSentAt: r.follow_up_sent_at ?? null,
@@ -176,8 +210,8 @@ export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
   const now = new Date().toISOString();
   const passwordHash = input.password ? await bcrypt.hash(input.password, 10) : null;
   await db.execute({
-    sql: `INSERT INTO quotes (token, couple_name, couple_email, packs_json, notes, password_hash, expires_at, created_at, created_by, flagship_video_id, flagship_showcase_slug, flagship_wedding_slug, flagship_external_gallery_url, preferred_language, service_interest, offer_title, offer_body, offer_deadline)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    sql: `INSERT INTO quotes (token, couple_name, couple_email, packs_json, notes, password_hash, expires_at, created_at, created_by, flagship_video_id, flagship_showcase_slug, flagship_wedding_slug, flagship_external_gallery_url, preferred_language, service_interest, offer_title, offer_body, offer_deadline, custom_lines)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       token,
       input.coupleName,
@@ -197,6 +231,7 @@ export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
       input.offerTitle?.trim() || null,
       input.offerBody?.trim() || null,
       input.offerDeadline?.trim() || null,
+      input.customLines?.length ? serialiseCustomLines(input.customLines) : null,
     ],
   });
   const res = await db.execute({ sql: 'SELECT * FROM quotes WHERE token = ?', args: [token] });
@@ -791,6 +826,19 @@ export async function setQuoteOffer(
   await db.execute({
     sql: 'UPDATE quotes SET offer_title = ?, offer_body = ?, offer_deadline = ? WHERE id = ?',
     args: [title || null, body || null, deadline || null, quoteId],
+  });
+}
+
+/** Replace the operator-authored custom lines on a quote. Pass [] to clear. */
+export async function setQuoteCustomLines(
+  quoteId: number,
+  lines: { description: string; cents: number }[],
+): Promise<void> {
+  await initSchema();
+  const clean = lines.filter((l) => l.description.trim() && Number.isFinite(l.cents));
+  await db.execute({
+    sql: 'UPDATE quotes SET custom_lines = ? WHERE id = ?',
+    args: [clean.length ? serialiseCustomLines(clean) : null, quoteId],
   });
 }
 

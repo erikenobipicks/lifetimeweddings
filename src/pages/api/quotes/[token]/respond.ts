@@ -92,10 +92,14 @@ export const POST: APIRoute = async ({ request, params }) => {
   const validPackIds = packIds.filter((id) => PACKS.some((p) => p.id === id));
   const validExtraIds = extraIds.filter((id) => EXTRAS.some((e) => e.id === id));
 
+  // Operator-authored custom lines are always included, on top of the couple's
+  // pack/extra selection.
+  const customLinesCents = quote.customLines.reduce((acc, l) => acc + l.cents, 0);
   const totals = calculateSelectionTotals(
     validPackIds,
     validExtraIds,
     quote.adminDiscountCents,
+    customLinesCents,
   );
 
   const response = await createQuoteResponse({

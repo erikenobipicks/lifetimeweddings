@@ -41,8 +41,12 @@ interface Props {
   /** Pre-formatted "valid until {date}" line shown under the total. Null
    *  when the quote has no expiry. */
   validUntilText?: string | null;
+  /** Operator-authored always-included line items (description + IVA-incl cents). */
+  customLines?: { description: string; cents: number }[];
 }
-const { lang, token, initialPackIds, lastResponse, adminDiscountCents, closedAt, serviceInterest, validUntilText = null } = Astro.props;
+const { lang, token, initialPackIds, lastResponse, adminDiscountCents, closedAt, serviceInterest, validUntilText = null, customLines = [] } = Astro.props;
+const customLinesCents = customLines.reduce((acc, l) => acc + l.cents, 0);
+const customLinesLabel = lang === 'es' ? 'Conceptos personalizados' : lang === 'en' ? 'Custom items' : 'Conceptes personalitzats';
 const t = useTranslations(lang);
 
 // Catalogue → service-tag map. Used both server-side (to set the data
@@ -233,6 +237,21 @@ const noSelection = t('quote.configurator.empty');
         </ul>
       </div>
 
+      {/* Operator-authored custom lines — always included, not tickable. */}
+      {customLines.length > 0 && (
+        <div class="mb-6">
+          <p class="text-xs font-bold tracking-[0.18em] uppercase text-ink/70 mb-3">{customLinesLabel}</p>
+          <ul class="space-y-2">
+            {customLines.map((l) => (
+              <li class="flex justify-between items-baseline gap-3 text-sm border-b border-line/60 pb-2">
+                <span class="text-ink/85">{l.description}</span>
+                <span class="font-bold whitespace-nowrap">{formatEuros(l.cents)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* Total */}
       <div class="border-t border-b border-line py-5 space-y-2">
         <div class="flex justify-between text-sm">
@@ -317,6 +336,7 @@ const noSelection = t('quote.configurator.empty');
   is:inline
   define:vars={{
     adminDiscountCents,
+    customLinesCents,
     submitLabel,
     submittingLabel: submitting,
     successTitle,
@@ -348,7 +368,8 @@ const noSelection = t('quote.configurator.empty');
     }
 
     function recompute() {
-      let sub = 0;
+      // Custom lines are operator-set and always included.
+      let sub = customLinesCents || 0;
       let hasPack = false;
       form.querySelectorAll('input.qc-pack:checked').forEach((el) => {
         sub += Number(el.dataset.cents || 0);

@@ -437,6 +437,9 @@ export async function initSchema() {
   await ensureColumn('quotes', 'offer_title', 'TEXT');
   await ensureColumn('quotes', 'offer_body', 'TEXT');
   await ensureColumn('quotes', 'offer_deadline', 'TEXT');
+  // Operator-authored free-text quote lines (JSON array of {t: description,
+  // c: cents}) for personalised quotes — shown on /p and added to the total.
+  await ensureColumn('quotes', 'custom_lines', 'TEXT');
   // Per-payment FacturaDirecta invoice link — one invoice can be issued per row
   // of the payments ledger with a single click. Nullable; set once issued.
   await ensureColumn('booking_payments', 'invoice_id', 'TEXT');
