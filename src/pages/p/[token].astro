@@ -13,6 +13,7 @@ import { WEDDINGS } from '~/data/weddings';
 import { recommendShowcase } from '~/lib/matcher';
 import ExternalGalleryEmbed from '~/components/quote/ExternalGalleryEmbed.astro';
 import InteractiveConfigurator from '~/components/quote/InteractiveConfigurator.astro';
+import FixedProposal from '~/components/quote/FixedProposal.astro';
 import AtmosphericPhoto from '~/components/quote/AtmosphericPhoto.astro';
 import { SITE, waLink } from '~/data/site';
 import Icon from '~/components/Icon.astro';
@@ -474,7 +475,11 @@ const offerActive: boolean = (() => {
         </section>
 
         <!-- Packs (price visible). Now placed AFTER the visual examples
-             so the couple has seen the quality before the number. -->
+             so the couple has seen the quality before the number.
+             Hidden for fixed proposals — the FixedProposal component below
+             already itemises exactly what Eric selected, so the full catalog
+             would just be noise. -->
+        {!quote.isFixed && (
         <Section bg="cream">
           <div class="max-w-5xl mx-auto">
             <h2 class="font-display text-3xl font-bold text-center mb-12">{t('quote.packs.heading')}</h2>
@@ -533,6 +538,7 @@ const offerActive: boolean = (() => {
             </div>
           </div>
         </Section>
+        )}
 
         {/* Social proof — real testimonials only. Rendered right before the
             configurator so it answers the "can we trust paying up front?"
@@ -576,21 +582,37 @@ const offerActive: boolean = (() => {
           </Section>
         )}
 
-        <!-- Interactive configurator. Replaces the static extras catalog:
-             same info (packs + combos + extras) but the couple can tick
-             what they want, see the total update live, and send their
-             configuration back to us. -->
-        <InteractiveConfigurator
-          lang={lang}
-          token={quote.token}
-          initialPackIds={quote.packIds}
-          lastResponse={latestResponse}
-          adminDiscountCents={quote.adminDiscountCents}
-          closedAt={quote.closedAt}
-          serviceInterest={quote.serviceInterest}
-          validUntilText={validUntilText}
-          customLines={quote.customLines}
-        />
+        <!-- Proposal block. Two modes:
+             • Fixed proposal (quote.isFixed) — Eric composed the packs,
+               extras and custom lines himself; the couple just sees the
+               itemised proposal and accepts it (non-editable).
+             • Interactive configurator — the couple ticks what they want,
+               sees the total update live, and sends it back to us. -->
+        {quote.isFixed ? (
+          <FixedProposal
+            lang={lang}
+            token={quote.token}
+            packIds={quote.packIds}
+            extraIds={quote.extraIds}
+            customLines={quote.customLines}
+            adminDiscountCents={quote.adminDiscountCents}
+            validUntilText={validUntilText}
+            alreadyResponded={!!latestResponse}
+            whatsappUrl={waForVideocall()}
+          />
+        ) : (
+          <InteractiveConfigurator
+            lang={lang}
+            token={quote.token}
+            initialPackIds={quote.packIds}
+            lastResponse={latestResponse}
+            adminDiscountCents={quote.adminDiscountCents}
+            closedAt={quote.closedAt}
+            serviceInterest={quote.serviceInterest}
+            validUntilText={validUntilText}
+            customLines={quote.customLines}
+          />
+        )}
 
         <!-- FAQ. Mirrors the two FAQ pages in the tarifes PDF so couples get
              the most common answers without having to ask us by email. -->

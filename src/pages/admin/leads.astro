@@ -1,6 +1,6 @@
 ---
 import AdminLayout from '~/layouts/AdminLayout.astro';
-import { listLeads, deleteLead, createLead, listQuotesByLead } from '~/lib/quotes';
+import { listLeads, deleteLead, createLead, updateLead, listQuotesByLead } from '~/lib/quotes';
 import { formatEuros, calculateSelectionTotals } from '~/lib/pricing';
 import type { Lang } from '~/i18n/ui';
 
@@ -67,6 +67,36 @@ if (Astro.request.method === 'POST') {
         createError = `No s'ha pogut crear el lead: ${msg}`;
       }
     }
+  } else if (action === 'update') {
+    const idRaw = Number(form.get('id') ?? '');
+    const get = (k: string) => String(form.get(k) ?? '').trim();
+    const coupleName = get('coupleName');
+    if (!Number.isFinite(idRaw) || idRaw <= 0) {
+      return Astro.redirect(`/admin/leads?error=${encodeURIComponent('Lead invàlid.')}`);
+    }
+    if (!coupleName) {
+      return Astro.redirect(`/admin/leads?error=${encodeURIComponent('Cal, com a mínim, el nom de la parella.')}#lead-${idRaw}`);
+    }
+    try {
+      await updateLead(idRaw, {
+        coupleName,
+        email: get('email') || undefined,
+        phone: get('phone') || undefined,
+        weddingDate: get('weddingDate') || undefined,
+        venueName: get('venueName') || undefined,
+        location: get('location') || undefined,
+        ceremonyType: get('ceremonyType') || undefined,
+        serviceInterest: get('serviceInterest') || undefined,
+        budgetRange: get('budgetRange') || undefined,
+        preferredLanguage: (get('preferredLanguage') || 'ca') as Lang,
+        notes: get('notes') || undefined,
+      });
+      return Astro.redirect(`/admin/leads?ok=updated#lead-${idRaw}`);
+    } catch (err) {
+      console.error('[admin.leads.update] failed', { id: idRaw, err });
+      const msg = err instanceof Error ? err.message : 'error desconegut';
+      return Astro.redirect(`/admin/leads?error=${encodeURIComponent('No s\'ha pogut desar: ' + msg)}#lead-${idRaw}`);
+    }
   }
 }
 
@@ -81,6 +111,27 @@ function proposalTotal(q: { packIds: string[]; customLines: { cents: number }[];
 }
 const okFlag = Astro.url.searchParams.get('ok');
 const errorMsg = Astro.url.searchParams.get('error');
+
+/** data-* attributes carrying a lead's editable fields, spread onto the
+ *  "✏ Editar" buttons so the shared edit form can be populated client-side
+ *  without an extra round-trip. */
+function editAttrs(l: (typeof leads)[number]): Record<string, string> {
+  return {
+    'data-edit': '',
+    'data-id': String(l.id),
+    'data-couplename': l.coupleName ?? '',
+    'data-email': l.email ?? '',
+    'data-phone': l.phone ?? '',
+    'data-weddingdate': l.weddingDate ?? '',
+    'data-venuename': l.venueName ?? '',
+    'data-location': l.location ?? '',
+    'data-ceremonytype': l.ceremonyType ?? '',
+    'data-serviceinterest': l.serviceInterest ?? '',
+    'data-budgetrange': l.budgetRange ?? '',
+    'data-preferredlanguage': l.preferredLanguage ?? 'ca',
+    'data-notes': l.notes ?? '',
+  };
+}
 
 function fmt(iso: string | null): string {
   if (!iso) return '—';
@@ -128,6 +179,11 @@ const labels: Record<string, string> = {
   {okFlag === 'created' && (
     <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
       ✓ Lead creat. Ja el pots convertir en pressupost des de la fila.
+    </div>
+  )}
+  {okFlag === 'updated' && (
+    <div class="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
+      ✓ Dades del lead desades.
     </div>
   )}
   {okFlag === 'deduplicated' && (
@@ -234,6 +290,102 @@ const labels: Record<string, string> = {
     </form>
   </div>
 
+  {/* Shared edit form. Hidden until "✏ Editar" on a row populates it (via
+      the button's data-* attributes) and reveals it. One form reused for
+      every lead — the hidden `id` field targets the row being edited. */}
+  <div id="edit-lead-form" class="hidden bg-white border-2 border-gold p-5 md:p-6 mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-display text-lg font-bold">Editar lead <span id="edit-lead-name" class="text-gold-deep"></span></h2>
+      <button type="button" data-close-edit class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-ink">✕ Tancar</button>
+    </div>
+    <form method="POST" class="space-y-4">
+      <input type="hidden" name="action" value="update" />
+      <input type="hidden" name="id" id="edit-id" value="" />
+      <div class="grid sm:grid-cols-2 gap-4">
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Nom de la parella *</span>
+          <input name="coupleName" id="edit-coupleName" required class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Email</span>
+          <input name="email" id="edit-email" type="email" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Telèfon</span>
+          <input name="phone" id="edit-phone" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Data de la boda</span>
+          <input name="weddingDate" id="edit-weddingDate" type="date" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Finca / lloc (text lliure)</span>
+          <input name="venueName" id="edit-venueName" placeholder="Ex: El Catllar" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Zona</span>
+          <select name="location" id="edit-location" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
+            <option value="">— Sense triar —</option>
+            <option value="tarragona">Tarragona/Reus</option>
+            <option value="barcelona">Barcelona</option>
+            <option value="lleida">Lleida/Girona</option>
+            <option value="other_cat">Catalunya (altres)</option>
+            <option value="international">Internacional</option>
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Tipus de cerimònia</span>
+          <select name="ceremonyType" id="edit-ceremonyType" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
+            <option value="">— Sense triar —</option>
+            <option value="civil">Civil</option>
+            <option value="religious">Religiosa</option>
+            <option value="symbolic">Simbòlica</option>
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Interès</span>
+          <select name="serviceInterest" id="edit-serviceInterest" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
+            <option value="">— Sense triar —</option>
+            <option value="photo">📸 Foto</option>
+            <option value="video">🎬 Vídeo</option>
+            <option value="both">💍 Ambdós</option>
+            <option value="undecided">🤔 Encara no ho saben</option>
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Pressupost aprox.</span>
+          <select name="budgetRange" id="edit-budgetRange" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
+            <option value="">— Sense triar —</option>
+            <option value="low">&lt; 1.500 €</option>
+            <option value="mid">1.500-2.500 €</option>
+            <option value="high">2.500-3.500 €</option>
+            <option value="premium">&gt; 3.500 €</option>
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Idioma</span>
+          <select name="preferredLanguage" id="edit-preferredLanguage" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none">
+            <option value="ca">Català</option>
+            <option value="es">Castellà</option>
+            <option value="en">Anglès</option>
+          </select>
+        </label>
+      </div>
+      <label class="block">
+        <span class="text-xs font-bold tracking-widest uppercase text-ink/70">Notes / missatge original</span>
+        <textarea name="notes" id="edit-notes" rows="5" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none resize-y"></textarea>
+      </label>
+      <div class="flex items-center gap-3">
+        <button type="submit" class="bg-ink text-white px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">
+          Desar canvis
+        </button>
+        <button type="button" data-close-edit class="text-xs font-bold tracking-widest uppercase text-ink/60 hover:text-ink">
+          Cancel·lar
+        </button>
+      </div>
+    </form>
+  </div>
+
   {leads.length === 0 ? (
     <p class="text-ink/70 text-center py-16">Encara no hi ha leads del quiz.</p>
   ) : (
@@ -279,6 +431,14 @@ const labels: Record<string, string> = {
             <a href={`/admin/new?lead=${l.id}`} class="flex-1 text-center bg-ink text-white text-[0.7rem] font-bold tracking-widest uppercase px-4 py-3 hover:bg-gold hover:text-ink transition-colors">
               + {(quotesByLead.get(l.id) ?? []).length > 0 ? 'Nova proposta' : 'Pressupost'}
             </a>
+            <button
+              type="button"
+              {...editAttrs(l)}
+              class="border-l border-line text-ink/70 text-[0.7rem] font-bold tracking-widest uppercase px-4 py-3 hover:bg-cream hover:text-gold-deep transition-colors"
+              title="Editar les dades del lead"
+            >
+              ✏ Editar
+            </button>
             <form
               method="POST"
               class="border-l border-line"
@@ -347,6 +507,14 @@ const labels: Record<string, string> = {
                       Proposta {i + 1}
                     </a>
                   ))}
+                  <button
+                    type="button"
+                    {...editAttrs(l)}
+                    class="inline-block border border-line text-ink/70 text-xs font-bold tracking-widest uppercase px-3 py-1.5 hover:border-gold hover:text-gold-deep transition-colors"
+                    title="Editar les dades del lead"
+                  >
+                    ✏ Editar
+                  </button>
                   <a
                     href={`/admin/new?lead=${l.id}`}
                     class="inline-block bg-ink text-white text-xs font-bold tracking-widest uppercase px-3 py-1.5 hover:bg-gold hover:text-ink transition-colors"
@@ -393,6 +561,49 @@ const labels: Record<string, string> = {
       if (!panel.classList.contains('hidden')) {
         panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
+    });
+  })();
+</script>
+
+<script is:inline>
+  // Edit-lead flow. Each "✏ Editar" button carries the lead's editable
+  // fields as data-* attributes; clicking one fills the shared edit form
+  // and reveals it. One form reused for every lead (hidden `id` targets the
+  // row). The create form is collapsed while editing to avoid two open forms.
+  (() => {
+    const form = document.getElementById('edit-lead-form');
+    if (!form) return;
+    const createPanel = document.getElementById('new-lead-form');
+    const nameLabel = document.getElementById('edit-lead-name');
+    const set = (id, value) => {
+      const el = document.getElementById(id);
+      if (el) el.value = value ?? '';
+    };
+
+    document.querySelectorAll('[data-edit]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const d = btn.dataset;
+        set('edit-id', d.id);
+        set('edit-coupleName', d.couplename);
+        set('edit-email', d.email);
+        set('edit-phone', d.phone);
+        set('edit-weddingDate', d.weddingdate);
+        set('edit-venueName', d.venuename);
+        set('edit-location', d.location);
+        set('edit-ceremonyType', d.ceremonytype);
+        set('edit-serviceInterest', d.serviceinterest);
+        set('edit-budgetRange', d.budgetrange);
+        set('edit-preferredLanguage', d.preferredlanguage || 'ca');
+        set('edit-notes', d.notes);
+        if (nameLabel) nameLabel.textContent = d.couplename || '';
+        if (createPanel) createPanel.classList.add('hidden');
+        form.classList.remove('hidden');
+        form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    form.querySelectorAll('[data-close-edit]').forEach((btn) => {
+      btn.addEventListener('click', () => form.classList.add('hidden'));
     });
   })();
 </script>

@@ -77,6 +77,13 @@ export interface Quote {
    *  a description + a price in cents (IVA included, like the catalogue). Shown
    *  on /p/<token> as always-included line items and added to the total. */
   customLines: { description: string; cents: number }[];
+  /** Extras Eric pre-selected when composing this quote. Empty on legacy
+   *  quotes where the couple picks extras themselves. */
+  extraIds: string[];
+  /** When true, /p shows a FIXED itemised proposal (packs + extras + custom
+   *  lines + total) that the couple can't reconfigure. False → the interactive
+   *  configurator. */
+  isFixed: boolean;
   /** ISO timestamp when Eric closes the quote — the couple can still see
    *  their last submitted configuration but cannot send a new one. Null
    *  while the quote is still open to changes. */
@@ -141,6 +148,10 @@ export interface CreateQuoteInput {
   customLines?: { description: string; cents: number }[];
   /** Lead this quote is a proposal for (one lead → many proposals). */
   leadId?: number;
+  /** Extras Eric pre-selected for a composed quote. */
+  extraIds?: string[];
+  /** When true, /p renders a fixed, non-editable proposal. */
+  isFixed?: boolean;
 }
 
 const IP_SALT = process.env.IP_HASH_SALT ?? 'lifetime-dev-salt';
@@ -197,6 +208,13 @@ function rowToQuote(r: any): Quote {
     offerBody: r.offer_body ?? null,
     offerDeadline: r.offer_deadline ?? null,
     customLines: parseCustomLines(r.custom_lines),
+    extraIds: (() => {
+      try {
+        const v = JSON.parse((r.extra_ids as string) ?? '[]');
+        return Array.isArray(v) ? v.map(String) : [];
+      } catch { return []; }
+    })(),
+    isFixed: !!r.is_fixed,
     closedAt: r.quote_closed_at ?? null,
     sentAt: r.sent_at ?? null,
     followUpSentAt: r.follow_up_sent_at ?? null,
@@ -212,8 +230,8 @@ export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
   const now = new Date().toISOString();
   const passwordHash = input.password ? await bcrypt.hash(input.password, 10) : null;
   await db.execute({
-    sql: `INSERT INTO quotes (token, couple_name, couple_email, packs_json, notes, password_hash, expires_at, created_at, created_by, flagship_video_id, flagship_showcase_slug, flagship_wedding_slug, flagship_external_gallery_url, preferred_language, service_interest, offer_title, offer_body, offer_deadline, custom_lines, lead_id)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    sql: `INSERT INTO quotes (token, couple_name, couple_email, packs_json, notes, password_hash, expires_at, created_at, created_by, flagship_video_id, flagship_showcase_slug, flagship_wedding_slug, flagship_external_gallery_url, preferred_language, service_interest, offer_title, offer_body, offer_deadline, custom_lines, lead_id, extra_ids, is_fixed)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       token,
       input.coupleName,
@@ -235,6 +253,8 @@ export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
       input.offerDeadline?.trim() || null,
       input.customLines?.length ? serialiseCustomLines(input.customLines) : null,
       input.leadId ?? null,
+      input.extraIds?.length ? JSON.stringify(input.extraIds) : null,
+      input.isFixed ? 1 : 0,
     ],
   });
   const res = await db.execute({ sql: 'SELECT * FROM quotes WHERE token = ?', args: [token] });
@@ -583,6 +603,47 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
   });
   const res = await db.execute({ sql: 'SELECT * FROM leads WHERE rowid = last_insert_rowid()', args: [] });
   return { lead: rowToLead(res.rows[0]), deduplicated: false };
+}
+
+export interface UpdateLeadInput {
+  coupleName: string;
+  email?: string;
+  phone?: string;
+  weddingDate?: string;
+  venueName?: string;
+  location?: string;
+  ceremonyType?: string;
+  serviceInterest?: string;
+  budgetRange?: string;
+  preferredLanguage?: Lang;
+  notes?: string;
+}
+
+/** Edit an existing lead's editable fields. Empty strings clear the field
+ *  (except couple_name, which stays). Email is optional like on create. */
+export async function updateLead(id: number, input: UpdateLeadInput): Promise<void> {
+  await initSchema();
+  const clean = (v: string | undefined) => (v && v.trim() ? v.trim() : null);
+  await db.execute({
+    sql: `UPDATE leads SET couple_name = ?, email = ?, phone = ?, wedding_date = ?,
+            venue_name = ?, location = ?, ceremony_type = ?, service_interest = ?,
+            budget_range = ?, preferred_language = ?, notes = ?
+          WHERE id = ?`,
+    args: [
+      input.coupleName.trim(),
+      (input.email ?? '').trim(), // NOT NULL column; '' when absent
+      clean(input.phone),
+      clean(input.weddingDate),
+      clean(input.venueName),
+      clean(input.location),
+      clean(input.ceremonyType),
+      clean(input.serviceInterest),
+      clean(input.budgetRange),
+      input.preferredLanguage ?? 'ca',
+      clean(input.notes),
+      id,
+    ],
+  });
 }
 
 export async function listLeads(limit = 100): Promise<Lead[]> {
