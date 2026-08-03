@@ -440,6 +440,14 @@ export async function initSchema() {
   // Operator-authored free-text quote lines (JSON array of {t: description,
   // c: cents}) for personalised quotes — shown on /p and added to the total.
   await ensureColumn('quotes', 'custom_lines', 'TEXT');
+  // A quote can belong to a lead (one lead → many proposals). Replaces the old
+  // one-to-one leads.quote_id as the source of truth; backfilled from it below
+  // so existing links keep working. leads.quote_id stays for legacy reads.
+  await ensureColumn('quotes', 'lead_id', 'INTEGER');
+  await db.execute(
+    `UPDATE quotes SET lead_id = (SELECT l.id FROM leads l WHERE l.quote_id = quotes.id)
+     WHERE lead_id IS NULL AND EXISTS (SELECT 1 FROM leads l WHERE l.quote_id = quotes.id)`,
+  );
   // Per-payment FacturaDirecta invoice link — one invoice can be issued per row
   // of the payments ledger with a single click. Nullable; set once issued.
   await ensureColumn('booking_payments', 'invoice_id', 'TEXT');

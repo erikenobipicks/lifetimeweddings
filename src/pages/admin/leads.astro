@@ -1,6 +1,7 @@
 ---
 import AdminLayout from '~/layouts/AdminLayout.astro';
-import { listLeads, deleteLead, createLead } from '~/lib/quotes';
+import { listLeads, deleteLead, createLead, listQuotesByLead } from '~/lib/quotes';
+import { formatEuros, calculateSelectionTotals } from '~/lib/pricing';
 import type { Lang } from '~/i18n/ui';
 
 // Hard-delete / manual-create via form POST to this same URL. Same pattern
@@ -70,6 +71,14 @@ if (Astro.request.method === 'POST') {
 }
 
 const leads = await listLeads();
+// Every quote proposal made for each lead (one lead → many proposals).
+const quotesByLead = await listQuotesByLead();
+/** Total (IVA incl.) of a proposal from its base packs (before the couple
+ *  tweaks it) + custom lines — a quick figure to tell proposals apart. */
+function proposalTotal(q: { packIds: string[]; customLines: { cents: number }[]; adminDiscountCents: number }): string {
+  const custom = q.customLines.reduce((a, l) => a + l.cents, 0);
+  return formatEuros(calculateSelectionTotals(q.packIds, [], q.adminDiscountCents, custom).totalCents);
+}
 const okFlag = Astro.url.searchParams.get('ok');
 const errorMsg = Astro.url.searchParams.get('error');
 
@@ -254,16 +263,22 @@ const labels: Record<string, string> = {
               </details>
             )}
           </div>
+          {(quotesByLead.get(l.id) ?? []).length > 0 && (
+            <ul class="border-t border-line divide-y divide-line/60">
+              {(quotesByLead.get(l.id) ?? []).map((q, i) => (
+                <li>
+                  <a href={`/admin/${q.id}`} class="flex items-center justify-between gap-2 px-4 py-2.5 text-[0.72rem] hover:bg-cream">
+                    <span class="font-bold text-gold-deep">Proposta {i + 1}{q.rejectedAt ? ' · rebutjada' : q.closedAt ? ' · tancada' : ''}</span>
+                    <span class="text-ink/70">{proposalTotal(q)} →</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
           <div class="flex border-t border-line">
-            {l.quoteId ? (
-              <a href={`/admin/${l.quoteId}`} class="flex-1 text-center text-gold text-[0.7rem] font-bold tracking-widest uppercase px-4 py-3 hover:bg-cream">
-                Veure pressupost →
-              </a>
-            ) : (
-              <a href={`/admin/new?lead=${l.id}`} class="flex-1 text-center bg-ink text-white text-[0.7rem] font-bold tracking-widest uppercase px-4 py-3 hover:bg-gold hover:text-ink transition-colors">
-                + Pressupost
-              </a>
-            )}
+            <a href={`/admin/new?lead=${l.id}`} class="flex-1 text-center bg-ink text-white text-[0.7rem] font-bold tracking-widest uppercase px-4 py-3 hover:bg-gold hover:text-ink transition-colors">
+              + {(quotesByLead.get(l.id) ?? []).length > 0 ? 'Nova proposta' : 'Pressupost'}
+            </a>
             <form
               method="POST"
               class="border-l border-line"
@@ -322,22 +337,24 @@ const labels: Record<string, string> = {
               <td class="px-4 py-3 text-ink/70">{l.weddingDate ?? '—'}</td>
               <td class="px-4 py-3 text-ink/70">{fmt(l.createdAt)}</td>
               <td class="px-4 py-3 text-right whitespace-nowrap">
-                {l.quoteId ? (
-                  <a
-                    href={`/admin/${l.quoteId}`}
-                    class="text-gold text-xs font-bold tracking-widest uppercase hover:underline mr-3"
-                  >
-                    Veure pressupost
-                  </a>
-                ) : (
+                <span class="inline-flex flex-wrap items-center gap-x-3 gap-y-1 justify-end mr-3">
+                  {(quotesByLead.get(l.id) ?? []).map((q, i) => (
+                    <a
+                      href={`/admin/${q.id}`}
+                      class="text-gold text-xs font-bold tracking-widest uppercase hover:underline"
+                      title={`Proposta ${i + 1} · ${proposalTotal(q)}`}
+                    >
+                      Proposta {i + 1}
+                    </a>
+                  ))}
                   <a
                     href={`/admin/new?lead=${l.id}`}
-                    class="inline-block bg-ink text-white text-xs font-bold tracking-widest uppercase px-3 py-1.5 hover:bg-gold hover:text-ink transition-colors mr-3"
-                    title="Crea un pressupost pre-rellenat amb les dades d'aquest lead"
+                    class="inline-block bg-ink text-white text-xs font-bold tracking-widest uppercase px-3 py-1.5 hover:bg-gold hover:text-ink transition-colors"
+                    title="Crea un pressupost nou pre-rellenat amb les dades d'aquest lead"
                   >
-                    + Pressupost
+                    + {(quotesByLead.get(l.id) ?? []).length > 0 ? 'Proposta' : 'Pressupost'}
                   </a>
-                )}
+                </span>
                 <form
                   method="POST"
                   class="inline"
