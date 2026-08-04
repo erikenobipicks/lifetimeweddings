@@ -1096,6 +1096,32 @@ export async function moveQuoteOption(quoteId: number, index: number, direction:
   await setQuoteOptions(quoteId, opts);
 }
 
+/** Replace one option in place (edit). No-op if the index is out of range. */
+export async function setQuoteOption(quoteId: number, index: number, option: QuoteOption): Promise<void> {
+  const quote = await getQuoteById(quoteId);
+  if (!quote) return;
+  if (index < 0 || index >= quote.options.length) return;
+  const next = quote.options.map((o, i) => (i === index ? option : o));
+  await setQuoteOptions(quoteId, next);
+}
+
+/** Duplicate one option, inserting the copy right after it ("… (còpia)"). */
+export async function duplicateQuoteOption(quoteId: number, index: number): Promise<void> {
+  const quote = await getQuoteById(quoteId);
+  if (!quote) return;
+  if (index < 0 || index >= quote.options.length) return;
+  const src = quote.options[index];
+  const copy: QuoteOption = {
+    label: `${src.label} (còpia)`.slice(0, 60),
+    packIds: [...src.packIds],
+    extraIds: [...src.extraIds],
+    customLines: src.customLines.map((l) => ({ ...l })),
+  };
+  const next = [...quote.options];
+  next.splice(index + 1, 0, copy);
+  await setQuoteOptions(quoteId, next);
+}
+
 /** Close a quote — the couple can still view it but no more responses. */
 export async function closeQuote(quoteId: number): Promise<void> {
   await initSchema();
