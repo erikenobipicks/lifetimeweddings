@@ -170,6 +170,7 @@ const inspirationRows = inspiration
 
 // Sticky quick-nav: only sections that actually render for this booking.
 const navItems = [
+  { href: '#pack-serveis', label: '📦 Pack i serveis', show: true },
   { href: '#pagaments', label: '💶 Pagaments', show: true },
   { href: '#horaris', label: '🕐 Horaris', show: true },
   { href: '#seguiment', label: '✅ Seguiment', show: booking.status === 'form_submitted' },
@@ -281,6 +282,8 @@ const ibanPlaceholder = transfer.isPlaceholder;
       {ok?.startsWith('status:') && `Estat actualitzat a ${ok.split(':')[1]}.`}
       {ok === 'deposit:paid' && 'Dipòsit marcat com a rebut. La parella ja pot omplir /contrato.'}
       {ok === 'deposit:unpaid' && 'Marca de dipòsit retirada.'}
+      {ok === 'contract:signed-externally' && 'Contracte marcat com a signat fora de l\'aplicació.'}
+      {ok === 'contract:signed-cleared' && 'Marca de contracte signat fora de l\'app desfeta.'}
       {ok === 'payment:added' && 'Pagament registrat.'}
       {ok === 'reminder:sent' && 'Recordatori de pagament enviat a la parella.'}
       {ok === 'timeline:saved' && 'Horaris del dia desats.'}
@@ -385,6 +388,143 @@ const ibanPlaceholder = transfer.isPlaceholder;
       )}
     </form>
   </div>
+
+  <!-- ── Pack i serveis contractats (vista clara) ─────────────────────── -->
+  <section id="pack-serveis" class="bg-white border border-line p-5 mb-4 scroll-mt-24">
+    <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+      <h2 class="text-xs font-bold tracking-widest uppercase">📦 Pack i serveis contractats</h2>
+      <div class="flex items-center gap-2">
+        {(booking.serviceType && SERVICE_LABEL[booking.serviceType]) && (
+          <span class="text-[0.6rem] font-bold tracking-wider uppercase px-2 py-0.5 rounded-sm bg-cream border border-gold/30 text-ink/70">{SERVICE_LABEL[booking.serviceType]}</span>
+        )}
+        <a href="#editar" class="text-[0.7rem] font-bold tracking-widest uppercase text-gold hover:underline">✏️ Editar</a>
+      </div>
+    </div>
+    <div class="grid md:grid-cols-2 gap-5">
+      <!-- Esquerra: pack + inclou/no inclou + extres -->
+      <div>
+        <p class="font-display text-xl font-bold leading-tight">{booking.packName || '— sense pack —'}</p>
+        {booking.packDescription && <p class="text-sm text-ink/70 mt-1 whitespace-pre-wrap">{booking.packDescription}</p>}
+
+        {booking.packIncludes.length > 0 && (
+          <div class="mt-4">
+            <p class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/55 mb-1.5">Inclou</p>
+            <ul class="space-y-1 text-sm text-ink/85">
+              {booking.packIncludes.map((it) => (
+                <li class="flex gap-2"><span class="text-emerald-600 shrink-0">✓</span><span>{it}</span></li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {booking.packExcludes.length > 0 && (
+          <div class="mt-4">
+            <p class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/55 mb-1.5">No inclou</p>
+            <ul class="space-y-1 text-sm text-ink/60">
+              {booking.packExcludes.map((it) => (
+                <li class="flex gap-2"><span class="text-rose-400 shrink-0">✕</span><span>{it}</span></li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {booking.packAddons.length > 0 && (
+          <div class="mt-4">
+            <p class="text-[0.65rem] font-bold tracking-widest uppercase text-gold-deep mb-1.5">Serveis / extres afegits</p>
+            <ul class="divide-y divide-line border border-line">
+              {booking.packAddons.map((a) => (
+                <li class="flex items-baseline justify-between gap-3 px-3 py-2 text-sm">
+                  <span class="text-ink/85">{a.name}</span>
+                  <span class="font-semibold whitespace-nowrap">{fmtEur(a.price_cents)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      <!-- Dreta: desglossament econòmic -->
+      <div class="bg-cream/40 border border-line p-4 self-start">
+        <p class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/55 mb-2">Desglossament</p>
+        <dl class="space-y-1.5 text-sm">
+          <div class="flex items-baseline justify-between gap-3">
+            <dt class="text-ink/70">Preu del pack</dt>
+            <dd class="whitespace-nowrap">{fmtEur(booking.packPriceCents)}</dd>
+          </div>
+          {booking.discountCents > 0 && (
+            <div class="flex items-baseline justify-between gap-3 text-gold-deep">
+              <dt>Descompte</dt>
+              <dd class="font-semibold whitespace-nowrap">−{fmtEur(booking.discountCents)}</dd>
+            </div>
+          )}
+          <div class="flex items-baseline justify-between gap-3 pt-1.5 mt-1.5 border-t border-ink/20">
+            <dt class="font-bold">Total</dt>
+            <dd class="font-display text-lg font-bold text-gold-deep whitespace-nowrap">{fmtEur(totalCents)}</dd>
+          </div>
+          <div class="flex items-baseline justify-between gap-3">
+            <dt class="text-ink/70">Cobrat</dt>
+            <dd class="text-emerald-700 font-semibold whitespace-nowrap">{fmtEur(paidCents)}</dd>
+          </div>
+          {booking.cancelledAt ? (
+            <div class="flex items-baseline justify-between gap-3 text-rose-700">
+              <dt>Retingut (cancel·lada)</dt>
+              <dd class="font-semibold whitespace-nowrap">{fmtEur(booking.cancellationRetainedCents ?? booking.depositCents)}</dd>
+            </div>
+          ) : pendingCents > 0 ? (
+            <div class="flex items-baseline justify-between gap-3">
+              <dt class="text-ink/70">Pendent</dt>
+              <dd class="text-amber-800 font-semibold whitespace-nowrap">{fmtEur(pendingCents)}</dd>
+            </div>
+          ) : totalCents > 0 ? (
+            <div class="text-emerald-700 font-semibold text-right">✓ Liquidat</div>
+          ) : null}
+          {booking.depositCents > 0 && (
+            <div class="flex items-baseline justify-between gap-3 text-xs text-ink/55 pt-1.5 mt-1.5 border-t border-line">
+              <dt>Paga i senyal</dt>
+              <dd class="whitespace-nowrap">{fmtEur(booking.depositCents)}</dd>
+            </div>
+          )}
+        </dl>
+        {booking.paymentTerms && (
+          <p class="text-xs text-ink/60 mt-3 pt-3 border-t border-line whitespace-pre-wrap">{booking.paymentTerms}</p>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Contracte: estat de la signatura ─────────────────────────────── -->
+  <section id="contracte-signatura" class="bg-white border border-line p-5 mb-4 scroll-mt-24">
+    <h2 class="text-xs font-bold tracking-widest uppercase mb-3">📄 Contracte</h2>
+    {booking.contractAcceptedAt ? (
+      booking.contractAcceptedIp === 'manual' ? (
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <p class="text-sm font-semibold text-emerald-700">✓ Signat fora de l'aplicació · {fmtDateTime(booking.contractAcceptedAt)}</p>
+            <p class="text-xs text-ink/60 mt-0.5">Marcat manualment per l'estudi (la parella ja l'havia signat en paper o fora de l'app).</p>
+          </div>
+          <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} onsubmit="return confirm('Desfer la marca de contracte signat fora de l\'app?')">
+            <input type="hidden" name="_action" value="unmark_contract_signed" />
+            <button type="submit" class="text-xs text-red-600 font-bold hover:underline whitespace-nowrap">Desfer marca</button>
+          </form>
+        </div>
+      ) : (
+        <p class="text-sm font-semibold text-emerald-700">✓ Signat per la parella a l'aplicació · {fmtDateTime(booking.contractAcceptedAt)}</p>
+      )
+    ) : (
+      <div>
+        <p class="text-sm text-ink/80">Encara no consta signat.</p>
+        <p class="text-xs text-ink/60 mt-0.5 mb-3">Si la parella ja ha signat el contracte en paper o fora de l'aplicació, marca-ho aquí perquè la reserva ho reflecteixi.</p>
+        <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="flex flex-col sm:flex-row sm:items-end gap-2">
+          <input type="hidden" name="_action" value="mark_contract_signed" />
+          <label class="block flex-1">
+            <span class="text-[0.65rem] font-bold tracking-widest uppercase text-ink/70">Nota (opcional)</span>
+            <input name="signed_note" maxlength="200" placeholder="Ex: signat en paper el 12/06/2026" class="mt-1 w-full px-3 py-2 border border-line bg-white focus:border-gold focus:outline-none" />
+          </label>
+          <button type="submit" class="bg-ink text-white px-4 py-2 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors whitespace-nowrap">✍️ Marcar com a signat fora de l'app</button>
+        </form>
+      </div>
+    )}
+  </section>
 
   <!-- ── Navegació ràpida (sticky) ────────────────────────────────────── -->
   <nav

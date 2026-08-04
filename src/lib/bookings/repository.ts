@@ -688,6 +688,25 @@ export async function markContractAccepted(bookingId: string, proof: SignaturePr
   return (res.rowsAffected ?? 0) > 0;
 }
 
+/** Sentinel stored in contract_accepted_ip when the operator marks a contract
+ *  as signed OUTSIDE the app (on paper / elsewhere). Lets the UI tell a manual
+ *  mark apart from a real in-app e-signature (which carries a real IP). */
+export const MANUAL_CONTRACT_IP = 'manual';
+
+/** Undo a manual "signed outside the app" mark. Scoped to manual marks only
+ *  (contract_accepted_ip = the sentinel) so it can never wipe a genuine in-app
+ *  e-signature. Also clears any signed-at the manual mark set. */
+export async function clearManualContractSignature(bookingId: string): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: `UPDATE bookings
+          SET contract_accepted_at = NULL, contract_accepted_ip = NULL,
+              contract_accepted_name = NULL, contract_accepted_user_agent = NULL
+          WHERE id = ? AND contract_accepted_ip = ?`,
+    args: [bookingId, MANUAL_CONTRACT_IP],
+  });
+}
+
 /** Record the FotoStudio project id the booking was pushed to. Set
  *  once at /reserva submit time so /contrato submit can later update the
  *  same project's description with the publication-consent block. */
