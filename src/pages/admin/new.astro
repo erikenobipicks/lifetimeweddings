@@ -1,6 +1,6 @@
 ---
 import AdminLayout from '~/layouts/AdminLayout.astro';
-import { createQuote, getLeadById, linkLeadToQuote, addQuoteOption, getQuoteById } from '~/lib/quotes';
+import { createQuote, getLeadById, linkLeadToQuote, addQuoteOption, setQuoteOption, getQuoteById } from '~/lib/quotes';
 import { PACKS, OWN_EXTRAS, EXTERNAL_EXTRAS, getComposedSubpacks } from '~/data/packs';
 import { eurosStringToCents } from '~/lib/payments/money';
 import { recommendPacks } from '~/lib/matcher';
@@ -18,6 +18,26 @@ const lead = Number.isFinite(leadId) && leadId > 0 ? await getLeadById(leadId) :
 // an existing proposal (Opció B/C…) instead of creating a whole new quote.
 const addOptionId = Number(Astro.url.searchParams.get('addOption'));
 const addOptionQuote = Number.isFinite(addOptionId) && addOptionId > 0 ? await getQuoteById(addOptionId) : null;
+
+// Support ?editOption=<quoteId>&option=<i>: reuse the composer to edit an
+// existing option in place (change its packs/extras/lines/label).
+const editOptionId = Number(Astro.url.searchParams.get('editOption'));
+const editOptionIndex = Number(Astro.url.searchParams.get('option'));
+const editOptionQuote = Number.isFinite(editOptionId) && editOptionId > 0 ? await getQuoteById(editOptionId) : null;
+const editOption = editOptionQuote && Number.isFinite(editOptionIndex) && editOptionIndex >= 0
+  ? (editOptionQuote.options[editOptionIndex] ?? null)
+  : null;
+// Any "operate on an existing proposal's option" mode — hides the couple- and
+// quote-level fields, which don't apply when adding/editing an option.
+const optionCtxQuote = addOptionQuote ?? (editOption ? editOptionQuote : null);
+/** Cents → the euros string the price input expects (integer when round). */
+function centsToInput(cents: number): string {
+  if (!cents) return '';
+  return cents % 100 === 0 ? String(cents / 100) : (cents / 100).toFixed(2).replace('.', ',');
+}
+// Custom-line rows to render: enough for the option being edited, min 3.
+const prefillLines = editOption?.customLines ?? [];
+const customLineRows = Math.max(3, prefillLines.length);
 
 let error: string | null = null;
 let createdToken: string | null = null;
@@ -49,6 +69,10 @@ if (Astro.request.method === 'POST') {
   const optionLabel = String(form.get('option_label') ?? '').trim();
   const postedAddOption = Number(form.get('add_option_to') ?? '');
   const isAddOption = Number.isFinite(postedAddOption) && postedAddOption > 0;
+  const postedEditOption = Number(form.get('edit_option_to') ?? '');
+  const postedEditIndex = Number(form.get('edit_option_index') ?? '');
+  const isEditOption = Number.isFinite(postedEditOption) && postedEditOption > 0
+    && Number.isFinite(postedEditIndex) && postedEditIndex >= 0;
 
   // Adding an option to an existing proposal — append and bounce back to it.
   if (isAddOption) {
@@ -62,6 +86,21 @@ if (Astro.request.method === 'POST') {
         customLines,
       });
       return Astro.redirect(`/admin/${postedAddOption}?ok=option-added#opcions`);
+    }
+  }
+
+  // Editing an existing option in place — replace it and bounce back.
+  if (isEditOption) {
+    if (packIds.length === 0) {
+      error = 'Selecciona almenys un pack per a l\'opció.';
+    } else {
+      await setQuoteOption(postedEditOption, postedEditIndex, {
+        label: optionLabel || 'Opció',
+        packIds,
+        extraIds,
+        customLines,
+      });
+      return Astro.redirect(`/admin/${postedEditOption}?ok=option-updated#opcions`);
     }
   }
 
@@ -84,7 +123,7 @@ if (Astro.request.method === 'POST') {
   const linkLeadId = Number(form.get('lead_id') ?? '');
   postedLeadId = Number.isFinite(linkLeadId) && linkLeadId > 0 ? linkLeadId : null;
 
-  if (isAddOption) {
+  if (isAddOption || isEditOption) {
     // handled above (redirect on success, or `error` set) — skip create
   } else if (!coupleName) {
     error = 'Cal el nom de la parella.';
@@ -159,7 +198,7 @@ const LABELS: Record<string, string> = {
 
 <AdminLayout title="Nou pressupost">
   <h1 class="font-display text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">
-    {addOptionQuote ? 'Afegir una opció' : 'Nou pressupost'}
+    {addOptionQuote ? 'Afegir una opció' : editOption ? 'Editar una opció' : 'Nou pressupost'}
   </h1>
 
   {addOptionQuote && (
@@ -173,7 +212,17 @@ const LABELS: Record<string, string> = {
     </div>
   )}
 
-  {lead && !createdToken && !addOptionQuote && (
+  {editOption && editOptionQuote && (
+    <div class="mb-8 bg-gold/5 border-2 border-gold/50 p-5">
+      <p class="text-xs font-bold tracking-widest uppercase text-gold-deep mb-2">✎ Editant l'opció «{editOption.label}» · {editOptionQuote.coupleName}</p>
+      <p class="text-sm text-ink/75">
+        Canvia el que inclou aquesta opció (nom + packs + extres + línies). En desar es substituirà l'opció a la mateixa proposta.
+      </p>
+      <a href={`/admin/${editOptionQuote.id}`} class="inline-block mt-3 text-xs font-bold tracking-widest uppercase text-gold-deep hover:underline">← Tornar a la proposta</a>
+    </div>
+  )}
+
+  {lead && !createdToken && !optionCtxQuote && (
     <div class="mb-8 bg-cream border border-gold/40 p-5">
       <p class="text-xs font-bold tracking-widest uppercase text-gold mb-3">Respostes del quiz · lead #{lead.id}</p>
       <dl class="grid sm:grid-cols-2 gap-2 text-sm mb-3">
@@ -240,22 +289,24 @@ const LABELS: Record<string, string> = {
   <form method="POST" class="max-w-2xl space-y-6 bg-white p-6 border border-line">
     {lead && <input type="hidden" name="lead_id" value={lead.id} />}
     {addOptionQuote && <input type="hidden" name="add_option_to" value={addOptionQuote.id} />}
+    {editOption && editOptionQuote && <input type="hidden" name="edit_option_to" value={editOptionQuote.id} />}
+    {editOption && <input type="hidden" name="edit_option_index" value={editOptionIndex} />}
 
     <div>
       <label for="option_label" class="block text-xs font-bold tracking-widest uppercase mb-1.5">
-        Nom de l'opció {addOptionQuote ? '*' : '(opcional)'}
+        Nom de l'opció {optionCtxQuote ? '*' : '(opcional)'}
       </label>
-      <input id="option_label" name="option_label" maxlength="60" required={!!addOptionQuote}
+      <input id="option_label" name="option_label" maxlength="60" required={!!optionCtxQuote} value={editOption?.label ?? ''}
              class="w-full px-3 py-2 border border-line focus:border-gold focus:outline-none"
              placeholder="Ex: Foto essencial" />
       <p class="text-[0.7rem] text-ink/70 mt-1">Nom curt de l'opció. Si la proposta té diverses opcions, la parella el veurà com a títol de cada targeta (ex: "Foto essencial", "Foto + vídeo").</p>
     </div>
 
-    {!addOptionQuote && (
+    {!optionCtxQuote && (
     <>
     <div>
       <label for="couple_name" class="block text-xs font-bold tracking-widest uppercase mb-1.5">Nom de la parella *</label>
-      <input id="couple_name" name="couple_name" required={!addOptionQuote} value={initialName}
+      <input id="couple_name" name="couple_name" required value={initialName}
              class="w-full px-3 py-2 border border-line focus:border-gold focus:outline-none"
              placeholder="Luis & Craig" />
     </div>
@@ -304,7 +355,7 @@ const LABELS: Record<string, string> = {
             <details class="border border-line bg-white open:border-gold/40">
               <summary class="cursor-pointer list-none flex items-start gap-3 p-3 hover:bg-cream">
                 <input type="checkbox" name="packs" value={p.id}
-                       checked={recommendedPackIds.includes(p.id)}
+                       checked={editOption ? editOption.packIds.includes(p.id) : recommendedPackIds.includes(p.id)}
                        onclick="event.stopPropagation()"
                        class="mt-1 accent-gold" />
                 <span class="flex-1">
@@ -365,7 +416,7 @@ const LABELS: Record<string, string> = {
           {OWN_EXTRAS.map((x) => (
             <li class="py-2">
               <label class="flex items-start gap-3 cursor-pointer">
-                <input type="checkbox" name="extras" value={x.id} class="mt-1 accent-gold" />
+                <input type="checkbox" name="extras" value={x.id} checked={editOption?.extraIds.includes(x.id) ?? false} class="mt-1 accent-gold" />
                 <span class="flex-1 flex items-start justify-between gap-3">
                   <span>
                     <span class="text-ink font-medium">{x.name.ca}</span>
@@ -388,7 +439,7 @@ const LABELS: Record<string, string> = {
           {EXTERNAL_EXTRAS.map((x) => (
             <li class="py-2">
               <label class="flex items-start gap-3 cursor-pointer">
-                <input type="checkbox" name="extras" value={x.id} class="mt-1 accent-gold" />
+                <input type="checkbox" name="extras" value={x.id} checked={editOption?.extraIds.includes(x.id) ?? false} class="mt-1 accent-gold" />
                 <span class="flex-1 flex items-start justify-between gap-3">
                   <span>
                     <span class="text-ink">{x.name.ca}</span>
@@ -407,12 +458,12 @@ const LABELS: Record<string, string> = {
       <p class="text-xs font-bold tracking-widest uppercase mb-2">Línies personalitzades (opcional)</p>
       <p class="text-[0.7rem] text-ink/70 mb-3 -mt-1">Conceptes lliures amb el preu (IVA inclòs). Marca "Regal" perquè surti amb el valor tatxat i sumi 0 €. En pots afegir més després, des de la fitxa del pressupost.</p>
       <div class="space-y-2">
-        {[0, 1, 2].map((i) => (
+        {Array.from({ length: customLineRows }, (_, i) => i).map((i) => (
           <div class="grid grid-cols-[1fr_130px] gap-x-2 gap-y-1 items-center">
-            <input name="custom_line_desc" type="text" maxlength="200" placeholder="Concepte (ex: Àlbum per als avis)" class="px-3 py-2 border border-line focus:border-gold focus:outline-none" />
-            <input name="custom_line_price" type="text" inputmode="decimal" placeholder="€ (IVA inc.)" class="px-3 py-2 border border-line focus:border-gold focus:outline-none" />
+            <input name="custom_line_desc" type="text" maxlength="200" value={prefillLines[i]?.description ?? ''} placeholder="Concepte (ex: Àlbum per als avis)" class="px-3 py-2 border border-line focus:border-gold focus:outline-none" />
+            <input name="custom_line_price" type="text" inputmode="decimal" value={prefillLines[i] ? centsToInput(prefillLines[i].cents) : ''} placeholder="€ (IVA inc.)" class="px-3 py-2 border border-line focus:border-gold focus:outline-none" />
             <label class="col-span-2 flex items-center gap-2 text-[0.7rem] text-ink/70 cursor-pointer pl-1">
-              <input type="checkbox" name="custom_line_gift" value={i} class="accent-gold" />
+              <input type="checkbox" name="custom_line_gift" value={i} checked={prefillLines[i]?.isGift ?? false} class="accent-gold" />
               🎁 Regal (valor tatxat, suma 0 €)
             </label>
           </div>
@@ -420,7 +471,7 @@ const LABELS: Record<string, string> = {
       </div>
     </div>
 
-    {!addOptionQuote && (
+    {!optionCtxQuote && (
     <>
     <label class="flex items-start gap-3 border border-gold/50 bg-gold/5 p-3">
       <input type="checkbox" name="is_fixed" checked class="mt-0.5 accent-gold" />
@@ -565,7 +616,7 @@ const LABELS: Record<string, string> = {
 
     <button type="submit"
             class="bg-ink text-white px-8 py-3 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">
-      {addOptionQuote ? 'Afegir opció a la proposta' : 'Crear i generar enllaç'}
+      {addOptionQuote ? 'Afegir opció a la proposta' : editOption ? 'Desar canvis de l\'opció' : 'Crear i generar enllaç'}
     </button>
   </form>
 </AdminLayout>
