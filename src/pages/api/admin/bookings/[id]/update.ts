@@ -24,6 +24,9 @@ import {
   getBookingById,
   uncancelBooking,
   markDepositPaid,
+  markContractAccepted,
+  clearManualContractSignature,
+  MANUAL_CONTRACT_IP,
   saveDayTimeline,
   setBookingStatus,
   unmarkDepositPaid,
@@ -198,6 +201,26 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
       console.error('[admin.deposit_unpaid] cancelPendingSchedules failed (non-fatal)', err);
     }
     return back('?ok=deposit:unpaid');
+  }
+
+  // ── Contract signed OUTSIDE the app ──────────────────────────────────────
+  // For couples who already signed the contract on paper / elsewhere: stamp
+  // the acceptance with the manual sentinel IP so the booking reflects a
+  // signed contract without going through the /contrato e-sign flow. No-op if
+  // the contract is already accepted (in-app or manual) — first mark wins.
+  if (action === 'mark_contract_signed') {
+    const note = String(form.get('signed_note') ?? '').trim().slice(0, 200);
+    const set = await markContractAccepted(id, {
+      ip: MANUAL_CONTRACT_IP,
+      name: note || 'Signat fora de l\'aplicació',
+      userAgent: `admin:${user}`,
+    });
+    return back(set ? '?ok=contract:signed-externally' : '?error=El+contracte+ja+consta+com+a+signat');
+  }
+  if (action === 'unmark_contract_signed') {
+    // Only undoes a MANUAL mark — never a real in-app e-signature.
+    await clearManualContractSignature(id);
+    return back('?ok=contract:signed-cleared');
   }
 
   // ── Manual "send the second-payment reminder now" ────────────────────────
