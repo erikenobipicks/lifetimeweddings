@@ -11,6 +11,7 @@ import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { getUser } from '~/lib/auth';
 import { createBooking } from '~/lib/bookings/repository';
+import { closeQuote } from '~/lib/quotes';
 import type { BookingCreateInput, ReferenceTestimonial } from '~/lib/bookings/types';
 import {
   SPANISH_EUROS_RE,
@@ -178,5 +179,19 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   };
 
   const booking = await createBooking(input);
+
+  // When the booking was created from an accepted quote (the "→ Crear reserva"
+  // flow carries a hidden source_quote_id), close that quote so it stops
+  // accepting new couple configurations — it's converted now. Fail-soft: the
+  // booking already exists, and the quote can be reopened if needed.
+  const sourceQuoteId = Number(raw.source_quote_id ?? '');
+  if (Number.isFinite(sourceQuoteId) && sourceQuoteId > 0) {
+    try {
+      await closeQuote(sourceQuoteId);
+    } catch (err) {
+      console.error('[admin.bookings.create] closeQuote failed (non-fatal)', { sourceQuoteId, err });
+    }
+  }
+
   return redirect(`/admin/bookings/${booking.id}?ok=created`, 303);
 };
