@@ -7,6 +7,7 @@
 //   - Bottom: form_response display if the couple already submitted.
 import AdminLayout from '~/layouts/AdminLayout.astro';
 import PackPaymentTools from '~/components/admin/PackPaymentTools.astro';
+import WelcomeMessage from '~/components/admin/WelcomeMessage.astro';
 import { getBookingById, getFormResponseForBooking, listPayments, listBookingChanges, listFormSubmissions } from '~/lib/bookings/repository';
 import type { BookingStatus } from '~/lib/bookings/types';
 import { publicVideos, fullVideos } from '~/data/videos';
@@ -171,6 +172,7 @@ const inspirationRows = inspiration
 // Sticky quick-nav: only sections that actually render for this booking.
 const navItems = [
   { href: '#pack-serveis', label: '📦 Pack i serveis', show: true },
+  { href: '#missatge-benvinguda', label: '💬 Benvinguda', show: true },
   { href: '#pagaments', label: '💶 Pagaments', show: true },
   { href: '#horaris', label: '🕐 Horaris', show: true },
   { href: '#seguiment', label: '✅ Seguiment', show: booking.status === 'form_submitted' },
@@ -525,6 +527,12 @@ const ibanPlaceholder = transfer.isPlaceholder;
       </div>
     )}
   </section>
+
+  <WelcomeMessage
+    coupleName1={booking.coupleName1}
+    coupleName2={booking.coupleName2}
+    preferredLanguage={booking.preferredLanguage}
+  />
 
   <!-- ── Navegació ràpida (sticky) ────────────────────────────────────── -->
   <nav

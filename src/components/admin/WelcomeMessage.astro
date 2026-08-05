@@ -1,0 +1,174 @@
+---
+// Admin helper: a ready-to-send welcome message for the couple, right after
+// a booking is created. Fills in the couple's names automatically and offers
+// CA/ES/EN in a full or short (WhatsApp) format. Everything is client-side —
+// pick a variant and copy. Defaults to the couple's preferred language.
+import type { Lang } from '~/i18n/ui';
+
+interface Props {
+  coupleName1: string;
+  coupleName2: string;
+  preferredLanguage: Lang;
+}
+const { coupleName1, coupleName2, preferredLanguage } = Astro.props;
+const defaultLang: Lang = preferredLanguage === 'es' || preferredLanguage === 'en' ? preferredLanguage : 'ca';
+---
+
+<section id="missatge-benvinguda" class="bg-white border border-line p-5 mb-4 scroll-mt-24">
+  <div class="flex items-center justify-between gap-3 mb-3 flex-wrap">
+    <h2 class="text-xs font-bold tracking-widest uppercase">💬 Missatge de benvinguda</h2>
+    <button
+      type="button"
+      data-wm-copy
+      data-label="Copiar"
+      class="bg-ink text-white px-4 py-1.5 text-[0.7rem] font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors"
+    >Copiar</button>
+  </div>
+  <p class="text-[0.7rem] text-ink/60 mb-3">Per enviar a la parella just després d'acceptar (email o WhatsApp). Els noms ja hi són; tria idioma i format.</p>
+
+  <div class="flex flex-wrap gap-2 mb-3">
+    <div class="inline-flex border border-line rounded-md overflow-hidden" role="group" aria-label="Idioma">
+      {(['ca', 'es', 'en'] as const).map((l) => (
+        <button
+          type="button"
+          data-wm-lang={l}
+          class="wm-seg px-3 py-1.5 text-[0.7rem] font-bold border-l border-line first:border-l-0 text-ink/60 hover:text-ink transition-colors"
+        >{l === 'ca' ? 'Català' : l === 'es' ? 'Castellano' : 'English'}</button>
+      ))}
+    </div>
+    <div class="inline-flex border border-line rounded-md overflow-hidden" role="group" aria-label="Format">
+      {(['full', 'short'] as const).map((f) => (
+        <button
+          type="button"
+          data-wm-fmt={f}
+          class="wm-seg px-3 py-1.5 text-[0.7rem] font-bold border-l border-line first:border-l-0 text-ink/60 hover:text-ink transition-colors"
+        >{f === 'full' ? 'Complet' : 'WhatsApp curt'}</button>
+      ))}
+    </div>
+  </div>
+
+  <textarea
+    data-wm-text
+    readonly
+    rows="12"
+    class="w-full px-3 py-2 border border-line bg-cream/40 text-sm leading-relaxed focus:border-gold focus:outline-none resize-y"
+  ></textarea>
+</section>
+
+<style>
+  .wm-seg[aria-pressed="true"] { background: #f0e7d5; color: #8a6229; }
+</style>
+
+<script is:inline define:vars={{ coupleName1, coupleName2, defaultLang }}>
+  (() => {
+    const root = document.getElementById('missatge-benvinguda');
+    if (!root) return;
+    const ta = root.querySelector('[data-wm-text]');
+    const copyBtn = root.querySelector('[data-wm-copy]');
+
+    const CONN = { ca: ' i ', es: ' y ', en: ' and ' };
+    const namesFor = (lang) => {
+      const a = (coupleName1 || '').trim();
+      const b = (coupleName2 || '').trim();
+      return b ? a + CONN[lang] + b : a;
+    };
+
+    const T = {
+      ca: {
+        full: (n) => `Hola ${n}! 🎉
+
+Quina il·lusió — moltíssimes gràcies per confiar en nosaltres per al vostre dia. Us expliquem com ho anirem fent, pas a pas, perquè ho tingueu tot clar:
+
+1. Confirmació de dades — Us enviem un enllaç per revisar i confirmar les vostres dades i deixar la reserva a punt.
+
+2. Paga i senyal — Per formalitzar la reserva i bloquejar la data, cal l'entrada acordada. Un cop la rebem, la data queda reservada per a vosaltres.
+
+3. Contracte — Us farem arribar el contracte perquè el reviseu i el signeu còmodament (online o com preferiu).
+
+4. Fins al gran dia — A partir d'aquí ens mantenim en contacte: anirem concretant horaris, detalls i tot el que calgui perquè només us hàgiu de preocupar de gaudir.
+
+Qualsevol dubte, escriviu-nos sempre que vulgueu. Tenim moltes ganes de formar part del vostre dia. 💛
+
+Una abraçada,
+L'equip de Lifetime Weddings`,
+        short: (n) => `Hola ${n}! 🎉 Moltíssimes gràcies per confiar en nosaltres! 💛
+
+Ara: 1) us enviem un enllaç per confirmar les dades, 2) amb la paga i senyal us bloquegem la data, 3) us passem el contracte per signar. A partir d'aquí anem concretant detalls i horaris.
+
+Qualsevol dubte, aquí ens tens! — L'equip de Lifetime Weddings`,
+      },
+      es: {
+        full: (n) => `¡Hola ${n}! 🎉
+
+¡Qué ilusión — muchísimas gracias por confiar en nosotros para vuestro día! Os explicamos cómo lo iremos haciendo, paso a paso, para que lo tengáis todo claro:
+
+1. Confirmación de datos — Os enviamos un enlace para revisar y confirmar vuestros datos y dejar la reserva a punto.
+
+2. Señal — Para formalizar la reserva y bloquear la fecha, hace falta la entrada acordada. Una vez la recibamos, la fecha queda reservada para vosotros.
+
+3. Contrato — Os haremos llegar el contrato para que lo reviséis y lo firméis cómodamente (online o como prefiráis).
+
+4. Hasta el gran día — A partir de aquí nos mantenemos en contacto: iremos concretando horarios, detalles y todo lo necesario para que solo os tengáis que preocupar de disfrutar.
+
+Cualquier duda, escribidnos siempre que queráis. Tenemos muchas ganas de formar parte de vuestro día. 💛
+
+Un abrazo,
+El equipo de Lifetime Weddings`,
+        short: (n) => `¡Hola ${n}! 🎉 ¡Muchísimas gracias por confiar en nosotros! 💛
+
+Ahora: 1) os enviamos un enlace para confirmar los datos, 2) con la señal os bloqueamos la fecha, 3) os pasamos el contrato para firmar. A partir de ahí vamos concretando detalles y horarios.
+
+¡Cualquier duda, aquí estamos! — El equipo de Lifetime Weddings`,
+      },
+      en: {
+        full: (n) => `Hi ${n}! 🎉
+
+We're so happy — thank you so much for trusting us with your big day. Here's how we'll move forward, step by step, so you know exactly what to expect:
+
+1. Confirm your details — We'll send you a link to review and confirm your details and get the booking ready.
+
+2. Deposit — To secure the booking and lock in your date, we'll need the agreed deposit. Once we receive it, the date is yours.
+
+3. Contract — We'll send you the contract to review and sign at your convenience (online or however you prefer).
+
+4. Until the big day — From here we stay in touch: we'll settle timings, details and everything else so all you have to do is enjoy.
+
+Any questions, write to us anytime. We can't wait to be part of your day. 💛
+
+Warmly,
+The Lifetime Weddings team`,
+        short: (n) => `Hi ${n}! 🎉 Thank you so much for trusting us! 💛
+
+Next: 1) we'll send a link to confirm your details, 2) the deposit locks in your date, 3) we'll send the contract to sign. From there we settle details and timings.
+
+Any questions, we're here! — The Lifetime Weddings team`,
+      },
+    };
+
+    let lang = (T[defaultLang] ? defaultLang : 'ca');
+    let fmt = 'full';
+
+    const render = () => {
+      ta.value = T[lang][fmt](namesFor(lang));
+      root.querySelectorAll('[data-wm-lang]').forEach((b) =>
+        b.setAttribute('aria-pressed', String(b.dataset.wmLang === lang)));
+      root.querySelectorAll('[data-wm-fmt]').forEach((b) =>
+        b.setAttribute('aria-pressed', String(b.dataset.wmFmt === fmt)));
+    };
+
+    root.querySelectorAll('[data-wm-lang]').forEach((b) =>
+      b.addEventListener('click', () => { lang = b.dataset.wmLang; render(); }));
+    root.querySelectorAll('[data-wm-fmt]').forEach((b) =>
+      b.addEventListener('click', () => { fmt = b.dataset.wmFmt; render(); }));
+
+    copyBtn.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(ta.value); }
+      catch { ta.select(); try { document.execCommand('copy'); } catch (e) {} }
+      const old = copyBtn.textContent;
+      copyBtn.textContent = '✓ Copiat';
+      setTimeout(() => { copyBtn.textContent = copyBtn.dataset.label || old; }, 1600);
+    });
+
+    render();
+  })();
+</script>
