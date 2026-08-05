@@ -8,6 +8,7 @@ import {
   deleteQuote,
   getLeadByQuoteId,
   listQuoteResponses,
+  createQuoteResponse,
   setAdminDiscount,
   setQuoteOffer,
   setQuoteCustomLines,
@@ -124,6 +125,32 @@ if (Astro.request.method === 'POST') {
       await duplicateQuoteOption(id, idx);
     }
     return Astro.redirect(`/admin/${id}?ok=option-duplicated#opcions`);
+  }
+  // Operator accepts on behalf of the couple (they said yes by phone/WhatsApp).
+  // Records a response for the chosen option — same shape as a couple accept —
+  // so it shows in "Resposta del client" and unlocks the 1-click convert.
+  if (action === 'accept-option') {
+    const idx = Number(form.get('index') ?? -1);
+    const q = await getQuoteById(id);
+    const opt = q && Number.isInteger(idx) && idx >= 0 ? q.options[idx] : null;
+    if (q && opt) {
+      const totals = calculateSelectionTotals(
+        opt.packIds,
+        opt.extraIds,
+        q.adminDiscountCents,
+        sumCustomLines(opt.customLines),
+      );
+      await createQuoteResponse({
+        quoteId: q.id,
+        packIds: opt.packIds,
+        extraIds: opt.extraIds,
+        message: `Acceptat per l'estudi en nom de la parella · Opció: ${opt.label}`,
+        totalCents: totals.totalCents,
+        userAgent: `admin:${Astro.locals.user ?? ''}`,
+      });
+      return Astro.redirect(`/admin/${id}?ok=accepted`);
+    }
+    return Astro.redirect(`/admin/${id}?error=${encodeURIComponent('No s\'ha pogut acceptar l\'opció.')}`);
   }
   if (action === 'remove-custom-line') {
     const idx = Number(form.get('index') ?? -1);
@@ -252,7 +279,7 @@ function humanSecs(n: number): string {
   )}
   {okMsg && (
     <div class="mb-6 px-4 py-3 bg-green-50 border border-green-200 text-green-900 text-sm">
-      <strong class="font-bold">✓</strong> {okMsg === 'discount' ? 'Descompte aplicat.' : okMsg === 'discount-cleared' ? 'Descompte eliminat.' : okMsg === 'offer' ? 'Oferta desada.' : okMsg === 'offer-cleared' ? 'Oferta treta.' : okMsg === 'custom-line-added' ? 'Línia afegida al pressupost.' : okMsg === 'custom-line-removed' ? 'Línia eliminada.' : okMsg === 'option-added' ? 'Opció afegida a la proposta.' : okMsg === 'option-removed' ? 'Opció eliminada.' : okMsg === 'option-moved' ? 'Ordre de les opcions actualitzat.' : okMsg === 'option-updated' ? 'Opció actualitzada.' : okMsg === 'option-duplicated' ? 'Opció duplicada.' : okMsg === 'closed' ? 'Pressupost tancat.' : okMsg === 'reopened' ? 'Pressupost reobert.' : okMsg === 'service-updated' ? 'Servei actualitzat. La parella veurà el configurador filtrat segons aquesta elecció.' : okMsg === 'language-updated' ? 'Idioma actualitzat. La parella veurà la pàgina del pressupost en aquest idioma.' : okMsg === 'followup-skipped' ? 'Recordatori desactivat — el cron ja no l\'enviarà a aquesta parella.' : okMsg === 'followup-restored' ? 'Recordatori restaurat — el cron tornarà a considerar-lo.' : okMsg === 'rejected' ? 'Pressupost marcat com a rebutjat.' : okMsg === 'unrejected' ? 'Rebuig desfet.' : 'Fet.'}
+      <strong class="font-bold">✓</strong> {okMsg === 'discount' ? 'Descompte aplicat.' : okMsg === 'discount-cleared' ? 'Descompte eliminat.' : okMsg === 'offer' ? 'Oferta desada.' : okMsg === 'offer-cleared' ? 'Oferta treta.' : okMsg === 'custom-line-added' ? 'Línia afegida al pressupost.' : okMsg === 'custom-line-removed' ? 'Línia eliminada.' : okMsg === 'option-added' ? 'Opció afegida a la proposta.' : okMsg === 'option-removed' ? 'Opció eliminada.' : okMsg === 'option-moved' ? 'Ordre de les opcions actualitzat.' : okMsg === 'option-updated' ? 'Opció actualitzada.' : okMsg === 'option-duplicated' ? 'Opció duplicada.' : okMsg === 'accepted' ? 'Acceptat en nom de la parella. Ja pots crear la reserva des del bloc de resposta.' : okMsg === 'closed' ? 'Pressupost tancat.' : okMsg === 'reopened' ? 'Pressupost reobert.' : okMsg === 'service-updated' ? 'Servei actualitzat. La parella veurà el configurador filtrat segons aquesta elecció.' : okMsg === 'language-updated' ? 'Idioma actualitzat. La parella veurà la pàgina del pressupost en aquest idioma.' : okMsg === 'followup-skipped' ? 'Recordatori desactivat — el cron ja no l\'enviarà a aquesta parella.' : okMsg === 'followup-restored' ? 'Recordatori restaurat — el cron tornarà a considerar-lo.' : okMsg === 'rejected' ? 'Pressupost marcat com a rebutjat.' : okMsg === 'unrejected' ? 'Rebuig desfet.' : 'Fet.'}
     </div>
   )}
   <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6 sm:mb-8">
@@ -399,6 +426,11 @@ function humanSecs(n: number): string {
           <div class="flex items-center justify-between gap-2 mb-2 flex-wrap">
             <p class="text-xs font-bold tracking-widest uppercase text-gold-deep">{isMultiOption ? `Opció ${i + 1} · ` : ''}{opt.label}</p>
             <div class="flex items-center gap-x-3 gap-y-1 flex-wrap">
+              <form method="POST" class="inline-flex" onsubmit={`return confirm(${JSON.stringify('Marcar que la parella ha acceptat' + (isMultiOption ? ` l'opció "${opt.label}"` : ' aquesta proposta') + '?\n\nQueda registrat com a resposta i podràs crear la reserva.')})`}>
+                <input type="hidden" name="action" value="accept-option" />
+                <input type="hidden" name="index" value={i} />
+                <button type="submit" class="text-emerald-700 text-[0.7rem] font-bold hover:underline" title="Marcar aquesta opció com a acceptada per la parella (p. ex. si t'ho han dit per telèfon)">✓ Acceptar</button>
+              </form>
               <a href={`/admin/new?editOption=${quote.id}&option=${i}`} class="text-ink/70 text-[0.7rem] font-bold hover:text-gold-deep hover:underline" title="Editar aquesta opció (packs, extres, línies)">✎ Editar</a>
               <form method="POST" class="inline-flex">
                 <input type="hidden" name="action" value="duplicate-option" />
@@ -562,6 +594,21 @@ function humanSecs(n: number): string {
           </ul>
         </details>
       )}
+
+      {/* 1-click convert: the booking form pre-fills from this accepted
+          configuration (pack + extras); creating it closes this quote. */}
+      <div class="mt-5 pt-4 border-t-2 border-gold/40 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <p class="text-sm font-bold text-ink">La parella ho ha acceptat 🎉</p>
+          <p class="text-xs text-ink/60">Converteix-ho en reserva — el formulari ve pre-omplert amb aquesta opció i, en crear-la, es tanca el pressupost.</p>
+        </div>
+        <a
+          href={`/admin/bookings/new?quote=${quote.id}`}
+          class="bg-ink text-white px-5 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors whitespace-nowrap text-center"
+        >
+          → Crear reserva d'aquesta opció
+        </a>
+      </div>
     </div>
   )}
 

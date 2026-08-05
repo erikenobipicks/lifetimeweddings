@@ -111,6 +111,7 @@ if (sourceQuote) {
   )}
 
   <form method="POST" action="/api/admin/bookings/create" class="space-y-10 bg-white border border-line p-6 md:p-8">
+    {sourceQuote && <input type="hidden" name="source_quote_id" value={sourceQuote.id} />}
 
     <fieldset class="space-y-4">
       <legend class="font-display text-xl font-bold mb-3">Parella</legend>
