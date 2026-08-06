@@ -68,6 +68,12 @@ export const ENTREGUES: EntregaSite[] = [
     place: 'Costa Daurada',
     email: 'hola@lifetime.photo',
     photoSet: 'cristian-flavia',
+    // 005 = posed sunset portrait · 004 = golden backlit kiss
+    // 001 = embrace · 003 = bouquet toss · 002 = group photo
+    photos: {
+      hero: '005',
+      featured: ['004', '001', '003', '002'],
+    },
     galleryUrl: 'https://gallery.fotostudio.io/objectiu-fotografs/cristian-flavia',
     reviewUrl: 'https://www.google.com/maps?cid=9550864279818307584',
 
