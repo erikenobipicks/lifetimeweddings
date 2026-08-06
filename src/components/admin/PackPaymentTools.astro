@@ -437,6 +437,15 @@ const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madr
       if (priceField && st.net > 0) {
         priceField.value = String(Math.round(st.net));
         priceField.dispatchEvent(new Event('input', { bubbles: true }));
+        // The net already has the discount folded in, so the standalone
+        // discount field MUST be cleared — otherwise the server subtracts it a
+        // second time (total = packPrice − discount) and /reserva shows a price
+        // below what the couple actually pays. Clearing it also makes a repeat
+        // click idempotent instead of compounding the discount each time.
+        if (discountValueField) {
+          discountValueField.value = '';
+          discountValueField.dispatchEvent(new Event('input', { bubbles: true }));
+        }
       }
       if (depositField && input.scheduled[0] > 0) {
         depositField.value = String(Math.round(input.scheduled[0]));

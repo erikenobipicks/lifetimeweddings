@@ -20,6 +20,8 @@ interface Props {
   packName: string;
   packPriceCents: number;
   depositCents: number;
+  /** Real discount in cents — reduces the effective price, matching PackDetail. */
+  discountCents?: number;
   paymentTerms: string | null;
   /** True once the deposit has been recorded (admin or Stripe webhook). */
   depositPaid: boolean;
@@ -29,8 +31,13 @@ interface Props {
 
 const {
   lang, slug, coupleName1, coupleName2, packName,
-  packPriceCents, depositCents, paymentTerms, depositPaid, payState,
+  packPriceCents, depositCents, discountCents = 0, paymentTerms, depositPaid, payState,
 } = Astro.props;
+
+// The couple pays the post-discount price. PackDetail (above) already shows
+// this; the recap here must match, or the same page shows two different totals.
+const effectivePriceCents = Math.max(0, packPriceCents - discountCents);
+const hasDiscount = discountCents > 0;
 
 const t = useTranslations(lang);
 const transfer = getBankTransferDetails();
@@ -89,7 +96,12 @@ const showPaid = depositPaid || payState === 'success';
             </div>
             <div class="flex justify-between gap-4">
               <dt class="text-ink/70">{t('reserva.pay.recap.total')}</dt>
-              <dd class="font-semibold text-right">{formatPrice(packPriceCents, lang)}</dd>
+              <dd class="font-semibold text-right">
+                {hasDiscount && (
+                  <span class="text-ink/40 line-through mr-2 font-normal">{formatPrice(packPriceCents, lang)}</span>
+                )}
+                {formatPrice(effectivePriceCents, lang)}
+              </dd>
             </div>
             <div class="flex justify-between gap-4 pt-2 border-t border-ink/10">
               <dt class="font-bold">{t('reserva.pay.recap.deposit')}</dt>
