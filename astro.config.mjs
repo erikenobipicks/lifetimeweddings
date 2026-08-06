@@ -59,6 +59,7 @@ export default defineConfig({
         !page.includes('/ofertes') &&
         !page.includes('/showcase/') &&
         !page.includes('/novios/') &&
+        !page.includes('/galeria/') &&
         !page.includes('/reserva/') &&
         !page.includes('/preview-weddings/') &&
         // Exact `/videograf` is a private, noindex share page — but keep the
