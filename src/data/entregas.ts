@@ -72,10 +72,11 @@ export const ENTREGUES: EntregaSite[] = [
     // 004 = bouquet toss · 005 = golden backlit kiss · 006 = posed sunset
     // Hero = the embrace. The rest are spread across the page (see the
     // template): [0] & [3] become full-bleed "atmospheric" bands (use the
-    // high-res shots there), [1]+[2] a duo, [4] a single.
+    // high-res shots there), [1]+[2] a duo. 003 (group) dropped — it only
+    // exists at low resolution and looked pixelated shown large.
     photos: {
       hero: '001',
-      featured: ['005', '002', '006', '004', '003'],
+      featured: ['005', '002', '006', '004'],
     },
     galleryUrl: 'https://gallery.fotostudio.io/objectiu-fotografs/cristian-flavia',
     reviewUrl: 'https://www.google.com/maps?cid=9550864279818307584',

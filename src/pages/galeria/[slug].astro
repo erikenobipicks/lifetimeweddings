@@ -207,15 +207,6 @@ const webp = (p: string) => p.replace(/\.jpg$/, '.webp');
   </section>
 )}
 
-<section class="gallery-cta">
-  <div class="wrap">
-    <p class="eyebrow">{site.galleryEyebrow}</p>
-    <h2>{site.galleryHeading}</h2>
-    <p>{site.galleryBody}</p>
-    <a class="btn" href={site.galleryUrl} target="_blank" rel="noopener noreferrer">{site.galleryCta}</a>
-  </div>
-</section>
-
 {atmos2 && (
   <div class="atmos">
     <picture>
@@ -237,6 +228,15 @@ const webp = (p: string) => p.replace(/\.jpg$/, '.webp');
     </div>
   </section>
 )}
+
+<section class="gallery-cta">
+  <div class="wrap">
+    <p class="eyebrow">{site.galleryEyebrow}</p>
+    <h2>{site.galleryHeading}</h2>
+    <p>{site.galleryBody}</p>
+    <a class="btn" href={site.galleryUrl} target="_blank" rel="noopener noreferrer">{site.galleryCta}</a>
+  </div>
+</section>
 
 <section class="review">
   <div class="wrap">
