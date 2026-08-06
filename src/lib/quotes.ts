@@ -904,6 +904,12 @@ export interface QuoteResponse {
   extraIds: string[];
   message: string | null;
   totalCents: number;
+  /** Snapshot of the custom lines the couple actually accepted (the chosen
+   *  option's lines at accept time). Empty for legacy rows recorded before
+   *  this was persisted. */
+  customLines: CustomLine[];
+  /** Chosen option's label for multi-option proposals; null otherwise. */
+  optionLabel: string | null;
   ipAddress: string | null;
   userAgent: string | null;
   createdAt: string;
@@ -924,6 +930,8 @@ function rowToQuoteResponse(r: any): QuoteResponse {
     extraIds: safeArr(r.extra_ids_json),
     message: r.message ?? null,
     totalCents: Number(r.total_cents ?? 0),
+    customLines: parseCustomLines(r.custom_lines_json),
+    optionLabel: r.option_label ?? null,
     ipAddress: r.ip_address ?? null,
     userAgent: r.user_agent ?? null,
     createdAt: r.created_at,
@@ -936,6 +944,11 @@ export interface CreateQuoteResponseInput {
   extraIds: string[];
   message?: string;
   totalCents: number;
+  /** Custom lines the couple accepted (chosen option's lines), stored so the
+   *  admin shows the agreed breakdown even after the option is edited. */
+  customLines?: CustomLine[];
+  /** Chosen option's label (multi-option proposals). */
+  optionLabel?: string | null;
   ipAddress?: string;
   userAgent?: string;
 }
@@ -945,8 +958,8 @@ export async function createQuoteResponse(input: CreateQuoteResponseInput): Prom
   const now = new Date().toISOString();
   await db.execute({
     sql: `INSERT INTO quote_responses
-            (quote_id, pack_ids_json, extra_ids_json, message, total_cents, ip_address, user_agent, created_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            (quote_id, pack_ids_json, extra_ids_json, message, total_cents, ip_address, user_agent, created_at, custom_lines_json, option_label)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       input.quoteId,
       JSON.stringify(input.packIds),
@@ -956,6 +969,8 @@ export async function createQuoteResponse(input: CreateQuoteResponseInput): Prom
       input.ipAddress ?? null,
       input.userAgent ?? null,
       now,
+      input.customLines?.length ? serialiseCustomLines(input.customLines) : null,
+      input.optionLabel?.trim() || null,
     ],
   });
   const res = await db.execute({

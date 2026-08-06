@@ -231,10 +231,31 @@ const daysSinceSent = quote.sentAt
 
 // Pre-compute the latest response's totals so the operator sees the
 // breakdown without re-doing the math (matches what the couple saw).
-const customLinesCents = sumCustomLines(quote.customLines);
-const latestTotals = latestResponse
-  ? calculateSelectionTotals(latestResponse.packIds, latestResponse.extraIds, quote.adminDiscountCents, customLinesCents)
-  : null;
+// What the couple actually accepted — read straight from the stored response
+// snapshot, never a live recompute. So the total + agreed lines stay faithful
+// even if the option is edited afterwards. Custom lines come from the snapshot
+// captured at accept time; legacy rows (recorded before we persisted them)
+// fall back to a single reconciling "línies acordades" line so the breakdown
+// always adds up to the accepted total.
+const acceptedView = (() => {
+  if (!latestResponse) return null;
+  const base = calculateSelectionTotals(latestResponse.packIds, latestResponse.extraIds, 0, 0);
+  const totalCents = latestResponse.totalCents;
+  const customLines = latestResponse.customLines;
+  const hasSnapshot = customLines.length > 0;
+  const leftover = totalCents - base.packsCents - base.extrasCents - sumCustomLines(customLines);
+  return {
+    packsCents: base.packsCents,
+    extrasCents: base.extrasCents,
+    totalCents,
+    customLines,
+    hasSnapshot,
+    // snapshot rows: any leftover (≤0) is the discount applied at accept time
+    discountCents: hasSnapshot && leftover < 0 ? -leftover : 0,
+    // legacy rows: one net line folding custom lines + any discount together
+    legacyNet: hasSnapshot ? 0 : leftover,
+  };
+})();
 // Per-option views for multi-option proposals (Opció A/B/C). Single-option
 // quotes yield one entry (mirrors the base composition).
 const optionViews = quote.options.map((o) => ({
@@ -515,7 +536,7 @@ function humanSecs(n: number): string {
     <p class="text-sm text-ink/80 whitespace-pre-wrap">{quote.notes || '—'}</p>
   </div>
 
-  {latestResponse && latestTotals && (
+  {latestResponse && acceptedView && (
     <div class="bg-white border-2 border-gold p-5 mb-8">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div>
@@ -524,7 +545,7 @@ function humanSecs(n: number): string {
         </div>
         <div class="text-right">
           <p class="text-xs text-ink/70 uppercase tracking-widest">Total que veuen ells</p>
-          <p class="font-display text-3xl font-bold text-gold">{formatEuros(latestTotals.totalCents)}</p>
+          <p class="font-display text-3xl font-bold text-gold">{formatEuros(acceptedView.totalCents)}</p>
         </div>
       </div>
 
@@ -569,14 +590,34 @@ function humanSecs(n: number): string {
       )}
 
       <div class="text-xs text-ink/70 space-y-0.5 mb-1">
-        <p><span class="text-ink/70">Subtotal (packs):</span> <strong>{formatEuros(latestTotals.packsCents)}</strong></p>
-        <p><span class="text-ink/70">Subtotal (extres):</span> <strong>{formatEuros(latestTotals.extrasCents)}</strong></p>
-        {latestTotals.customLinesCents > 0 && (
-          <p><span class="text-ink/70">Línies personalitzades:</span> <strong>{formatEuros(latestTotals.customLinesCents)}</strong></p>
+        <p><span class="text-ink/70">Subtotal (packs):</span> <strong>{formatEuros(acceptedView.packsCents)}</strong></p>
+        <p><span class="text-ink/70">Subtotal (extres):</span> <strong>{formatEuros(acceptedView.extrasCents)}</strong></p>
+        {/* Itemized custom lines exactly as the couple accepted them (snapshot). */}
+        {acceptedView.customLines.map((l) => (
+          <p class="flex justify-between gap-3">
+            <span class="text-ink/70">
+              {l.description}
+              {l.isGift && <span class="ml-2 text-[0.6rem] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-sm bg-gold/20 text-gold-deep align-middle">Regal</span>}
+            </span>
+            {l.isGift ? (
+              <strong>{l.cents > 0 && <span class="line-through text-ink/40">{formatEuros(l.cents)} </span>}<span class="text-gold-deep">0 €</span></strong>
+            ) : (
+              <strong>{formatEuros(l.cents)}</strong>
+            )}
+          </p>
+        ))}
+        {/* Legacy rows (no snapshot): one reconciling line so it sums to the
+            accepted total. Positive = agreed lines; negative = discount. */}
+        {!acceptedView.hasSnapshot && acceptedView.legacyNet > 0 && (
+          <p><span class="text-ink/70">Línies acordades:</span> <strong>{formatEuros(acceptedView.legacyNet)}</strong></p>
         )}
-        {quote.adminDiscountCents > 0 && (
-          <p><span class="text-ink/70">Descompte aplicat:</span> <strong class="text-gold">−{formatEuros(quote.adminDiscountCents)}</strong></p>
+        {!acceptedView.hasSnapshot && acceptedView.legacyNet < 0 && (
+          <p><span class="text-ink/70">Descompte aplicat:</span> <strong class="text-gold">−{formatEuros(-acceptedView.legacyNet)}</strong></p>
         )}
+        {acceptedView.discountCents > 0 && (
+          <p><span class="text-ink/70">Descompte aplicat:</span> <strong class="text-gold">−{formatEuros(acceptedView.discountCents)}</strong></p>
+        )}
+        <p class="pt-1"><span class="text-ink/70">Total acceptat:</span> <strong class="text-gold">{formatEuros(acceptedView.totalCents)}</strong></p>
       </div>
 
       {responses.length > 1 && (
