@@ -66,7 +66,7 @@ const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madr
 
   <div class="bg-cream/60 border border-gold/30 p-4 md:p-5">
     <p class="text-xs font-bold tracking-widest uppercase text-ink/70 mb-1">💶 Calculadora de pagament</p>
-    <p class="text-[11px] text-ink/70 mb-3">Suma automàticament <strong>Inversió total + add-ons</strong>. La part en <strong>efectiu</strong> es queda fora de la factura (estalvi del 21 % sobre aquell tram). Apreta el botó <strong>↻</strong> al costat d'un camp per completar-lo amb el que falta. <em>Inserir text al pla de pagament</em> copia el desglossament al camp de termes de pagament.</p>
+    <p class="text-[11px] text-ink/70 mb-3">Suma automàticament <strong>Inversió total + add-ons</strong>. La part en <strong>efectiu</strong> es queda fora de la factura (estalvi del 21 % sobre aquell tram). Apreta el botó <strong>↻</strong> al costat d'un camp per completar-lo amb el que falta. <em>Aplicar pla</em> escriu el desglossament al camp de termes I ajusta la <strong>«Inversió total»</strong> al net (el que paga la parella) i el <strong>«Dipòsit»</strong> a la reserva, perquè els tres números quadrin a la pàgina de la parella.</p>
     <p class="text-[11px] text-ink/80 bg-amber-50 border border-amber-200 px-2.5 py-1.5 mb-3">
       🛈 Això és un <strong>simulador</strong>: no desa res per si sol i <strong>no modifica el pressupost total</strong>.
       El total real és el camp <strong>«Inversió total»</strong> d'aquí sobre (cal «Desar canvis»), o el «Canviar la inversió total»
@@ -135,8 +135,8 @@ const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madr
     </div>
 
     <div class="mt-3 flex flex-wrap items-end gap-3">
-      <button type="button" id="insertPaymentPlanBtn" class="inline-block bg-ink text-white px-3 py-2 text-[11px] font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">
-        Inserir text al pla de pagament
+      <button type="button" id="insertPaymentPlanBtn" title="Escriu el desglossament al camp de termes I ajusta la «Inversió total» (net) i el «Dipòsit» (= reserva) perquè tot quadri" class="inline-block bg-ink text-white px-3 py-2 text-[11px] font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">
+        Aplicar pla (total + dipòsit + text)
       </button>
 
       {bookingId && (
@@ -425,8 +425,28 @@ const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madr
       });
     });
     insertBtn?.addEventListener('click', () => {
+      const input = currentInput();
+      const st = paymentBreakdown(input);
+      // 1) Human-readable plan → the payment-terms field.
       const target = document.getElementById('paymentTermsField') as HTMLInputElement | null;
       if (target) target.value = generatePaymentText();
+      // 2) Sync the structured fields so the total, deposit and plan agree —
+      //    the couple sees the NET they actually pay as "Inversió total" and the
+      //    reserva tranche as the deposit. This is what gets stored + shown on
+      //    /reserva, so all three numbers finally match.
+      if (priceField && st.net > 0) {
+        priceField.value = String(Math.round(st.net));
+        priceField.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      if (depositField && input.scheduled[0] > 0) {
+        depositField.value = String(Math.round(input.scheduled[0]));
+        depositField.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      // 3) Reset the calculator's tranche + cash inputs. The plan is now
+      //    captured (text + total + deposit), so a fresh calc restarts from the
+      //    net and never applies the cash IVA saving twice.
+      [cashInput, sched0, sched1, sched2].forEach((el) => { if (el) el.value = ''; });
+      recalcPayment();
     });
     recalcPayment();
 
