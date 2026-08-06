@@ -42,6 +42,7 @@ import type { BookingStatus } from '~/lib/bookings/types';
 import {
   SPANISH_EUROS_RE,
   eurosStringToCents,
+  normalizeEuroInput,
   computeDiscountCents,
   parseLines,
   parseAddons,
@@ -49,6 +50,13 @@ import {
 
 // Euro parsing, the price format and the discount/add-on parsers live in
 // ~/lib/payments/money (single source of truth shared with create.ts).
+
+// A euro-amount field that tolerates a pasted "€" and stray whitespace.
+const euroField = (msg?: string) =>
+  z.preprocess(
+    (v) => (typeof v === 'string' ? normalizeEuroInput(v) : v),
+    z.string().regex(SPANISH_EUROS_RE, msg),
+  );
 
 const updateSchema = z.object({
   coupleName1: z.string().min(1).max(60).optional(),
@@ -76,8 +84,8 @@ const updateSchema = z.object({
   packIncludes: z.string().optional(),
   packExcludes: z.string().optional(),
   packAddons: z.string().optional(),
-  packPriceEuros: z.string().regex(SPANISH_EUROS_RE).optional(),
-  depositEuros: z.string().regex(SPANISH_EUROS_RE).optional(),
+  packPriceEuros: euroField().optional(),
+  depositEuros: euroField().optional(),
   paymentTerms: z.string().max(200).optional(),
 
   customIntro: z.string().max(2000).optional(),
@@ -92,7 +100,7 @@ const updateSchema = z.object({
   discountValue: z.string().optional(),
 
   incentiveBody: z.string().max(1000).optional(),
-  incentiveOriginalPriceEuros: z.string().regex(SPANISH_EUROS_RE).optional().or(z.literal('')),
+  incentiveOriginalPriceEuros: euroField().optional().or(z.literal('')),
   incentiveDeadline: z.string().optional(),
 
   expiresAt: z.string().optional(),

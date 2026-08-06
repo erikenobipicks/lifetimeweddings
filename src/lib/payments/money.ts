@@ -40,8 +40,15 @@ export const SPANISH_EUROS_RE = /^(?:\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:[.,]
 
 /** Parse a strict Spanish (or US-style) euro string into integer cents.
  *  Returns NaN if the input is unparseable so the caller can reject it. */
+/** Strip a euro sign and ALL whitespace (incl. the non-breaking / narrow
+ *  spaces Intl currency formatting uses) from a typed or pasted euro string,
+ *  so "3.005,50 €", " 800 " or "1 500" parse cleanly. */
+export function normalizeEuroInput(raw: string): string {
+  return (raw ?? '').replace(/[\s€]/g, '');
+}
+
 export function eurosStringToCents(raw: string): number {
-  const s = raw.trim();
+  const s = normalizeEuroInput(raw);
   if (!SPANISH_EUROS_RE.test(s)) return NaN;
   // If a comma is present, it's the decimal — strip all dots (thousands)
   // and swap the comma. Without a comma, ".\d{3}" groups are thousands;
