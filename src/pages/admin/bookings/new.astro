@@ -98,12 +98,18 @@ if (sourceQuote) {
       prefill.depositEuros = String(Math.round(priceEuros * 0.3));
     }
   }
+  // Accepted extras are already baked into the total above, so list them as
+  // INCLUDED items (appended to "Què inclou"), NOT as priced add-ons — the
+  // payment calculator adds add-ons on top of the total, which would
+  // double-count the extras.
   if (latestResponse?.extraIds?.length) {
-    prefill.packAddons = latestResponse.extraIds
+    const extraNames = latestResponse.extraIds
       .map((xid) => EXTRAS.find((x) => x.id === xid))
       .filter((x): x is (typeof EXTRAS)[number] => Boolean(x))
-      .map((x) => `${x.name[lang]} | ${eurosFromPriceString(x.price)}`)
-      .join('\n');
+      .map((x) => x.name[lang]);
+    if (extraNames.length) {
+      prefill.packIncludes = [prefill.packIncludes, ...extraNames].filter(Boolean).join('\n');
+    }
   }
 }
 ---
@@ -125,7 +131,7 @@ if (sourceQuote) {
       Formulari precarregat des del pressupost
       <a href={`/admin/${sourceQuote.id}`} class="text-gold underline font-bold">#{sourceQuote.id} · {sourceQuote.coupleName}</a>.
       {sourceResponses.length > 0
-        ? ' El pack i els extres venen de la configuració acceptada. La «Inversió total» ja inclou els extres (l\'add-on és el desglossament).'
+        ? ' El pack i els extres venen de la configuració acceptada. La «Inversió total» ja inclou els extres (surten a «Què inclou»).'
         : ' La parella no ha enviat cap configuració — revisa el pack manualment.'}
       Comprova noms, data, venue i preus abans de crear.
     </div>
