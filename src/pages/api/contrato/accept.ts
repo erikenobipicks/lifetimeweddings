@@ -18,6 +18,7 @@ import {
   getBookingBySlug,
   getFormResponseForBooking,
   markContractAccepted,
+  MANUAL_CONTRACT_IP,
 } from '~/lib/bookings/repository';
 import { verifyTurnstile } from '~/lib/captcha';
 import { contractDataFromBooking } from '~/lib/contracts/fromBooking';
@@ -71,7 +72,13 @@ function acceptanceLine(
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  const ip = clientIp(request.headers);
+  let ip = clientIp(request.headers);
+  // `MANUAL_CONTRACT_IP` ('manual') is the sentinel that flags an operator
+  // "signed outside the app" mark. A real signer must never be able to forge it
+  // via x-forwarded-for and disguise a genuine e-signature as a manual mark —
+  // clearManualContractSignature would then silently wipe it. It's never a
+  // valid IP, so collapse it to 'unknown'.
+  if (ip === MANUAL_CONTRACT_IP) ip = 'unknown';
 
   let body: unknown;
   try {

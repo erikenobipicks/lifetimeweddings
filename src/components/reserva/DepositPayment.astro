@@ -67,7 +67,7 @@ const showPaid = depositPaid || payState === 'success';
         <h2 class="font-display text-3xl md:text-4xl font-bold mb-3 text-emerald-900">{t('reserva.pay.paid.heading')}</h2>
         <p class="text-ink/75 leading-relaxed mb-6">{t('reserva.pay.paid.body')}</p>
         <a
-          href={`/contrato/${slug}`}
+          href={`/contrato/${slug}?paid=success`}
           class="inline-block bg-gold text-ink font-bold px-8 py-4 hover:bg-ink hover:text-white transition-colors"
         >
           {t('reserva.pay.paid.cta')} →

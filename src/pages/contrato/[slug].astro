@@ -34,6 +34,17 @@ const isDepositPending = booking && !booking.depositPaidAt;
 const dataSubmitted = booking && !!booking.contractReadyAt;
 const isAccepted = booking && !!booking.contractAcceptedAt;
 
+// Stripe Checkout returns to /reserva with ?paid=success and the couple taps
+// through to /contrato. The deposit webhook can lag a beat behind that
+// redirect, so a couple who JUST paid could momentarily land on the
+// "esperando depósito" dead-end. When we see the just-paid hint and the deposit
+// isn't recorded yet, show a self-refreshing "confirming" state instead —
+// bounded to a few tries so a genuinely-unpaid visitor isn't stuck reloading.
+const justPaid = Astro.url.searchParams.get('paid') === 'success';
+const confirmTry = Number(Astro.url.searchParams.get('try') ?? '0') || 0;
+const showConfirming = isDepositPending && justPaid && confirmTry < 5;
+const confirmNextUrl = `${Astro.url.pathname}?paid=success&try=${confirmTry + 1}`;
+
 // Build the contract HTML only at the accept step. Needs the form response
 // for the day details (ceremony location/time, billing contraent).
 let contractHtml: string | null = null;
@@ -92,6 +103,19 @@ const description = t('contrato.title');
           WhatsApp →
         </a>
       </div>
+    </section>
+  ) : showConfirming ? (
+    <section class="px-6 md:px-12 py-32 md:py-40 bg-cream text-ink text-center">
+      <div class="max-w-xl mx-auto">
+        <h1 class="font-display text-3xl md:text-4xl font-bold mb-6">
+          {t('contrato.gating.confirming.title')}
+        </h1>
+        <p class="text-ink/75 leading-relaxed mb-6">{t('contrato.gating.confirming.body')}</p>
+        <span class="inline-block w-3 h-3 rounded-full bg-gold animate-pulse" aria-hidden="true"></span>
+      </div>
+      <script define:vars={{ next: confirmNextUrl }}>
+        setTimeout(function () { window.location.replace(next); }, 4000);
+      </script>
     </section>
   ) : isDepositPending ? (
     <section class="px-6 md:px-12 py-32 md:py-40 bg-cream text-ink text-center">
