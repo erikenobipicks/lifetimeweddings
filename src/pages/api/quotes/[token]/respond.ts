@@ -127,6 +127,10 @@ export const POST: APIRoute = async ({ request, params }) => {
     extraIds: validExtraIds,
     message: storedMessage,
     totalCents: totals.totalCents,
+    // Snapshot the exact lines the couple accepted so the admin breakdown
+    // stays faithful even if the option is edited afterwards.
+    customLines: chosenOption ? chosenOption.customLines : quote.customLines,
+    optionLabel: chosenOption?.label ?? null,
     ipAddress: clientIp(request.headers),
     userAgent: request.headers.get('user-agent') ?? undefined,
   });

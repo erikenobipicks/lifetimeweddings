@@ -335,7 +335,13 @@ export async function initSchema() {
         total_cents INTEGER NOT NULL,
         ip_address TEXT,
         user_agent TEXT,
-        created_at TEXT NOT NULL
+        created_at TEXT NOT NULL,
+        -- Snapshot of exactly what the couple accepted, so the admin can
+        -- show the agreed breakdown even if the option is edited later:
+        --   custom_lines_json — the chosen option's custom lines at accept time
+        --   option_label      — the chosen option's label (multi-option proposals)
+        custom_lines_json TEXT,
+        option_label TEXT
       )`,
       `CREATE INDEX IF NOT EXISTS idx_quote_responses_quote
          ON quote_responses(quote_id, created_at DESC)`,
@@ -453,6 +459,12 @@ export async function initSchema() {
   // (Opció A/B/C), each with its own packs + extras + custom lines, shown on
   // one link. JSON array; null/empty → single proposal from the base columns.
   await ensureColumn('quotes', 'options', 'TEXT');
+  // Persist the accepted snapshot on each response so the admin's "resposta
+  // del client" shows the agreed lines + total even after the option is
+  // edited. Legacy rows stay NULL and the admin falls back to a reconciling
+  // "línies acordades" line derived from total − packs − extras.
+  await ensureColumn('quote_responses', 'custom_lines_json', 'TEXT');
+  await ensureColumn('quote_responses', 'option_label', 'TEXT');
   await db.execute(
     `UPDATE quotes SET lead_id = (SELECT l.id FROM leads l WHERE l.quote_id = quotes.id)
      WHERE lead_id IS NULL AND EXISTS (SELECT 1 FROM leads l WHERE l.quote_id = quotes.id)`,
