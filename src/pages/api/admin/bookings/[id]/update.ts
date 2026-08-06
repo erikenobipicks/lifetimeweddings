@@ -61,11 +61,11 @@ const euroField = (msg?: string) =>
 const updateSchema = z.object({
   coupleName1: z.string().min(1).max(60).optional(),
   coupleName2: z.string().min(1).max(60).optional(),
-  // Optional on PATCH (only validated if present), but if present must be
-  // a valid email — empty string is rejected so a stray edit can't blank
-  // the email and break every downstream notification.
-  coupleEmailPrimary: z.string().email().max(120).optional(),
-  // (See create.ts: primary email is required at booking creation.)
+  // Optional and may be EMPTY: many bookings come in by phone/WhatsApp with no
+  // email (it's optional at creation too), and every couple-facing send now
+  // no-ops without an address — so an empty value must save, not block the
+  // whole edit. A non-empty value must still be a valid email.
+  coupleEmailPrimary: z.string().email().max(120).or(z.literal('')).optional(),
   couplePhonePrimary: z.string().max(40).optional(),
   preferredLanguage: z.enum(['ca', 'es', 'en']).optional(),
 
