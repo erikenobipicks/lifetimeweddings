@@ -65,14 +65,17 @@ export const ENTREGUES: EntregaSite[] = [
     couple: { a: 'Cristian', b: 'Flavia' },
     nameSep: '&',
     dateLabel: '30 iulie 2026',
-    place: 'Costa Daurada',
+    place: 'Salou',
     email: 'hola@lifetime.photo',
     photoSet: 'cristian-flavia',
-    // 005 = posed sunset portrait · 004 = golden backlit kiss
-    // 001 = embrace · 003 = bouquet toss · 002 = group photo
+    // 001 = embrace · 002 = B&W kiss (close-up) · 003 = group photo
+    // 004 = bouquet toss · 005 = golden backlit kiss · 006 = posed sunset
+    // Hero = the embrace. The rest are spread across the page (see the
+    // template): [0] & [3] become full-bleed "atmospheric" bands (use the
+    // high-res shots there), [1]+[2] a duo, [4] a single.
     photos: {
-      hero: '005',
-      featured: ['004', '001', '003', '002'],
+      hero: '001',
+      featured: ['005', '002', '006', '004', '003'],
     },
     galleryUrl: 'https://gallery.fotostudio.io/objectiu-fotografs/cristian-flavia',
     reviewUrl: 'https://www.google.com/maps?cid=9550864279818307584',
