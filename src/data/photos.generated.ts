@@ -1822,8 +1822,8 @@ export const PHOTOS: Record<string, PhotoSet> = {
           "md": "/photos/cristian-flavia/001-md.jpg",
           "lg": "/photos/cristian-flavia/001-lg.jpg"
         },
-        "width": 960,
-        "height": 640,
+        "width": 6528,
+        "height": 4352,
         "orientation": "landscape"
       },
       {
@@ -1834,9 +1834,9 @@ export const PHOTOS: Record<string, PhotoSet> = {
           "md": "/photos/cristian-flavia/002-md.jpg",
           "lg": "/photos/cristian-flavia/002-lg.jpg"
         },
-        "width": 960,
-        "height": 640,
-        "orientation": "landscape"
+        "width": 2198,
+        "height": 3908,
+        "orientation": "portrait"
       },
       {
         "id": "cristian-flavia/003",
@@ -1858,9 +1858,9 @@ export const PHOTOS: Record<string, PhotoSet> = {
           "md": "/photos/cristian-flavia/004-md.jpg",
           "lg": "/photos/cristian-flavia/004-lg.jpg"
         },
-        "width": 640,
-        "height": 960,
-        "orientation": "portrait"
+        "width": 6504,
+        "height": 4336,
+        "orientation": "landscape"
       },
       {
         "id": "cristian-flavia/005",
@@ -1869,6 +1869,18 @@ export const PHOTOS: Record<string, PhotoSet> = {
           "sm": "/photos/cristian-flavia/005-sm.jpg",
           "md": "/photos/cristian-flavia/005-md.jpg",
           "lg": "/photos/cristian-flavia/005-lg.jpg"
+        },
+        "width": 3857,
+        "height": 5785,
+        "orientation": "portrait"
+      },
+      {
+        "id": "cristian-flavia/006",
+        "couple": "cristian-flavia",
+        "variants": {
+          "sm": "/photos/cristian-flavia/006-sm.jpg",
+          "md": "/photos/cristian-flavia/006-md.jpg",
+          "lg": "/photos/cristian-flavia/006-lg.jpg"
         },
         "width": 640,
         "height": 960,
