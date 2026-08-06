@@ -1810,5 +1810,70 @@ export const PHOTOS: Record<string, PhotoSet> = {
         "orientation": "portrait"
       }
     ]
+  },
+  "cristian-flavia": {
+    "couple": "Cristian & Flavia",
+    "images": [
+      {
+        "id": "cristian-flavia/001",
+        "couple": "cristian-flavia",
+        "variants": {
+          "sm": "/photos/cristian-flavia/001-sm.jpg",
+          "md": "/photos/cristian-flavia/001-md.jpg",
+          "lg": "/photos/cristian-flavia/001-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "cristian-flavia/002",
+        "couple": "cristian-flavia",
+        "variants": {
+          "sm": "/photos/cristian-flavia/002-sm.jpg",
+          "md": "/photos/cristian-flavia/002-md.jpg",
+          "lg": "/photos/cristian-flavia/002-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "cristian-flavia/003",
+        "couple": "cristian-flavia",
+        "variants": {
+          "sm": "/photos/cristian-flavia/003-sm.jpg",
+          "md": "/photos/cristian-flavia/003-md.jpg",
+          "lg": "/photos/cristian-flavia/003-lg.jpg"
+        },
+        "width": 960,
+        "height": 640,
+        "orientation": "landscape"
+      },
+      {
+        "id": "cristian-flavia/004",
+        "couple": "cristian-flavia",
+        "variants": {
+          "sm": "/photos/cristian-flavia/004-sm.jpg",
+          "md": "/photos/cristian-flavia/004-md.jpg",
+          "lg": "/photos/cristian-flavia/004-lg.jpg"
+        },
+        "width": 640,
+        "height": 960,
+        "orientation": "portrait"
+      },
+      {
+        "id": "cristian-flavia/005",
+        "couple": "cristian-flavia",
+        "variants": {
+          "sm": "/photos/cristian-flavia/005-sm.jpg",
+          "md": "/photos/cristian-flavia/005-md.jpg",
+          "lg": "/photos/cristian-flavia/005-lg.jpg"
+        },
+        "width": 640,
+        "height": 960,
+        "orientation": "portrait"
+      }
+    ]
   }
 };
