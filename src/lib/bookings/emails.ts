@@ -21,6 +21,7 @@ import { SITE, WHATSAPP_BASE } from '~/data/site';
 // isn't set). See src/lib/email.ts.
 import { resend, sendTelegramNotification } from '~/lib/email';
 import type { Booking, BookingFormResponse, Lang } from './types';
+import { getFormResponseForBooking } from './repository';
 import { formatPrice, formatExpiresShort, formatWeddingDateLong } from './format';
 import { getBankTransferDetails, transferReferenceFor, isStripeEnabled } from '~/lib/payments/config';
 
@@ -723,7 +724,19 @@ function contratoInviteCopy(booking: Booking): ContratoInviteCopy {
 }
 
 export async function sendContratoInvite(booking: Booking): Promise<void> {
-  if (!booking.coupleEmailPrimary) return; // no email on file → nothing to send
+  // Recipients: the booking's primary email plus both partners' emails from
+  // the /reserva form. A phone-only booking has no primary email, but the form
+  // (always submitted before the deposit that triggers this invite) carries
+  // both partners' addresses — so compose from all three, matching
+  // sendContractAcceptedCopy. Without this, phone-only couples never got the
+  // /contrato link even though we had their emails on file.
+  const formResponse = await getFormResponseForBooking(booking.id);
+  const recipients = new Set<string>();
+  if (booking.coupleEmailPrimary) recipients.add(booking.coupleEmailPrimary.toLowerCase());
+  if (formResponse?.c1Email) recipients.add(formResponse.c1Email.toLowerCase());
+  if (formResponse?.c2Email) recipients.add(formResponse.c2Email.toLowerCase());
+  const to = Array.from(recipients);
+  if (to.length === 0) return; // no email anywhere → nothing to send
   const c = contratoInviteCopy(booking);
   const langPrefix = booking.preferredLanguage === 'ca' ? '' : `/${booking.preferredLanguage}`;
   const url = `${SITE.url}${langPrefix}/contrato/${booking.slug}`;
@@ -758,13 +771,13 @@ export async function sendContratoInvite(booking: Booking): Promise<void> {
 
   if (!resend) {
     // eslint-disable-next-line no-console
-    console.log('[booking-email] (dev) contrato invite:', { to: booking.coupleEmailPrimary, subject: c.subject, url });
+    console.log('[booking-email] (dev) contrato invite:', { to, subject: c.subject, url });
     return;
   }
   try {
     await resend.emails.send({
       from: FROM_HELLO,
-      to: [booking.coupleEmailPrimary],
+      to,
       subject: c.subject,
       html,
       text,
@@ -952,7 +965,16 @@ function reservaInviteCopy(booking: Booking): ReservaInviteCopy {
 }
 
 export async function sendReservaInvite(booking: Booking): Promise<void> {
-  if (!booking.coupleEmailPrimary) return; // no email on file → nothing to send
+  // Primary email plus, if the form's already in, both partners' addresses.
+  // Normally sent pre-form (draft → sent), where only the primary exists; the
+  // union just future-proofs a post-form re-send and mirrors the other invites.
+  const formResponse = await getFormResponseForBooking(booking.id);
+  const recipients = new Set<string>();
+  if (booking.coupleEmailPrimary) recipients.add(booking.coupleEmailPrimary.toLowerCase());
+  if (formResponse?.c1Email) recipients.add(formResponse.c1Email.toLowerCase());
+  if (formResponse?.c2Email) recipients.add(formResponse.c2Email.toLowerCase());
+  const to = Array.from(recipients);
+  if (to.length === 0) return; // no email anywhere → nothing to send
   const c = reservaInviteCopy(booking);
   const langPrefix = booking.preferredLanguage === 'ca' ? '' : `/${booking.preferredLanguage}`;
   const url = `${SITE.url}${langPrefix}/reserva/${booking.slug}`;
@@ -978,13 +1000,13 @@ export async function sendReservaInvite(booking: Booking): Promise<void> {
 
   if (!resend) {
     // eslint-disable-next-line no-console
-    console.log('[booking-email] (dev) reserva invite:', { to: booking.coupleEmailPrimary, subject: c.subject, url });
+    console.log('[booking-email] (dev) reserva invite:', { to, subject: c.subject, url });
     return;
   }
   try {
     await resend.emails.send({
       from: FROM_HELLO,
-      to: [booking.coupleEmailPrimary],
+      to,
       subject: c.subject,
       html,
       text,

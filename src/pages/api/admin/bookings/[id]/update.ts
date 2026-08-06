@@ -162,7 +162,12 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
     if (firstSend && wantsEmail) {
       const fresh = await getBookingById(id);
       if (fresh) await sendReservaInvite(fresh);
-      return back(`?ok=status:${target}+%C2%B7+email+enviat`);
+      // Be honest: only claim the email went out when there's an address on
+      // file. Phone-only bookings get the link shared over WhatsApp instead.
+      const emailed = !!fresh?.coupleEmailPrimary;
+      return back(emailed
+        ? `?ok=status:${target}+%C2%B7+email+enviat`
+        : `?ok=status:${target}+%C2%B7+sense+email+(nom%C3%A9s+WhatsApp)`);
     }
     return back(`?ok=status:${target}`);
   }
