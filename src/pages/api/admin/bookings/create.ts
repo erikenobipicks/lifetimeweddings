@@ -16,10 +16,19 @@ import type { BookingCreateInput, ReferenceTestimonial } from '~/lib/bookings/ty
 import {
   SPANISH_EUROS_RE,
   eurosStringToCents,
+  normalizeEuroInput,
   computeDiscountCents,
   parseLines,
   parseAddons,
 } from '~/lib/payments/money';
+
+// A euro-amount field that tolerates a pasted "€" sign and stray whitespace
+// (e.g. "3.005,50 €") by normalising before the strict format check.
+const euroField = (msg: string) =>
+  z.preprocess(
+    (v) => (typeof v === 'string' ? normalizeEuroInput(v) : v),
+    z.string().regex(SPANISH_EUROS_RE, msg),
+  );
 
 // ─── Field parsers (form-data → typed) ────────────────────────────────────
 // Euro parsing, the accepted price format (SPANISH_EUROS_RE) and the
@@ -65,12 +74,8 @@ const formSchema = z.object({
   packIncludes: z.string().optional(),
   packExcludes: z.string().optional(),
   packAddons: z.string().optional(),
-  packPriceEuros: z
-    .string()
-    .regex(SPANISH_EUROS_RE, 'Format: 1500, 1.500, 1500,00 o 1.500,00'),
-  depositEuros: z
-    .string()
-    .regex(SPANISH_EUROS_RE, 'Format: 500, 500,00 o 1.500,00'),
+  packPriceEuros: euroField('Format: 1500, 1.500, 1500,00 o 1.500,00'),
+  depositEuros: euroField('Format: 500, 500,00 o 1.500,00'),
   paymentTerms: z.string().max(200).optional(),
 
   customIntro: z.string().max(2000).optional(),
@@ -87,9 +92,7 @@ const formSchema = z.object({
   // Reservation incentive ("caramel"). All optional. Original price is a
   // euro string like the pack price; empty string means "not set".
   incentiveBody: z.string().max(1000).optional(),
-  incentiveOriginalPriceEuros: z
-    .string()
-    .regex(SPANISH_EUROS_RE, 'Format: 1500, 1.500, 1500,00 o 1.500,00')
+  incentiveOriginalPriceEuros: euroField('Format: 1500, 1.500, 1500,00 o 1.500,00')
     .optional()
     .or(z.literal('')),
   incentiveDeadline: z
