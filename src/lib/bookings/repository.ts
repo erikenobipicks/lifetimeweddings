@@ -568,6 +568,14 @@ export async function createFormResponse(input: FormResponseCreateInput): Promis
   const id = randomUUID();
   const now = nowIso();
 
+  // Backfill the booking's primary email when it was created phone-only (no
+  // email on file). The /reserva form requires both partners' emails, so this
+  // reliably captures an address — which every downstream email (deposit
+  // confirmation, /contrato invite, signed-contract copy) depends on to reach
+  // the couple. COALESCE+NULLIF leaves any existing address untouched.
+  const backfillEmail =
+    (input.c1Email || input.c2Email || '').trim().toLowerCase() || null;
+
   await db.batch(
     [
       {
@@ -610,9 +618,11 @@ export async function createFormResponse(input: FormResponseCreateInput): Promis
       },
       {
         sql: `UPDATE bookings
-              SET status = 'form_submitted', form_submitted_at = ?
+              SET status = 'form_submitted',
+                  form_submitted_at = ?,
+                  couple_email_primary = COALESCE(NULLIF(couple_email_primary, ''), ?)
               WHERE id = ?`,
-        args: [now, input.bookingId],
+        args: [now, backfillEmail, input.bookingId],
       },
     ],
     'write',
