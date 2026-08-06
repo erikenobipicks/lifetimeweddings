@@ -25,6 +25,13 @@ const featured = explicitFeatured.length
   ? explicitFeatured
   : images.filter((im) => im.id !== heroImg?.id);
 
+// Spread the featured photos across the page instead of one block:
+//   atmos1 — full-bleed band after the intro
+//   duoA/duoB — a two-up under the "moments" heading
+//   atmos2 — a second full-bleed band before the gallery link
+//   single — one contained photo before the review
+const [atmos1, duoA, duoB, atmos2, single] = featured;
+
 const webp = (p: string) => p.replace(/\.jpg$/, '.webp');
 ---
 
@@ -102,6 +109,19 @@ const webp = (p: string) => p.replace(/\.jpg$/, '.webp');
   .btn--outline{background:transparent; color:var(--olive); border:1px solid var(--olive);}
   .btn--outline:hover{background:var(--olive); color:var(--white);}
 
+  /* SPREAD PHOTO SECTIONS */
+  .atmos{position:relative; width:100%; height:80vh; min-height:440px; overflow:hidden; background:var(--ink);}
+  .atmos picture{display:block; width:100%; height:100%;}
+  .atmos img{width:100%; height:100%; object-fit:cover; display:block;}
+  .photos-band{background:var(--white);}
+  .duo{display:grid; grid-template-columns:1fr 1fr; gap:1rem; max-width:1000px; margin:0 auto; padding:0 6vw;}
+  .duo figure{margin:0; overflow:hidden; aspect-ratio:3/4;}
+  .duo img{width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.7s ease;}
+  .duo figure:hover img{transform:scale(1.03);}
+  .single-photo{max-width:860px; margin:0 auto; padding:0 6vw;}
+  .single-photo figure{margin:0; overflow:hidden;}
+  .single-photo img{width:100%; height:auto; display:block;}
+
   /* REVIEW */
   .review{background:var(--cream-2); text-align:center;}
   .review .eyebrow{margin-bottom:0.9rem;}
@@ -121,6 +141,8 @@ const webp = (p: string) => p.replace(/\.jpg$/, '.webp');
     .hero-bg::after{background:linear-gradient(180deg, rgba(42,41,30,0.15) 0%, rgba(42,41,30,0.32) 40%, rgba(42,41,30,0.72) 100%);}
     .scroll-cue{display:none;}
     .masonry{columns:1;}
+    .atmos{height:64vh; min-height:380px;}
+    .duo{grid-template-columns:1fr; gap:0.8rem;}
     section{padding:4.5rem 0;}
   }
   @media(prefers-reduced-motion:reduce){
@@ -156,24 +178,31 @@ const webp = (p: string) => p.replace(/\.jpg$/, '.webp');
   <div class="wrap"><p>{site.intro}</p></div>
 </section>
 
-{featured.length > 0 && (
-  <section class="featured">
-    <div class="wrap">
-      <div class="head">
-        <p class="eyebrow">{site.featuredEyebrow}</p>
-        <h2>{site.featuredHeading}</h2>
-        <div class="divider"></div>
-      </div>
-      <div class="masonry">
-        {featured.map((im, i) => (
-          <figure>
-            <picture>
-              <source type="image/webp" srcset={webp(im.variants.md)} />
-              <img src={im.variants.md} alt={`${names} — ${i + 1}`} loading="lazy" />
-            </picture>
-          </figure>
-        ))}
-      </div>
+{atmos1 && (
+  <div class="atmos">
+    <picture>
+      <source type="image/webp" srcset={webp(atmos1.variants.lg)} />
+      <img src={atmos1.variants.lg} alt={`${names}`} loading="lazy" />
+    </picture>
+  </div>
+)}
+
+{(duoA || duoB) && (
+  <section class="photos-band">
+    <div class="head">
+      <p class="eyebrow">{site.featuredEyebrow}</p>
+      <h2>{site.featuredHeading}</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="duo">
+      {[duoA, duoB].filter(Boolean).map((im) => (
+        <figure>
+          <picture>
+            <source type="image/webp" srcset={webp(im.variants.md)} />
+            <img src={im.variants.md} alt={`${names}`} loading="lazy" />
+          </picture>
+        </figure>
+      ))}
     </div>
   </section>
 )}
@@ -186,6 +215,28 @@ const webp = (p: string) => p.replace(/\.jpg$/, '.webp');
     <a class="btn" href={site.galleryUrl} target="_blank" rel="noopener noreferrer">{site.galleryCta}</a>
   </div>
 </section>
+
+{atmos2 && (
+  <div class="atmos">
+    <picture>
+      <source type="image/webp" srcset={webp(atmos2.variants.lg)} />
+      <img src={atmos2.variants.lg} alt={`${names}`} loading="lazy" />
+    </picture>
+  </div>
+)}
+
+{single && (
+  <section class="photos-band">
+    <div class="single-photo">
+      <figure>
+        <picture>
+          <source type="image/webp" srcset={webp(single.variants.lg)} />
+          <img src={single.variants.md} alt={`${names}`} loading="lazy" />
+        </picture>
+      </figure>
+    </div>
+  </section>
+)}
 
 <section class="review">
   <div class="wrap">
