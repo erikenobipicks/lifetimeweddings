@@ -731,26 +731,29 @@ export async function setFotostudioProjectId(
   });
 }
 
-/** Clear the deposit flag (admin un-marks). Also clears every downstream
- *  stamp that doesn't make sense without a paid deposit: contract data,
- *  contract acceptance, and the FacturaDirecta invoice reference (so
- *  re-marking later re-issues correctly). The invoice ITSELF is NOT
- *  deleted from FacturaDirecta — that's intentional, the operator must
- *  void or credit-note it manually if needed. */
+/** Clear the deposit flag (admin un-marks). Clears ONLY the deposit stamp —
+ *  everything downstream is deliberately preserved (see below). */
 export async function unmarkDepositPaid(bookingId: string): Promise<void> {
   await initSchema();
-  // Deliberately DON'T clear facturadirecta_invoice_id / _number: the deposit
-  // invoice is a real numbered fiscal document that isn't auto-voided, and the
-  // issue guard keys off that id. Clearing it here meant a re-mark of the
-  // deposit emitted a SECOND numbered anticipo for the same booking. Keeping it
-  // preserves the "one fiscal invoice per booking" idempotency; a genuine
-  // re-issue (after a manual void) stays an explicit, separate action.
+  // Clear ONLY deposit_paid_at. Everything downstream stays:
+  //  - The contract acceptance record (contract_accepted_at/_ip/_name/
+  //    _user_agent/_hash/_signature) is a legally-significant e-signature. The
+  //    old code nulled _at/_ip here — orphaning the rest — which DESTROYED a
+  //    genuine signature that re-marking the deposit could never restore. A
+  //    deposit toggle must never erase it. Undoing a *manual* "signed outside"
+  //    mark has its own scoped action (clearManualContractSignature).
+  //  - contract_ready_at (the couple's submitted contract data) is preserved
+  //    too, so un-mark → re-mark is a lossless round-trip.
+  //  - Both /contrato endpoints (submit + accept) already gate on
+  //    depositPaidAt, and the page shows "esperando depósito" while it's null,
+  //    so un-marking already locks the whole contract flow — no need to wipe
+  //    its data to keep the couple out.
+  //  - facturadirecta_invoice_id/_number stay: the deposit invoice is a real
+  //    numbered fiscal document that isn't auto-voided, and the issue guard
+  //    keys off that id (clearing it made a re-mark emit a SECOND anticipo).
   await db.execute({
     sql: `UPDATE bookings
-          SET deposit_paid_at = NULL,
-              contract_ready_at = NULL,
-              contract_accepted_at = NULL,
-              contract_accepted_ip = NULL
+          SET deposit_paid_at = NULL
           WHERE id = ?`,
     args: [bookingId],
   });

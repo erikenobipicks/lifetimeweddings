@@ -39,8 +39,23 @@ const slug = Astro.params.slug!;
 const booking = await getBookingBySlug(slug);
 
 const isMissingOrArchived = !booking || booking.status === 'archived';
+
+// A proposal only "expires" while the couple hasn't acted on it yet. Once
+// they've submitted their /reserva data, paid the deposit, or signed, the
+// booking is LIVE — the link must keep working (deposit step, contract CTA,
+// Stripe return) regardless of the original proposal deadline. Otherwise a
+// booked couple returning to their link hits a dead "caducada" wall while the
+// admin still shows them as reserved.
+const hasEngaged =
+  !!booking &&
+  (booking.status === 'form_submitted' ||
+    booking.depositPaidAt instanceof Date ||
+    booking.contractAcceptedAt instanceof Date);
 const isExpired =
-  booking && booking.expiresAt instanceof Date && booking.expiresAt.getTime() < Date.now();
+  !hasEngaged &&
+  !!booking &&
+  booking.expiresAt instanceof Date &&
+  booking.expiresAt.getTime() < Date.now();
 
 // Auto-transition sent → viewed on first visit (idempotent).
 if (booking && booking.status === 'sent' && !isExpired) {
