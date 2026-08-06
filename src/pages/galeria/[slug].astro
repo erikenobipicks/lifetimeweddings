@@ -2,6 +2,7 @@
 export const prerender = true;
 import { ENTREGUES } from '~/data/entregas';
 import { PHOTOS, type Photo } from '~/data/photos.generated';
+import { SITE } from '~/data/site';
 
 export function getStaticPaths() {
   return ENTREGUES.map((e) => ({ params: { slug: e.slug }, props: { site: e } }));
@@ -33,6 +34,18 @@ const featured = explicitFeatured.length
 const [atmos1, duoA, duoB, atmos2, single] = featured;
 
 const webp = (p: string) => p.replace(/\.jpg$/, '.webp');
+
+// Social share preview (Open Graph) — so a thumbnail of the main photo
+// shows when the link is shared on WhatsApp / messaging apps. The image
+// must be an absolute URL; dimensions help crawlers render it instantly.
+const canonicalUrl = `${SITE.url}/galeria/${site.slug}`;
+const ogPhoto = byId(site.photos?.hero) ?? heroImg;
+// The `md` (1200px) variant is light enough for messaging crawlers to fetch
+// reliably while still sharp for a preview thumbnail.
+const ogImageUrl = ogPhoto ? `${SITE.url}${ogPhoto.variants.md}` : `${SITE.url}/logos/logo-circle-white.png`;
+const ogW = ogPhoto ? Math.min(1200, ogPhoto.width) : 1200;
+const ogH = ogPhoto ? Math.round(ogPhoto.height * (ogW / ogPhoto.width)) : 1200;
+const ogDescription = [names, site.dateLabel, site.place].filter(Boolean).join(' · ');
 ---
 
 <!doctype html>
@@ -43,6 +56,20 @@ const webp = (p: string) => p.replace(/\.jpg$/, '.webp');
 <meta name="robots" content="noindex, nofollow" />
 <title>{names} · {site.pageTitle}</title>
 <link rel="icon" type="image/png" href="/favicon.png" />
+{/* Social share preview (WhatsApp / messaging) — thumbnail of the main photo */}
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Lifetime Weddings" />
+<meta property="og:title" content={`${names} · ${site.pageTitle}`} />
+<meta property="og:description" content={ogDescription} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:image" content={ogImageUrl} />
+<meta property="og:image:width" content={String(ogW)} />
+<meta property="og:image:height" content={String(ogH)} />
+<meta property="og:image:alt" content={names} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={`${names} · ${site.pageTitle}`} />
+<meta name="twitter:description" content={ogDescription} />
+<meta name="twitter:image" content={ogImageUrl} />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
