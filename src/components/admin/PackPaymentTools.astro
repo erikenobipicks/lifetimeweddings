@@ -66,7 +66,7 @@ const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madr
 
   <div class="bg-cream/60 border border-gold/30 p-4 md:p-5">
     <p class="text-xs font-bold tracking-widest uppercase text-ink/70 mb-1">💶 Calculadora de pagament</p>
-    <p class="text-[11px] text-ink/70 mb-3">Suma automàticament <strong>Inversió total + add-ons</strong>. La part en <strong>efectiu</strong> es queda fora de la factura (estalvi del 21 % sobre aquell tram). Apreta el botó <strong>↻</strong> al costat d'un camp per completar-lo amb el que falta. <em>Aplicar pla</em> escriu el desglossament al camp de termes I ajusta la <strong>«Inversió total»</strong> al net (el que paga la parella) i el <strong>«Dipòsit»</strong> a la reserva, perquè els tres números quadrin a la pàgina de la parella.</p>
+    <p class="text-[11px] text-ink/70 mb-3">Suma automàticament <strong>Inversió total + add-ons</strong>. La part en <strong>efectiu</strong> es queda fora de la factura (estalvi del 21 % sobre aquell tram). Apreta el botó <strong>↻</strong> al costat d'un camp per completar-lo amb el que falta. <em>Aplicar pla</em> escriu el desglossament al camp de termes I ajusta la <strong>«Inversió total»</strong> al net (el que paga la parella) i el <strong>«Dipòsit»</strong> a la reserva, perquè els tres números quadrin a la pàgina de la parella. Els <strong>extres marcats queden inclosos dins d'aquest total</strong> i passen a la llista d'«inclou» (per no comptar-los dues vegades).</p>
     <p class="text-[11px] text-ink/80 bg-amber-50 border border-amber-200 px-2.5 py-1.5 mb-3">
       🛈 Això és un <strong>simulador</strong>: no desa res per si sol i <strong>no modifica el pressupost total</strong>.
       El total real és el camp <strong>«Inversió total»</strong> d'aquí sobre (cal «Desar canvis»), o el «Canviar la inversió total»
@@ -445,6 +445,37 @@ const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madr
         if (discountValueField) {
           discountValueField.value = '';
           discountValueField.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        // Add-ons are already summed into the net we just wrote, so fold their
+        // names into the "inclou" list and empty the add-ons box. Left as
+        // separate "+ €" line items they'd show ON TOP of a total that already
+        // contains them — the same double-count we removed for the discount —
+        // both on /reserva and the admin card. Matches the quote→booking
+        // conversion and the "inclòs dins del total" choice.
+        if (addonsField && includesField && addonsField.value.trim()) {
+          const names = addonsField.value
+            .split(/\r?\n/)
+            .map((l) => l.trim())
+            .filter(Boolean)
+            .map((l) => {
+              const idx = l.lastIndexOf('|');
+              return (idx >= 0 ? l.slice(0, idx) : l).trim();
+            })
+            .filter(Boolean);
+          const existing = new Set(includesField.value.split(/\r?\n/).map((l) => l.trim()));
+          const fresh = names.filter((n) => !existing.has(n));
+          if (fresh.length) {
+            const cur = includesField.value.replace(/\s+$/, '');
+            includesField.value = cur ? `${cur}\n${fresh.join('\n')}` : fresh.join('\n');
+            includesField.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+          addonsField.value = '';
+          addonsField.dispatchEvent(new Event('input', { bubbles: true }));
+          // Untick the extras checkboxes so their state matches the now-empty
+          // add-ons box (they were what appended those lines).
+          document
+            .querySelectorAll<HTMLInputElement>('.extra-toggle, .gift-toggle')
+            .forEach((cb) => { cb.checked = false; });
         }
       }
       if (depositField && input.scheduled[0] > 0) {
