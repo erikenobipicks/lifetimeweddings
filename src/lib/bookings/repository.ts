@@ -20,6 +20,7 @@ import type {
   BookingKind,
   BookingStatus,
   DayTimeline,
+  ExternalService,
   Lang,
   PackAddon,
   PublicationChannel,
@@ -145,6 +146,10 @@ function rowToBooking(row: Record<string, unknown>): Booking {
     checklistState: parseChecklistJson(row.checklist_state),
     preweddingTelegramSentAt: fromIso(row.prewedding_telegram_sent_at),
     dayTimeline: safeParseJson<DayTimeline | null>(row.day_timeline_json, null),
+    prebodaIncluded: toBool(row.preboda_included),
+    prebodaDate: row.preboda_date ? String(row.preboda_date) : null,
+    prebodaTime: row.preboda_time ? String(row.preboda_time) : null,
+    externalServices: safeParseJson<ExternalService[]>(row.external_services, []),
   };
 }
 
@@ -855,6 +860,41 @@ export async function saveDayTimeline(bookingId: string, timeline: DayTimeline |
   }
   await db.execute({
     sql: 'UPDATE bookings SET day_timeline_json = ?, updated_at = ? WHERE id = ?',
+    args: [payload, nowIso(), bookingId],
+  });
+}
+
+/** Persist the pre-wedding ("preboda") session state. `included` flags that a
+ *  preboda was contracted; date ('YYYY-MM-DD') / time ('HH:MM') are null until
+ *  scheduled. Clearing `included` also clears the date/time so a mistaken flag
+ *  doesn't leave an orphan appointment. */
+export async function savePrebodaInfo(
+  bookingId: string,
+  input: { included: boolean; date: string | null; time: string | null },
+): Promise<void> {
+  await initSchema();
+  const included = input.included;
+  const date = included ? (input.date || null) : null;
+  const time = included ? (input.time || null) : null;
+  await db.execute({
+    sql: `UPDATE bookings
+          SET preboda_included = ?, preboda_date = ?, preboda_time = ?, updated_at = ?
+          WHERE id = ?`,
+    args: [included ? 1 : 0, date, time, nowIso(), bookingId],
+  });
+}
+
+/** Overwrite the external-services list (fotomatón, 360…) for a booking. The
+ *  caller reads the current list, mutates it (add / toggle notified / remove),
+ *  and passes the whole new array back. */
+export async function setExternalServices(
+  bookingId: string,
+  services: ExternalService[],
+): Promise<void> {
+  await initSchema();
+  const payload = services.length ? JSON.stringify(services) : null;
+  await db.execute({
+    sql: 'UPDATE bookings SET external_services = ?, updated_at = ? WHERE id = ?',
     args: [payload, nowIso(), bookingId],
   });
 }

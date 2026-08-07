@@ -26,6 +26,25 @@ export interface PackAddon {
   price_cents: number;
 }
 
+/** An external supplier we resell/coordinate for the wedding (fotomatón, 360º
+ *  booth…). Internal-only — never shown to the couple. `company` is who runs
+ *  it (see EXTERNAL_SERVICE_COMPANIES); `notified` marks that we've told them
+ *  the booking is on. */
+export interface ExternalService {
+  /** Stable id (random) so toggle/remove target the right row. */
+  id: string;
+  /** What the service is, e.g. "Fotomatón", "360º". */
+  service: string;
+  /** Supplier running it, e.g. "Fotomarbis", "Koldo Salazar". */
+  company: string;
+  /** True once we've told the supplier the wedding is confirmed. */
+  notified: boolean;
+  /** ISO timestamp of when it was marked notified. */
+  notifiedAt: string | null;
+  /** Free internal note (booth model, timing, price agreed…). */
+  notes: string | null;
+}
+
 export interface ReferenceTestimonial {
   /** What the couple said (can include line breaks). */
   quote: string;
@@ -166,6 +185,17 @@ export interface Booking {
    *  Times are HH:MM strings; addresses optional with an optional explicit
    *  Google Maps link (else a search link is derived from the address). */
   dayTimeline: DayTimeline | null;
+
+  /** Pre-wedding session tracking (internal). `prebodaIncluded` = a preboda was
+   *  contracted; when true and `prebodaDate` is null the admin nags to book a
+   *  date. Date is 'YYYY-MM-DD', time 'HH:MM' — both null until scheduled. */
+  prebodaIncluded: boolean;
+  prebodaDate: string | null;
+  prebodaTime: string | null;
+
+  /** External suppliers coordinated for this wedding (fotomatón, 360…).
+   *  Internal only; empty array when none. */
+  externalServices: ExternalService[];
 }
 
 /** Operator-editable wedding-day schedule. All fields optional so a partly

@@ -28,12 +28,15 @@ import {
   clearManualContractSignature,
   MANUAL_CONTRACT_IP,
   saveDayTimeline,
+  savePrebodaInfo,
+  setExternalServices,
   setBookingStatus,
   unmarkDepositPaid,
   updateBooking,
   type BookingUpdate,
 } from '~/lib/bookings/repository';
-import type { DayTimeline } from '~/lib/bookings/types';
+import { randomUUID } from 'node:crypto';
+import type { DayTimeline, ExternalService } from '~/lib/bookings/types';
 import { issueDepositInvoiceForBooking, issueInvoiceForPayment } from '~/lib/bookings/invoicing';
 import { sendContratoInvite, sendReservaInvite } from '~/lib/bookings/emails';
 import { cancelPendingSchedules, materialiseSchedulesForBooking, listSequences, manualSendSequence, sendDueEmails } from '~/lib/bookings/sequences';
@@ -309,6 +312,50 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
     };
     await saveDayTimeline(id, t);
     return back('?ok=team:saved');
+  }
+
+  // ── Preboda (pre-wedding session) — internal ─────────────────────────────
+  if (action === 'save_preboda') {
+    const included = form.get('preboda_included') === '1';
+    const rawDate = String(form.get('preboda_date') ?? '').trim();
+    const rawTime = String(form.get('preboda_time') ?? '').trim();
+    // Validate lightly: a bad date/time just persists as null rather than
+    // bouncing the whole save.
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(rawDate) ? rawDate : null;
+    const time = /^\d{2}:\d{2}$/.test(rawTime) ? rawTime : null;
+    await savePrebodaInfo(id, { included, date, time });
+    return back('?ok=preboda:saved#preboda');
+  }
+
+  // ── External services (fotomatón, 360…) — internal ───────────────────────
+  if (action === 'add_external_service') {
+    const service = String(form.get('service') ?? '').trim().slice(0, 80);
+    const company = String(form.get('company') ?? '').trim().slice(0, 80);
+    const notes = String(form.get('notes') ?? '').trim().slice(0, 300) || null;
+    if (!service && !company) return back('?error=Indica+el+servei+o+l%27empresa#serveis-externs');
+    const next: ExternalService[] = [
+      ...booking.externalServices,
+      { id: randomUUID(), service, company, notified: false, notifiedAt: null, notes },
+    ];
+    await setExternalServices(id, next);
+    return back('?ok=extservice:added#serveis-externs');
+  }
+  if (action === 'toggle_external_service') {
+    const sid = String(form.get('service_id') ?? '');
+    const now = new Date().toISOString();
+    const next = booking.externalServices.map((s) =>
+      s.id === sid
+        ? { ...s, notified: !s.notified, notifiedAt: !s.notified ? now : null }
+        : s,
+    );
+    await setExternalServices(id, next);
+    return back('?ok=extservice:toggled#serveis-externs');
+  }
+  if (action === 'remove_external_service') {
+    const sid = String(form.get('service_id') ?? '');
+    const next = booking.externalServices.filter((s) => s.id !== sid);
+    await setExternalServices(id, next);
+    return back('?ok=extservice:removed#serveis-externs');
   }
 
   // ── Payments ledger ──────────────────────────────────────────────────────
