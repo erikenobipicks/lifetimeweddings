@@ -487,6 +487,9 @@ export const ui = {
     'contrato.gating.deposit_pending.title': 'Esperando confirmación del depósito',
     'contrato.gating.deposit_pending.body':
       'En cuanto recibamos el depósito os habilitaremos este formulario para terminar de preparar el contrato. Si creéis que ya lo habéis transferido, avisadnos por WhatsApp.',
+    'contrato.gating.confirming.title': 'Confirmando vuestro pago…',
+    'contrato.gating.confirming.body':
+      'Estamos confirmando el pago con el banco. Esta página se actualizará sola en unos segundos; no hace falta que hagáis nada. Si pasado un momento seguís viendo esto, avisadnos por WhatsApp.',
     'contrato.gating.already_submitted.title': 'Ya tenemos vuestros datos',
     'contrato.gating.already_submitted.body':
       'Hemos recibido toda la información del contrato. Lo estamos preparando y os llegará firmado en unos días.',
@@ -1137,6 +1140,9 @@ export const ui = {
     'contrato.gating.deposit_pending.title': 'Esperant confirmació del dipòsit',
     'contrato.gating.deposit_pending.body':
       "Tan bon punt rebem el dipòsit us habilitarem aquest formulari per acabar de preparar el contracte. Si penseu que ja l'heu transferit, aviseu-nos pel WhatsApp.",
+    'contrato.gating.confirming.title': 'Confirmant el vostre pagament…',
+    'contrato.gating.confirming.body':
+      "Estem confirmant el pagament amb el banc. Aquesta pàgina s'actualitzarà sola en uns segons; no cal que feu res. Si passat un moment encara ho veieu, aviseu-nos pel WhatsApp.",
     'contrato.gating.already_submitted.title': 'Ja tenim les vostres dades',
     'contrato.gating.already_submitted.body':
       "Hem rebut tota la informació del contracte. L'estem preparant i us arribarà signat en uns dies.",
@@ -1786,6 +1792,9 @@ export const ui = {
     'contrato.gating.deposit_pending.title': 'Waiting for deposit confirmation',
     'contrato.gating.deposit_pending.body':
       "As soon as we receive the deposit we'll unlock this form so you can finish preparing the contract. If you think you've already transferred it, please message us on WhatsApp.",
+    'contrato.gating.confirming.title': 'Confirming your payment…',
+    'contrato.gating.confirming.body':
+      "We're confirming the payment with the bank. This page will refresh on its own in a few seconds — you don't need to do anything. If you still see this after a moment, message us on WhatsApp.",
     'contrato.gating.already_submitted.title': 'We already have your details',
     'contrato.gating.already_submitted.body':
       "We've received all the contract information. We're preparing it and you'll receive it signed within a few days.",
