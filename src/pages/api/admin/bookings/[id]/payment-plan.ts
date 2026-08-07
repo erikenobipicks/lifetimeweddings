@@ -8,7 +8,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { getUser } from '~/lib/auth';
-import { addPayment, getBookingById } from '~/lib/bookings/repository';
+import { addPayment, getBookingById, listPayments, DEPOSIT_PAYMENT_SOURCE } from '~/lib/bookings/repository';
 
 function json(data: unknown, status: number): Response {
   return new Response(JSON.stringify(data), {
@@ -53,8 +53,14 @@ export const POST: APIRoute = async ({ request, params, cookies }) => {
     return Math.round(v * 100);
   };
 
+  // If the deposit was already auto-recorded (marking the deposit created a
+  // 'deposit' row), skip the reserva tranche here so it isn't counted twice.
+  const existing = await listPayments(id);
+  const hasAutoDeposit = existing.some((p) => p.source === DEPOSIT_PAYMENT_SOURCE);
+
   let created = 0;
   for (const t of TRANCHES) {
+    if (t.key === 'reserva' && hasAutoDeposit) continue;
     const cents = amountFor(t.key);
     if (cents <= 0) continue;
     await addPayment({

@@ -774,6 +774,8 @@ export interface BookingPayment {
   method: string | null;
   note: string | null;
   createdAt: Date;
+  /** Provenance marker (see DEPOSIT_PAYMENT_SOURCE). NULL for manual rows. */
+  source: string | null;
   /** FacturaDirecta invoice issued for THIS payment (one-click). Null until
    *  the operator issues it; presence blocks re-issuing (idempotent). */
   invoiceId: string | null;
@@ -789,6 +791,7 @@ function rowToPayment(row: Record<string, unknown>): BookingPayment {
     paidOn: row.paid_on ? String(row.paid_on) : null,
     method: row.method ? String(row.method) : null,
     note: row.note ? String(row.note) : null,
+    source: row.source ? String(row.source) : null,
     createdAt: fromIso(row.created_at as string) ?? new Date(),
     invoiceId: row.invoice_id ? String(row.invoice_id) : null,
     invoiceNumber: row.invoice_number ? String(row.invoice_number) : null,
@@ -802,7 +805,14 @@ export interface PaymentCreateInput {
   paidOn?: string | null;
   method?: string | null;
   note?: string | null;
+  /** Provenance marker; see DEPOSIT_PAYMENT_SOURCE. NULL for a normal row. */
+  source?: string | null;
 }
+
+/** `booking_payments.source` value for the ledger row auto-created when the
+ *  operator marks the deposit as received. Lets us find/remove exactly that row
+ *  and keep the tranche dump from adding a second reserva. */
+export const DEPOSIT_PAYMENT_SOURCE = 'deposit';
 
 export async function listPayments(bookingId: string): Promise<BookingPayment[]> {
   await initSchema();
@@ -920,8 +930,8 @@ export async function addPayment(input: PaymentCreateInput): Promise<string> {
   await initSchema();
   const id = randomUUID();
   await db.execute({
-    sql: `INSERT INTO booking_payments (id, booking_id, amount_cents, paid_on, method, note, created_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    sql: `INSERT INTO booking_payments (id, booking_id, amount_cents, paid_on, method, note, source, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       id,
       input.bookingId,
@@ -929,10 +939,42 @@ export async function addPayment(input: PaymentCreateInput): Promise<string> {
       input.paidOn ?? null,
       input.method ?? null,
       input.note ?? null,
+      input.source ?? null,
       nowIso(),
     ],
   });
   return id;
+}
+
+/** Auto-record the reserva as a ledger payment when the deposit is marked
+ *  received, so "Cobrat" reflects it without a manual entry. Guarded so it
+ *  never double-counts: skips when a deposit row already exists (idempotent)
+ *  or when the operator is already keeping the ledger by hand / dumped the
+ *  tranches (any existing rows). No-op for a zero deposit. */
+export async function recordDepositPayment(bookingId: string, amountCents: number): Promise<void> {
+  await initSchema();
+  if (!Number.isFinite(amountCents) || amountCents <= 0) return;
+  const existing = await listPayments(bookingId);
+  if (existing.length > 0) return;
+  await addPayment({
+    bookingId,
+    amountCents,
+    paidOn: nowIso().slice(0, 10),
+    method: 'Reserva',
+    note: 'Paga i senyal (dipòsit marcat com a rebut)',
+    source: DEPOSIT_PAYMENT_SOURCE,
+  });
+}
+
+/** Remove the auto-created deposit ledger row (if any). Called when the deposit
+ *  is un-marked, so "Cobrat" rolls back with it. Scoped to the 'deposit' source
+ *  so it never touches a manually-recorded payment. */
+export async function removeDepositPayment(bookingId: string): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: `DELETE FROM booking_payments WHERE booking_id = ? AND source = ?`,
+    args: [bookingId, DEPOSIT_PAYMENT_SOURCE],
+  });
 }
 
 /** Delete a payment, scoped by booking so a stray id can't touch another row. */

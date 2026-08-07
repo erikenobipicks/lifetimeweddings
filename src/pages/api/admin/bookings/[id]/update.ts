@@ -24,6 +24,8 @@ import {
   getBookingById,
   uncancelBooking,
   markDepositPaid,
+  recordDepositPayment,
+  removeDepositPayment,
   markContractAccepted,
   clearManualContractSignature,
   MANUAL_CONTRACT_IP,
@@ -190,6 +192,10 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
     const alreadyPaid = booking.depositPaidAt instanceof Date;
     await markDepositPaid(id);
     if (!alreadyPaid) {
+      // Reflect the reserva in the payments ledger so "Cobrat" isn't stuck at
+      // 0 after marking the deposit. Idempotent + guarded (skips if the ledger
+      // already has rows), so it never double-counts a manual entry or dump.
+      await recordDepositPayment(id, booking.depositCents);
       // Issue the deposit invoice in FacturaDirecta. Idempotent + fail-soft:
       // no-op when unconfigured / already invoiced, never blocks the redirect.
       await issueDepositInvoiceForBooking(id);
@@ -209,6 +215,9 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
   }
   if (action === 'deposit_unpaid') {
     await unmarkDepositPaid(id);
+    // Roll back the auto-recorded reserva payment so "Cobrat" tracks the
+    // deposit state. Only removes the auto row — manual payments are kept.
+    await removeDepositPayment(id);
     // Cancel the pending follow-up emails too — the deposit-paid trigger
     // is being rolled back. Sent rows stay (history).
     try {
