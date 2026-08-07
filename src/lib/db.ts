@@ -520,6 +520,11 @@ export async function initSchema() {
   // a "just checking in" email would be noise). The cron filter skips
   // any row with this set; an admin action can clear it again.
   await ensureColumn('quotes', 'follow_up_skipped_at', 'TEXT');
+  // `follow_up_notified_at` — stamped when the cron has flagged this quote to
+  // Eric as "due for a follow-up, review and send". Follow-ups are NOT sent
+  // automatically: the cron only notifies (once, guarded by this column) and
+  // Eric fires the email himself from /admin/[id].
+  await ensureColumn('quotes', 'follow_up_notified_at', 'TEXT');
   // Explicitly rejected by the couple ("no acceptem"). Distinct from
   // `archived` (operational hide) — this is a business outcome, so it stays
   // visible with a "Rebutjat" badge, drops out of the follow-up cron, and

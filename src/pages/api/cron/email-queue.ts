@@ -8,10 +8,11 @@
 //     succeed stamp `sent_at`; failures get `last_error` and retry
 //     on the next tick.
 //
-//  2. Quote follow-up reminders: 7 days after Eric clicks "📧 Enviar"
-//     on a quote, if the couple hasn't replied, send the soft-nudge
-//     email. Stamps `quotes.follow_up_sent_at` so the reminder only
-//     ever goes out once per quote.
+//  2. Quote follow-up review: 7 days after Eric clicks "📧 Enviar" on a
+//     quote, if the couple hasn't replied, FLAG it to Eric on Telegram (with
+//     a link) so he can review and send the soft-nudge himself. The cron does
+//     NOT send it — it stamps `quotes.follow_up_notified_at` so he's only
+//     pinged once per quote; the send is a manual action from /admin/[id].
 //
 // Authentication: Bearer token in the Authorization header, value
 // matches `CRON_SECRET`. Without the env var set the endpoint is
@@ -33,11 +34,13 @@ import {
   markPreweddingTelegramSent,
 } from '~/lib/bookings/repository';
 import { sendPreweddingDigest } from '~/lib/bookings/preweddingDigest';
-import { listQuotesPendingFollowUp, markQuoteFollowUpSent } from '~/lib/quotes';
-import { sendQuoteFollowUp } from '~/lib/quotes/followup';
+import { listQuotesAwaitingFollowUpReview, markQuoteFollowUpNotified } from '~/lib/quotes';
 import { securityAlert } from '~/lib/security-alerts';
 import { sendTelegramNotification } from '~/lib/email';
+import { SITE } from '~/data/site';
 import type { SendDueResult } from '~/lib/bookings/sequences';
+
+const SITE_URL = process.env.PUBLIC_SITE_URL ?? SITE.url;
 
 interface PreweddingDigestSweepResult {
   due: number;
@@ -74,49 +77,38 @@ async function tickPreweddingDigests(): Promise<PreweddingDigestSweepResult> {
   return { due: due.length, sent, failed };
 }
 
-interface QuoteFollowUpResult {
-  due: number;
-  sent: number;
-  failed: number;
-  skipped: number;
+interface QuoteReviewItem {
+  id: number;
+  couple: string;
+  daysWaiting: number;
 }
 
-async function tickQuoteFollowUps(): Promise<QuoteFollowUpResult> {
-  const due = await listQuotesPendingFollowUp(7);
-  let sent = 0;
-  let failed = 0;
-  let skipped = 0;
+interface QuoteFollowUpReviewResult {
+  flagged: number;
+  items: QuoteReviewItem[];
+}
+
+/** Flag quotes that have crossed the 7-day mark for a MANUAL follow-up
+ *  decision — the cron no longer auto-sends. It stamps each once
+ *  (follow_up_notified_at) so Eric isn't pinged again for the same quote, and
+ *  returns the list for the Telegram recap; he sends each from /admin/[id]. */
+async function tickQuoteFollowUpReview(): Promise<QuoteFollowUpReviewResult> {
+  const due = await listQuotesAwaitingFollowUpReview(7);
+  const items: QuoteReviewItem[] = [];
   for (const quote of due) {
-    if (!quote.coupleEmail) {
-      skipped += 1;
-      continue;
-    }
-    // Stamp BEFORE sending (same order as the prewedding digest below). If we
-    // sent first and the stamp write then failed, the next tick would re-select
-    // this quote and email the couple a SECOND time. Better a rare missed nudge
-    // (logged, and re-sendable from the quote page) than a duplicate.
     try {
-      await markQuoteFollowUpSent(quote.id);
+      await markQuoteFollowUpNotified(quote.id);
     } catch (err) {
-      failed += 1;
       // eslint-disable-next-line no-console
-      console.error('[cron.email-queue] mark follow-up failed (not sent)', { quoteId: quote.id, err });
+      console.error('[cron.email-queue] mark follow-up notified failed', { quoteId: quote.id, err });
       continue;
     }
-    const result = await sendQuoteFollowUp(quote);
-    if (!result.ok) {
-      failed += 1;
-      // eslint-disable-next-line no-console
-      console.error('[cron.email-queue] follow-up send failed (stamped; will not retry)', {
-        quoteId: quote.id,
-        reason: result.reason,
-        detail: result.detail,
-      });
-      continue;
-    }
-    sent += 1;
+    const days = quote.sentAt
+      ? Math.floor((Date.now() - new Date(quote.sentAt).getTime()) / 86_400_000)
+      : 7;
+    items.push({ id: quote.id, couple: quote.coupleName, daysWaiting: days });
   }
-  return { due: due.length, sent, failed, skipped };
+  return { flagged: items.length, items };
 }
 
 function json(data: unknown, status: number): Response {
@@ -134,7 +126,7 @@ function escHtml(s: string): string {
  *  sent (so Eric gets the "s'ha enviat" confirmation) and per failure (so a
  *  stuck email is never silent). Returns null when nothing happened, so quiet
  *  days don't ping the chat. */
-function buildEmailRecap(bookings: SendDueResult, quotes: QuoteFollowUpResult): string | null {
+function buildEmailRecap(bookings: SendDueResult, quotes: QuoteFollowUpReviewResult): string | null {
   const lines: string[] = [];
   const okDetails = bookings.details.filter((d) => d.ok);
   const failDetails = bookings.details.filter((d) => !d.ok);
@@ -147,8 +139,13 @@ function buildEmailRecap(bookings: SendDueResult, quotes: QuoteFollowUpResult): 
     lines.push(`⚠️ <b>Fallits (${failDetails.length})</b>`);
     for (const d of failDetails) lines.push(` • ${escHtml(d.couple)} — ${escHtml(d.error ?? 'error')}`);
   }
-  if (quotes.sent > 0 || quotes.failed > 0) {
-    lines.push(`📄 Seguiments de pressupost: ${quotes.sent} enviats${quotes.failed ? `, ${quotes.failed} fallits` : ''}`);
+  // Quote follow-ups are NOT auto-sent — this is an action list for Eric to
+  // review and send (or skip) himself from each quote's page.
+  if (quotes.items.length > 0) {
+    lines.push(`📄 <b>Pressupostos pendents de seguiment — revisa i decideix (${quotes.items.length})</b>`);
+    for (const q of quotes.items) {
+      lines.push(` • <a href="${SITE_URL}/admin/${q.id}">${escHtml(q.couple)}</a> — fa ${q.daysWaiting} dies`);
+    }
   }
   if (lines.length === 0) return null;
   return `📧 <b>Emails automàtics</b>\n${lines.join('\n')}`;
@@ -184,7 +181,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const bookingResult = await sendDueEmails();
-  const quoteResult = await tickQuoteFollowUps();
+  const quoteResult = await tickQuoteFollowUpReview();
   const preweddingResult = await tickPreweddingDigests();
   console.log('[cron.email-queue] tick', { bookingResult, quoteResult, preweddingResult });
 
@@ -199,7 +196,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   return json(
-    { ok: true, bookings: bookingResult, quoteFollowUps: quoteResult, preweddingDigests: preweddingResult },
+    { ok: true, bookings: bookingResult, quoteFollowUpReview: quoteResult, preweddingDigests: preweddingResult },
     200,
   );
 };

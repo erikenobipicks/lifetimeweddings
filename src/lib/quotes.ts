@@ -125,9 +125,14 @@ export interface Quote {
    *  "send reminder" button. Null = link never sent by email (e.g. Eric
    *  copied it and pasted in WhatsApp). */
   sentAt: string | null;
-  /** ISO timestamp when the 7-day follow-up email was sent (manual or
-   *  cron). Null until it goes out; prevents duplicate reminders. */
+  /** ISO timestamp when the 7-day follow-up email was sent (manual only —
+   *  the cron no longer auto-sends). Null until it goes out; prevents
+   *  duplicate reminders. */
   followUpSentAt: string | null;
+  /** ISO timestamp when the cron flagged this quote to Eric as due for a
+   *  follow-up (Telegram). Guards against re-notifying every tick. Null until
+   *  flagged. Sending is a separate, manual step. */
+  followUpNotifiedAt: string | null;
   /** ISO timestamp when Eric explicitly disabled the 7-day follow-up
    *  for this quote — typically because the couple already re-engaged
    *  and another "just checking in" email would be noise. The cron
@@ -304,6 +309,7 @@ function rowToQuote(r: any): Quote {
     closedAt: r.quote_closed_at ?? null,
     sentAt: r.sent_at ?? null,
     followUpSentAt: r.follow_up_sent_at ?? null,
+    followUpNotifiedAt: r.follow_up_notified_at ?? null,
     followUpSkippedAt: r.follow_up_skipped_at ?? null,
     rejectedAt: r.rejected_at ?? null,
     serviceInterest: serviceInterestOrDefault(r.service_interest),
@@ -834,10 +840,13 @@ export async function markQuoteFollowUpSent(id: number, at: Date = new Date()): 
   });
 }
 
-/** Quotes ready for a follow-up email: sent >= `daysSince` ago, no
- *  follow-up yet, not archived, not explicitly skipped, and we actually
- *  have a recipient. */
-export async function listQuotesPendingFollowUp(daysSince = 7): Promise<Quote[]> {
+/** Quotes that have crossed the 7-day mark and are due for a follow-up, but
+ *  which the operator hasn't been flagged about yet. Follow-ups are NOT sent
+ *  automatically — the cron uses this to notify Eric once (then stamps
+ *  follow_up_notified_at), and he sends each from the quote page. Same
+ *  eligibility as before (not archived / sent / skipped / rejected + has an
+ *  email), plus not-yet-notified and not-yet-sent. */
+export async function listQuotesAwaitingFollowUpReview(daysSince = 7): Promise<Quote[]> {
   await initSchema();
   const cutoff = new Date(Date.now() - daysSince * 24 * 60 * 60 * 1000).toISOString();
   const res = await db.execute({
@@ -847,12 +856,23 @@ export async function listQuotesPendingFollowUp(daysSince = 7): Promise<Quote[]>
             AND sent_at IS NOT NULL
             AND sent_at <= ?
             AND follow_up_sent_at IS NULL
+            AND follow_up_notified_at IS NULL
             AND follow_up_skipped_at IS NULL
             AND rejected_at IS NULL
           ORDER BY sent_at ASC`,
     args: [cutoff],
   });
   return res.rows.map(rowToQuote);
+}
+
+/** Stamp that Eric has been flagged about this quote's pending follow-up, so
+ *  the cron won't re-notify him every tick. */
+export async function markQuoteFollowUpNotified(id: number, at: Date = new Date()): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: 'UPDATE quotes SET follow_up_notified_at = ? WHERE id = ?',
+    args: [at.toISOString(), id],
+  });
 }
 
 /** Disable the 7-day follow-up for a single quote — used when the
