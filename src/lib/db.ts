@@ -474,6 +474,10 @@ export async function initSchema() {
   await ensureColumn('booking_payments', 'invoice_id', 'TEXT');
   await ensureColumn('booking_payments', 'invoice_number', 'TEXT');
   await ensureColumn('booking_payments', 'invoiced_at', 'TEXT');
+  // Provenance marker. NULL = manual/dumped row; 'deposit' = auto-created when
+  // the operator marks the deposit as received, so unmarking can remove exactly
+  // that row and the tranche-dump can avoid double-counting the reserva.
+  await ensureColumn('booking_payments', 'source', 'TEXT');
   // Manual fiscal/billing identity for bookings entered by hand (no /reserva
   // form response). Lets the operator invoice a payment on a manual booking.
   await ensureColumn('bookings', 'manual_billing_name', 'TEXT');
