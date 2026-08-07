@@ -7,8 +7,9 @@
 // re-sync it here.
 //
 // Variables used: {firstname} {lastname} {vat} {street} {zipcode} {city}
+//   {partner2_firstname} {partner2_lastname} {partner2_vat} {partner2_street}
 //   {shoot_description} {shoot_date} {shoot_time} {shoot_place}
-//   {shoot_price} {payment_plan} {photographer_name}
+//   {shoot_price} {payment_plan} {contracted_detail} {photographer_name}
 
 import type { Lang } from '~/i18n/ui';
 import type { PackType } from '~/data/packs';
@@ -28,6 +29,7 @@ const CA_PHOTO = `<h2 style="text-align:center;">CONTRACTE DE REPORTATGE FOTOGR�
 
 <h4>PRIMERA — OBJECTE DEL CONTRACTE</h4>
 <p>L'objecte d'aquest contracte és la realització d'un reportatge <strong>fotogràfic</strong> el dia del casament de la parella.</p>
+{contracted_detail}
 <p>Els clients accepten l'estil i criteri artístic mostrat prèviament pels professionals, no podent exigir modificacions d'estil que no hagin estat acordades abans de la signatura.</p>
 <p>El servei es durà a terme el dia <strong>{shoot_date}</strong>.</p>
 <p>La cerimònia està prevista a les <strong>{shoot_time}</strong> aproximadament, a <strong>{shoot_place}</strong>.</p>
@@ -117,6 +119,7 @@ const CA_VIDEO = `<h2 style="text-align:center;">CONTRACTE DE REPORTATGE VIDEOGR
 
 <h4>PRIMERA — OBJECTE DEL CONTRACTE</h4>
 <p>L'objecte d'aquest contracte és la realització d'un reportatge <strong>videogràfic</strong> el dia del casament de la parella.</p>
+{contracted_detail}
 <p>Els clients accepten l'estil i criteri artístic mostrat prèviament pels professionals, no podent exigir modificacions d'estil que no hagin estat acordades abans de la signatura.</p>
 <p>El servei es durà a terme el dia <strong>{shoot_date}</strong>.</p>
 <p>La cerimònia està prevista a les <strong>{shoot_time}</strong> aproximadament, a <strong>{shoot_place}</strong>.</p>
@@ -206,6 +209,7 @@ const CA_COMBO = `<h2 style="text-align:center;">CONTRACTE DE REPORTATGE DE BODA
 
 <h4>PRIMERA — OBJECTE DEL CONTRACTE</h4>
 <p>L'objecte d'aquest contracte és la realització d'un reportatge <strong>fotogràfic i videogràfic</strong> el dia del casament de la parella.</p>
+{contracted_detail}
 <p>Els clients accepten l'estil i criteri artístic mostrat prèviament pels professionals, no podent exigir modificacions d'estil que no hagin estat acordades abans de la signatura.</p>
 <p>El servei es durà a terme el dia <strong>{shoot_date}</strong>.</p>
 <p>La cerimònia està prevista a les <strong>{shoot_time}</strong> aproximadament, a <strong>{shoot_place}</strong>.</p>
@@ -296,6 +300,7 @@ const ES_PHOTO = `<h2 style="text-align:center;">CONTRATO DE REPORTAJE FOTOGRÁF
 
 <h4>PRIMERA — OBJETO DEL CONTRATO</h4>
 <p>El objeto de este contrato es la realización de un reportaje <strong>fotográfico</strong> el día del casamiento de la pareja.</p>
+{contracted_detail}
 <p>Los clientes aceptan el estilo y criterio artístico mostrado previamente por los profesionales, no pudiendo exigir modificaciones de estilo que no hayan sido acordadas antes de la firma.</p>
 <p>El servicio se llevará a cabo el día <strong>{shoot_date}</strong>.</p>
 <p>La ceremonia está prevista a las <strong>{shoot_time}</strong> aproximadamente, en <strong>{shoot_place}</strong>.</p>
@@ -385,6 +390,7 @@ const ES_VIDEO = `<h2 style="text-align:center;">CONTRATO DE REPORTAJE VIDEOGRÁ
 
 <h4>PRIMERA — OBJETO DEL CONTRATO</h4>
 <p>El objeto de este contrato es la realización de un reportaje <strong>videográfico</strong> el día del casamiento de la pareja.</p>
+{contracted_detail}
 <p>Los clientes aceptan el estilo y criterio artístico mostrado previamente por los profesionales, no pudiendo exigir modificaciones de estilo que no hayan sido acordadas antes de la firma.</p>
 <p>El servicio se llevará a cabo el día <strong>{shoot_date}</strong>.</p>
 <p>La ceremonia está prevista a las <strong>{shoot_time}</strong> aproximadamente, en <strong>{shoot_place}</strong>.</p>
@@ -474,6 +480,7 @@ const ES_COMBO = `<h2 style="text-align:center;">CONTRATO DE REPORTAJE DE BODA</
 
 <h4>PRIMERA — OBJETO DEL CONTRATO</h4>
 <p>El objeto de este contrato es la realización de un reportaje <strong>fotográfico y videográfico</strong> el día del casamiento de la pareja.</p>
+{contracted_detail}
 <p>Los clientes aceptan el estilo y criterio artístico mostrado previamente por los profesionales, no pudiendo exigir modificaciones de estilo que no hayan sido acordadas antes de la firma.</p>
 <p>El servicio se llevará a cabo el día <strong>{shoot_date}</strong>.</p>
 <p>La ceremonia está prevista a las <strong>{shoot_time}</strong> aproximadamente, en <strong>{shoot_place}</strong>.</p>

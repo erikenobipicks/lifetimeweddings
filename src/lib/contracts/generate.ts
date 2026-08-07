@@ -84,6 +84,23 @@ function escapeHtml(s: string): string {
   return s.replace(/[<>&]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c] as string));
 }
 
+/** Build the {contracted_detail} block: pack name + total + the itemised list
+ *  of what's included, so the signed contract records exactly what was hired
+ *  (the clauses otherwise describe the service only generically). CA text for
+ *  CA couples, ES for ES/EN (EN uses the ES legal text). */
+function contractedDetailHtml(data: ContractData): string {
+  const es = data.lang !== 'ca';
+  const label = es ? 'Servicio contratado' : 'Servei contractat';
+  const totalWord = es ? 'importe total' : 'import total';
+  const taxes = es ? 'impuestos incluidos' : 'impostos inclosos';
+  const includesLabel = es ? 'Incluye:' : 'Inclou:';
+  const items = data.packIncludes.map((s) => s.trim()).filter(Boolean);
+  const list = items.length
+    ? `<p>${includesLabel}</p>\n<ul>\n${items.map((i) => `  <li>${escapeHtml(i)}</li>`).join('\n')}\n</ul>`
+    : '';
+  return `<p><strong>${label}:</strong> ${escapeHtml(data.packName)} — ${totalWord} ${escapeHtml(data.shootPrice)} (${taxes}).</p>\n${list}`;
+}
+
 /** Render the final contract HTML for the given data. */
 export function buildContractHtml(data: ContractData): { html: string; type: ContractServiceType } {
   const type = inferServiceType(data.packName, data.packIncludes);
@@ -114,8 +131,10 @@ export function buildContractHtml(data: ContractData): { html: string; type: Con
   };
 
   let html = template;
-  // {payment_plan} is a block-level token — replace before escaping vars.
+  // Block-level tokens — replace before escaping the scalar vars below. Their
+  // content is already final HTML with no {tokens}, so the var loop skips them.
   html = html.replace('{payment_plan}', paymentPlanHtml(data.paymentPlan));
+  html = html.replace('{contracted_detail}', contractedDetailHtml(data));
   for (const [k, v] of Object.entries(vars)) {
     html = html.split(`{${k}}`).join(escapeHtml(v));
   }
