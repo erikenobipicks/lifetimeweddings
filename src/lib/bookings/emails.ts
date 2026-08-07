@@ -1084,7 +1084,7 @@ export async function sendFormSubmissionNotification(args: {
 /** Friendly labels for the follow-up form kinds, used in notifications. */
 const FORM_KIND_LABELS: Record<string, string> = {
   wedding_details: 'Informació de la boda',
-  inspiration: 'Inspiració i música',
+  inspiration: 'Us volem conèixer',
   timeline: 'Timeline del dia',
   guest_list: 'Llista de convidats',
   music: 'Música',

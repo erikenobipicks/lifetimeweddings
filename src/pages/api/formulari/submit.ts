@@ -106,8 +106,8 @@ export const POST: APIRoute = async ({ request }) => {
       // short. Helpful at-a-glance content in the email body.
       const preview = Object.entries(data)
         .filter(([, v]) => typeof v === 'string' && v.trim().length > 0)
-        .slice(0, 3)
-        .map(([k, v]) => `${k}: ${String(v).slice(0, 120)}`)
+        .slice(0, 6)
+        .map(([k, v]) => `${k}: ${String(v).slice(0, 140)}`)
         .join('\n');
       await sendFormSubmissionNotification({
         booking,

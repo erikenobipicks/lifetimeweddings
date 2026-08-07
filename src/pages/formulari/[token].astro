@@ -44,7 +44,7 @@ const lang: L = (booking?.preferredLanguage as L) ?? 'ca';
 
 const formTitles: Record<string, Record<L, string>> = {
   wedding_details: { ca: 'Informació de la boda', es: 'Información de la boda', en: 'Wedding details' },
-  inspiration: { ca: 'Inspiració i música', es: 'Inspiración y música', en: 'Inspiration & music' },
+  inspiration: { ca: 'Us volem conèixer', es: 'Queremos conoceros', en: 'We\'d love to get to know you' },
   timeline: { ca: 'Timeline del dia', es: 'Timeline del día', en: 'Wedding-day timeline' },
   guest_list: { ca: 'Llista de convidats', es: 'Lista de invitados', en: 'Guest list' },
   music: { ca: 'Música', es: 'Música', en: 'Music' },
@@ -122,13 +122,61 @@ function fmtMaps(address?: string, url?: string): string | null {
 // ─── i18n strings for the inspiration form ───────────────────────────────
 const TI = {
   ca: {
-    intro: 'Ens encantaria conèixer el vostre gust per fer un reportatge que soni i es vegi com vosaltres. No cal res perfecte — amb el que tingueu ja ens ajudeu molt. 5 minuts.',
+    intro: 'Ens encantaria conèixer-vos una mica millor: la vostra història, el vostre món i el que us inspira. Amb això preparem una preboda i un reportatge que siguin ben vostres. Res ha de ser perfecte — el que ens expliqueu ja és or. Uns minuts i prou.',
+    secStory: 'La vostra història',
+    howMet: 'Com us vau conèixer?',
+    howMetHint: 'Expliqueu-nos-ho a la vostra manera, sense pressa.',
+    words: 'Tres paraules que descriguin la vostra relació',
+    wordsHint: 'Les primeres que us vinguin al cap.',
+    proposal: 'La proposta',
+    proposalHint: 'Si n\'hi va haver: com va anar? Qui es va llançar?',
+    inside: 'Alguna cosa que només enteneu vosaltres',
+    insideHint: 'Una broma, un mot, una mania… això que us fa vosaltres.',
+    secWorld: 'El vostre món',
+    plan: 'El vostre pla perfecte junts',
+    planHint: 'Un diumenge ideal, una escapada, allò que us fa feliços.',
+    hobbies: 'Aficions o coses que us defineixen',
+    places: 'Llocs especials per a vosaltres',
+    placesHint: 'On vau tenir la primera cita, un racó amb història… ens encanta fer-los servir.',
+    personality: 'Com sou davant la gent?',
+    personalityHint: 'Més de riure, tímids, pallassos, romàntics… ens ajuda a saber com dirigir-vos.',
+    secPrewedding: 'La preboda',
+    camera: 'Com us porteu amb la càmera?',
+    ccComodos: 'Còmodes, ens encanta',
+    ccPoco: 'Una mica de vergonya',
+    ccMucho: 'Ens fa molt de respecte',
+    ccNoSabem: 'Encara no ho sabem',
+    preweddingVibe: 'Què us imagineu per a la preboda?',
+    preweddingVibeHint: 'Un ambient, un lloc, una idea boja que us faci il·lusió. Si no en teniu ni idea, ja ho pensem junts!',
+    colors: 'Colors, tons o ambients que us enamoren',
+    colorsHint: 'Càlid, natural, elegant, festiu… el que us ressoni.',
+    firstImpression: 'Què vas pensar el primer cop que el/la vas veure?',
+    firstImpressionHint: 'La primera impressió, sincera.',
+    whenKnew: 'Quan vau saber que això anava de debò?',
+    whenKnewHint: 'Aquell moment en què ho vau tenir clar.',
+    whatYouLove: 'Què és el que més us agrada de l\'altre?',
+    whatYouLoveHint: 'Cadascú pot respondre la seva part.',
+    laugh: 'Què us fa riure junts?',
+    pets: 'Mascotes o algú imprescindible a la vostra vida',
+    petsHint: 'Si voleu que surti a les fotos, encara millor.',
+    adventures: 'Un viatge o una aventura que recordareu sempre',
+    secDream: 'Per inspirar-nos',
+    dreamScene: 'Imagineu la vostra foto somiada: on sou i què feu?',
+    dreamSceneHint: 'Val tot: un penya-segat al capvespre, el sofà de casa amb el gos, ballant sota la pluja…',
+    fictionalCouple: 'A quina parella (de peli o sèrie) us assembleu?',
+    fictionalCoupleHint: 'I per què? Ens fa gràcia saber-ho.',
+    superpower: 'Si fóssiu un duo amb superpoder, quin seria?',
+    message: 'Una cosa que li diries a la teva parella',
+    messageHint: 'Ens encanten aquests detalls per al vídeo.',
+    affection: 'Sou de molta abraçada o més tímids en públic?',
+    affectionHint: 'Ens ajuda a saber fins on dirigir-vos.',
+    preweddingWhenWhere: 'Alguna idea d\'on o quan us agradaria la preboda?',
     secMusic: 'Música',
     playlist: 'La vostra playlist',
     playlistHint: 'Enllaç a Spotify, YouTube Music, Apple Music… si en teniu una d\'especial per a vosaltres.',
     specialSong: 'Una cançó especial',
     specialSongHint: 'La vostra cançó. Escriviu el nom (i artista) o enganxeu un enllaç de YouTube/Spotify.',
-    secVisual: 'Inspiració visual',
+    secVisual: 'Estètica i inspiració',
     pinterest: 'Un Pinterest d\'idees',
     pinterestHint: 'Enllaç a un tauler amb fotos que us agraden (nostres o d\'altres fotògrafs).',
     video: 'Un videoclip que us inspiri',
@@ -141,13 +189,61 @@ const TI = {
     errorMsg: 'No s\'ha pogut enviar. Reviseu la connexió i torneu-ho a provar.',
   },
   es: {
-    intro: 'Nos encantaría conocer vuestro gusto para hacer un reportaje que suene y se vea como vosotros. No hace falta nada perfecto — con lo que tengáis ya nos ayudáis mucho. 5 minutos.',
+    intro: 'Nos encantaría conoceros un poco mejor: vuestra historia, vuestro mundo y lo que os inspira. Con eso preparamos una preboda y un reportaje que sean muy vuestros. Nada tiene que ser perfecto — lo que nos contéis ya es oro. Unos minutos y listo.',
+    secStory: 'Vuestra historia',
+    howMet: '¿Cómo os conocisteis?',
+    howMetHint: 'Contádnoslo a vuestra manera, sin prisa.',
+    words: 'Tres palabras que describan vuestra relación',
+    wordsHint: 'Las primeras que os vengan a la cabeza.',
+    proposal: 'La pedida',
+    proposalHint: 'Si la hubo: ¿cómo fue? ¿Quién se lanzó?',
+    inside: 'Algo que solo entendéis vosotros',
+    insideHint: 'Una broma, un mote, una manía… eso que os hace vosotros.',
+    secWorld: 'Vuestro mundo',
+    plan: 'Vuestro plan perfecto juntos',
+    planHint: 'Un domingo ideal, una escapada, eso que os hace felices.',
+    hobbies: 'Aficiones o cosas que os definen',
+    places: 'Lugares especiales para vosotros',
+    placesHint: 'Dónde tuvisteis la primera cita, un rincón con historia… nos encanta usarlos.',
+    personality: '¿Cómo sois delante de la gente?',
+    personalityHint: 'Más de reír, tímidos, payasos, románticos… nos ayuda a saber cómo dirigiros.',
+    secPrewedding: 'La preboda',
+    camera: '¿Cómo os lleváis con la cámara?',
+    ccComodos: 'Cómodos, nos encanta',
+    ccPoco: 'Un poco de corte',
+    ccMucho: 'Nos da bastante respeto',
+    ccNoSabem: 'Aún no lo sabemos',
+    preweddingVibe: '¿Qué os imagináis para la preboda?',
+    preweddingVibeHint: 'Un ambiente, un lugar, una idea loca que os haga ilusión. Si no tenéis ni idea, ¡lo pensamos juntos!',
+    colors: 'Colores, tonos o ambientes que os enamoran',
+    colorsHint: 'Cálido, natural, elegante, festivo… lo que os resuene.',
+    firstImpression: '¿Qué pensaste la primera vez que le viste?',
+    firstImpressionHint: 'La primera impresión, sincera.',
+    whenKnew: '¿Cuándo supisteis que esto iba en serio?',
+    whenKnewHint: 'Ese momento en que lo tuvisteis claro.',
+    whatYouLove: '¿Qué es lo que más os gusta del otro?',
+    whatYouLoveHint: 'Cada uno puede responder su parte.',
+    laugh: '¿Qué os hace reír juntos?',
+    pets: 'Mascotas o alguien imprescindible en vuestra vida',
+    petsHint: 'Si queréis que salga en las fotos, mejor todavía.',
+    adventures: 'Un viaje o una aventura que recordaréis siempre',
+    secDream: 'Para inspirarnos',
+    dreamScene: 'Imaginad vuestra foto soñada: ¿dónde estáis y qué hacéis?',
+    dreamSceneHint: 'Vale todo: un acantilado al atardecer, el sofá de casa con el perro, bailando bajo la lluvia…',
+    fictionalCouple: '¿A qué pareja (de peli o serie) os parecéis?',
+    fictionalCoupleHint: '¿Y por qué? Nos hace gracia saberlo.',
+    superpower: 'Si fuerais un dúo con superpoder, ¿cuál sería?',
+    message: 'Una cosa que le dirías a tu pareja',
+    messageHint: 'Nos encantan estos detalles para el vídeo.',
+    affection: '¿Sois de mucho achuchón o más tímidos en público?',
+    affectionHint: 'Nos ayuda a saber hasta dónde dirigiros.',
+    preweddingWhenWhere: '¿Alguna idea de dónde o cuándo os gustaría la preboda?',
     secMusic: 'Música',
     playlist: 'Vuestra playlist',
     playlistHint: 'Enlace a Spotify, YouTube Music, Apple Music… si tenéis una especial para vosotros.',
     specialSong: 'Una canción especial',
     specialSongHint: 'Vuestra canción. Escribid el nombre (y artista) o pegad un enlace de YouTube/Spotify.',
-    secVisual: 'Inspiración visual',
+    secVisual: 'Estética e inspiración',
     pinterest: 'Un Pinterest de ideas',
     pinterestHint: 'Enlace a un tablero con fotos que os gusten (nuestras o de otros fotógrafos).',
     video: 'Un videoclip que os inspire',
@@ -160,13 +256,61 @@ const TI = {
     errorMsg: 'No se ha podido enviar. Revisad la conexión e intentadlo de nuevo.',
   },
   en: {
-    intro: 'We\'d love to get to know your taste so your film and photos sound and look like you. Nothing needs to be perfect — whatever you have already helps. 5 minutes.',
+    intro: 'We\'d love to get to know you a little better: your story, your world and what inspires you. It helps us plan a pre-wedding shoot and a wedding film and photos that feel truly yours. Nothing needs to be perfect — whatever you share is gold. Just a few minutes.',
+    secStory: 'Your story',
+    howMet: 'How did you two meet?',
+    howMetHint: 'Tell us in your own words, no rush.',
+    words: 'Three words that describe your relationship',
+    wordsHint: 'The first ones that come to mind.',
+    proposal: 'The proposal',
+    proposalHint: 'If there was one: how did it go? Who took the leap?',
+    inside: 'Something only the two of you get',
+    insideHint: 'An inside joke, a nickname, a quirk… that thing that makes you you.',
+    secWorld: 'Your world',
+    plan: 'Your perfect day together',
+    planHint: 'An ideal Sunday, a getaway, whatever makes you happy.',
+    hobbies: 'Hobbies or things that define you',
+    places: 'Places that are special to you',
+    placesHint: 'Where you had your first date, a spot with history… we love using them.',
+    personality: 'What are you like around people?',
+    personalityHint: 'More the laughing type, shy, goofy, romantic… it helps us know how to direct you.',
+    secPrewedding: 'The pre-wedding shoot',
+    camera: 'How do you feel about being photographed?',
+    ccComodos: 'Comfortable, we love it',
+    ccPoco: 'A little shy',
+    ccMucho: 'It makes us quite nervous',
+    ccNoSabem: 'Not sure yet',
+    preweddingVibe: 'What do you picture for your pre-wedding shoot?',
+    preweddingVibeHint: 'A mood, a place, a wild idea you\'re excited about. No idea yet? We\'ll figure it out together!',
+    colors: 'Colours, tones or moods you love',
+    colorsHint: 'Warm, natural, elegant, festive… whatever resonates.',
+    firstImpression: 'What did you think the first time you saw them?',
+    firstImpressionHint: 'Your honest first impression.',
+    whenKnew: 'When did you know this was the real thing?',
+    whenKnewHint: 'That moment it became clear.',
+    whatYouLove: 'What do you love most about each other?',
+    whatYouLoveHint: 'Each of you can answer your own part.',
+    laugh: 'What makes you laugh together?',
+    pets: 'Pets or someone essential in your life',
+    petsHint: 'If you\'d like them in the photos, even better.',
+    adventures: 'A trip or adventure you\'ll always remember',
+    secDream: 'To inspire us',
+    dreamScene: 'Picture your dream photo: where are you and what are you doing?',
+    dreamSceneHint: 'Anything goes: a clifftop at sunset, your sofa with the dog, dancing in the rain…',
+    fictionalCouple: 'Which couple (film or series) are you most like?',
+    fictionalCoupleHint: 'And why? We love hearing this.',
+    superpower: 'If you were a duo with a superpower, what would it be?',
+    message: 'One thing you\'d say to your partner',
+    messageHint: 'We love these details for the film.',
+    affection: 'Are you big huggers or shyer in public?',
+    affectionHint: 'It helps us know how far to direct you.',
+    preweddingWhenWhere: 'Any idea where or when you\'d like the pre-wedding shoot?',
     secMusic: 'Music',
     playlist: 'Your playlist',
     playlistHint: 'Link to Spotify, YouTube Music, Apple Music… if you have one that\'s special to you.',
     specialSong: 'A special song',
     specialSongHint: 'Your song. Write the title (and artist) or paste a YouTube/Spotify link.',
-    secVisual: 'Visual inspiration',
+    secVisual: 'Aesthetic & inspiration',
     pinterest: 'A Pinterest board of ideas',
     pinterestHint: 'Link to a board with photos you like (ours or other photographers\').',
     video: 'A video that inspires you',
@@ -737,26 +881,167 @@ const TX = {
           <p class="text-ink/75 leading-relaxed mb-10">{TI.intro}</p>
 
           <form id="wd-form" data-token={token} class="space-y-12">
-            <!-- Música -->
+            <!-- La vostra història -->
             <fieldset class="space-y-5">
-              <legend class="font-display text-xl font-bold mb-2">{TI.secMusic}</legend>
+              <legend class="font-display text-xl font-bold mb-2">{TI.secStory}</legend>
 
               <label class="block">
-                <span class="text-sm font-bold text-ink/80">{TI.playlist} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
-                <span class="block text-xs text-ink/70 mb-1">{TI.playlistHint}</span>
-                <input name="couple_playlist" type="url" inputmode="url" placeholder="https://open.spotify.com/playlist/…" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+                <span class="text-sm font-bold text-ink/80">{TI.howMet}</span>
+                <span class="block text-xs text-ink/70 mb-1">{TI.howMetHint}</span>
+                <textarea name="how_met" rows="4" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none resize-y"></textarea>
               </label>
 
               <label class="block">
-                <span class="text-sm font-bold text-ink/80">{TI.specialSong}</span>
-                <span class="block text-xs text-ink/70 mb-1">{TI.specialSongHint}</span>
-                <input name="special_song" type="text" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+                <span class="text-sm font-bold text-ink/80">{TI.words}</span>
+                <span class="block text-xs text-ink/70 mb-1">{TI.wordsHint}</span>
+                <input name="relationship_words" type="text" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.proposal} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <span class="block text-xs text-ink/70 mb-1">{TI.proposalHint}</span>
+                <textarea name="proposal" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none resize-y"></textarea>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.inside} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <span class="block text-xs text-ink/70 mb-1">{TI.insideHint}</span>
+                <input name="inside_world" type="text" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.firstImpression} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <span class="block text-xs text-ink/70 mb-1">{TI.firstImpressionHint}</span>
+                <input name="first_impression" type="text" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.whenKnew} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <span class="block text-xs text-ink/70 mb-1">{TI.whenKnewHint}</span>
+                <textarea name="when_knew" rows="2" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none resize-y"></textarea>
               </label>
             </fieldset>
 
-            <!-- Inspiració visual -->
+            <!-- El vostre món -->
+            <fieldset class="space-y-5">
+              <legend class="font-display text-xl font-bold mb-2">{TI.secWorld}</legend>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.plan}</span>
+                <span class="block text-xs text-ink/70 mb-1">{TI.planHint}</span>
+                <textarea name="perfect_plan" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none resize-y"></textarea>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.hobbies} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <input name="hobbies" type="text" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.places}</span>
+                <span class="block text-xs text-ink/70 mb-1">{TI.placesHint}</span>
+                <textarea name="special_places" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none resize-y"></textarea>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.whatYouLove}</span>
+                <span class="block text-xs text-ink/70 mb-1">{TI.whatYouLoveHint}</span>
+                <textarea name="what_you_love" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none resize-y"></textarea>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.laugh} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <input name="makes_you_laugh" type="text" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.pets} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <span class="block text-xs text-ink/70 mb-1">{TI.petsHint}</span>
+                <input name="pets_or_essentials" type="text" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.personality}</span>
+                <span class="block text-xs text-ink/70 mb-1">{TI.personalityHint}</span>
+                <input name="personality" type="text" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.adventures} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <textarea name="adventures" rows="3" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none resize-y"></textarea>
+              </label>
+            </fieldset>
+
+            <!-- Per inspirar-nos -->
+            <fieldset class="space-y-5">
+              <legend class="font-display text-xl font-bold mb-2">{TI.secDream}</legend>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.dreamScene}</span>
+                <span class="block text-xs text-ink/70 mb-1">{TI.dreamSceneHint}</span>
+                <textarea name="dream_scene" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none resize-y"></textarea>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.fictionalCouple} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <span class="block text-xs text-ink/70 mb-1">{TI.fictionalCoupleHint}</span>
+                <input name="fictional_couple" type="text" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.superpower} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <input name="couple_superpower" type="text" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.message} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <span class="block text-xs text-ink/70 mb-1">{TI.messageHint}</span>
+                <textarea name="message_to_each_other" rows="2" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none resize-y"></textarea>
+              </label>
+            </fieldset>
+
+            <!-- La preboda -->
+            <fieldset class="space-y-5">
+              <legend class="font-display text-xl font-bold mb-2">{TI.secPrewedding}</legend>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.camera}</span>
+                <select name="comfort_camera" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none">
+                  <option value="">{TI.optional}</option>
+                  <option value={TI.ccComodos}>{TI.ccComodos}</option>
+                  <option value={TI.ccPoco}>{TI.ccPoco}</option>
+                  <option value={TI.ccMucho}>{TI.ccMucho}</option>
+                  <option value={TI.ccNoSabem}>{TI.ccNoSabem}</option>
+                </select>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.affection} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <span class="block text-xs text-ink/70 mb-1">{TI.affectionHint}</span>
+                <input name="affection_style" type="text" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.preweddingWhenWhere} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <input name="prewedding_when_where" type="text" class="mt-1 w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.preweddingVibe} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <span class="block text-xs text-ink/70 mb-1">{TI.preweddingVibeHint}</span>
+                <textarea name="prewedding_vibe" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none resize-y"></textarea>
+              </label>
+            </fieldset>
+
+            <!-- Estètica i inspiració visual -->
             <fieldset class="space-y-5">
               <legend class="font-display text-xl font-bold mb-2">{TI.secVisual}</legend>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.colors} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <span class="block text-xs text-ink/70 mb-1">{TI.colorsHint}</span>
+                <input name="colors_mood" type="text" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
 
               <label class="block">
                 <span class="text-sm font-bold text-ink/80">{TI.pinterest} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
@@ -774,6 +1059,23 @@ const TX = {
                 <span class="text-sm font-bold text-ink/80">{TI.notes} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
                 <span class="block text-xs text-ink/70 mb-1">{TI.notesHint}</span>
                 <textarea name="inspiration_notes" rows="3" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none"></textarea>
+              </label>
+            </fieldset>
+
+            <!-- Música -->
+            <fieldset class="space-y-5">
+              <legend class="font-display text-xl font-bold mb-2">{TI.secMusic}</legend>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.playlist} <span class="font-normal text-ink/45">· {TI.optional}</span></span>
+                <span class="block text-xs text-ink/70 mb-1">{TI.playlistHint}</span>
+                <input name="couple_playlist" type="url" inputmode="url" placeholder="https://open.spotify.com/playlist/…" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-ink/80">{TI.specialSong}</span>
+                <span class="block text-xs text-ink/70 mb-1">{TI.specialSongHint}</span>
+                <input name="special_song" type="text" class="w-full px-3 py-2 border border-ink/15 bg-white focus:border-gold focus:outline-none" />
               </label>
             </fieldset>
 
