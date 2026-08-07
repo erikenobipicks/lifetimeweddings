@@ -623,7 +623,10 @@ const ibanPlaceholder = transfer.isPlaceholder;
           </form>
         </div>
       ) : (
-        <p class="text-sm font-semibold text-emerald-700">✓ Signat per la parella a l'aplicació · {fmtDateTime(booking.contractAcceptedAt)}</p>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <p class="text-sm font-semibold text-emerald-700">✓ Signat per la parella a l'aplicació · {fmtDateTime(booking.contractAcceptedAt)}</p>
+          <a href={`/api/contrato/${booking.slug}/pdf`} target="_blank" rel="noopener" class="border border-line text-xs font-bold tracking-widest uppercase px-4 py-2 hover:border-gold hover:text-gold transition-colors whitespace-nowrap">Descarregar PDF</a>
+        </div>
       )
     ) : (
       <div>

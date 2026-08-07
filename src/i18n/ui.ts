@@ -561,6 +561,7 @@ export const ui = {
     'contrato.accept.error.generic': 'No se ha podido registrar la aceptación. Inténtalo de nuevo o escríbenos por WhatsApp.',
     'contrato.accepted.title': 'Contrato aceptado',
     'contrato.accepted.body': 'Ya tenemos vuestro contrato aceptado. Os hemos enviado la copia en PDF por email. Cualquier duda, escribidnos.',
+    'contrato.accepted.download': 'Descargar el contrato (PDF)',
 
     // Video embed (flagship trailer)
     'reserva.video.eyebrow': 'Bodas en movimiento',
@@ -1214,6 +1215,7 @@ export const ui = {
     'contrato.accept.error.generic': 'No s\'ha pogut registrar l\'acceptació. Torna-ho a provar o escriu-nos pel WhatsApp.',
     'contrato.accepted.title': 'Contracte acceptat',
     'contrato.accepted.body': 'Ja tenim el vostre contracte acceptat. Us hem enviat la còpia en PDF per email. Qualsevol dubte, escriviu-nos.',
+    'contrato.accepted.download': 'Descarregar el contracte (PDF)',
 
     // Video embed
     'reserva.video.eyebrow': 'Bodes en moviment',
@@ -1866,6 +1868,7 @@ export const ui = {
     'contrato.accept.error.generic': 'We couldn\'t record your acceptance. Try again or message us on WhatsApp.',
     'contrato.accepted.title': 'Contract accepted',
     'contrato.accepted.body': 'Your contract is accepted. We\'ve emailed you the PDF copy. Any questions, just write to us.',
+    'contrato.accepted.download': 'Download the contract (PDF)',
 
     // Video embed
     'reserva.video.eyebrow': 'Weddings in motion',
