@@ -21,6 +21,7 @@ import {
 import { getLatestInspirationSubmission, INSPIRATION_ADMIN_FIELDS } from '~/lib/bookings/inspirationForm';
 import { googleCalendarAddUrl } from '~/lib/bookings/gcal';
 import { filterChecklistForPack } from '~/data/bookingChecklist';
+import { EXTERNAL_SERVICE_COMPANIES, EXTERNAL_SERVICE_TYPES } from '~/data/externalServices';
 
 // Euro-field format hint. Via `pattern={...}` (an expression) so the regex
 // backslashes aren't doubled by static-attribute rendering (which would match
@@ -53,6 +54,17 @@ const weddingDateIso = booking.weddingDate.toISOString().slice(0, 10);
 const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madrid' });
 const fmtEur = (cents: number): string =>
   new Intl.NumberFormat('ca-ES', { style: 'currency', currency: 'EUR' }).format(cents / 100);
+
+// Preboda: nag to book a date when contracted but unscheduled; long-format
+// date for the confirmed line.
+const prebodaNeedsDate = booking.prebodaIncluded && !booking.prebodaDate;
+const prebodaDateLong = booking.prebodaDate
+  ? new Date(`${booking.prebodaDate}T12:00:00`).toLocaleDateString('ca-ES', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+  : null;
 
 const params = Astro.url.searchParams;
 const ok = params.get('ok');
@@ -180,6 +192,7 @@ const navItems = [
   { href: '#missatge-benvinguda', label: '💬 Benvinguda', show: true },
   { href: '#pagaments', label: '💶 Pagaments', show: true },
   { href: '#horaris', label: '🕐 Horaris', show: true },
+  { href: '#preboda', label: '🎬 Preboda i extres', show: true },
   { href: '#seguiment', label: '✅ Seguiment', show: booking.status === 'form_submitted' },
   { href: '#dades-parella', label: '📋 Dades parella', show: !!formResponse },
   { href: '#editar', label: '✏️ Editar', show: true },
@@ -296,6 +309,10 @@ const ibanPlaceholder = transfer.isPlaceholder;
       {ok === 'timeline:saved' && 'Horaris del dia desats.'}
       {ok === 'wd-saved' && 'Info de la boda desada. La parella la veurà precarregada al seu formulari per validar-la o modificar-la.'}
       {ok === 'team:saved' && 'Equip assignat (fotògraf / videògraf).'}
+      {ok === 'preboda:saved' && 'Preboda desada.'}
+      {ok === 'extservice:added' && 'Servei extern afegit.'}
+      {ok === 'extservice:toggled' && 'Estat d\'avís del servei actualitzat.'}
+      {ok === 'extservice:removed' && 'Servei extern eliminat.'}
       {ok === 'payment:dumped' && 'Trams afegits al llibre de pagaments.'}
       {ok === 'payment:deleted' && 'Pagament eliminat.'}
       {ok === 'payment:invoiced' && 'Albarà creat a FacturaDirecta per aquest pagament.'}
@@ -496,6 +513,97 @@ const ibanPlaceholder = transfer.isPlaceholder;
           <p class="text-xs text-ink/60 mt-3 pt-3 border-t border-line whitespace-pre-wrap">{booking.paymentTerms}</p>
         )}
       </div>
+    </div>
+  </section>
+
+  <!-- ── Preboda + serveis externs (intern) ───────────────────────────── -->
+  <section id="preboda" class="bg-white border border-line p-5 mb-4 scroll-mt-24">
+    <h2 class="text-xs font-bold tracking-widest uppercase mb-4">🎬 Preboda i serveis externs</h2>
+
+    <!-- Preboda -->
+    <div class="mb-6">
+      <p class="text-[0.7rem] font-bold tracking-widest uppercase text-ink/60 mb-2">Sessió de preboda</p>
+      {prebodaNeedsDate && (
+        <div class="mb-3 px-3 py-2 bg-amber-50 border border-amber-300 text-amber-900 text-sm font-semibold">
+          ⚠️ Preboda contractada sense data — cal reservar dia i hora amb la parella.
+        </div>
+      )}
+      <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="flex flex-wrap items-end gap-3">
+        <input type="hidden" name="_action" value="save_preboda" />
+        <label class="inline-flex items-center gap-2 text-sm self-center pb-1.5">
+          <input type="checkbox" name="preboda_included" value="1" checked={booking.prebodaIncluded} class="accent-gold" />
+          <span>Inclou preboda</span>
+        </label>
+        <label class="block">
+          <span class="text-[0.65rem] font-bold tracking-wide uppercase text-ink/55">Data</span>
+          <input type="date" name="preboda_date" value={booking.prebodaDate ?? ''} class="mt-1 block px-2 py-1.5 border border-line bg-white text-sm focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-[0.65rem] font-bold tracking-wide uppercase text-ink/55">Hora</span>
+          <input type="time" name="preboda_time" value={booking.prebodaTime ?? ''} class="mt-1 block px-2 py-1.5 border border-line bg-white text-sm focus:border-gold focus:outline-none" />
+        </label>
+        <button type="submit" class="bg-ink text-white px-3 py-2 text-[0.7rem] font-bold tracking-widest uppercase hover:bg-gold hover:text-ink transition-colors">Desar preboda</button>
+      </form>
+      {booking.prebodaIncluded && prebodaDateLong && (
+        <p class="text-sm text-emerald-700 font-semibold mt-2">✓ Preboda: {prebodaDateLong}{booking.prebodaTime ? ` · ${booking.prebodaTime} h` : ''}</p>
+      )}
+    </div>
+
+    <!-- Serveis externs -->
+    <div id="serveis-externs" class="border-t border-line pt-5 scroll-mt-24">
+      <p class="text-[0.7rem] font-bold tracking-widest uppercase text-ink/60 mb-2">Serveis d'empreses externes</p>
+      {booking.externalServices.length > 0 ? (
+        <ul class="divide-y divide-line border border-line mb-4">
+          {booking.externalServices.map((s) => (
+            <li class="flex flex-wrap items-center justify-between gap-3 px-3 py-2 text-sm">
+              <div class="min-w-0">
+                <span class="font-semibold">{s.service || '—'}</span>
+                {s.company && <span class="text-ink/70"> · {s.company}</span>}
+                {s.notes && <span class="block text-[0.7rem] text-ink/55">{s.notes}</span>}
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                {s.notified ? (
+                  <span class="text-[0.6rem] font-bold uppercase tracking-wide px-2 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-700">✓ Avisada</span>
+                ) : (
+                  <span class="text-[0.6rem] font-bold uppercase tracking-wide px-2 py-0.5 bg-amber-50 border border-amber-200 text-amber-800">Pendent</span>
+                )}
+                <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline">
+                  <input type="hidden" name="_action" value="toggle_external_service" />
+                  <input type="hidden" name="service_id" value={s.id} />
+                  <button type="submit" class="text-[0.65rem] font-bold uppercase tracking-wide text-gold hover:underline">{s.notified ? 'Desmarcar' : 'Marcar avisada'}</button>
+                </form>
+                <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="inline" onsubmit="return confirm('Treure aquest servei extern?')">
+                  <input type="hidden" name="_action" value="remove_external_service" />
+                  <input type="hidden" name="service_id" value={s.id} />
+                  <button type="submit" class="text-[0.7rem] font-bold text-rose-500 hover:underline" title="Treure">✕</button>
+                </form>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="text-sm text-ink/55 mb-4">Cap servei extern afegit encara.</p>
+      )}
+
+      <form method="POST" action={`/api/admin/bookings/${booking.id}/update`} class="flex flex-wrap items-end gap-3">
+        <input type="hidden" name="_action" value="add_external_service" />
+        <label class="block">
+          <span class="text-[0.65rem] font-bold tracking-wide uppercase text-ink/55">Servei</span>
+          <input list="ext-service-types" name="service" placeholder="Fotomatón…" class="mt-1 block px-2 py-1.5 border border-line bg-white text-sm focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block">
+          <span class="text-[0.65rem] font-bold tracking-wide uppercase text-ink/55">Empresa</span>
+          <input list="ext-service-companies" name="company" placeholder="Fotomarbis…" class="mt-1 block px-2 py-1.5 border border-line bg-white text-sm focus:border-gold focus:outline-none" />
+        </label>
+        <label class="block flex-1 min-w-[10rem]">
+          <span class="text-[0.65rem] font-bold tracking-wide uppercase text-ink/55">Nota (opcional)</span>
+          <input name="notes" maxlength="300" placeholder="model, hora, preu acordat…" class="mt-1 block w-full px-2 py-1.5 border border-line bg-white text-sm focus:border-gold focus:outline-none" />
+        </label>
+        <button type="submit" class="bg-gold text-ink px-3 py-2 text-[0.7rem] font-bold tracking-widest uppercase hover:bg-ink hover:text-white transition-colors">+ Afegir servei</button>
+      </form>
+      <datalist id="ext-service-types">{EXTERNAL_SERVICE_TYPES.map((t) => <option value={t} />)}</datalist>
+      <datalist id="ext-service-companies">{EXTERNAL_SERVICE_COMPANIES.map((c) => <option value={c} />)}</datalist>
+      <p class="text-[0.7rem] text-ink/50 mt-3">El formulari per enviar els detalls del fotomatón a la parella el podrem afegir aquí més endavant.</p>
     </div>
   </section>
 

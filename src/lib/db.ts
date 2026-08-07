@@ -644,6 +644,18 @@ export async function initSchema() {
   // DayTimeline in src/lib/bookings/types.ts.
   await ensureColumn('bookings', 'day_timeline_json', 'TEXT');
 
+  // Pre-wedding ("preboda") session — internal only. `preboda_included` is the
+  // flag that a preboda was contracted (drives the "book a date" reminder);
+  // date (YYYY-MM-DD) + time (HH:MM) are set once scheduled.
+  await ensureColumn('bookings', 'preboda_included', 'INTEGER NOT NULL DEFAULT 0');
+  await ensureColumn('bookings', 'preboda_date', 'TEXT');
+  await ensureColumn('bookings', 'preboda_time', 'TEXT');
+
+  // External-supplier services (fotomatón, 360…) — internal only. JSON array of
+  // { id, service, company, notified, notifiedAt, notes }; see ExternalService
+  // in src/lib/bookings/types.ts.
+  await ensureColumn('bookings', 'external_services', 'TEXT');
+
   // Per-sequence service scope (Fase A of the photo/video/combo mailing
   // split). 'any' on pre-migration rows → keeps sending to everyone, so the
   // existing default templates (2nd-payment reminder, info form, inspiration)
