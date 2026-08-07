@@ -25,7 +25,7 @@ import { contractDataFromBooking } from '~/lib/contracts/fromBooking';
 import { buildContractHtml } from '~/lib/contracts/generate';
 import { generateContractPdf } from '~/lib/contracts/pdf';
 import { sendContractAcceptedCopy } from '~/lib/bookings/emails';
-import { formatWeddingDateLong } from '~/lib/bookings/format';
+import { acceptanceLine, SIGNED_BY_LABEL } from '~/lib/contracts/acceptance';
 
 function clientIp(headers: Headers): string {
   const cf = headers.get('cf-connecting-ip');
@@ -51,25 +51,6 @@ const schema = z.object({
   signatureImage: z.string().min(1).max(400_000),
   captchaToken: z.string().optional(),
 });
-
-const SIGNED_BY_LABEL = { ca: 'Signat per', es: 'Firmado por', en: 'Signed by' } as const;
-
-function acceptanceLine(
-  lang: 'ca' | 'es' | 'en',
-  signerName: string,
-  n1: string,
-  n2: string,
-  when: Date,
-  ip: string,
-  uaHash: string,
-): string {
-  const date = formatWeddingDateLong(when, lang);
-  const localeMap = { ca: 'ca-ES', es: 'es-ES', en: 'en-GB' } as const;
-  const time = when.toLocaleTimeString(localeMap[lang], { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
-  if (lang === 'es') return `Firmado electrónicamente por ${signerName} (${n1} y ${n2}) el ${date} a las ${time}. IP ${ip} · dispositivo ${uaHash}.`;
-  if (lang === 'en') return `Signed electronically by ${signerName} (${n1} and ${n2}) on ${date} at ${time}. IP ${ip} · device ${uaHash}.`;
-  return `Signat electrònicament per ${signerName} (${n1} i ${n2}) el ${date} a les ${time}. IP ${ip} · dispositiu ${uaHash}.`;
-}
 
 export const POST: APIRoute = async ({ request }) => {
   let ip = clientIp(request.headers);

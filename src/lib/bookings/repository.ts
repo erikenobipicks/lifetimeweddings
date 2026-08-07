@@ -703,6 +703,42 @@ export async function markContractAccepted(bookingId: string, proof: SignaturePr
   return (res.rowsAffected ?? 0) > 0;
 }
 
+/** The stored e-signature proof (drawn signature + audit fields). Loaded on
+ *  demand — NOT part of the hydrated Booking — because the signature data URL
+ *  can be large and only the PDF regeneration needs it. Null when unsigned. */
+export interface StoredSignatureProof {
+  acceptedAt: Date;
+  ip: string | null;
+  name: string | null;
+  userAgent: string | null;
+  hash: string | null;
+  signature: string | null;
+}
+
+export async function getContractSignatureProof(
+  bookingId: string,
+): Promise<StoredSignatureProof | null> {
+  await initSchema();
+  const res = await db.execute({
+    sql: `SELECT contract_accepted_at, contract_accepted_ip, contract_accepted_name,
+                 contract_accepted_user_agent, contract_accepted_hash, contract_accepted_signature
+          FROM bookings WHERE id = ?`,
+    args: [bookingId],
+  });
+  const row = res.rows[0] as Record<string, unknown> | undefined;
+  if (!row) return null;
+  const acceptedAt = fromIso(row.contract_accepted_at);
+  if (!acceptedAt) return null;
+  return {
+    acceptedAt,
+    ip: row.contract_accepted_ip ? String(row.contract_accepted_ip) : null,
+    name: row.contract_accepted_name ? String(row.contract_accepted_name) : null,
+    userAgent: row.contract_accepted_user_agent ? String(row.contract_accepted_user_agent) : null,
+    hash: row.contract_accepted_hash ? String(row.contract_accepted_hash) : null,
+    signature: row.contract_accepted_signature ? String(row.contract_accepted_signature) : null,
+  };
+}
+
 /** Sentinel stored in contract_accepted_ip when the operator marks a contract
  *  as signed OUTSIDE the app (on paper / elsewhere). Lets the UI tell a manual
  *  mark apart from a real in-app e-signature (which carries a real IP). */

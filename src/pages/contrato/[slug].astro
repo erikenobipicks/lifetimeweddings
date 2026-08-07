@@ -140,7 +140,13 @@ const description = t('contrato.title');
         <h1 class="font-display text-3xl md:text-4xl font-bold mb-6">
           {t('contrato.accepted.title')}
         </h1>
-        <p class="text-ink/75 leading-relaxed">{t('contrato.accepted.body')}</p>
+        <p class="text-ink/75 leading-relaxed mb-8">{t('contrato.accepted.body')}</p>
+        <a
+          href={`/api/contrato/${slug}/pdf`}
+          class="inline-block bg-gold text-ink font-bold px-8 py-4 hover:bg-ink hover:text-white transition-colors"
+        >
+          {t('contrato.accepted.download')} <span aria-hidden="true">↓</span>
+        </a>
       </div>
     </section>
   ) : dataSubmitted && contractHtml ? (
