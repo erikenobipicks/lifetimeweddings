@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1a4d2e">
+<title>Ruta Selva Negra · Reus → Selva Negra · 16–21 ago 2026</title>
+<style>
+  :root{
+    --verde:#1a4d2e;
+    --verde-claro:#2c6b45;
+    --dorado:#c8a44d;
+    --dorado-osc:#a8863a;
+    --fondo:#faf9f6;
+    --tarjeta:#ffffff;
+    --texto:#1c1c18;
+    --texto-suave:#5c5c54;
+    --borde:#e6e3da;
+    --ambar-bg:#fff5db;
+    --ambar-borde:#e6b800;
+    --ambar-texto:#6b4e00;
+    --rojo-bg:#fbe6e2;
+    --rojo-borde:#c0392b;
+    --verde-bg:#e6f2ea;
+    --sombra:0 2px 10px rgba(26,77,46,.10);
+    --sombra-fuerte:0 4px 18px rgba(26,77,46,.18);
+    --nav-h:96px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:var(--nav-h)}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Helvetica Neue",Arial,sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    color:var(--texto);
+    background:var(--fondo);
+    -webkit-text-size-adjust:100%;
+  }
+  h1,h2,h3,h4{line-height:1.25;margin:0 0 .4em}
+  a{color:var(--verde);}
+  p{margin:0 0 .9em}
+  img{max-width:100%;display:block}
+
+  /* ---------- NAV ---------- */
+  header.top{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    background:var(--verde);
+    color:#fff;
+    box-shadow:0 2px 8px rgba(0,0,0,.25);
+  }
+  .top-title{
+    text-align:center;
+    padding:8px 10px 4px;
+    font-size:.82rem;
+    font-weight:600;
+    letter-spacing:.02em;
+    color:var(--dorado);
+  }
+  .top-title b{color:#fff;font-weight:700}
+  nav.days{
+    display:grid;
+    grid-template-columns:repeat(6,minmax(0,1fr));
+    gap:4px;
+    padding:6px 6px 8px;
+  }
+  nav.days a{
+    min-width:0;
+    overflow:hidden;
+    text-align:center;
+    text-decoration:none;
+    color:#fff;
+    background:rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:10px;
+    padding:6px 3px;
+    font-size:.8rem;
+    font-weight:700;
+    line-height:1.15;
+  }
+  nav.days a small{display:block;font-size:.57rem;font-weight:500;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  nav.days a:active{background:var(--dorado);color:var(--verde)}
+
+  /* ---------- LAYOUT ---------- */
+  main{max-width:820px;margin:0 auto;padding:calc(var(--nav-h) + 12px) 14px 90px}
+  .hero{
+    background:linear-gradient(160deg,var(--verde),var(--verde-claro));
+    color:#fff;border-radius:16px;padding:22px 20px;margin-bottom:20px;
+    box-shadow:var(--sombra-fuerte);
+  }
+  .hero h1{font-size:1.55rem;margin-bottom:.2em}
+  .hero .sub{color:var(--dorado);font-weight:600;font-size:1rem}
+  .hero .meta{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:12px;font-size:.9rem}
+  .hero .meta span{display:inline-flex;align-items:center;gap:5px}
+
+  section.day{margin:26px 0;scroll-margin-top:var(--nav-h)}
+  .day-head{
+    background:var(--verde);color:#fff;border-radius:14px 14px 0 0;
+    padding:14px 18px;
+  }
+  .day-head .kicker{color:var(--dorado);font-weight:700;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase}
+  .day-head h2{font-size:1.25rem;margin:.15em 0 .4em}
+  .day-head .stats{display:flex;flex-wrap:wrap;gap:8px}
+  .badge{
+    background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);
+    border-radius:999px;padding:3px 11px;font-size:.82rem;font-weight:600;
+    display:inline-flex;align-items:center;gap:5px;
+  }
+  .badge.gold{background:var(--dorado);color:var(--verde);border-color:var(--dorado)}
+  .day-body{
+    background:var(--tarjeta);border:1px solid var(--borde);border-top:none;
+    border-radius:0 0 14px 14px;padding:16px;
+  }
+
+  /* ---------- SCHEDULE STRIP ---------- */
+  .sched{
+    background:var(--verde-bg);border-radius:10px;padding:10px 12px;margin:0 0 14px;
+    font-size:.9rem;
+  }
+  .sched b{color:var(--verde)}
+
+  /* ---------- CARDS ---------- */
+  .card{
+    background:var(--tarjeta);border:1px solid var(--borde);border-radius:14px;
+    padding:14px;margin:14px 0;box-shadow:var(--sombra);
+  }
+  .card h3{font-size:1.08rem;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .card h3 .star{color:var(--dorado)}
+  .card h4{font-size:.98rem;margin-top:1em;color:var(--verde)}
+  ul{margin:.3em 0 .9em;padding-left:1.25em}
+  li{margin:.25em 0}
+
+  /* ---------- PHOTO ---------- */
+  figure.ph{margin:0 0 14px}
+  figure.ph img{width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;background:#e6e3da;border-radius:12px;display:block}
+  figure.ph figcaption{font-size:.72rem;color:var(--texto-suave);padding:5px 2px}
+  figure.ph.noimg .ph-link{
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+    text-decoration:none;padding:20px 14px;text-align:center;
+    background:linear-gradient(160deg,#eef4ef,#e2ede7);
+    border:2px dashed var(--dorado);border-radius:12px;color:var(--verde);
+  }
+  .ph-ico{font-size:1.7rem;line-height:1}
+  .ph-txt{font-weight:700;font-size:.95rem}
+  .ph-cap{font-size:.78rem;color:var(--texto-suave);font-weight:500}
+  figure.ph.noimg .ph-link:active{background:var(--verde-bg)}
+
+  /* ---------- BUTTONS ---------- */
+  .btns{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 4px}
+  .btn{
+    flex:1 1 auto;min-width:180px;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:14px 16px;border-radius:12px;font-size:1rem;font-weight:700;
+    text-decoration:none;text-align:center;
+    background:var(--verde);color:#fff;border:2px solid var(--verde);
+    box-shadow:var(--sombra);
+  }
+  .btn.alt{background:#fff;color:var(--verde)}
+  .btn:active{transform:translateY(1px)}
+
+  /* ---------- CALLOUTS ---------- */
+  .warn,.crit,.info{
+    border-radius:12px;padding:12px 14px;margin:12px 0;font-size:.95rem;
+    border-left:5px solid;
+  }
+  .warn{background:var(--ambar-bg);border-color:var(--ambar-borde);color:var(--ambar-texto)}
+  .warn b{color:#7a3d00}
+  .crit{background:var(--rojo-bg);border-color:var(--rojo-borde);color:#7a241a}
+  .crit b{color:#a5261a}
+  .info{background:var(--verde-bg);border-color:var(--verde-claro);color:#1c3d2a}
+  .callout-title{font-weight:800;display:block;margin-bottom:2px}
+
+  /* ---------- TABLES ---------- */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:12px 0;border-radius:10px;border:1px solid var(--borde)}
+  table{border-collapse:collapse;width:100%;min-width:520px;font-size:.88rem;background:#fff}
+  th,td{padding:9px 11px;text-align:left;border-bottom:1px solid var(--borde);vertical-align:top}
+  th{background:var(--verde);color:#fff;font-weight:600;white-space:nowrap}
+  tbody tr:nth-child(even){background:#f7f6f1}
+  td b{color:var(--verde)}
+
+  /* ---------- SECTION TITLES ---------- */
+  .section-title{
+    display:flex;align-items:center;gap:10px;margin:30px 0 6px;
+    font-size:1.35rem;color:var(--verde);
+  }
+  .section-title::after{content:"";flex:1;height:2px;background:var(--dorado);opacity:.5;border-radius:2px}
+  .lead{color:var(--texto-suave);margin-top:0}
+
+  /* ---------- CHECKLIST ---------- */
+  .checklist{background:var(--tarjeta);border:1px solid var(--borde);border-radius:14px;padding:6px 14px 14px;box-shadow:var(--sombra)}
+  .checklist h4{color:var(--verde);margin:16px 0 6px}
+  .chk{display:flex;align-items:flex-start;gap:10px;padding:9px 6px;border-bottom:1px dashed var(--borde);cursor:pointer}
+  .chk:last-child{border-bottom:none}
+  .chk input{width:22px;height:22px;flex:0 0 auto;margin-top:1px;accent-color:var(--verde)}
+  .chk span{font-size:.95rem}
+  .chk input:checked + span{text-decoration:line-through;color:var(--texto-suave)}
+  #reset-chk{margin:12px 0 0;background:none;border:1px solid var(--borde);color:var(--texto-suave);border-radius:8px;padding:8px 12px;font-size:.85rem;cursor:pointer}
+
+  /* ---------- FLOAT BTN ---------- */
+  .home-fab{
+    position:fixed;right:14px;bottom:16px;z-index:60;
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--dorado);color:var(--verde);
+    padding:13px 18px;border-radius:999px;font-weight:800;font-size:.95rem;
+    text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.28);
+    border:2px solid #fff;
+  }
+  .home-fab:active{transform:translateY(1px)}
+
+  footer{color:var(--texto-suave);font-size:.85rem;text-align:center;margin-top:34px;padding-top:16px;border-top:1px solid var(--borde)}
+
+  @media(min-width:620px){
+    .hero h1{font-size:1.9rem}
+    nav.days a{min-width:64px;font-size:.85rem}
+  }
+
+  /* ---------- PRINT ---------- */
+  @media print{
+    :root{--nav-h:0px}
+    header.top,.home-fab,.btns,#reset-chk{display:none !important}
+    body{background:#fff;font-size:11pt}
+    main{max-width:none;padding:0}
+    .hero{box-shadow:none;color:#000;background:#fff;border:2px solid var(--verde)}
+    .hero h1,.hero .sub,.hero .meta{color:#000}
+    section.day{page-break-before:always;break-before:page}
+    .day-head{background:#fff;color:#000;border:2px solid var(--verde)}
+    .day-head .kicker{color:var(--verde)}
+    .card,.table-wrap{box-shadow:none;break-inside:avoid}
+    figure.ph{break-inside:avoid}
+    a[href^="http"]::after{content:"";}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-title">🌲 <b>Ruta Selva Negra</b> · Reus → Kappel · 16–21 ago</div>
+  <nav class="days" aria-label="Días del viaje">
+    <a href="#dia1">Dom<small>16 Lyon</small></a>
+    <a href="#dia2">Lun<small>17 Alsacia</small></a>
+    <a href="#dia3">Mar<small>18 Parques</small></a>
+    <a href="#dia4">Mié<small>19 Titisee</small></a>
+    <a href="#dia5">Jue<small>20 B500</small></a>
+    <a href="#dia6">Vie<small>21 Vuelta</small></a>
+  </nav>
+</header>
+
+<main>
+
+  <div class="hero">
+    <h1>Ruta por la Selva Negra</h1>
+    <div class="sub">Reus → Selva Negra → Reus</div>
+    <div class="meta">
+      <span>🗓️ 16–21 agosto 2026</span>
+      <span>👫 Dos adultos</span>
+      <span>🏡 Kappel-Grafenhausen</span>
+    </div>
+    <p style="margin:12px 0 0;font-size:.9rem;opacity:.92">Apartamento del 17 al 21 · a 6 km de Europa-Park (10 min), 15 min de Lahr, 35 min de Friburgo.</p>
+  </div>
+
+  <div class="info" style="font-size:.88rem">
+    <span class="callout-title">📷 Sobre las fotos</span>
+    Cada lugar lleva un botón <b>“Ver fotos en Wikimedia”</b> que abre imágenes reales de libre uso desde el móvil. Se dejaron como enlace en vez de incrustadas porque no fue posible verificar cada foto una a una al generar la página (ver nota al pie).
+  </div>
+
+  <!-- ============ AVISOS ============ -->
+  <h2 class="section-title">⚠️ Avisos clave</h2>
+  <div class="crit">
+    <span class="callout-title">🛑 Umweltplakette obligatoria</span>
+    Sin la pegatina verde, entrar en Friburgo o circular por la B31 son <b>80 € + 25 €</b> de multa, también a coches extranjeros. Solo la dan a vehículos <b>Euro 4 o superior</b>. Se compra el martes a las 8:00 en TÜV Lahr (ver Día 3).
+  </div>
+  <div class="warn">
+    <span class="callout-title">🛒 Los supermercados alemanes cierran los domingos</span>
+    Todos, sin excepción. Y entre semana cierran hacia las 21:00–22:00. La compra se hace el <b>lunes al llegar</b> (antes de las 21:00) o el <b>martes</b>.
+  </div>
+  <div class="warn">
+    <span class="callout-title">🚗 15–16 agosto: retorno de vacaciones en Francia</span>
+    La A7 en el valle del Ródano es el punto negro histórico. Salid <b>antes de las 8:00</b> el domingo y consultad Bison Futé la víspera.
+  </div>
+  <div class="warn">
+    <span class="callout-title">🌧️ La Sommerrodelbahn cierra si llueve</span>
+    Tienen un semáforo en su web con el estado en tiempo real (Día 4). Miradlo esa mañana.
+  </div>
+  <div class="warn">
+    <span class="callout-title">🎢 Europa-Park amplía el cierre sin avisar en agosto</span>
+    Puede chocar con el Moonlight de Rulantica. Mirad la app del parque por la mañana.
+  </div>
+  <div class="info">
+    <span class="callout-title">💶 Peajes y combustible</span>
+    Peajes franceses ~60–70 € por trayecto (La Jonquera–Lyon). <b>Repostad en España o Alemania</b>, nunca en áreas de autopista francesas. Alemania no tiene peaje ni viñeta para coches.
+  </div>
+
+  <!-- ============ COMPRA Y APARTAMENTO ============ -->
+  <h2 class="section-title" id="compra">🛒 Compra y apartamento</h2>
+  <p class="lead">Las <b>cenas se hacen en el apartamento</b> (salvo domingo en Lyon y viernes de vuelta). Aquí está todo lo de la compra.</p>
+
+  <div class="crit">
+    <span class="callout-title">⚠️ Horarios alemanes</span>
+    En Alemania los supermercados <b>cierran los domingos, todos</b>. Entre semana cierran sobre las 21:00–22:00. Planificad la compra el lunes al llegar o el martes.
+  </div>
+
+  <div class="card">
+    <h3>🏪 Supermercados</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Sitio</th><th>Dirección</th><th>Horario</th><th>Distancia</th></tr></thead>
+        <tbody>
+          <tr><td><b>EDEKA Müller ⭐</b></td><td>Hauptstraße 23, Kappel-Grafenhausen</td><td>L–S 7:00–21:00 · Dom cerrado</td><td>En el pueblo, 1 km</td></tr>
+          <tr><td><b>Kaufland</b></td><td>Am Bahndamm 3–5, Ettenheim</td><td>L–S 7:00–22:00 · Dom cerrado</td><td>10 min</td></tr>
+          <tr><td>Edeka Kohler</td><td>Otto-Stoelcker-Straße 73, Ettenheim</td><td>L–S 7:00–21:00 · Dom cerrado</td><td>12 min</td></tr>
+          <tr><td>REWE express (gasolinera)</td><td>Herbolzheimer Str. 1, Ringsheim</td><td>Abierto 24 h</td><td>8 min</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li><b>EDEKA Müller</b> es el de diario: en el pueblo y con buena nota (4,3 · 478 reseñas).</li>
+      <li><b>Kaufland</b> es enorme, con mostradores de queso y embutido de varios metros. Merece el viaje para la compra grande del lunes o martes.</li>
+      <li><b>REWE express</b> abre 24 h (es de gasolinera). Caro y limitado: solo emergencias.</li>
+    </ul>
+    <div class="btns">
+      <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=EDEKA%20M%C3%BCller%20Kappel-Grafenhausen">📍 EDEKA Müller</a>
+      <a class="btn alt" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Kaufland%20Ettenheim">📍 Kaufland</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🧺 La compra recomendada <span style="font-size:.8rem;font-weight:500;color:var(--texto-suave)">(lunes al llegar o martes)</span></h3>
+    <p>Llegáis el lunes hacia las 19:45 y el EDEKA cierra a las 21:00: da tiempo justo. Si no, id el martes. Para cenas fáciles con producto local:</p>
+    <ul>
+      <li><b>Schwarzwälder Schinken</b>: jamón ahumado de la Selva Negra, cortado fino.</li>
+      <li><b>Bibiliskäs</b>: queso fresco con cebollino, con patatas cocidas.</li>
+      <li>Pan negro de centeno y <b>Brezel</b>.</li>
+      <li><b>Maultaschen</b> frescas: pasta rellena, 5 min en caldo o a la plancha.</li>
+      <li><b>Spätzle</b> frescos y queso rallado para <b>Käsespätzle</b>.</li>
+      <li><b>Flammkuchen</b> ya preparado (refrigerados), solo al horno.</li>
+      <li><b>Wurstsalat</b>: ensalada de embutido con cebolla y vinagreta, ya hecha.</li>
+      <li>Vino de Baden: <b>Grauburgunder</b> (blanco) o <b>Spätburgunder</b> (tinto).</li>
+      <li>Cerveza <b>Rothaus Tannenzäpfle</b>, la local.</li>
+      <li><b>Kirschwasser</b>: aguardiente de cerezas, para rematar.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>🍽️ Restaurantes cerca del apartamento <span style="font-size:.8rem;font-weight:500;color:var(--texto-suave)">(si no apetece cocinar)</span></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Sitio</th><th>Tipo</th><th>Nota</th><th>Horario</th><th>Aviso</th></tr></thead>
+        <tbody>
+          <tr><td><b>Elsässer Hof ⭐</b></td><td>Alemán tradicional</td><td>4,7 (2.240)</td><td>L–J 11–14 y 17–21:30 · V 11–14 y 17–22 · S 11–22 · D 11–21:30</td><td>Rathausstraße 19, andando. Schnitzel y platos badenses.</td></tr>
+          <tr><td><b>La Pulcinella</b></td><td>Italiano</td><td>4,7 (323)</td><td>Todos los días 18–23</td><td>Mühlenstraße 1. ⚠️ Llevad efectivo, no aceptan tarjeta.</td></tr>
+          <tr><td>Kappel Holzofenpizza</td><td>Pizza y kebab</td><td>4,1 (149)</td><td>Cerrado lunes · Resto 11–22</td><td>Barato y rápido.</td></tr>
+          <tr><td>Zur Alten Brauerei</td><td>Alemán e indio</td><td>4,5 (496)</td><td>Miércoles solo cenas</td><td>Ettenheim, 10 min. Raciones grandes.</td></tr>
+          <tr><td>Gasthaus Zum Lamm</td><td>Alemán</td><td>4,4 (344)</td><td>⚠️ Cerrado martes y miércoles</td><td>Ettenheim. Buen Käsespätzle y jardín cervecero.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="btns">
+      <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Els%C3%A4sser%20Hof%20Kappel-Grafenhausen">📍 Elsässer Hof</a>
+    </div>
+  </div>
+
+  <!-- ============ DÍA 1 ============ -->
+  <section class="day" id="dia1">
+    <div class="day-head">
+      <div class="kicker">Día 1 · Domingo 16 agosto</div>
+      <h2>Reus → Lyon</h2>
+      <div class="stats"><span class="badge">🚗 630 km</span><span class="badge">⏱️ 6 h 15</span><span class="badge gold">🌙 Noche en Lyon</span></div>
+    </div>
+    <div class="day-body">
+      <div class="sched">⏱️ <b>7:30</b> salida Reus · <b>12:00</b> Nîmes · <b>13:30</b> salida · <b>16:00</b> Lyon · <b>17:00</b> free tour (reservado)</div>
+
+      <div class="crit">
+        <span class="callout-title">⚠️ Retorno de vacaciones en Francia (15–16 ago)</span>
+        La A7 en el valle del Ródano es el punto negro histórico. Salid <b>antes de las 8:00</b> y consultad Bison Futé la víspera.
+      </div>
+
+      <div class="card">
+        <h3>📍 Nîmes <span style="font-size:.8rem;font-weight:500;color:var(--texto-suave)">· la ciudad más romana de Francia</span></h3>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Ar%C3%A8nes%20de%20N%C3%AEmes&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Anfiteatro romano de Nîmes</span></a></figure>
+        <p>A 4 h 20 de Reus y justo a la hora de comer, sin desviarse de la A9.</p>
+        <ul>
+          <li><b>Anfiteatro de Nîmes</b>: uno de los mejor conservados de Europa. 133 × 101 m, 34 filas para 20.000 personas. Abierto 8:00–21:00 en verano.</li>
+          <li><b>Maison Carrée</b>: templo romano casi intacto, a 5 min andando.</li>
+          <li><b>Jardins de la Fontaine</b>: sombra y agua si aprieta el calor.</li>
+        </ul>
+        <h4>🍽️ Comida en Nîmes</h4>
+        <ul>
+          <li><b>Le Dé-K-Lé Bistrot Gourmand</b> (40 Rue de la Madeleine). Todos los días 12:00–22:30, menú de mediodía muy bien de precio. <b>La apuesta segura en domingo.</b></li>
+          <li><i>Le Bistrot de Tatie Agnès</i> es mejor, pero <b>cierra domingos</b>. No contéis con él.</li>
+          <li><b>Probar</b>: brandade de morue, gardianne de taureau, croquant Villaret de postre.</li>
+        </ul>
+        <div class="btns">
+          <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ar%C3%A8nes%20de%20N%C3%AEmes">📍 Anfiteatro</a>
+          <a class="btn alt" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Le%20D%C3%A9-K-L%C3%A9%20Bistrot%20Gourmand%20N%C3%AEmes">🍽️ Restaurante</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📍 Lyon <span style="font-size:.8rem;font-weight:500;color:var(--texto-suave)">· capital gastronómica</span></h3>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Basilique%20Notre-Dame%20de%20Fourvi%C3%A8re%20Lyon&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Basílica de Fourvière, Lyon</span></a></figure>
+        <p>El free tour cubre el Vieux Lyon y las <b>traboules</b> (pasadizos imposibles de encontrar solos). Después:</p>
+        <ul>
+          <li><b>Basílica de Fourvière</b>: abierta hasta las 21:00 en domingo. Sube en funicular desde Vieux Lyon. La mejor panorámica de la ciudad.</li>
+          <li><b>Place Bellecour</b> y paseo por la <b>Presqu'île</b>.</li>
+          <li><b>Aparcar</b>: Parking Saint-Jean (LPA), en pleno Vieux Lyon.</li>
+        </ul>
+        <h4>🍽️ Cena en Lyon (fuera — única noche sin apartamento)</h4>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Quenelle%20de%20brochet&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Quenelle de brochet lyonesa</span></a></figure>
+        <p>El formato propio de Lyon es el <b>bouchon</b>: taberna de manteles de cuadros y raciones contundentes.</p>
+        <div class="warn"><b>Muchos bouchons cierran domingo</b> o solo abren a mediodía. Estos dos abren domingo por la noche:</div>
+        <ul>
+          <li><b>Le Vieux Lyon</b> (44 Rue Saint-Jean): domingos 11:30–22:00. Bodega medieval.</li>
+          <li><b>L'Auberge des Canuts</b> (8 Pl. Saint-Jean): todos los días 9:00–22:00. Ambiente auténtico.</li>
+          <li><i>Notre Maison</i> es el más auténtico pero <b>domingo solo 12:00–14:00</b>.</li>
+        </ul>
+        <p><b>Pedir</b>: quenelle de brochet (el plato bandera), salade lyonnaise, saucisson brioché, cervelle de canut (queso con hierbas, no lleva sesos), tablier de sapeur, andouillette (para valientes), tarte aux pralines roses de postre.</p>
+        <div class="btns">
+          <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Basilique%20Notre-Dame%20de%20Fourvi%C3%A8re%20Lyon">📍 Fourvière</a>
+          <a class="btn alt" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=L'Auberge%20des%20Canuts%20Lyon">🍽️ Bouchon</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📸 Paradas de foto <span style="font-size:.8rem;font-weight:500;color:var(--texto-suave)">(10 min, solo si vais adelantados)</span></h3>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Forteresse%20de%20Salses&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Fort de Salses</span></a></figure>
+        <ul>
+          <li><b>Fort de Salses</b> (A9, salida 41, 5 min): fortaleza catalano-española de 1497, muros de 12 m.</li>
+          <li><b>Aire du Village Catalan</b> (A9): área con forma de pueblo catalán y vistas al Canigó.</li>
+          <li><b>Tain-l'Hermitage</b> (A7, salida 13, 3 min): viñas en terraza y la fábrica de chocolate <b>Valrhona</b> con tienda.</li>
+          <li><b>Arco de Triunfo de Orange</b> (A7, salida 21, 5 min): en una rotonda, al lado de la carretera.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DÍA 2 ============ -->
+  <section class="day" id="dia2">
+    <div class="day-head">
+      <div class="kicker">Día 2 · Lunes 17 agosto</div>
+      <h2>Lyon → Alsacia → Kappel-Grafenhausen</h2>
+      <div class="stats"><span class="badge">🚗 480 km</span><span class="badge gold">🏡 Llegada al apartamento</span></div>
+    </div>
+    <div class="day-body">
+      <div class="sched">⏱️ <b>8:00</b> salida Lyon · <b>12:15</b> Eguisheim (comida) · <b>13:45</b> Colmar · <b>17:00</b> salida · <b>17:20</b> Riquewihr · <b>18:45</b> salida · <b>19:45</b> apartamento</div>
+      <div class="info">Los tres pueblos están <b>en línea recta subiendo por la A35</b>: Eguisheim al sur, Colmar en medio, Riquewihr al norte y de camino a casa. No se pierde ni un kilómetro.</div>
+
+      <div class="card">
+        <h3>📍 Eguisheim</h3>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Eguisheim%20Alsace&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Eguisheim, pueblo circular de Alsacia</span></a></figure>
+        <p>Pueblo circular medieval: la ruta va en espiral desde el castillo central hacia fuera. Casas de entramado con geranios. <b>Se ve entero en 45 min.</b> Muy parecido a Riquewihr, así que aquí solo se viene a comer.</p>
+        <h4>🍽️ Comida</h4>
+        <ul>
+          <li><b>Caveau d'Eguisheim</b> (3B Pl. du Château Saint-Léon). Lunes 11:30–14:30. Cocina regional con aire acondicionado. <b>La opción del lunes.</b></li>
+          <li><i>L'Atelier de Béné</i> está mejor valorado pero <b>cierra los lunes</b>.</li>
+        </ul>
+        <div class="btns"><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Caveau%20d'Eguisheim">🍽️ Caveau d'Eguisheim</a></div>
+      </div>
+
+      <div class="card">
+        <h3>📍 Colmar</h3>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Petite%20Venise%20Colmar&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">La Petite Venise de Colmar</span></a></figure>
+        <ul>
+          <li><b>La Petite Venise</b>: el canal con las casas de colores. Paseo en barca de 30 min.</li>
+          <li><b>Maison Pfister</b> (11 Rue des Marchands): casa de 1537. Inspiró parte de <i>El castillo ambulante</i> de Ghibli.</li>
+          <li><b>Quartier des Tanneurs</b>: casas altas y estrechas de curtidores.</li>
+          <li><b>Collégiale Saint-Martin</b>.</li>
+          <li><b>Aparcar</b>: Parking Lacarre o Parking Rapp.</li>
+        </ul>
+        <div class="btns"><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Petite%20Venise%20Colmar">📍 Petite Venise</a></div>
+      </div>
+
+      <div class="card">
+        <h3>📍 Riquewihr <span class="star">⭐</span></h3>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Riquewihr&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Riquewihr, calle principal amurallada</span></a></figure>
+        <p>Amurallado e intacto desde el siglo XVI porque se salvó de los bombardeos de 1945.</p>
+        <ul>
+          <li><b>Rue du Général de Gaulle</b>: la calle principal en cuesta, el eje de todo.</li>
+          <li><b>Le Dolder</b>: torre-puerta de 1291, se sube, museo y vistas sobre los tejados y viñedos.</li>
+          <li><b>Tour des Voleurs</b>: la torre de los ladrones, con la cámara de tortura.</li>
+          <li><b>Las murallas por fuera</b>: sal por la puerta de arriba y rodea el recinto. La mejor foto y casi nadie lo hace.</li>
+        </ul>
+        <div class="warn"><b>Por qué a las 17:20</b>: en agosto Riquewihr se vacía de golpe a partir de las 17:00 y la luz de la tarde es mejor. Las tiendas cierran hacia las 18:00–18:30: si queréis vino o kougelhopf, comprad al llegar.</div>
+        <div class="btns"><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Riquewihr">📍 Riquewihr</a></div>
+      </div>
+
+      <div class="card">
+        <h3>🍽️ Gastronomía alsaciana <span style="font-size:.8rem;font-weight:500;color:var(--texto-suave)">(comer y comprar)</span></h3>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Tarte%20flamb%C3%A9e&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Tarte flambée alsaciana</span></a></figure>
+        <ul>
+          <li><b>Tarte flambée / Flammekueche</b>: masa finísima con crema, cebolla y tocino. Lo más típico.</li>
+          <li><b>Choucroute garnie</b>: chucrut con salchichas y cerdo. Contundente para agosto.</li>
+          <li><b>Baeckeoffe</b>: guiso de tres carnes marinadas en vino blanco, en cazuela de barro.</li>
+          <li><b>Kougelhopf</b>: bizcocho con forma de corona, con pasas y almendras.</li>
+          <li><b>Bretzel</b> y queso <b>Munster</b> (huele muchísimo, sabe muy bien).</li>
+          <li>Vinos: Riesling, Gewürztraminer, Pinot Gris y <b>crémant d'Alsace</b>.</li>
+          <li>Curiosidad: pedid una <b>Elsass Cola</b>, la cola artesanal alsaciana.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>🛒 Cena de esta noche</h3>
+        <p>Llegáis a las 19:45 y el <b>EDEKA Müller cierra a las 21:00</b>. Dos opciones: comprar nada más llegar, o cenar en el <b>Elsässer Hof</b> (a un paseo, abre hasta 21:30). <b>Buena idea</b>: comprar embutido, queso Munster y una botella en Riquewihr antes de salir, y cenar eso en casa.</p>
+      </div>
+
+      <div class="card">
+        <h3>📸 Paradas de foto</h3>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Hunawihr%20%C3%A9glise%20vignoble&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Iglesia fortificada de Hunawihr entre viñedos</span></a></figure>
+        <ul>
+          <li><b>Hospices de Beaune</b> (A6, salida 24, 5 min): el tejado de tejas vidriadas de colores.</li>
+          <li><b>Capilla de Ronchamp</b> (A36, salida 13, 5 min): Notre-Dame du Haut, de Le Corbusier.</li>
+          <li><b>León de Belfort</b> (A36, 5 min): león de 22 m en arenisca roja, de Bartholdi.</li>
+          <li><b>Hunawihr ⭐</b> (2 min de Riquewihr): iglesia fortificada del XIV <b>sola entre los viñedos</b>. La foto de Alsacia que no sale en las guías.</li>
+          <li><b>Zellenberg</b> (2 km de Riquewihr): pueblecito en un espolón con vista panorámica.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DÍA 3 ============ -->
+  <section class="day" id="dia3">
+    <div class="day-head">
+      <div class="kicker">Día 3 · Martes 18 agosto</div>
+      <h2>Europa-Park y Rulantica</h2>
+      <div class="stats"><span class="badge">📍 6 km del apartamento</span><span class="badge gold">🎢 + 🌊 Doble parque</span></div>
+    </div>
+    <div class="day-body">
+      <div class="sched">⏱️ <b>7:40</b> salida · <b>8:00</b> TÜV Lahr (pegatina) · <b>8:45</b> Europa-Park · <b>18:00</b> cierre → casa · <b>19:00</b> Rulantica · <b>22:00</b> cierre</div>
+
+      <div class="crit">
+        <span class="callout-title">🟢 Primera parada: la Umweltplakette (8:00)</span>
+        Friburgo tiene zona de bajas emisiones e incluye la B31 (la carretera del miércoles hacia Titisee). <b>Sin la pegatina verde la multa es 80 € + 25 €</b>, también a coches extranjeros. Se compra en el momento, sin cita, en 5 minutos.
+      </div>
+
+      <div class="card">
+        <h3>🟢 Dónde comprar la pegatina</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Oficina</th><th>Dirección</th><th>Horario</th></tr></thead>
+            <tbody>
+              <tr><td><b>TÜV SÜD Lahr ⭐</b></td><td>Raiffeisenstraße 27, Lahr</td><td>L–J 8:00–12:30 y 13:00–17:00 · V 8:00–14:00 · S 8:00–12:00</td></tr>
+              <tr><td>DEKRA Lahr</td><td>Raiffeisenstraße 37, Lahr (misma calle)</td><td>L–V 8:00–12:15 y 12:45–17:30</td></tr>
+              <tr><td>KÜS Ettenheim (plan B)</td><td>Industriestraße 6, Ettenheim-Altdorf</td><td>Miércoles y sábado 8:30–12:00</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <ul>
+          <li><b>Llevad el permiso de circulación</b> y la ficha técnica: en los permisos españoles la norma Euro no siempre viene impresa.</li>
+          <li>Cuesta entre 6 y 20 €.</li>
+          <li>⚠️ <b>No vayáis a las oficinas de Friburgo</b>: están dentro de la Umweltzone.</li>
+          <li>🔴 <b>Solo se da a vehículos Euro 4 o superior.</b> Comprobadlo en la ficha técnica antes de salir de España.</li>
+          <li>La pegatina no caduca, sirve para cualquier viaje futuro.</li>
+        </ul>
+        <div class="btns"><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=T%C3%9CV%20S%C3%9CD%20Lahr%20Raiffeisenstra%C3%9Fe%2027">📍 TÜV SÜD Lahr</a></div>
+      </div>
+
+      <div class="card">
+        <h3>🎢 Europa-Park</h3>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Silver%20Star%20Europa-Park&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Montaña rusa Silver Star de Europa-Park</span></a></figure>
+        <p>Abre a las 9:00 y cierra "como mínimo" a las 18:00. En agosto amplían sin avisar: <b>mirad la app por la mañana</b>.</p>
+        <ul>
+          <li>Entrad a las 9:00 en punto y directos a las grandes (<b>Silver Star, Blue Fire, Wodan, Voltron</b>) en la primera hora.</li>
+          <li>Precios 2026: 76 € adulto en día pico (agosto lo es). Parking 10 €. <b>En taquilla 10 € más: comprad online.</b></li>
+          <li>Áreas temáticas por países europeos, incluida España.</li>
+          <li><b>Ventaja</b>: el apartamento a 10 min; a media tarde se puede ir a descansar y volver.</li>
+        </ul>
+        <h4>🍽️ Comida dentro</h4>
+        <ul>
+          <li><b>Food Loop</b>: la comida llega por raíles en espiral. La experiencia diferencial del parque.</li>
+          <li>Truco: comed antes de las 13:00 o después de las 15:00 (colas y precios peores en la franja central).</li>
+        </ul>
+        <div class="btns"><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Europa-Park%20Rust">📍 Europa-Park</a></div>
+      </div>
+
+      <div class="card">
+        <h3>🌊 Rulantica <span style="font-size:.8rem;font-weight:500;color:var(--texto-suave)">· parque acuático · 19:00–22:00</span></h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Entrada</th><th>Horario</th><th>Precio agosto</th></tr></thead>
+            <tbody>
+              <tr><td>Abendticket</td><td>17:00–22:00</td><td>46,50 €</td></tr>
+              <tr><td><b>Moonlight ⭐</b></td><td>19:00–22:00</td><td>34 €</td></tr>
+              <tr><td>Día completo</td><td>9:30–22:00</td><td>54 €</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><b>Por qué el Moonlight</b>: el Abendticket entra a las 17:00 pero Europa-Park cierra a las 18:00; se tiraría hora y media. El Moonlight encaja perfecto y es 12 € más barato.</p>
+        <div class="info"><b>La jugada</b>: 18:00 cierra Europa-Park → casa → ducha y cena rápida → 19:00 Rulantica → 22:15 en casa.</div>
+        <div class="warn">
+          <b>Avisos</b>: comprad online (en taquilla 6 € más y en agosto se agotan fechas). Buscad el combinado <b>"Ride &amp; Slide"</b> en el Mack International Ticketshop. Una vez sales <b>no se puede volver a entrar</b>. El ticket se cambia por una pulsera <b>RulaBand</b> (acceso, taquilla y pago).
+        </div>
+        <p><b>Llevar desde por la mañana</b>: bañadores, toallas, chanclas y bolsa para lo mojado.</p>
+        <p><b>Dentro</b>: 32.000 m² y +25 toboganes de temática nórdica. Lo fuerte: <b>Vikingløp</b> (el tobogán de velocidad más grande de Europa) y <b>Vildfål</b> (caída libre). Suave: <b>Skog Lagune</b> y la piscina exterior climatizada. Con 3 horas: dos zonas potentes y relax.</p>
+        <div class="btns"><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Rulantica%20Rust">📍 Rulantica</a></div>
+      </div>
+
+      <div class="card">
+        <h3>🛒 Cena</h3>
+        <p>Rápida en el apartamento entre los dos parques, de 18:15 a 19:00. Algo frío ya preparado: Wurstsalat, embutido, pan y ensalada. No os compliquéis, que tenéis una hora justa.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DÍA 4 ============ -->
+  <section class="day" id="dia4">
+    <div class="day-head">
+      <div class="kicker">Día 4 · Miércoles 19 agosto</div>
+      <h2>Friburgo · Titisee · Triberg · Gutach</h2>
+      <div class="stats"><span class="badge">🚗 Bucle 190 km</span><span class="badge gold">🌲 Corazón de la Selva Negra</span></div>
+    </div>
+    <div class="day-body">
+      <div class="sched">⏱️ <b>8:45</b> salida · <b>9:20</b> Friburgo · <b>11:45</b> salida · <b>12:25</b> Titisee (comida) · <b>14:15</b> salida · <b>15:05</b> Triberg · <b>16:20</b> salida · <b>16:45</b> Sommerrodelbahn Gutach · <b>18:45</b> vuelta</div>
+      <div class="info">Caben las cuatro cosas, pero <b>hay que salir a las 8:45 y respetar los relojes</b>. El único margen está en Friburgo.</div>
+
+      <div class="card">
+        <h3>📍 Friburgo</h3>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Freiburger%20M%C3%BCnster&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Catedral (Münster) de Friburgo</span></a></figure>
+        <ul>
+          <li><b>Münster (catedral)</b>: gótica, con torre calada única. Se puede subir.</li>
+          <li><b>Münstermarkt</b>: mercado diario en la plaza, <b>L–V de 7:30 a 13:30</b>. Llegáis en el momento perfecto.</li>
+          <li><b>Bächle</b>: los canalillos de agua por todo el casco. Leyenda: si metes el pie sin querer, te casas con alguien de Friburgo.</li>
+          <li><b>Historisches Kaufhaus</b>: fachada roja con arcadas en la Münsterplatz.</li>
+          <li><b>Schwabentor</b> y <b>Martinstor</b>: las dos puertas medievales.</li>
+          <li><b>Aparcar</b>: Parkhaus Schlossberg o am Karlsplatz (dentro de la Umweltzone; de ahí la pegatina).</li>
+        </ul>
+        <h4>🍽️ Almuerzo fuerte</h4>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=M%C3%BCnstermarkt%20Freiburg&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Münstermarkt de Friburgo / Lange Rote</span></a></figure>
+        <ul>
+          <li>🥇 <b>Lange Rote en el Münstermarkt</b>: <i>la</i> especialidad local, una salchicha larguísima con cebolla frita en un panecillo. Se come de pie, cuesta poco y es <b>lo más auténtico del viaje</b>. Hacedlo hacia las 11:00.</li>
+          <li>Con mesa: <i>Zum Kranz</i> (Herrenstraße 40), badense clásico, 4,8, reservad. <i>Großer Meyerhof</i> (Grünwälderstraße 1), raciones enormes y buen precio.</li>
+        </ul>
+        <div class="btns">
+          <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Freiburger%20M%C3%BCnster">📍 Catedral</a>
+          <a class="btn alt" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=M%C3%BCnstermarkt%20Freiburg">🍽️ Münstermarkt</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📍 Titisee</h3>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Titisee%20lake&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Lago Titisee</span></a></figure>
+        <p>Lago glaciar a 850 m y 40 m de profundidad, del glaciar del Feldberg hace diez mil años.</p>
+        <ul>
+          <li>Paseo por la orilla, barca de pedales o barco eléctrico.</li>
+          <li>Tiendas de relojes de cuco y artesanía. Muy turístico, avisados quedáis.</li>
+        </ul>
+        <h4>🍽️ Comida</h4>
+        <ul>
+          <li><b>Bergsee Restaurant</b> (Seestraße 33): terraza con vistas al lago, trucha, Flammkuchen y Käsespätzle. Turístico y algo caro, pero la ubicación lo justifica.</li>
+          <li><i>Landgasthof Jostalstüble</i> (Neustadt, 5 km): mucho más auténtico, pero sin lago y sin inglés.</li>
+        </ul>
+        <div class="btns"><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Titisee">📍 Titisee</a></div>
+      </div>
+
+      <div class="card">
+        <h3>📍 Cascadas de Triberg</h3>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Triberger%20Wasserf%C3%A4lle&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Cascadas de Triberg</span></a></figure>
+        <p>Caída de agua en varios saltos, con senderos por el bosque. Abre 9:00–22:00. Entrada 7–9 € y parking aparte.</p>
+        <div class="info"><b>⏱️ En 75 minutos</b>: no subáis del todo. Los <b>tres o cuatro primeros saltos</b> son los espectaculares y están a 15 min de la entrada por pasarelas cómodas. <b>Aparcad en el Parkhaus de abajo</b> (Hauptstraße), que os deja al lado de los saltos grandes.</p>
+        <h4>🍽️ Merienda</h4>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Schwarzw%C3%A4lder%20Kirschtorte&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Schwarzwälder Kirschtorte (tarta Selva Negra)</span></a></figure>
+        <p><b>Café Schäfer</b> (Hauptstraße 33): donde se hace la <b>Schwarzwälder Kirschtorte</b> con la receta original documentada de Josef Keller. Lleva kirsch de verdad. Confirmad el horario antes de ir.</p>
+        <p>📸 <b>Extra</b>: a 3 km está <b>Schonach</b>, con el reloj de cuco más grande del mundo, una casa entera convertida en reloj.</p>
+        <div class="btns"><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Triberger%20Wasserf%C3%A4lle">📍 Cascadas</a></div>
+      </div>
+
+      <div class="card">
+        <h3>📍 Sommerrodelbahn Gutach <span class="star">⭐</span> <span style="font-size:.8rem;font-weight:500;color:var(--texto-suave)">· Schwarzwaldbob</span></h3>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Sommerrodelbahn&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Sommerrodelbahn (tobogán de verano)</span></a></figure>
+        <p>En la B33 entre Triberg y casa, o sea que pilla de paso. <b>En agosto abre 9:00–19:00.</b></p>
+        <ul>
+          <li>Pista de <b>1.000 m</b> con dos loops panorámicos, saltos y túneles, hasta 40 km/h. Tú controlas la velocidad.</li>
+          <li>Telesilla de 300 m que te sube con el trineo enganchado.</li>
+          <li><b>Entrada gratis</b>: solo pagas las bajadas. <b>Parking gratuito.</b></li>
+          <li>Se baja solo o en pareja. Abajo hay <b>biergarten</b>.</li>
+        </ul>
+        <div class="warn"><b>⚠️ Solo funciona con tiempo seco.</b> Tienen un <b>semáforo en su web</b> con el estado en tiempo real: miradlo esa mañana.</div>
+        <div class="btns"><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Schwarzwaldbob%20Gutach">📍 Schwarzwaldbob</a></div>
+      </div>
+
+      <div class="card">
+        <h3>📸 Paradas de foto en la B31 <span style="font-size:.8rem;font-weight:500;color:var(--texto-suave)">(Friburgo → Titisee)</span></h3>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Hirschsprung%20H%C3%B6llental&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Ciervo de bronce del Hirschsprung, Höllental</span></a></figure>
+        <p>La carretera atraviesa el <b>Höllental</b> (Valle del Infierno), un desfiladero estrechísimo. Dos paradas con apartadero:</p>
+        <ul>
+          <li><b>Hirschsprung ⭐</b> ("el salto del ciervo"): en el punto más angosto, un <b>ciervo de bronce sobre una roca</b> a 30 m de altura.</li>
+          <li><b>Viaducto de la Ravennaschlucht</b>: puente ferroviario de arcos de piedra sobre la garganta del Ravenna, cerca de Hinterzarten. Espectacular si pasa un tren.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>🛒 Cena en el apartamento</h3>
+        <p>Llegáis a las 19:30. Noche de <b>Käsespätzle</b>: 10 minutos con los Spätzle frescos del supermercado, queso rallado y cebolla frita por encima.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DÍA 5 ============ -->
+  <section class="day" id="dia5">
+    <div class="day-head">
+      <div class="kicker">Día 5 · Jueves 20 agosto</div>
+      <h2>Schiltach · Bad Wildbad · carretera panorámica</h2>
+      <div class="stats"><span class="badge">🚗 290 km</span><span class="badge gold">🛣️ Schwarzwaldhochstraße</span></div>
+    </div>
+    <div class="day-body">
+      <div class="sched">⏱️ <b>8:15</b> salida · <b>9:00</b> Schiltach · <b>10:15</b> salida · <b>11:15</b> Baumwipfelpfad + WILDLINE · <b>15:00</b> salida · <b>15:50</b> BarfussPark · <b>17:15</b> salida por la B500 · <b>18:15</b> Mummelsee · <b>20:00</b> apartamento</div>
+      <div class="info">Día largo, pero el tramo final es carretera panorámica, no autopista.</div>
+
+      <div class="card">
+        <h3>📍 Schiltach</h3>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Schiltach%20Marktplatz&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Marktplatz de Schiltach</span></a></figure>
+        <p>Casco de entramado de madera en el valle del Kinzig.</p>
+        <ul>
+          <li><b>Marktplatz</b>: la plaza en cuesta con el Ayuntamiento pintado al fresco. La postal del pueblo.</li>
+          <li><b>Schüttesäge Museum</b>: museo del aserradero movido por agua, con la rueda funcionando. <b>Entrada gratuita.</b></li>
+          <li><b>Gerbergasse</b> y el río Kinzig: la zona de curtidores.</li>
+          <li>Vivió de la <b>flotación de troncos</b> por el río hasta el Rin.</li>
+        </ul>
+        <p><b>Con una hora y cuarto lo tenéis visto.</b> Está de camino (Schiltach → Alpirsbach → Freudenstadt → Bad Wildbad), mientras que Gengenbach obliga a volver sobre los pasos.</p>
+        <h4>🍽️ Curiosidad</h4>
+        <p>En la Marktplatz 7 está <b>Jose</b>, un restaurante <b>español de tapas</b> con 4,7 (410) en pleno corazón de la Selva Negra. Jueves 11:30–15:00. También <i>Zum Alten Fritz</i> (Hauptstraße 26), 4,4, desde las 10:00.</p>
+        <div class="btns"><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Marktplatz%20Schiltach">📍 Schiltach</a></div>
+      </div>
+
+      <div class="card">
+        <h3>📍 Bad Wildbad: el Sommerberg <span class="star">⭐</span></h3>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Baumwipfelpfad%20Schwarzwald%20Bad%20Wildbad&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Baumwipfelpfad de Bad Wildbad, torre entre las copas</span></a></figure>
+        <p>El <b>Treetop Walk</b> y el <b>puente colgante</b> están en el mismo sitio, a un paseo por el bosque el uno del otro.</p>
+        <h4>Baumwipfelpfad Schwarzwald</h4>
+        <ul>
+          <li>Pasarela de 1 km entre las copas, acabada en una <b>torre en espiral</b> de ~40 m con vistas de 360°.</li>
+          <li>~13,50 € adulto. Parking aparte: 6 € por 3 h. Abre 9:30–18:00.</li>
+        </ul>
+        <h4>WILDLINE (el puente colgante)</h4>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Wildline%20H%C3%A4ngebr%C3%BCcke%20Bad%20Wildbad&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Puente colgante WILDLINE de Bad Wildbad</span></a></figure>
+        <ul>
+          <li><b>380 m de largo y hasta 60 de alto</b>, con caídas de 300 m sobre el valle.</li>
+          <li>El <b>único puente colgante de Europa en arco hacia arriba</b>. Por eso se mueve tanto.</li>
+          <li>Verano 9:00–19:30, última entrada 19:00. ~9–12 € por persona.</li>
+        </ul>
+        <div class="warn">⚠️ Una reseña honesta avisa: el puente es estrecho y las vistas desde encima son más limitadas de lo esperado. <b>Lo que impresiona es cruzarlo, no lo que se ve.</b></div>
+        <div class="info"><b>No hay entrada combinada</b> entre los dos (empresas distintas). <b>Sí hay un paquete de ~27 €</b> con Baumwipfelpfad + WILDLINE + funicular ida y vuelta. Preguntadlo en taquilla.</div>
+        <p><b>Cómo subir</b>: en coche al parking de arriba (6 € / 3 h), o en la <b>Sommerbergbahn</b> (funicular) desde el pueblo, cada 30 min (minuto 15 y 45), ~8 € ida y vuelta. Entre las dos atracciones, paseo de 20–30 min por el <b>Märchenweg</b>. <b>Calculad 3 horas largas.</b></p>
+        <h4>🍽️ Comida en Bad Wildbad</h4>
+        <ul>
+          <li><b>Foxy Bräu ⭐</b> (Kernerstraße 62): 4,7 (616). Cervecería propia con jardín, cerca del Sommerberg. <b>La mejor opción del día.</b></li>
+          <li><b>Wildbader Hof</b> (König-Karl-Straße 43): 4,4 (1.930). Terraza junto al río Enz. Tienen <b>medias raciones</b>. ⚠️ Cierra martes (no os afecta).</li>
+          <li>Alternativa: comprad un <b>Vesper</b> (tabla de embutido, queso y pan negro) antes de subir y comed arriba.</li>
+        </ul>
+        <div class="btns"><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Baumwipfelpfad%20Schwarzwald%20Bad%20Wildbad">📍 Sommerberg</a></div>
+      </div>
+
+      <div class="card">
+        <h3>📍 BarfussPark Hallwangen <span style="font-size:.8rem;font-weight:500;color:var(--texto-suave)">(Dornstetten)</span></h3>
+        <ul>
+          <li><b>Entrada gratis</b>, solo se paga el parking. Abre 9:00–20:00.</li>
+          <li>Circuito descalzo de una hora sobre madera, piedras, barro, piñas, agua fría y cristal (pulido, seguro).</li>
+          <li><b>Llevad</b>: toalla, calzado de recambio y una bolsa para los pies embarrados.</li>
+        </ul>
+        <div class="btns"><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Barfusspark%20Hallwangen%20Dornstetten">📍 BarfussPark</a></div>
+      </div>
+
+      <div class="card">
+        <h3>🛣️ La vuelta por la Schwarzwaldhochstraße</h3>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Schliffkopf%20Schwarzwald&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Mirador de Schliffkopf, Schwarzwaldhochstraße</span></a></figure>
+        <p>La <b>B500</b> es la carretera panorámica de las alturas: 60–65 km entre Baden-Baden y Freudenstadt, a 600–1.000 m. Es <b>la carretera turística más antigua de Alemania</b> (señalizada desde 1930).</p>
+        <p>Desde Dornstetten, en vez de autopista:<br><b>Dornstetten → Freudenstadt → Kniebis → Alexanderschanze → Ruhestein → Mummelsee → Seebach → Achern → A5 → Kappel.</b> Cuesta ~45 min más y os lleváis el tramo más bonito.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Parada</th><th>Alt.</th><th>Tiempo</th><th>Qué es</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td><b>Kniebis</b></td><td>935 m</td><td>5 min</td><td>Puerto de montaña, antigua frontera Baden–Württemberg.</td></tr>
+              <tr><td>2</td><td><b>Alexanderschanze</b></td><td>970 m</td><td>10 min</td><td>Final oficial de la ruta. Al lado, el Hochmoor de la Zollstockhütte con pasarela.</td></tr>
+              <tr><td>3</td><td><b>Ruhestein</b></td><td>915 m</td><td>15 min</td><td>Centro del Parque Nacional Selva Negra y torre mirador.</td></tr>
+              <tr><td>4</td><td><b>Schliffkopf ⭐</b></td><td>1.055 m</td><td>10 min</td><td>El mirador más amplio: valle del Rin, Vosgos y, con día limpio, los Alpes. <b>Si solo paráis en uno, este.</b></td></tr>
+              <tr><td>5</td><td><b>Lotharpfad ⭐</b></td><td>950 m</td><td>20 min</td><td>Pasarela sobre el bosque que arrasó el huracán Lothar (1999), dejado adrede sin limpiar. <b>Gratis.</b></td></tr>
+              <tr><td>6</td><td><b>Mummelsee ⭐</b></td><td>1.036 m</td><td>30 min</td><td>Lago glaciar de la leyenda del rey de las aguas. Vuelta andando en 20 min, barcas y restaurante.</td></tr>
+              <tr><td>7</td><td><b>Hornisgrinde</b></td><td>1.164 m</td><td>20 min</td><td>La cima más alta de la Selva Negra norte. Torre mirador y pasarela sobre turbera.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Lotharpfad&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Lotharpfad, pasarela sobre el bosque</span></a></figure>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Mummelsee&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Mummelsee</span></a></figure>
+        <div class="info"><b>No dan tiempo las siete.</b> Con <b>Schliffkopf + Lotharpfad + Mummelsee</b> tenéis lo mejor en una hora larga.</div>
+        <div class="warn">⚠️ Hay un tramo <b>"Schweigekilometer"</b> (el kilómetro del silencio), memorial de motoristas. Limitado a 50 y vigilado. Carretera de curvas muy popular entre motoristas: <b>no la hagáis de noche</b>.</div>
+        <p>Llegaréis al Mummelsee sobre las 18:15, la mejor hora: la luz del atardecer y menos gente.</p>
+        <h4>📸 En el camino de ida</h4>
+        <ul>
+          <li><b>Wolfach</b>: la <b>Dorotheenhütte</b>, última fábrica donde se sopla vidrio a mano.</li>
+          <li><b>Alpirsbach</b> (2 min): <b>monasterio románico</b> de 1095 en arenisca roja, con claustro. Al lado, la cervecería Alpirsbacher.</li>
+          <li><b>Freudenstadt</b>: la <b>plaza de mercado más grande de Alemania</b>.</li>
+        </ul>
+        <div class="btns"><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Mummelsee%20Seebach">📍 Mummelsee</a></div>
+      </div>
+
+      <div class="card">
+        <h3>🛒 Cena en el apartamento</h3>
+        <p>Llegáis a las 20:00, cansados. Noche de <b>Maultaschen</b> (5 min en caldo o a la plancha) o <b>Flammkuchen</b> al horno, con vino de Baden.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DÍA 6 ============ -->
+  <section class="day" id="dia6">
+    <div class="day-head">
+      <div class="kicker">Día 6 · Viernes 21 agosto</div>
+      <h2>Vuelta con parada en Provenza</h2>
+      <div class="stats"><span class="badge">🚗 1.170 km</span><span class="badge gold">🏁 Reus</span></div>
+    </div>
+    <div class="day-body">
+      <div class="sched">⏱️ <b>7:00</b> salida Kappel · <b>10:30</b> café · <b>14:00</b> Pont du Gard · <b>16:30</b> Aviñón · <b>18:00</b> salida · <b>22:00</b> Reus</div>
+      <div class="warn">Es la etapa dura. <b>Salid a las 7:00.</b></div>
+
+      <div class="card">
+        <h3>📍 Pont du Gard <span class="star">⭐</span></h3>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Pont%20du%20Gard&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Pont du Gard, acueducto romano</span></a></figure>
+        <ul>
+          <li>Acueducto romano de casi 2.000 años, 49 m de altura, tres niveles de arcos.</li>
+          <li>Abre 8:00–24:00: sin presión de horario.</li>
+          <li>Aparcamiento propio y centro de visitantes (museo, tienda, cafetería, baños).</li>
+          <li>Del centro al puente, 10 min andando.</li>
+          <li><b>Se puede uno bañar en el río Gardon</b> justo debajo. En agosto lo agradeceréis. También canoas.</li>
+          <li>Con 1 h 30–2 h vais servidos. Si os bañáis, 3 horas.</li>
+        </ul>
+        <div class="info"><b>Ventaja frente a meterse en Aviñón</b>: sin buscar aparcamiento en ciudad ni patear al sol.</div>
+        <div class="btns"><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Pont%20du%20Gard">📍 Pont du Gard</a></div>
+      </div>
+
+      <div class="card">
+        <h3>📍 Aviñón</h3>
+        <figure class="ph noimg"><a class="ph-link" href="https://commons.wikimedia.org/w/index.php?search=Palais%20des%20Papes%20Avignon&title=Special:MediaSearch&type=image" target="_blank" rel="noopener"><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span><span class="ph-cap">Palacio de los Papas de Aviñón</span></a></figure>
+        <ul>
+          <li><b>Palacio de los Papas</b>: el palacio gótico más grande de Europa. 9:00–19:00. Incluye el <b>Histopad</b> (tablet de realidad aumentada). Reservad 2 horas si entráis.</li>
+          <li><b>Pont Saint-Bénézet</b>: el famoso puente que se queda a medias sobre el Ródano.</li>
+          <li><b>Place de l'Horloge</b> y <b>Rocher des Doms</b> (jardín con vistas).</li>
+          <li><b>Aparcar</b>: Parking de l'Île Piot, con lanzadera gratuita.</li>
+          <li>En agosto no hay Festival (es en julio): tranquila.</li>
+        </ul>
+        <h4>🍽️ Comer</h4>
+        <p>Comed en el Pont du Gard (cafetería o picnic junto al río). Si preferís cena antes del último tramo:</p>
+        <ul>
+          <li><b>L'Épicerie</b> (10 Pl. Saint-Pierre): junto a la iglesia de San Pedro, todos los días 12:00–15:00 y 19:00–23:00.</li>
+          <li><b>La Provende</b> (49 Rue Limas): familiar, provenzal, fuera de la zona turística, terraza con sombra.</li>
+        </ul>
+        <div class="warn">⚠️ Si cenáis en Aviñón a las 19:00, salís a las 21:00 y llegáis a Reus pasada la medianoche.</div>
+        <p><b>Qué comer en Provenza</b>: tapenade, anchoïade, ratatouille, gardianne de taureau. <b>Melón de Cavaillon</b> (el mejor de Francia, en su punto en agosto). <b>Nougat de Montélimar</b> (en las áreas de la A7). <b>Calissons d'Aix</b>. Vinos: Châteauneuf-du-Pape y Côtes du Rhône.</p>
+        <div class="btns"><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Palais%20des%20Papes%20Avignon">📍 Palacio de los Papas</a></div>
+      </div>
+
+      <div class="card">
+        <h3>📸 Paradas de foto</h3>
+        <ul>
+          <li><b>Ciudadela de Besançon</b> (A36, 10 min): Vauban, Patrimonio de la Humanidad, sobre un meandro del Doubs.</li>
+          <li><b>Montélimar</b> (A7): capital del nougat, con tiendas en las áreas de servicio.</li>
+          <li><b>Uzès ⭐</b> (20 min del Pont du Gard): la <b>Place aux Herbes</b>, plaza porticada con plataneros. Mucho menos masificada que Aviñón.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>😴 Si decidís dormir por el camino</h3>
+        <ul>
+          <li><b>Aviñón</b>: quedan 470 km el sábado (4 h 45).</li>
+          <li><b>Montpellier</b>: quedan 370 km (3 h 45).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CHECKLIST ============ -->
+  <h2 class="section-title" id="checklist">✅ Checklist</h2>
+  <p class="lead">Se marca con el dedo y <b>se guarda solo</b> en este móvil.</p>
+  <div class="checklist" id="checklist-box">
+    <h4>🧳 Antes de salir</h4>
+    <label class="chk"><input type="checkbox" data-k="a1"><span>Umweltplakette (online, o el martes 8:00 en TÜV Lahr)</span></label>
+    <label class="chk"><input type="checkbox" data-k="a2"><span>Comprobar la norma Euro del coche en la ficha técnica (mínimo Euro 4)</span></label>
+    <label class="chk"><input type="checkbox" data-k="a3"><span>Entradas Europa-Park + parking, online</span></label>
+    <label class="chk"><input type="checkbox" data-k="a4"><span>Rulantica Moonlight, online (se agota en agosto)</span></label>
+    <label class="chk"><input type="checkbox" data-k="a5"><span>Reservar cena del domingo en Lyon</span></label>
+    <label class="chk"><input type="checkbox" data-k="a6"><span>Descargar el mapa sin conexión de la Selva Negra en Google Maps</span></label>
+    <label class="chk"><input type="checkbox" data-k="a7"><span>Permiso de circulación y ficha técnica en el coche</span></label>
+
+    <h4>🚗 En el coche</h4>
+    <label class="chk"><input type="checkbox" data-k="c1"><span>Bañadores, toallas y chanclas (martes, Rulantica)</span></label>
+    <label class="chk"><input type="checkbox" data-k="c2"><span>Toalla y calzado de recambio (jueves, BarfussPark)</span></label>
+    <label class="chk"><input type="checkbox" data-k="c3"><span>Efectivo (La Pulcinella no acepta tarjeta)</span></label>
+    <label class="chk"><input type="checkbox" data-k="c4"><span>Agua siempre: en agosto Provenza pasa de 35 grados</span></label>
+
+    <h4>🏡 Al llegar</h4>
+    <label class="chk"><input type="checkbox" data-k="l1"><span>Compra grande en EDEKA Müller o Kaufland (lunes antes de las 21:00, o martes)</span></label>
+
+    <button id="reset-chk" type="button">Reiniciar checklist</button>
+  </div>
+
+  <footer>
+    <p>🌲 Guía de uso para el viaje · Reus → Selva Negra · 16–21 agosto 2026<br>
+    Fotos vía Wikimedia Commons (licencias libres). Página privada, sin indexar.</p>
+    <p id="pendientes" style="font-size:.78rem;color:var(--texto-suave)">
+      <b>Pendiente (fotos):</b> las imágenes se dejaron como enlace a Wikimedia Commons en lugar de incrustadas,
+      porque el entorno donde se generó la página tenía bloqueado el acceso a Wikimedia y no se pudo comprobar
+      que cada URL cargara (200 · image/*). Tal como pedía el encargo, no se inventó ninguna dirección de imagen.
+      Para incrustarlas con foto verificada basta con regenerar la página desde un entorno con acceso a
+      <i>commons.wikimedia.org</i> y <i>upload.wikimedia.org</i>.
+    </p>
+  </footer>
+
+</main>
+
+<a class="home-fab" target="_blank" rel="noopener"
+   href="https://www.google.com/maps/dir/?api=1&destination=Wittenweierstra%C3%9Fe%201%2C%2077966%20Kappel-Grafenhausen">
+   🏠 Al apartamento</a>
+
+<script>
+  // Si en el futuro se añaden <img> con foto real y alguna cae,
+  // se oculta y se muestra el enlace de texto de respaldo.
+  function imgFail(img){
+    img.style.display = 'none';
+    var fig = img.closest('figure');
+    if(!fig) return;
+    var fb = fig.querySelector('.ph-fallback');
+    if(fb) fb.hidden = false;
+  }
+
+  // Checklist con localStorage
+  (function(){
+    var KEY = 'selvanegra_checklist_v1';
+    var box = document.getElementById('checklist-box');
+    if(!box) return;
+    var boxes = box.querySelectorAll('input[type=checkbox]');
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e){ saved = {}; }
+
+    boxes.forEach(function(cb){
+      var k = cb.getAttribute('data-k');
+      if(saved[k]) cb.checked = true;
+      cb.addEventListener('change', function(){
+        saved[k] = cb.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch(e){}
+      });
+    });
+
+    var reset = document.getElementById('reset-chk');
+    if(reset){
+      reset.addEventListener('click', function(){
+        boxes.forEach(function(cb){ cb.checked = false; });
+        saved = {};
+        try { localStorage.removeItem(KEY); } catch(e){}
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>
