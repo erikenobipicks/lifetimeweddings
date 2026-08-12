@@ -147,6 +147,11 @@
   figure.ph .ph-link:active{background:var(--verde-bg)}
   [hidden]{display:none !important}
 
+  /* ---------- PINTEREST ---------- */
+  .pin-wrap{display:flex;justify-content:center;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    margin:8px 0 4px;padding:4px 0}
+  .pin-wrap > span{margin:0 auto}
+
   /* ---------- BUTTONS ---------- */
   .btns{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 4px}
   .btn{
@@ -866,6 +871,17 @@
     </div>
   </section>
 
+  <!-- ============ PINTEREST ============ -->
+  <h2 class="section-title" id="inspiracion">📌 Inspiración</h2>
+  <p class="lead">Nuestro tablero de Pinterest del road trip por Francia y Alemania.</p>
+  <div class="pin-wrap">
+    <a data-pin-do="embedBoard"
+       data-pin-board-width="400"
+       data-pin-scale-height="240"
+       data-pin-scale-width="80"
+       href="https://www.pinterest.com/lifetimeweddings/roadtrip-francia-alemania-con-mi-pareja/"></a>
+  </div>
+
   <!-- ============ CHECKLIST ============ -->
   <h2 class="section-title" id="checklist">✅ Checklist</h2>
   <p class="lead">Se marca con el dedo y <b>se guarda solo</b> en este móvil.</p>
@@ -908,6 +924,9 @@
 <a class="home-fab" target="_blank" rel="noopener"
    href="https://www.google.com/maps/dir/?api=1&destination=Wittenweierstra%C3%9Fe%201%2C%2077966%20Kappel-Grafenhausen">
    🏠 Al apartamento</a>
+
+<!-- Widget del tablero de Pinterest (carga desde el CDN de Pinterest) -->
+<script async defer src="https://assets.pinterest.com/js/pinit.js"></script>
 
 <script>
   // Si una foto no carga, se oculta y se muestra el enlace de respaldo a Wikimedia.
