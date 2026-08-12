@@ -135,7 +135,7 @@
   figure.ph{margin:0 0 14px}
   figure.ph img{width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;background:#e6e3da;border-radius:12px;display:block}
   figure.ph figcaption{font-size:.72rem;color:var(--texto-suave);padding:5px 2px}
-  figure.ph.noimg .ph-link{
+  figure.ph .ph-link{
     display:flex;flex-direction:column;align-items:center;gap:4px;
     text-decoration:none;padding:20px 14px;text-align:center;
     background:linear-gradient(160deg,#eef4ef,#e2ede7);
@@ -144,7 +144,8 @@
   .ph-ico{font-size:1.7rem;line-height:1}
   .ph-txt{font-weight:700;font-size:.95rem}
   .ph-cap{font-size:.78rem;color:var(--texto-suave);font-weight:500}
-  figure.ph.noimg .ph-link:active{background:var(--verde-bg)}
+  figure.ph .ph-link:active{background:var(--verde-bg)}
+  [hidden]{display:none !important}
 
   /* ---------- BUTTONS ---------- */
   .btns{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 4px}
@@ -909,14 +910,15 @@
    🏠 Al apartamento</a>
 
 <script>
-  // Si en el futuro se añaden <img> con foto real y alguna cae,
-  // se oculta y se muestra el enlace de texto de respaldo.
+  // Si una foto no carga, se oculta y se muestra el enlace de respaldo a Wikimedia.
   function imgFail(img){
     img.style.display = 'none';
     var fig = img.closest('figure');
     if(!fig) return;
     var fb = fig.querySelector('.ph-fallback');
     if(fb) fb.hidden = false;
+    var cap = fig.querySelector('figcaption');
+    if(cap) cap.style.display = 'none';
   }
 
   // Checklist con localStorage
