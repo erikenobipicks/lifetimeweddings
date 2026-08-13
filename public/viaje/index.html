@@ -221,10 +221,21 @@
     nav.days a{min-width:64px;font-size:.85rem}
   }
 
+  /* ---------- BOTÓN RUTA DEL DÍA ---------- */
+  .btn-route{
+    display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
+    margin:0 0 14px;padding:15px 16px;border-radius:12px;
+    font-size:1.05rem;font-weight:800;text-decoration:none;
+    background:var(--dorado);color:var(--verde);border:2px solid var(--dorado-osc);
+    box-shadow:var(--sombra);
+  }
+  .btn-route small{display:block;font-size:.72rem;font-weight:600;opacity:.85}
+  .btn-route:active{transform:translateY(1px)}
+
   /* ---------- PRINT ---------- */
   @media print{
     :root{--nav-h:0px}
-    header.top,.home-fab,.btns,#reset-chk{display:none !important}
+    header.top,.home-fab,.btns,.btn-route,#reset-chk{display:none !important}
     body{background:#fff;font-size:11pt}
     main{max-width:none;padding:0}
     .hero{box-shadow:none;color:#000;background:#fff;border:2px solid var(--verde)}
@@ -375,6 +386,7 @@
     </div>
     <div class="day-body">
       <div class="sched">⏱️ <b>7:30</b> salida Reus · <b>12:00</b> Nîmes · <b>13:30</b> salida · <b>16:00</b> Lyon · <b>17:00</b> free tour (reservado)</div>
+      <a class="btn-route" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=Reus%2C%20Tarragona&destination=Mama%20Shelter%20Lyon%2C%2013%20rue%20Domer%2C%2069007%20Lyon&waypoints=Ar%C3%A8nes%20de%20N%C3%AEmes">🧭 Ruta del día en Maps<small>Reus → Nîmes → Lyon</small></a>
 
       <div class="crit">
         <span class="callout-title">⚠️ Retorno de vacaciones en Francia (15–16 ago)</span>
@@ -463,6 +475,7 @@
     </div>
     <div class="day-body">
       <div class="sched">⏱️ <b>8:00</b> salida Lyon · <b>12:15</b> Eguisheim (comida) · <b>13:45</b> Colmar · <b>17:00</b> salida · <b>17:20</b> Riquewihr · <b>18:45</b> salida · <b>19:45</b> apartamento</div>
+      <a class="btn-route" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=Lyon%2C%20France&destination=Wittenweierstra%C3%9Fe%201%2C%2077966%20Kappel-Grafenhausen&waypoints=Eguisheim%7CColmar%7CRiquewihr">🧭 Ruta del día en Maps<small>Lyon → Eguisheim → Colmar → Riquewihr → apto.</small></a>
       <div class="info">Los tres pueblos están <b>en línea recta subiendo por la A35</b>: Eguisheim al sur, Colmar en medio, Riquewihr al norte y de camino a casa. No se pierde ni un kilómetro.</div>
 
       <div class="card">
@@ -546,6 +559,7 @@
     </div>
     <div class="day-body">
       <div class="sched">⏱️ <b>7:40</b> salida · <b>8:00</b> TÜV Lahr (pegatina) · <b>8:45</b> Europa-Park · <b>18:00</b> cierre → casa · <b>19:00</b> Rulantica · <b>22:00</b> cierre</div>
+      <a class="btn-route" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=Wittenweierstra%C3%9Fe%201%2C%2077966%20Kappel-Grafenhausen&destination=Wittenweierstra%C3%9Fe%201%2C%2077966%20Kappel-Grafenhausen&waypoints=T%C3%9CV%20S%C3%9CD%20Lahr%2C%20Raiffeisenstra%C3%9Fe%2027%2C%20Lahr%7CEuropa-Park%2C%20Rust%7CRulantica%2C%20Rust">🧭 Ruta del día en Maps<small>Apto. → TÜV Lahr → Europa-Park → Rulantica</small></a>
 
       <div class="crit">
         <span class="callout-title">🟢 Primera parada: la Umweltplakette (8:00)</span>
@@ -630,6 +644,7 @@
     </div>
     <div class="day-body">
       <div class="sched">⏱️ <b>8:45</b> salida · <b>9:20</b> Friburgo · <b>11:45</b> salida · <b>12:25</b> Titisee (comida) · <b>14:15</b> salida · <b>15:05</b> Triberg · <b>16:20</b> salida · <b>16:45</b> Sommerrodelbahn Gutach · <b>18:45</b> vuelta</div>
+      <a class="btn-route" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=Wittenweierstra%C3%9Fe%201%2C%2077966%20Kappel-Grafenhausen&destination=Wittenweierstra%C3%9Fe%201%2C%2077966%20Kappel-Grafenhausen&waypoints=Freiburger%20M%C3%BCnster%7CTitisee%7CTriberger%20Wasserf%C3%A4lle%7CSchwarzwaldbob%20Gutach">🧭 Ruta del día en Maps<small>Apto. → Friburgo → Titisee → Triberg → Gutach</small></a>
       <div class="info">Caben las cuatro cosas, pero <b>hay que salir a las 8:45 y respetar los relojes</b>. El único margen está en Friburgo.</div>
 
       <div class="card">
@@ -723,6 +738,7 @@
     </div>
     <div class="day-body">
       <div class="sched">⏱️ <b>8:15</b> salida · <b>9:00</b> Schiltach · <b>10:15</b> salida · <b>11:15</b> Baumwipfelpfad + WILDLINE · <b>15:00</b> salida · <b>15:50</b> BarfussPark · <b>17:15</b> salida por la B500 · <b>18:15</b> Mummelsee · <b>20:00</b> apartamento</div>
+      <a class="btn-route" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=Wittenweierstra%C3%9Fe%201%2C%2077966%20Kappel-Grafenhausen&destination=Wittenweierstra%C3%9Fe%201%2C%2077966%20Kappel-Grafenhausen&waypoints=Schiltach%7CBaumwipfelpfad%20Schwarzwald%2C%20Bad%20Wildbad%7CBarfusspark%20Hallwangen%2C%20Dornstetten%7CMummelsee">🧭 Ruta del día en Maps<small>Apto. → Schiltach → Bad Wildbad → BarfussPark → Mummelsee</small></a>
       <div class="info">Día largo, pero el tramo final es carretera panorámica, no autopista.</div>
 
       <div class="card">
@@ -828,6 +844,7 @@
     </div>
     <div class="day-body">
       <div class="sched">⏱️ <b>7:00</b> salida Kappel · <b>10:30</b> café · <b>14:00</b> Pont du Gard · <b>16:30</b> Aviñón · <b>18:00</b> salida · <b>22:00</b> Reus</div>
+      <a class="btn-route" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=Wittenweierstra%C3%9Fe%201%2C%2077966%20Kappel-Grafenhausen&destination=Reus%2C%20Tarragona&waypoints=Pont%20du%20Gard%7CPalais%20des%20Papes%2C%20Avignon">🧭 Ruta del día en Maps<small>Apto. → Pont du Gard → Aviñón → Reus</small></a>
       <div class="warn">Es la etapa dura. <b>Salid a las 7:00.</b></div>
 
       <div class="card">
