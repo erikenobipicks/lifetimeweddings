@@ -147,6 +147,11 @@
   figure.ph .ph-link:active{background:var(--verde-bg)}
   [hidden]{display:none !important}
 
+  /* ---------- PINTEREST ---------- */
+  .pin-wrap{display:flex;justify-content:center;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    margin:8px 0 4px;padding:4px 0}
+  .pin-wrap > span{margin:0 auto}
+
   /* ---------- BUTTONS ---------- */
   .btns{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 4px}
   .btn{
@@ -216,10 +221,21 @@
     nav.days a{min-width:64px;font-size:.85rem}
   }
 
+  /* ---------- BOTÓN RUTA DEL DÍA ---------- */
+  .btn-route{
+    display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
+    margin:0 0 14px;padding:15px 16px;border-radius:12px;
+    font-size:1.05rem;font-weight:800;text-decoration:none;
+    background:var(--dorado);color:var(--verde);border:2px solid var(--dorado-osc);
+    box-shadow:var(--sombra);
+  }
+  .btn-route small{display:block;font-size:.72rem;font-weight:600;opacity:.85}
+  .btn-route:active{transform:translateY(1px)}
+
   /* ---------- PRINT ---------- */
   @media print{
     :root{--nav-h:0px}
-    header.top,.home-fab,.btns,#reset-chk{display:none !important}
+    header.top,.home-fab,.btns,.btn-route,#reset-chk{display:none !important}
     body{background:#fff;font-size:11pt}
     main{max-width:none;padding:0}
     .hero{box-shadow:none;color:#000;background:#fff;border:2px solid var(--verde)}
@@ -370,6 +386,7 @@
     </div>
     <div class="day-body">
       <div class="sched">⏱️ <b>7:30</b> salida Reus · <b>12:00</b> Nîmes · <b>13:30</b> salida · <b>16:00</b> Lyon · <b>17:00</b> free tour (reservado)</div>
+      <a class="btn-route" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=Reus%2C%20Tarragona&destination=Mama%20Shelter%20Lyon%2C%2013%20rue%20Domer%2C%2069007%20Lyon&waypoints=Ar%C3%A8nes%20de%20N%C3%AEmes">🧭 Ruta del día en Maps<small>Reus → Nîmes → Lyon</small></a>
 
       <div class="crit">
         <span class="callout-title">⚠️ Retorno de vacaciones en Francia (15–16 ago)</span>
@@ -423,6 +440,20 @@
       </div>
 
       <div class="card">
+        <h3>🛏️ Dónde dormir <span style="font-size:.8rem;font-weight:500;color:var(--texto-suave)">· la única noche de hotel</span></h3>
+        <p style="font-size:1.08rem;margin:.1em 0 .4em"><b>Mama Shelter Lyon</b></p>
+        <p style="margin:0 0 .7em">📍 13 rue Domer, Gerland, 69007 Lyon, Francia</p>
+        <ul>
+          <li><b>Entrada</b>: domingo 16 ago · desde las 15:00</li>
+          <li><b>Salida</b>: lunes 17 ago · hasta las 12:00</li>
+          <li><b>Reserva</b>: 2 adultos · 1 noche · 1 habitación</li>
+        </ul>
+        <div class="btns">
+          <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Mama%20Shelter%20Lyon%2013%20rue%20Domer%2069007%20Lyon">📍 Abrir en Google Maps</a>
+        </div>
+      </div>
+
+      <div class="card">
         <h3>📸 Paradas de foto <span style="font-size:.8rem;font-weight:500;color:var(--texto-suave)">(10 min, solo si vais adelantados)</span></h3>
         <figure class="ph"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Forteresse%20de%20Salses%20%28France%2C%20Pyr%C3%A9n%C3%A9es%20Orientales%29.jpg?width=1000" alt="Fort de Salses" loading="lazy" onerror="imgFail(this)"><a class="ph-fallback ph-link" href="https://commons.wikimedia.org/w/index.php?search=Forteresse%20de%20Salses&title=Special:MediaSearch&type=image" target="_blank" rel="noopener" hidden><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span></a><figcaption>Fort de Salses · Wikimedia Commons</figcaption></figure>
         <ul>
@@ -444,6 +475,7 @@
     </div>
     <div class="day-body">
       <div class="sched">⏱️ <b>8:00</b> salida Lyon · <b>12:15</b> Eguisheim (comida) · <b>13:45</b> Colmar · <b>17:00</b> salida · <b>17:20</b> Riquewihr · <b>18:45</b> salida · <b>19:45</b> apartamento</div>
+      <a class="btn-route" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=Lyon%2C%20France&destination=Wittenweierstra%C3%9Fe%201%2C%2077966%20Kappel-Grafenhausen&waypoints=Eguisheim%7CColmar%7CRiquewihr">🧭 Ruta del día en Maps<small>Lyon → Eguisheim → Colmar → Riquewihr → apto.</small></a>
       <div class="info">Los tres pueblos están <b>en línea recta subiendo por la A35</b>: Eguisheim al sur, Colmar en medio, Riquewihr al norte y de camino a casa. No se pierde ni un kilómetro.</div>
 
       <div class="card">
@@ -527,6 +559,7 @@
     </div>
     <div class="day-body">
       <div class="sched">⏱️ <b>7:40</b> salida · <b>8:00</b> TÜV Lahr (pegatina) · <b>8:45</b> Europa-Park · <b>18:00</b> cierre → casa · <b>19:00</b> Rulantica · <b>22:00</b> cierre</div>
+      <a class="btn-route" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=Wittenweierstra%C3%9Fe%201%2C%2077966%20Kappel-Grafenhausen&destination=Wittenweierstra%C3%9Fe%201%2C%2077966%20Kappel-Grafenhausen&waypoints=T%C3%9CV%20S%C3%9CD%20Lahr%2C%20Raiffeisenstra%C3%9Fe%2027%2C%20Lahr%7CEuropa-Park%2C%20Rust%7CRulantica%2C%20Rust">🧭 Ruta del día en Maps<small>Apto. → TÜV Lahr → Europa-Park → Rulantica</small></a>
 
       <div class="crit">
         <span class="callout-title">🟢 Primera parada: la Umweltplakette (8:00)</span>
@@ -611,6 +644,7 @@
     </div>
     <div class="day-body">
       <div class="sched">⏱️ <b>8:45</b> salida · <b>9:20</b> Friburgo · <b>11:45</b> salida · <b>12:25</b> Titisee (comida) · <b>14:15</b> salida · <b>15:05</b> Triberg · <b>16:20</b> salida · <b>16:45</b> Sommerrodelbahn Gutach · <b>18:45</b> vuelta</div>
+      <a class="btn-route" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=Wittenweierstra%C3%9Fe%201%2C%2077966%20Kappel-Grafenhausen&destination=Wittenweierstra%C3%9Fe%201%2C%2077966%20Kappel-Grafenhausen&waypoints=Freiburger%20M%C3%BCnster%7CTitisee%7CTriberger%20Wasserf%C3%A4lle%7CSchwarzwaldbob%20Gutach">🧭 Ruta del día en Maps<small>Apto. → Friburgo → Titisee → Triberg → Gutach</small></a>
       <div class="info">Caben las cuatro cosas, pero <b>hay que salir a las 8:45 y respetar los relojes</b>. El único margen está en Friburgo.</div>
 
       <div class="card">
@@ -656,7 +690,7 @@
         <h3>📍 Cascadas de Triberg</h3>
         <figure class="ph"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Triberg%20Waterfall%202.JPG?width=1000" alt="Cascadas de Triberg" loading="lazy" onerror="imgFail(this)"><a class="ph-fallback ph-link" href="https://commons.wikimedia.org/w/index.php?search=Triberger%20Wasserf%C3%A4lle&title=Special:MediaSearch&type=image" target="_blank" rel="noopener" hidden><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span></a><figcaption>Cascadas de Triberg · Wikimedia Commons</figcaption></figure>
         <p>Caída de agua en varios saltos, con senderos por el bosque. Abre 9:00–22:00. Entrada 7–9 € y parking aparte.</p>
-        <div class="info"><b>⏱️ En 75 minutos</b>: no subáis del todo. Los <b>tres o cuatro primeros saltos</b> son los espectaculares y están a 15 min de la entrada por pasarelas cómodas. <b>Aparcad en el Parkhaus de abajo</b> (Hauptstraße), que os deja al lado de los saltos grandes.</p>
+        <div class="info"><b>⏱️ En 75 minutos</b>: no subáis del todo. Los <b>tres o cuatro primeros saltos</b> son los espectaculares y están a 15 min de la entrada por pasarelas cómodas. <b>Aparcad en el Parkhaus de abajo</b> (Hauptstraße), que os deja al lado de los saltos grandes.</div>
         <h4>🍽️ Merienda</h4>
         <figure class="ph"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Eine%20Schwarzw%C3%A4lder%20Kirschtorte.jpg?width=1000" alt="Schwarzwälder Kirschtorte (tarta Selva Negra)" loading="lazy" onerror="imgFail(this)"><a class="ph-fallback ph-link" href="https://commons.wikimedia.org/w/index.php?search=Schwarzw%C3%A4lder%20Kirschtorte&title=Special:MediaSearch&type=image" target="_blank" rel="noopener" hidden><span class="ph-ico">📷</span><span class="ph-txt">Ver fotos en Wikimedia&nbsp;↗</span></a><figcaption>Schwarzwälder Kirschtorte (tarta Selva Negra) · Wikimedia Commons</figcaption></figure>
         <p><b>Café Schäfer</b> (Hauptstraße 33): donde se hace la <b>Schwarzwälder Kirschtorte</b> con la receta original documentada de Josef Keller. Lleva kirsch de verdad. Confirmad el horario antes de ir.</p>
@@ -704,6 +738,7 @@
     </div>
     <div class="day-body">
       <div class="sched">⏱️ <b>8:15</b> salida · <b>9:00</b> Schiltach · <b>10:15</b> salida · <b>11:15</b> Baumwipfelpfad + WILDLINE · <b>15:00</b> salida · <b>15:50</b> BarfussPark · <b>17:15</b> salida por la B500 · <b>18:15</b> Mummelsee · <b>20:00</b> apartamento</div>
+      <a class="btn-route" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=Wittenweierstra%C3%9Fe%201%2C%2077966%20Kappel-Grafenhausen&destination=Wittenweierstra%C3%9Fe%201%2C%2077966%20Kappel-Grafenhausen&waypoints=Schiltach%7CBaumwipfelpfad%20Schwarzwald%2C%20Bad%20Wildbad%7CBarfusspark%20Hallwangen%2C%20Dornstetten%7CMummelsee">🧭 Ruta del día en Maps<small>Apto. → Schiltach → Bad Wildbad → BarfussPark → Mummelsee</small></a>
       <div class="info">Día largo, pero el tramo final es carretera panorámica, no autopista.</div>
 
       <div class="card">
@@ -809,6 +844,7 @@
     </div>
     <div class="day-body">
       <div class="sched">⏱️ <b>7:00</b> salida Kappel · <b>10:30</b> café · <b>14:00</b> Pont du Gard · <b>16:30</b> Aviñón · <b>18:00</b> salida · <b>22:00</b> Reus</div>
+      <a class="btn-route" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=Wittenweierstra%C3%9Fe%201%2C%2077966%20Kappel-Grafenhausen&destination=Reus%2C%20Tarragona&waypoints=Pont%20du%20Gard%7CPalais%20des%20Papes%2C%20Avignon">🧭 Ruta del día en Maps<small>Apto. → Pont du Gard → Aviñón → Reus</small></a>
       <div class="warn">Es la etapa dura. <b>Salid a las 7:00.</b></div>
 
       <div class="card">
@@ -866,6 +902,17 @@
     </div>
   </section>
 
+  <!-- ============ PINTEREST ============ -->
+  <h2 class="section-title" id="inspiracion">📌 Inspiración</h2>
+  <p class="lead">Nuestro tablero de Pinterest del road trip por Francia y Alemania.</p>
+  <div class="pin-wrap">
+    <a data-pin-do="embedBoard"
+       data-pin-board-width="400"
+       data-pin-scale-height="240"
+       data-pin-scale-width="80"
+       href="https://www.pinterest.com/lifetimeweddings/roadtrip-francia-alemania-con-mi-pareja/"></a>
+  </div>
+
   <!-- ============ CHECKLIST ============ -->
   <h2 class="section-title" id="checklist">✅ Checklist</h2>
   <p class="lead">Se marca con el dedo y <b>se guarda solo</b> en este móvil.</p>
@@ -908,6 +955,9 @@
 <a class="home-fab" target="_blank" rel="noopener"
    href="https://www.google.com/maps/dir/?api=1&destination=Wittenweierstra%C3%9Fe%201%2C%2077966%20Kappel-Grafenhausen">
    🏠 Al apartamento</a>
+
+<!-- Widget del tablero de Pinterest (carga desde el CDN de Pinterest) -->
+<script async defer src="https://assets.pinterest.com/js/pinit.js"></script>
 
 <script>
   // Si una foto no carga, se oculta y se muestra el enlace de respaldo a Wikimedia.
