@@ -20,6 +20,7 @@ import { SITE, waLink } from '~/data/site';
 import Icon from '~/components/Icon.astro';
 import { videos } from '~/data/videos';
 import { useTranslations, type Lang } from '~/i18n/ui';
+import { isStripeEnabled } from '~/lib/payments/config';
 
 function iconForType(t: 'photo' | 'video' | 'combo') {
   return t === 'photo' ? 'camera' : t === 'video' ? 'video' : 'diamond';
@@ -89,6 +90,13 @@ const packs = quote ? PACKS.filter((p) => quote.packIds.includes(p.id)) : [];
 // or "one wedding a day" scarcity; instead a couple-session sample gallery
 // and the weekday/golden-hour pricing note.
 const isSession = packs.length > 0 && packs.every((p) => contextOf(p) === 'session');
+
+// Session deposit (Phase 2): offer the 50% online deposit button only on a
+// session quote when Stripe is configured. `sessionDepositPaid` drives the
+// "reserved" banner and hides the deposit CTA once paid.
+const sessionPay = isSession && isStripeEnabled();
+const sessionDepositPaid = !!quote?.sessionDepositPaidAt;
+const showPaidBanner = isSession && (sessionDepositPaid || Astro.url.searchParams.get('session_paid') === 'success');
 
 // Latest interactive configurator submission, if any. Drives the
 // "we've already received your configuration" banner + pre-checks the
@@ -320,6 +328,16 @@ const offerActive: boolean = (() => {
           </div>
         </Section>
 
+        {/* Session deposit confirmation — shown once the couple pays the 50%
+            deposit (or lands back on ?session_paid=success). */}
+        {showPaidBanner && (
+          <Section>
+            <div class="max-w-2xl mx-auto border-2 border-gold bg-gold/10 p-6 text-center">
+              <p class="font-display text-xl font-bold text-ink mb-1">✓ {t('quote.session.deposit.paid')}</p>
+            </div>
+          </Section>
+        )}
+
         {/* Fixed proposal FIRST — the couple has already seen our work before
             getting here, so the proposal (and its options) leads. The portfolio,
             testimonials and FAQ below back it up. Interactive quotes keep the
@@ -333,6 +351,8 @@ const offerActive: boolean = (() => {
             validUntilText={validUntilText}
             alreadyResponded={!!latestResponse}
             whatsappUrl={waForVideocall()}
+            sessionPay={sessionPay}
+            depositPaid={sessionDepositPaid}
           />
         )}
 
@@ -629,6 +649,8 @@ const offerActive: boolean = (() => {
             validUntilText={validUntilText}
             customLines={quote.customLines}
             packContext={isSession ? 'session' : 'wedding'}
+            sessionPay={sessionPay}
+            depositPaid={sessionDepositPaid}
           />
         )}
 

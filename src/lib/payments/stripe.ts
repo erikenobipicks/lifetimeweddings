@@ -133,3 +133,62 @@ export async function createBalanceCheckout({ delivery, origin, lang, amountCent
   if (!session.url) throw new Error('Stripe session created without a URL');
   return session.url;
 }
+
+// ─── Couple-session deposit checkout ────────────────────────────────────────
+// Lightweight 50% deposit paid straight from a session-mode /p/<token> quote
+// (no booking, no contract). The webhook records it on the quote and pings
+// Eric — a Checkout Session existing is not proof of payment.
+
+interface SessionDepositInput {
+  quote: { id: number; token: string; coupleName: string };
+  /** Deposit to charge in cents (50% of the selected total). */
+  depositCents: number;
+  /** The full selected total in cents — carried in metadata for context. */
+  totalCents: number;
+  origin: string;
+  lang: 'ca' | 'es' | 'en';
+}
+
+const SESSION_DEPOSIT_NAME: Record<'ca' | 'es' | 'en', (n: string) => string> = {
+  ca: (n) => `Dipòsit sessió de parella · ${n}`,
+  es: (n) => `Depósito sesión de pareja · ${n}`,
+  en: (n) => `Couple session deposit · ${n}`,
+};
+
+/**
+ * Create a Stripe Checkout Session for a couple-session deposit. Returns the
+ * hosted-checkout URL. Throws if Stripe isn't configured (callers must check
+ * isStripeEnabled() first).
+ */
+export async function createSessionDepositCheckout(
+  { quote, depositCents, totalCents, origin, lang }: SessionDepositInput,
+): Promise<string> {
+  if (!stripe) throw new Error('Stripe not configured');
+
+  const session = await stripe.checkout.sessions.create({
+    mode: 'payment',
+    locale: STRIPE_LOCALE[lang],
+    client_reference_id: String(quote.id),
+    metadata: {
+      quoteId: String(quote.id),
+      token: quote.token,
+      kind: 'session_deposit',
+      totalCents: String(totalCents),
+    },
+    line_items: [
+      {
+        quantity: 1,
+        price_data: {
+          currency: 'eur',
+          unit_amount: depositCents,
+          product_data: { name: SESSION_DEPOSIT_NAME[lang](quote.coupleName) },
+        },
+      },
+    ],
+    success_url: `${origin}/p/${quote.token}?session_paid=success`,
+    cancel_url: `${origin}/p/${quote.token}?session_paid=cancel`,
+  });
+
+  if (!session.url) throw new Error('Stripe session created without a URL');
+  return session.url;
+}

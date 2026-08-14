@@ -143,6 +143,14 @@ export interface Quote {
    *  quotes drop out of the follow-up cron and show a "Rebutjat" badge.
    *  null = not rejected. */
   rejectedAt: string | null;
+  /** Couple-session deposit (lightweight 50% online, no booking). Set by the
+   *  Stripe webhook when the couple pays from /p. Null on wedding quotes and
+   *  on session quotes not yet paid. */
+  sessionDepositPaidAt: string | null;
+  /** Deposit amount actually charged, in cents (50% of the total). */
+  sessionDepositCents: number | null;
+  /** The full selected total at deposit time, in cents (for context). */
+  sessionDepositTotalCents: number | null;
 }
 
 export interface QuoteStats {
@@ -313,7 +321,35 @@ function rowToQuote(r: any): Quote {
     followUpSkippedAt: r.follow_up_skipped_at ?? null,
     rejectedAt: r.rejected_at ?? null,
     serviceInterest: serviceInterestOrDefault(r.service_interest),
+    sessionDepositPaidAt: r.session_deposit_paid_at ?? null,
+    sessionDepositCents: r.session_deposit_cents != null ? Number(r.session_deposit_cents) : null,
+    sessionDepositTotalCents:
+      r.session_deposit_total_cents != null ? Number(r.session_deposit_total_cents) : null,
   };
+}
+
+/** Record a paid couple-session deposit. Idempotent: only the first paid
+ *  event sticks (COALESCE), so Stripe re-delivering the webhook is safe.
+ *  Returns true when this call is the one that recorded the payment (the
+ *  row had no prior deposit), so the caller can notify exactly once. */
+export async function markSessionDepositPaid(
+  quoteId: number,
+  opts: { depositCents: number; totalCents: number; stripeId: string },
+): Promise<boolean> {
+  await initSchema();
+  const before = await getQuoteById(quoteId);
+  if (!before || before.sessionDepositPaidAt) return false;
+  const now = new Date().toISOString();
+  await db.execute({
+    sql: `UPDATE quotes
+          SET session_deposit_paid_at = COALESCE(session_deposit_paid_at, ?),
+              session_deposit_cents = COALESCE(session_deposit_cents, ?),
+              session_deposit_total_cents = COALESCE(session_deposit_total_cents, ?),
+              session_deposit_stripe_id = COALESCE(session_deposit_stripe_id, ?)
+          WHERE id = ?`,
+    args: [now, opts.depositCents, opts.totalCents, opts.stripeId, quoteId],
+  });
+  return true;
 }
 
 export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
