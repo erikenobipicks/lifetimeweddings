@@ -27,7 +27,8 @@ import { issueDepositInvoiceForBooking } from '~/lib/bookings/invoicing';
 import { sendContratoInvite } from '~/lib/bookings/emails';
 import { materialiseSchedulesForBooking } from '~/lib/bookings/sequences';
 import { getDeliveryById, setDeliveryBalancePaid } from '~/lib/deliveries';
-import { sendTelegramNotification } from '~/lib/email';
+import { getQuoteById, markSessionDepositPaid } from '~/lib/quotes';
+import { sendNotification, sendTelegramNotification } from '~/lib/email';
 import { formatEuros } from '~/lib/payments/money';
 
 export const POST: APIRoute = async ({ request }) => {
@@ -55,12 +56,57 @@ export const POST: APIRoute = async ({ request }) => {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as {
+      id?: string;
+      amount_total?: number | null;
       payment_status?: string;
       client_reference_id?: string | null;
-      metadata?: { bookingId?: string; deliveryId?: string; slug?: string; kind?: string } | null;
+      metadata?: { bookingId?: string; deliveryId?: string; quoteId?: string; slug?: string; token?: string; kind?: string; totalCents?: string } | null;
     };
 
     const paid = session.payment_status === 'paid' || session.payment_status === undefined;
+
+    // Couple-session deposit: lightweight — record it on the quote + ping Eric.
+    // No booking, no contract, no auto-invoice.
+    if (session.metadata?.kind === 'session_deposit' && paid) {
+      const quoteId = Number(session.metadata?.quoteId || session.client_reference_id || 0);
+      const quote = quoteId ? await getQuoteById(quoteId) : null;
+      if (quote && !quote.sessionDepositPaidAt) {
+        const depositCents = typeof session.amount_total === 'number' ? session.amount_total : 0;
+        const totalCents = Number(session.metadata?.totalCents ?? 0);
+        const recorded = await markSessionDepositPaid(quote.id, {
+          depositCents,
+          totalCents,
+          stripeId: session.id ?? '',
+        });
+        if (recorded) {
+          const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          const amount = depositCents ? formatEuros(depositCents) : '';
+          try {
+            await sendTelegramNotification(
+              `📸 <b>Reserva de sessió pagada</b>\n` +
+                `${esc(quote.coupleName)}` +
+                (amount ? ` — dipòsit <b>${esc(amount)}</b>` : '') +
+                (totalCents ? ` (total ${esc(formatEuros(totalCents))})` : '') +
+                `\nPressupost: /admin/${quote.id}`,
+            );
+          } catch (err) {
+            console.error('[stripe-webhook] session-deposit telegram failed (non-fatal)', err);
+          }
+          try {
+            await sendNotification({
+              subject: `📸 ${quote.coupleName} han reservat la sessió (dipòsit ${amount})`,
+              html:
+                `<p><strong>${esc(quote.coupleName)}</strong> han pagat el dipòsit del 50% de la seva sessió de parella.</p>` +
+                (amount ? `<p>Dipòsit: <strong>${esc(amount)}</strong>${totalCents ? ` · Total: ${esc(formatEuros(totalCents))}` : ''}</p>` : '') +
+                `<p><a href="${(process.env.PUBLIC_SITE_URL ?? '')}/admin/${quote.id}">Revisa-ho a l'admin →</a></p>`,
+            });
+          } catch (err) {
+            console.error('[stripe-webhook] session-deposit email failed (non-fatal)', err);
+          }
+          console.log('[stripe-webhook] session deposit marked paid for quote', quote.id);
+        }
+      }
+    }
 
     // Delivery pending-balance sessions: just record the payment + ping
     // Telegram. No auto-invoice — Eric issues the FacturaDirecta invoice

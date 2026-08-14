@@ -536,6 +536,14 @@ export async function initSchema() {
   // domain layer (see rowToQuote / rowToLead) so old proposals still render.
   await ensureColumn('quotes', 'preferred_language', 'TEXT');
   await ensureColumn('leads', 'preferred_language', 'TEXT');
+  // Couple-session lightweight deposit (Phase 2): a 50% online deposit paid
+  // straight from /p (no booking, no contract). Recorded on the quote so the
+  // page shows "reserved" and the admin can see it. All nullable — only set
+  // on a session quote whose couple actually paid.
+  await ensureColumn('quotes', 'session_deposit_cents', 'INTEGER');
+  await ensureColumn('quotes', 'session_deposit_total_cents', 'INTEGER');
+  await ensureColumn('quotes', 'session_deposit_paid_at', 'TEXT');
+  await ensureColumn('quotes', 'session_deposit_stripe_id', 'TEXT');
   // Free-text venue / finca the couple typed in the quiz. Distinct from
   // `location` (which is the broad region: tarragona / barcelona / …) so
   // we can keep both — region for pack recommendation, venue for the
