@@ -3,6 +3,17 @@ import type { Lang } from '~/i18n/ui';
 export type PackType = 'photo' | 'video' | 'combo';
 
 /**
+ * Which offering a pack/extra belongs to. Keeps the standalone "Sesión de
+ * pareja" catalogue separate from the wedding catalogue so session packs
+ * never leak onto the public wedding pages or into a wedding quote's picker,
+ * while still living in the same `PACKS` array so price/id lookups (pricing,
+ * respond, PDF, contracts) resolve every id uniformly.
+ *   - 'wedding' → the default. Everything that isn't a couple session.
+ *   - 'session' → standalone couple photo session (not a wedding).
+ */
+export type PackContext = 'wedding' | 'session';
+
+/**
  * Visual priority on the /packs page.
  *   - 'star'          → strong highlight, only ONE pack should use this.
  *   - 'picked-photo'  → subtle "most picked in photography" label.
@@ -14,6 +25,8 @@ export type PackHighlight = 'star' | 'picked-photo' | 'picked-video';
 export interface Pack {
   id: string;
   type: PackType;
+  /** Offering this pack belongs to. Defaults to 'wedding' when omitted. */
+  context?: PackContext;
   name: Record<Lang, string>;
   /** Functional, plain-language subtitle shown as the prominent label on
    *  the quote page, with `name` demoted to a small italic kicker above
@@ -41,6 +54,8 @@ export interface Pack {
  *  and on /admin/new so the team has the list at hand while quoting. */
 export interface PackExtra {
   id: string;
+  /** Offering this add-on belongs to. Defaults to 'wedding' when omitted. */
+  context?: PackContext;
   name: Record<Lang, string>;
   /** Formatted price string, IVA included. */
   price: string;
@@ -425,6 +440,84 @@ export const PACKS: Pack[] = [
       ],
     },
   },
+
+  // ─── COUPLE SESSION (standalone — NOT a wedding) ───────────────────────
+  // A relaxed outdoor couple shoot, not tied to a wedding. Mostly requested
+  // by (often English-speaking) couples passing through. Kept `context:
+  // 'session'` so it stays out of the public wedding catalogue and out of a
+  // wedding quote's picker — surfaced only on a session-mode /p proposal.
+  {
+    id: 'sessio-parella',
+    type: 'photo',
+    context: 'session',
+    name: {
+      es: 'Sesión de pareja',
+      ca: 'Sessió de parella',
+      en: 'Couple session',
+    },
+    subtitle: {
+      es: 'Fotografía · Sesión exterior de 1 hora',
+      ca: 'Fotografia · Sessió exterior d’1 hora',
+      en: 'Photography · 1-hour outdoor session',
+    },
+    price: '300 €',
+    includes: {
+      es: [
+        'Sesión de 1 hora en exterior, al atardecer',
+        'Localización a 15–20 min de Reus / Tarragona',
+        'Galería online privada con TODAS las fotos en alta resolución',
+        'Sin marca de agua',
+      ],
+      ca: [
+        'Sessió d’1 hora a l’exterior, a la posta de sol',
+        'Localització a 15–20 min de Reus / Tarragona',
+        'Galeria online privada amb TOTES les fotos en alta resolució',
+        'Sense marca d’aigua',
+      ],
+      en: [
+        '1-hour outdoor session at golden hour',
+        'Location within 15–20 min of Reus / Tarragona',
+        'Private online gallery with ALL the photos in high resolution',
+        'No watermark',
+      ],
+    },
+  },
+  {
+    id: 'sessio-parella-foto-video',
+    type: 'combo',
+    context: 'session',
+    name: {
+      es: 'Sesión de pareja · Foto & Vídeo',
+      ca: 'Sessió de parella · Foto i Vídeo',
+      en: 'Couple session · Photo & Film',
+    },
+    subtitle: {
+      es: 'Foto + Vídeo · Sesión de 2 horas',
+      ca: 'Foto + Vídeo · Sessió de 2 hores',
+      en: 'Photo + Film · 2-hour session',
+    },
+    price: '750 €',
+    includes: {
+      es: [
+        'Sesión de 2 horas en exterior, al atardecer',
+        'Foto + vídeo de la pareja en un solo equipo',
+        'Galería online privada con todas las fotos en alta resolución',
+        'Vídeo editado de la sesión',
+      ],
+      ca: [
+        'Sessió de 2 hores a l’exterior, a la posta de sol',
+        'Foto + vídeo de la parella en un sol equip',
+        'Galeria online privada amb totes les fotos en alta resolució',
+        'Vídeo editat de la sessió',
+      ],
+      en: [
+        '2-hour outdoor session at golden hour',
+        'Photo + film of the couple as one crew',
+        'Private online gallery with all the photos in high resolution',
+        'Edited film of the session',
+      ],
+    },
+  },
 ];
 
 /** Resolve the composedOf chain to the actual sub-packs, in the order
@@ -465,6 +558,18 @@ const OWN_EXTRAS_RAW: PackExtra[] = [
       en: 'Additional professional second photographer',
     },
     price: '425 €',
+  },
+  {
+    // Couple-session add-on (context: 'session'): a second hour on top of the
+    // base 1-hour couple session. Only surfaced on a session-mode proposal.
+    id: 'extra-sessio-hora',
+    context: 'session',
+    name: {
+      ca: 'Hora extra de sessió',
+      es: 'Hora extra de sesión',
+      en: 'Extra session hour',
+    },
+    price: '100 €',
   },
   {
     id: 'extra-preboda-photo',
@@ -786,3 +891,16 @@ export const EXTERNAL_EXTRAS: PackExtra[] = EXTERNAL_EXTRAS_RAW.map((e) => ({ ..
 /** All add-ons, own first then external. Preserves the previous ordering so
  *  every existing consumer (pricing, respond API, booking form) is unaffected. */
 export const EXTRAS: PackExtra[] = [...OWN_EXTRAS, ...EXTERNAL_EXTRAS];
+
+// ─── Context helpers ─────────────────────────────────────────────────────
+/** Offering a pack/extra belongs to (defaults to 'wedding' when unset). */
+export function contextOf(item: { context?: PackContext }): PackContext {
+  return item.context ?? 'wedding';
+}
+/** Wedding-catalogue packs — the default surface (public /packs, wedding
+ *  quotes). Excludes standalone session packs. */
+export const WEDDING_PACKS: Pack[] = PACKS.filter((p) => contextOf(p) === 'wedding');
+/** Standalone couple-session packs. */
+export const SESSION_PACKS: Pack[] = PACKS.filter((p) => contextOf(p) === 'session');
+/** Own add-ons for the couple session (e.g. the extra hour). */
+export const SESSION_EXTRAS: PackExtra[] = OWN_EXTRAS.filter((e) => contextOf(e) === 'session');

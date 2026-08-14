@@ -1,7 +1,7 @@
 ---
 import Section from './Section.astro';
 import Icon from './Icon.astro';
-import { PACKS, type PackType, type Pack } from '~/data/packs';
+import { WEDDING_PACKS, type PackType, type Pack } from '~/data/packs';
 import { useTranslations, localePath, type Lang } from '~/i18n/ui';
 import { waLink } from '~/data/site';
 
@@ -38,7 +38,7 @@ function smallLabelFor(p: Pack): string | null {
 
 <!-- Grups de packs -->
 {groups.map((g, gi) => {
-  const items = PACKS.filter((p) => p.type === g.type);
+  const items = WEDDING_PACKS.filter((p) => p.type === g.type);
   return (
     <Section bg={gi % 2 === 0 ? 'white' : 'cream'}>
       <div class="max-w-6xl mx-auto">
