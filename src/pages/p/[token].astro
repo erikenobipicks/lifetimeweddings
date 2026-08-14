@@ -6,7 +6,7 @@ import WhatsAppFloat from '~/components/WhatsAppFloat.astro';
 import VideoEmbed from '~/components/reserva/VideoEmbed.astro';
 import VideoCallCTA from '~/components/reserva/VideoCallCTA.astro';
 import { getQuoteByToken, recordView, verifyQuotePassword, getLeadByQuoteId, getLatestQuoteResponse } from '~/lib/quotes';
-import { PACKS, getComposedSubpacks } from '~/data/packs';
+import { PACKS, getComposedSubpacks, contextOf } from '~/data/packs';
 import { QUOTE_TESTIMONIALS } from '~/data/quoteTestimonials';
 import { SHOWCASES } from '~/data/showcases';
 import { WEDDINGS } from '~/data/weddings';
@@ -15,6 +15,7 @@ import ExternalGalleryEmbed from '~/components/quote/ExternalGalleryEmbed.astro'
 import InteractiveConfigurator from '~/components/quote/InteractiveConfigurator.astro';
 import ProposalOptions from '~/components/quote/ProposalOptions.astro';
 import AtmosphericPhoto from '~/components/quote/AtmosphericPhoto.astro';
+import SessionGallery from '~/components/quote/SessionGallery.astro';
 import { SITE, waLink } from '~/data/site';
 import Icon from '~/components/Icon.astro';
 import { videos } from '~/data/videos';
@@ -81,6 +82,13 @@ if (quote && !quote.archived && !expired && !needsPassword) {
 }
 
 const packs = quote ? PACKS.filter((p) => quote.packIds.includes(p.id)) : [];
+
+// Session mode: the quote's packs are all standalone couple-session packs
+// (context 'session'). Drives a lighter, non-wedding rendering of this same
+// page — no venue/date hero, no real-wedding/showcase proof, no wedding FAQ
+// or "one wedding a day" scarcity; instead a couple-session sample gallery
+// and the weekday/golden-hour pricing note.
+const isSession = packs.length > 0 && packs.every((p) => contextOf(p) === 'session');
 
 // Latest interactive configurator submission, if any. Drives the
 // "we've already received your configuration" banner + pre-checks the
@@ -293,10 +301,10 @@ const offerActive: boolean = (() => {
             <img src="/logos/logo-circle-white.png" alt="" aria-hidden="true" class="w-24 mx-auto mb-6 opacity-95" />
             <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold mb-3">{t('quote.hero.eyebrow')}</p>
             <h1 class="font-display text-4xl md:text-5xl font-bold mb-4">{quote.coupleName}</h1>
-            {heroDetail ? (
+            {!isSession && heroDetail ? (
               <p class="text-sm md:text-base font-medium tracking-wide text-white/90 mb-4">{heroDetail}</p>
             ) : null}
-            <p class="max-w-xl mx-auto opacity-90">{t('quote.hero.body')}</p>
+            <p class="max-w-xl mx-auto opacity-90">{isSession ? t('quote.session.hero.body') : t('quote.hero.body')}</p>
           </div>
         </section>
 
@@ -392,7 +400,10 @@ const offerActive: boolean = (() => {
 
         <!-- Flagship trailer first — let the couple feel the work in
              motion before they see a number. Tagged data-service="video"
-             so photo-only couples skip it via the global filter. -->
+             so photo-only couples skip it via the global filter. In session
+             mode we only show a video when the operator picked one (no
+             default wedding trailer on a couple-session proposal). -->
+        {(!isSession || quote.flagshipVideoId) && (
         <div data-service="video">
           <VideoEmbed
             lang={lang}
@@ -401,11 +412,16 @@ const offerActive: boolean = (() => {
             venue={flagshipVideo.venue}
           />
         </div>
+        )}
+
+        {/* Session sample gallery — replaces the wedding proof blocks on a
+            couple-session proposal so the couple sees the shoot's style. */}
+        {isSession && <SessionGallery lang={lang} />}
 
         {/* Real-wedding override — most personal proof, shown right after
             the film. Takes priority over showcase. Links to the full
             case-study at /bodas/<slug>. */}
-        {weddingFeatured && (
+        {!isSession && weddingFeatured && (
           <Section>
             <div class="max-w-2xl mx-auto text-center">
               <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold-deep mb-3">{t('quote.showcase.eyebrow')}</p>
@@ -422,7 +438,7 @@ const offerActive: boolean = (() => {
         )}
 
         {/* Showcase link */}
-        {showcase && (
+        {!isSession && showcase && (
           <Section>
             <div class="max-w-2xl mx-auto text-center">
               <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold-deep mb-3">{t('quote.showcase.eyebrow')}</p>
@@ -612,11 +628,26 @@ const offerActive: boolean = (() => {
             serviceInterest={quote.serviceInterest}
             validUntilText={validUntilText}
             customLines={quote.customLines}
+            packContext={isSession ? 'session' : 'wedding'}
           />
         )}
 
+        {/* Session pricing caveat (weekday / golden-hour / travel). Shown only
+            on a couple-session proposal, in place of the wedding FAQ. */}
+        {isSession && (
+          <Section bg="cream">
+            <div class="max-w-2xl mx-auto">
+              <p class="text-sm text-ink/70 leading-relaxed text-center whitespace-pre-line border border-line bg-white p-6">
+                {t('quote.session.note')}
+              </p>
+            </div>
+          </Section>
+        )}
+
         <!-- FAQ. Mirrors the two FAQ pages in the tarifes PDF so couples get
-             the most common answers without having to ask us by email. -->
+             the most common answers without having to ask us by email.
+             Wedding-only — the questions are wedding-specific. -->
+        {!isSession && (
         <Section bg="cream">
           <div class="max-w-2xl mx-auto">
             <h2 class="font-display text-2xl md:text-3xl font-bold text-center mb-8">{t('quote.faq.heading')}</h2>
@@ -633,6 +664,7 @@ const offerActive: boolean = (() => {
             </div>
           </div>
         </Section>
+        )}
 
         {/* Single closing block — videocall (primary) + WhatsApp + email,
             personalised with the couple's name. Replaces the old duplicate
@@ -642,7 +674,7 @@ const offerActive: boolean = (() => {
           coupleName={quote.coupleName}
           whatsappLink={waForVideocall()}
           emailHref={`mailto:${SITE.email}`}
-          scarcityNote={scarcityNote}
+          scarcityNote={isSession ? null : scarcityNote}
         />
 
         <footer class="bg-ink text-white/60 py-6 text-center text-xs border-t border-white/10">
