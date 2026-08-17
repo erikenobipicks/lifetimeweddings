@@ -186,6 +186,12 @@ const recommendedPackIds: string[] = lead
       budgetRange: lead.budgetRange ?? 'mid',
     })
   : [];
+// A pack is a single choice (you pick ONE per option); only extras stack on
+// top. So the composer pre-selects a single pack — the option's existing pack
+// when editing, else the first recommendation. Alternatives (Opció A/B) are
+// separate options, added one at a time.
+const preselectedPackId: string | null =
+  editOption?.packIds[0] ?? recommendedPackIds[0] ?? null;
 
 const LABELS: Record<string, string> = {
   tarragona: 'Tarragona/Reus', barcelona: 'Barcelona', lleida: 'Lleida/Girona',
@@ -346,16 +352,16 @@ const LABELS: Record<string, string> = {
     )}
 
     <div>
-      <p class="text-xs font-bold tracking-widest uppercase mb-3">Packs a mostrar *</p>
-      <p class="text-[0.7rem] text-ink/70 mb-3 -mt-2">Clica el ▾ per veure el detall que veurà la parella al pressupost.</p>
+      <p class="text-xs font-bold tracking-widest uppercase mb-3">Pack (tria'n un) *</p>
+      <p class="text-[0.7rem] text-ink/70 mb-3 -mt-2">Un pack per opció — els packs no se sumen. Per oferir alternatives (Opció A/B), fes servir «➕ Afegir una opció». Els extres sí que se sumen. Clica el ▾ per veure el detall.</p>
       <div class="space-y-2">
         {PACKS.map((p) => {
           const subpacks = getComposedSubpacks(p);
           return (
             <details class="border border-line bg-white open:border-gold/40">
               <summary class="cursor-pointer list-none flex items-start gap-3 p-3 hover:bg-cream">
-                <input type="checkbox" name="packs" value={p.id}
-                       checked={editOption ? editOption.packIds.includes(p.id) : recommendedPackIds.includes(p.id)}
+                <input type="radio" name="packs" value={p.id}
+                       checked={preselectedPackId === p.id}
                        onclick="event.stopPropagation()"
                        class="mt-1 accent-gold" />
                 <span class="flex-1">
