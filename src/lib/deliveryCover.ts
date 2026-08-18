@@ -23,7 +23,9 @@ export async function resizeCoverImage(input: Uint8Array | Buffer): Promise<Resi
   const out = await sharp(input)
     .rotate() // apply EXIF orientation, then drop it
     .resize({ width: MAX_WIDTH, withoutEnlargement: true })
-    .jpeg({ quality: 72, progressive: true, mozjpeg: true })
+    // quality 80 (a touch above photo-default) keeps overlaid text — these
+    // covers are pre-designed graphics with a script name on them — crisp.
+    .jpeg({ quality: 80, progressive: true, mozjpeg: true })
     .toBuffer();
   return { image: new Uint8Array(out), mime: 'image/jpeg' };
 }
