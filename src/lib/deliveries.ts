@@ -344,3 +344,99 @@ export async function deleteDelivery(id: string): Promise<void> {
   await initSchema();
   await db.execute({ sql: 'DELETE FROM deliveries WHERE id = ?', args: [id] });
 }
+
+// ─── Change requests / revisions ────────────────────────────────────────────
+// The couple submits a list of tweaks from /entrega/<slug> (typically for the
+// video). One row per item so the admin can tick each off; `batchId` groups
+// the items sent together (one "round"). No rounds limit — Eric manages them.
+
+export type RevisionStatus = 'pending' | 'done';
+
+export interface DeliveryRevision {
+  id: string;
+  deliveryId: string;
+  batchId: string;
+  text: string;
+  timecode: string | null;
+  status: RevisionStatus;
+  createdAt: Date;
+  doneAt: Date | null;
+}
+
+function rowToRevision(r: Record<string, unknown>): DeliveryRevision {
+  return {
+    id: String(r.id),
+    deliveryId: String(r.delivery_id),
+    batchId: String(r.batch_id),
+    text: String(r.text),
+    timecode: r.timecode ? String(r.timecode) : null,
+    status: (r.status === 'done' ? 'done' : 'pending'),
+    createdAt: fromIso(r.created_at) ?? new Date(),
+    doneAt: fromIso(r.done_at),
+  };
+}
+
+export interface RevisionItemInput {
+  text: string;
+  timecode?: string | null;
+}
+
+/** Insert a batch of change-request items for a delivery. All items of one
+ *  submission share a `batchId`. Returns the number of items stored. */
+export async function createDeliveryRevisions(
+  deliveryId: string,
+  items: RevisionItemInput[],
+  meta: { ipAddress?: string | null; userAgent?: string | null } = {},
+): Promise<number> {
+  await initSchema();
+  const clean = items
+    .map((it) => ({ text: (it.text ?? '').trim(), timecode: (it.timecode ?? '').toString().trim() }))
+    .filter((it) => it.text.length > 0);
+  if (clean.length === 0) return 0;
+  const batchId = randomUUID();
+  const now = nowIso();
+  await db.batch(
+    clean.map((it) => ({
+      sql: `INSERT INTO delivery_revisions
+              (id, delivery_id, batch_id, text, timecode, status, created_at, ip_address, user_agent)
+            VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
+      args: [
+        randomUUID(),
+        deliveryId,
+        batchId,
+        it.text.slice(0, 1000),
+        it.timecode ? it.timecode.slice(0, 40) : null,
+        now,
+        meta.ipAddress ?? null,
+        meta.userAgent ?? null,
+      ],
+    })),
+    'write',
+  );
+  return clean.length;
+}
+
+/** All revision items for a delivery, newest batch first (then original order
+ *  within a batch). */
+export async function listDeliveryRevisions(deliveryId: string): Promise<DeliveryRevision[]> {
+  await initSchema();
+  const res = await db.execute({
+    sql: 'SELECT * FROM delivery_revisions WHERE delivery_id = ? ORDER BY created_at DESC, rowid ASC',
+    args: [deliveryId],
+  });
+  return res.rows.map((r) => rowToRevision(r as unknown as Record<string, unknown>));
+}
+
+/** Toggle one revision item's status. Scoped by deliveryId so an admin action
+ *  can't flip an item on another delivery by guessing its id. */
+export async function setDeliveryRevisionStatus(
+  id: string,
+  deliveryId: string,
+  status: RevisionStatus,
+): Promise<void> {
+  await initSchema();
+  await db.execute({
+    sql: 'UPDATE delivery_revisions SET status = ?, done_at = ? WHERE id = ? AND delivery_id = ?',
+    args: [status, status === 'done' ? nowIso() : null, id, deliveryId],
+  });
+}
