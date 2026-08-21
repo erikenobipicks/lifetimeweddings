@@ -1,0 +1,176 @@
+---
+// "Sol·licitar canvis" section on /entrega/<slug>. The couple lists the
+// tweaks they'd like (typically for the video), each an item with an optional
+// timecode, and sends them — a POST to /api/entrega/revisions records each
+// item and pings Eric. Self-contained: inline copy + a vanilla-JS handler.
+import { type Lang } from '~/i18n/ui';
+
+interface Props { lang: Lang; slug: string }
+const { lang, slug } = Astro.props;
+
+const TX = {
+  ca: {
+    eyebrow: 'Voleu ajustar alguna cosa?',
+    heading: 'Demaneu canvis',
+    body: 'Si voleu que retoquem alguna cosa (del vídeo o del que sigui), apunteu-ho aquí. Podeu afegir un moment concret (min:seg) perquè el trobem de seguida.',
+    itemPlaceholder: 'Què voleu canviar…',
+    timePlaceholder: 'min:seg (opcional)',
+    add: '+ Afegir un altre canvi',
+    submit: 'Enviar els canvis',
+    sending: 'Enviant…',
+    success: 'Rebut! Ens hi posem i us escrivim de seguida.',
+    error: 'No s\'ha pogut enviar. Torneu-ho a provar o escriviu-nos.',
+    empty: 'Escriviu almenys un canvi.',
+  },
+  es: {
+    eyebrow: '¿Queréis ajustar algo?',
+    heading: 'Pedid cambios',
+    body: 'Si queréis que retoquemos algo (del vídeo o de lo que sea), apuntadlo aquí. Podéis añadir un momento concreto (min:seg) para que lo encontremos enseguida.',
+    itemPlaceholder: 'Qué queréis cambiar…',
+    timePlaceholder: 'min:seg (opcional)',
+    add: '+ Añadir otro cambio',
+    submit: 'Enviar los cambios',
+    sending: 'Enviando…',
+    success: '¡Recibido! Nos ponemos y os escribimos enseguida.',
+    error: 'No se ha podido enviar. Probad de nuevo o escribidnos.',
+    empty: 'Escribid al menos un cambio.',
+  },
+  en: {
+    eyebrow: 'Want to tweak something?',
+    heading: 'Request changes',
+    body: 'If you\'d like us to adjust anything (in the film or otherwise), list it here. You can add a timestamp (min:sec) so we find it right away.',
+    itemPlaceholder: 'What you\'d like to change…',
+    timePlaceholder: 'min:sec (optional)',
+    add: '+ Add another change',
+    submit: 'Send the changes',
+    sending: 'Sending…',
+    success: 'Got it! We\'re on it and will write to you shortly.',
+    error: 'Could not send. Please try again or message us.',
+    empty: 'Write at least one change.',
+  },
+}[lang];
+---
+
+<section class="px-6 md:px-12 py-16 md:py-20 bg-white text-ink">
+  <div class="max-w-2xl mx-auto">
+    <div class="text-center mb-8">
+      <p class="text-xs font-bold tracking-[0.22em] uppercase text-gold-deep mb-3">{TX.eyebrow}</p>
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-3">{TX.heading}</h2>
+      <p class="text-ink/75 leading-relaxed">{TX.body}</p>
+    </div>
+
+    <form id="rev-form" data-slug={slug} class="space-y-3">
+      <div id="rev-rows" class="space-y-3">
+        <div class="rev-row flex gap-2">
+          <input
+            type="text"
+            class="rev-text flex-1 px-3 py-2.5 border border-line focus:border-gold focus:outline-none bg-white"
+            maxlength="1000"
+            placeholder={TX.itemPlaceholder}
+          />
+          <input
+            type="text"
+            class="rev-time w-28 md:w-32 px-3 py-2.5 border border-line focus:border-gold focus:outline-none bg-white text-sm"
+            maxlength="40"
+            placeholder={TX.timePlaceholder}
+          />
+        </div>
+      </div>
+
+      <button
+        type="button"
+        id="rev-add"
+        class="text-xs font-bold tracking-[0.14em] uppercase text-gold-deep hover:underline"
+      >
+        {TX.add}
+      </button>
+
+      <div id="rev-feedback" hidden class="p-4 border-l-4 text-sm"></div>
+
+      <button
+        type="submit"
+        id="rev-submit"
+        class="w-full bg-ink text-white py-4 text-xs font-bold tracking-[0.18em] uppercase hover:bg-gold hover:text-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {TX.submit}
+      </button>
+    </form>
+  </div>
+</section>
+
+<script
+  is:inline
+  define:vars={{
+    sendingLabel: TX.sending,
+    submitLabel: TX.submit,
+    successMsg: TX.success,
+    errorMsg: TX.error,
+    emptyMsg: TX.empty,
+    itemPlaceholder: TX.itemPlaceholder,
+    timePlaceholder: TX.timePlaceholder,
+  }}
+>
+  (() => {
+    const form = document.getElementById('rev-form');
+    if (!form) return;
+    const rows = document.getElementById('rev-rows');
+    const addBtn = document.getElementById('rev-add');
+    const submitBtn = document.getElementById('rev-submit');
+    const feedback = document.getElementById('rev-feedback');
+
+    function showFeedback(msg, ok) {
+      if (!feedback) return;
+      feedback.hidden = false;
+      feedback.style.borderColor = ok ? '#c9a96e' : '#dc2626';
+      feedback.style.background = ok ? '#fdf9f0' : '#fef2f2';
+      feedback.style.color = ok ? '#1a1a1a' : '#991b1b';
+      feedback.textContent = msg;
+    }
+
+    if (addBtn && rows) {
+      addBtn.addEventListener('click', () => {
+        const row = document.createElement('div');
+        row.className = 'rev-row flex gap-2';
+        row.innerHTML =
+          '<input type="text" class="rev-text flex-1 px-3 py-2.5 border border-line focus:border-gold focus:outline-none bg-white" maxlength="1000" placeholder="' + itemPlaceholder + '">' +
+          '<input type="text" class="rev-time w-28 md:w-32 px-3 py-2.5 border border-line focus:border-gold focus:outline-none bg-white text-sm" maxlength="40" placeholder="' + timePlaceholder + '">';
+        rows.appendChild(row);
+        const input = row.querySelector('.rev-text');
+        if (input) input.focus();
+      });
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const items = [];
+      form.querySelectorAll('.rev-row').forEach((row) => {
+        const text = (row.querySelector('.rev-text')?.value ?? '').trim();
+        const timecode = (row.querySelector('.rev-time')?.value ?? '').trim();
+        if (text) items.push({ text, timecode: timecode || undefined });
+      });
+      if (items.length === 0) { showFeedback(emptyMsg, false); return; }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = sendingLabel;
+      if (feedback) feedback.hidden = true;
+
+      try {
+        const res = await fetch('/api/entrega/revisions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug: form.dataset.slug, items }),
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        showFeedback(successMsg, true);
+        submitBtn.textContent = '✓';
+        if (addBtn) addBtn.style.display = 'none';
+        form.querySelectorAll('input').forEach((i) => { i.disabled = true; });
+      } catch (err) {
+        console.error('[entrega-revisions] submit failed', err);
+        showFeedback(errorMsg, false);
+        submitBtn.disabled = false;
+        submitBtn.textContent = submitLabel;
+      }
+    });
+  })();
+</script>

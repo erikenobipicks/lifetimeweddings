@@ -22,6 +22,7 @@ import { formatWeddingDateLong, formatExpiresShort } from '~/lib/bookings/format
 import VideoEmbed from '~/components/reserva/VideoEmbed.astro';
 import ExternalGalleryEmbed from '~/components/quote/ExternalGalleryEmbed.astro';
 import BalancePayment from '~/components/entrega/BalancePayment.astro';
+import RevisionRequest from '~/components/entrega/RevisionRequest.astro';
 import Flourish from '~/components/entrega/Flourish.astro';
 
 const slug = Astro.params.slug!;
@@ -260,6 +261,12 @@ const title = delivery ? `${TX.heading(delivery.coupleName1, delivery.coupleName
             ? `/api/entrega/cover/${slug}?v=${delivery!.updatedAt.getTime()}`
             : undefined}
         />
+      )}
+
+      {/* Change requests — the couple can list tweaks (typically for the
+          video). Shown whenever there's a video to tweak. */}
+      {(delivery!.youtubeVideoId || delivery!.trailerYoutubeId) && (
+        <RevisionRequest lang={lang} slug={slug} />
       )}
 
       {hasBalance && (

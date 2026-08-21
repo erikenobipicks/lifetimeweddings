@@ -15,6 +15,7 @@ import {
   clearDeliveryBalancePaid,
   setDeliveryGalleryCover,
   clearDeliveryGalleryCover,
+  setDeliveryRevisionStatus,
 } from '~/lib/deliveries';
 import { eurosStringToCents } from '~/lib/payments/money';
 import { issueBalanceInvoiceForDelivery } from '~/lib/deliveryInvoicing';
@@ -79,6 +80,14 @@ export const POST: APIRoute = async ({ request, params, cookies, redirect }) => 
       return back(`?ok=invoice_issued${res.number ? `&num=${encodeURIComponent(res.number)}` : ''}`);
     }
     return back(`?error=${encodeURIComponent(`No s'ha pogut crear la factura (${res.reason}).`)}`);
+  }
+
+  // Change requests: tick an item done / back to pending.
+  if (action === 'revision-status') {
+    const revisionId = String(form.get('revisionId') ?? '');
+    const status = String(form.get('status') ?? '') === 'done' ? 'done' : 'pending';
+    if (revisionId) await setDeliveryRevisionStatus(revisionId, id, status);
+    return back('?ok=revision_updated#canvis');
   }
 
   // Default: field update.

@@ -386,6 +386,25 @@ export async function initSchema() {
         updated_at TEXT NOT NULL
       )`,
 
+      // Change requests the couple submits from /entrega/<slug> ("please tweak
+      // the video"). One row per individual item so the admin can tick each
+      // off; `batch_id` groups the items of a single submission (one "round").
+      // CASCADE so they're cleaned up with the delivery.
+      `CREATE TABLE IF NOT EXISTS delivery_revisions (
+        id TEXT PRIMARY KEY,
+        delivery_id TEXT NOT NULL REFERENCES deliveries(id) ON DELETE CASCADE,
+        batch_id TEXT NOT NULL,
+        text TEXT NOT NULL,
+        timecode TEXT,
+        status TEXT NOT NULL DEFAULT 'pending'
+          CHECK (status IN ('pending', 'done')),
+        created_at TEXT NOT NULL,
+        done_at TEXT,
+        ip_address TEXT,
+        user_agent TEXT
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_delivery_revisions_delivery ON delivery_revisions(delivery_id)`,
+
       // Video-only collaboration landings ("/videograf/<slug>"). Each row is a
       // private link Eric sends to a photographer who offers him as their
       // videographer: language, whether to show the video packs + quote, which
